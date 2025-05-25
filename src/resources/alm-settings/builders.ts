@@ -1,3 +1,4 @@
+import { BaseBuilder, isRequired, validateRequired, validateOAuth } from '../../core/builders';
 import type {
   CreateGitHubRequest,
   UpdateGitHubRequest,
@@ -11,58 +12,9 @@ import type {
 } from './types';
 
 /**
- * Validation utilities
- */
-function isRequired(value: unknown): value is string {
-  return typeof value === 'string' && value !== '';
-}
-
-function validateRequired(value: unknown, fieldName: string): void {
-  if (!isRequired(value)) {
-    throw new Error(`${fieldName} is required`);
-  }
-}
-
-function validateOAuth(clientId: unknown, clientSecret: unknown, providerName = 'OAuth'): void {
-  if (!isRequired(clientId) || !isRequired(clientSecret)) {
-    throw new Error(`${providerName} client ID and secret are required`);
-  }
-}
-
-/**
- * Base builder for ALM settings operations
- */
-abstract class BaseAlmBuilder<TRequest> {
-  protected params: Partial<TRequest> = {};
-
-  constructor(protected executor: (params: TRequest) => Promise<void>) {}
-
-  /**
-   * Set a parameter value
-   */
-  protected setParam<K extends keyof TRequest>(key: K, value: TRequest[K]): this {
-    this.params[key] = value;
-    return this;
-  }
-
-  /**
-   * Set multiple parameters
-   */
-  protected setParams(params: Partial<TRequest>): this {
-    Object.assign(this.params, params);
-    return this;
-  }
-
-  /**
-   * Execute the operation
-   */
-  abstract execute(): Promise<void>;
-}
-
-/**
  * Builder for creating GitHub ALM settings
  */
-export class CreateGitHubBuilder extends BaseAlmBuilder<CreateGitHubRequest> {
+export class CreateGitHubBuilder extends BaseBuilder<CreateGitHubRequest> {
   constructor(executor: (params: CreateGitHubRequest) => Promise<void>, key: string) {
     super(executor);
     this.setParam('key', key);
@@ -116,7 +68,7 @@ export class CreateGitHubBuilder extends BaseAlmBuilder<CreateGitHubRequest> {
 /**
  * Builder for updating GitHub ALM settings
  */
-export class UpdateGitHubBuilder extends BaseAlmBuilder<UpdateGitHubRequest> {
+export class UpdateGitHubBuilder extends BaseBuilder<UpdateGitHubRequest> {
   constructor(executor: (params: UpdateGitHubRequest) => Promise<void>, key: string) {
     super(executor);
     this.setParam('key', key);
@@ -172,7 +124,7 @@ export class UpdateGitHubBuilder extends BaseAlmBuilder<UpdateGitHubRequest> {
 /**
  * Builder for creating Bitbucket Cloud ALM settings
  */
-export class CreateBitbucketCloudBuilder extends BaseAlmBuilder<CreateBitbucketCloudRequest> {
+export class CreateBitbucketCloudBuilder extends BaseBuilder<CreateBitbucketCloudRequest> {
   constructor(executor: (params: CreateBitbucketCloudRequest) => Promise<void>, key: string) {
     super(executor);
     this.setParam('key', key);
@@ -205,7 +157,7 @@ export class CreateBitbucketCloudBuilder extends BaseAlmBuilder<CreateBitbucketC
 /**
  * Builder for updating Bitbucket Cloud ALM settings
  */
-export class UpdateBitbucketCloudBuilder extends BaseAlmBuilder<UpdateBitbucketCloudRequest> {
+export class UpdateBitbucketCloudBuilder extends BaseBuilder<UpdateBitbucketCloudRequest> {
   constructor(executor: (params: UpdateBitbucketCloudRequest) => Promise<void>, key: string) {
     super(executor);
     this.setParam('key', key);
@@ -240,7 +192,7 @@ export class UpdateBitbucketCloudBuilder extends BaseAlmBuilder<UpdateBitbucketC
 /**
  * Base builder for project binding operations
  */
-abstract class BaseBindingBuilder<TRequest> extends BaseAlmBuilder<TRequest> {
+abstract class BaseBindingBuilder<TRequest> extends BaseBuilder<TRequest> {
   constructor(executor: (params: TRequest) => Promise<void>, project: string, almSetting: string) {
     super(executor);
     // Type assertion is safe here as all binding requests have project and almSetting fields

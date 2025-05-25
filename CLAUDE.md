@@ -31,6 +31,17 @@ pnpm typecheck       # Run TypeScript type checking
 pnpm dev
 ```
 
+## Architecture Decision Records (ADRs)
+
+This project uses adr-tools to document architectural decisions. ADRs are stored in `doc/architecture/decisions/`.
+
+```bash
+# Create a new ADR without opening an editor (prevents timeout in Claude Code)
+EDITOR=true adr-new "Title of the decision"
+
+# Then edit the created file manually
+```
+
 ## Architecture
 
 The project uses:

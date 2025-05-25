@@ -1,0 +1,17 @@
+src
+__tests__
+coverage
+.github
+.vscode
+.idea
+*.log
+.env
+.env.*
+tsconfig.json
+jest.config.js
+eslint.config.js
+.prettierrc.json
+.prettierignore
+tsup.config.ts
+pnpm-lock.yaml
+*.tsbuildinfo

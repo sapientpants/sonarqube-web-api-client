@@ -1,4 +1,9 @@
 /**
+ * Response type options for BaseClient requests
+ */
+export type ResponseType = 'json' | 'text' | 'arrayBuffer' | 'blob';
+
+/**
  * Base client class for resource modules
  */
 export abstract class BaseClient {
@@ -7,9 +12,14 @@ export abstract class BaseClient {
     protected readonly token?: string
   ) {}
 
-  protected async request<T>(url: string, options?: RequestInit): Promise<T> {
+  protected async request<T>(
+    url: string,
+    options?: RequestInit & { responseType?: ResponseType }
+  ): Promise<T> {
+    const responseType = options?.responseType ?? 'json';
+
     const headers: Record<string, string> = {
-      ['Content-Type']: 'application/json',
+      ...(responseType === 'json' && { ['Content-Type']: 'application/json' }),
       ...(this.token !== undefined &&
         this.token.length > 0 && { ['Authorization']: `Bearer ${this.token}` }),
     };
@@ -30,12 +40,23 @@ export abstract class BaseClient {
       throw new Error(`SonarQube API error: ${String(response.status)} ${response.statusText}`);
     }
 
-    // Handle empty responses
-    const text = await response.text();
-    if (!text) {
-      return undefined as unknown as T;
+    // Handle different response types
+    switch (responseType) {
+      case 'arrayBuffer':
+        return response.arrayBuffer() as Promise<T>;
+      case 'blob':
+        return response.blob() as Promise<T>;
+      case 'text':
+        return response.text() as Promise<T>;
+      case 'json':
+      default: {
+        // Handle empty responses for JSON
+        const text = await response.text();
+        if (!text) {
+          return undefined as unknown as T;
+        }
+        return JSON.parse(text) as T;
+      }
     }
-
-    return JSON.parse(text) as T;
   }
 }

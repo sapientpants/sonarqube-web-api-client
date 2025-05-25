@@ -1,5 +1,18 @@
 export { AlmSettingsClient } from './AlmSettingsClient';
 
+// Export builders
+export {
+  CreateGitHubBuilder,
+  UpdateGitHubBuilder,
+  CreateBitbucketCloudBuilder,
+  UpdateBitbucketCloudBuilder,
+  SetAzureBindingBuilder,
+  SetBitbucketBindingBuilder,
+  SetBitbucketCloudBindingBuilder,
+  SetGitHubBindingBuilder,
+  SetGitLabBindingBuilder,
+} from './builders';
+
 // Re-export all types explicitly for better compatibility
 export type {
   // Platform types

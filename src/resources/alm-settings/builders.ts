@@ -12,49 +12,57 @@ import type {
 } from './types';
 
 /**
- * Builder for creating GitHub ALM settings
+ * Base builder for GitHub ALM settings operations
  */
-export class CreateGitHubBuilder extends BaseBuilder<CreateGitHubRequest> {
-  constructor(executor: (params: CreateGitHubRequest) => Promise<void>, key: string) {
+abstract class BaseGitHubBuilder<TRequest> extends BaseBuilder<TRequest> {
+  constructor(executor: (params: TRequest) => Promise<void>, key: string) {
     super(executor);
-    this.setParam('key', key);
+    this.setParam('key' as keyof TRequest, key as TRequest[keyof TRequest]);
   }
 
   /**
    * Set the GitHub App ID
    */
   withAppId(appId: string): this {
-    return this.setParam('appId', appId);
+    return this.setParam('appId' as keyof TRequest, appId as TRequest[keyof TRequest]);
   }
 
   /**
    * Set the OAuth client ID and secret
    */
   withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret });
+    return this.setParams({ clientId, clientSecret } as unknown as Partial<TRequest>);
   }
 
   /**
    * Set the private key
    */
   withPrivateKey(privateKey: string): this {
-    return this.setParam('privateKey', privateKey);
+    return this.setParam('privateKey' as keyof TRequest, privateKey as TRequest[keyof TRequest]);
   }
 
   /**
    * Set the GitHub URL (for GitHub Enterprise)
    */
   withUrl(url: string): this {
-    return this.setParam('url', url);
+    return this.setParam('url' as keyof TRequest, url as TRequest[keyof TRequest]);
   }
 
   /**
    * Set the webhook secret
    */
   withWebhookSecret(webhookSecret: string): this {
-    return this.setParam('webhookSecret', webhookSecret);
+    return this.setParam(
+      'webhookSecret' as keyof TRequest,
+      webhookSecret as TRequest[keyof TRequest]
+    );
   }
+}
 
+/**
+ * Builder for creating GitHub ALM settings
+ */
+export class CreateGitHubBuilder extends BaseGitHubBuilder<CreateGitHubRequest> {
   async execute(): Promise<void> {
     validateRequired(this.params.appId, 'GitHub App ID');
     validateOAuth(this.params.clientId, this.params.clientSecret, 'OAuth');
@@ -68,52 +76,12 @@ export class CreateGitHubBuilder extends BaseBuilder<CreateGitHubRequest> {
 /**
  * Builder for updating GitHub ALM settings
  */
-export class UpdateGitHubBuilder extends BaseBuilder<UpdateGitHubRequest> {
-  constructor(executor: (params: UpdateGitHubRequest) => Promise<void>, key: string) {
-    super(executor);
-    this.setParam('key', key);
-  }
-
+export class UpdateGitHubBuilder extends BaseGitHubBuilder<UpdateGitHubRequest> {
   /**
    * Set a new key for the ALM setting
    */
   withNewKey(newKey: string): this {
     return this.setParam('newKey', newKey);
-  }
-
-  /**
-   * Update the GitHub App ID
-   */
-  withAppId(appId: string): this {
-    return this.setParam('appId', appId);
-  }
-
-  /**
-   * Update the OAuth client ID and secret
-   */
-  withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret });
-  }
-
-  /**
-   * Update the private key
-   */
-  withPrivateKey(privateKey: string): this {
-    return this.setParam('privateKey', privateKey);
-  }
-
-  /**
-   * Update the GitHub URL
-   */
-  withUrl(url: string): this {
-    return this.setParam('url', url);
-  }
-
-  /**
-   * Update the webhook secret
-   */
-  withWebhookSecret(webhookSecret: string): this {
-    return this.setParam('webhookSecret', webhookSecret);
   }
 
   async execute(): Promise<void> {
@@ -122,28 +90,33 @@ export class UpdateGitHubBuilder extends BaseBuilder<UpdateGitHubRequest> {
 }
 
 /**
- * Builder for creating Bitbucket Cloud ALM settings
+ * Base builder for Bitbucket Cloud ALM settings operations
  */
-export class CreateBitbucketCloudBuilder extends BaseBuilder<CreateBitbucketCloudRequest> {
-  constructor(executor: (params: CreateBitbucketCloudRequest) => Promise<void>, key: string) {
+abstract class BaseBitbucketCloudBuilder<TRequest> extends BaseBuilder<TRequest> {
+  constructor(executor: (params: TRequest) => Promise<void>, key: string) {
     super(executor);
-    this.setParam('key', key);
+    this.setParam('key' as keyof TRequest, key as TRequest[keyof TRequest]);
   }
 
   /**
    * Set the OAuth consumer key (client ID) and secret
    */
   withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret });
+    return this.setParams({ clientId, clientSecret } as unknown as Partial<TRequest>);
   }
 
   /**
    * Set the Bitbucket workspace ID
    */
   withWorkspace(workspace: string): this {
-    return this.setParam('workspace', workspace);
+    return this.setParam('workspace' as keyof TRequest, workspace as TRequest[keyof TRequest]);
   }
+}
 
+/**
+ * Builder for creating Bitbucket Cloud ALM settings
+ */
+export class CreateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<CreateBitbucketCloudRequest> {
   async execute(): Promise<void> {
     if (!isRequired(this.params.clientId) || !isRequired(this.params.clientSecret)) {
       throw new Error('OAuth consumer key and secret are required');
@@ -157,31 +130,12 @@ export class CreateBitbucketCloudBuilder extends BaseBuilder<CreateBitbucketClou
 /**
  * Builder for updating Bitbucket Cloud ALM settings
  */
-export class UpdateBitbucketCloudBuilder extends BaseBuilder<UpdateBitbucketCloudRequest> {
-  constructor(executor: (params: UpdateBitbucketCloudRequest) => Promise<void>, key: string) {
-    super(executor);
-    this.setParam('key', key);
-  }
-
+export class UpdateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<UpdateBitbucketCloudRequest> {
   /**
    * Set a new key for the ALM setting
    */
   withNewKey(newKey: string): this {
     return this.setParam('newKey', newKey);
-  }
-
-  /**
-   * Update the OAuth consumer key (client ID) and secret
-   */
-  withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret });
-  }
-
-  /**
-   * Update the Bitbucket workspace ID
-   */
-  withWorkspace(workspace: string): this {
-    return this.setParam('workspace', workspace);
   }
 
   async execute(): Promise<void> {

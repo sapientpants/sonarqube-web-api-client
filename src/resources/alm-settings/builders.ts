@@ -11,12 +11,47 @@ import type {
 } from './types';
 
 /**
+ * Validation utilities
+ */
+function isRequired(value: unknown): value is string {
+  return typeof value === 'string' && value !== '';
+}
+
+function validateRequired(value: unknown, fieldName: string): void {
+  if (!isRequired(value)) {
+    throw new Error(`${fieldName} is required`);
+  }
+}
+
+function validateOAuth(clientId: unknown, clientSecret: unknown, providerName = 'OAuth'): void {
+  if (!isRequired(clientId) || !isRequired(clientSecret)) {
+    throw new Error(`${providerName} client ID and secret are required`);
+  }
+}
+
+/**
  * Base builder for ALM settings operations
  */
 abstract class BaseAlmBuilder<TRequest> {
   protected params: Partial<TRequest> = {};
 
   constructor(protected executor: (params: TRequest) => Promise<void>) {}
+
+  /**
+   * Set a parameter value
+   */
+  protected setParam<K extends keyof TRequest>(key: K, value: TRequest[K]): this {
+    this.params[key] = value;
+    return this;
+  }
+
+  /**
+   * Set multiple parameters
+   */
+  protected setParams(params: Partial<TRequest>): this {
+    Object.assign(this.params, params);
+    return this;
+  }
 
   /**
    * Execute the operation
@@ -30,68 +65,49 @@ abstract class BaseAlmBuilder<TRequest> {
 export class CreateGitHubBuilder extends BaseAlmBuilder<CreateGitHubRequest> {
   constructor(executor: (params: CreateGitHubRequest) => Promise<void>, key: string) {
     super(executor);
-    this.params.key = key;
+    this.setParam('key', key);
   }
 
   /**
    * Set the GitHub App ID
    */
   withAppId(appId: string): this {
-    this.params.appId = appId;
-    return this;
+    return this.setParam('appId', appId);
   }
 
   /**
    * Set the OAuth client ID and secret
    */
   withOAuth(clientId: string, clientSecret: string): this {
-    this.params.clientId = clientId;
-    this.params.clientSecret = clientSecret;
-    return this;
+    return this.setParams({ clientId, clientSecret });
   }
 
   /**
    * Set the private key
    */
   withPrivateKey(privateKey: string): this {
-    this.params.privateKey = privateKey;
-    return this;
+    return this.setParam('privateKey', privateKey);
   }
 
   /**
    * Set the GitHub URL (for GitHub Enterprise)
    */
   withUrl(url: string): this {
-    this.params.url = url;
-    return this;
+    return this.setParam('url', url);
   }
 
   /**
    * Set the webhook secret
    */
   withWebhookSecret(webhookSecret: string): this {
-    this.params.webhookSecret = webhookSecret;
-    return this;
+    return this.setParam('webhookSecret', webhookSecret);
   }
 
   async execute(): Promise<void> {
-    if (this.params.appId === undefined || this.params.appId === '') {
-      throw new Error('GitHub App ID is required');
-    }
-    if (
-      this.params.clientId === undefined ||
-      this.params.clientId === '' ||
-      this.params.clientSecret === undefined ||
-      this.params.clientSecret === ''
-    ) {
-      throw new Error('OAuth client ID and secret are required');
-    }
-    if (this.params.privateKey === undefined || this.params.privateKey === '') {
-      throw new Error('Private key is required');
-    }
-    if (this.params.url === undefined || this.params.url === '') {
-      throw new Error('URL is required');
-    }
+    validateRequired(this.params.appId, 'GitHub App ID');
+    validateOAuth(this.params.clientId, this.params.clientSecret, 'OAuth');
+    validateRequired(this.params.privateKey, 'Private key');
+    validateRequired(this.params.url, 'URL');
 
     return this.executor(this.params as CreateGitHubRequest);
   }
@@ -103,56 +119,49 @@ export class CreateGitHubBuilder extends BaseAlmBuilder<CreateGitHubRequest> {
 export class UpdateGitHubBuilder extends BaseAlmBuilder<UpdateGitHubRequest> {
   constructor(executor: (params: UpdateGitHubRequest) => Promise<void>, key: string) {
     super(executor);
-    this.params.key = key;
+    this.setParam('key', key);
   }
 
   /**
    * Set a new key for the ALM setting
    */
   withNewKey(newKey: string): this {
-    this.params.newKey = newKey;
-    return this;
+    return this.setParam('newKey', newKey);
   }
 
   /**
    * Update the GitHub App ID
    */
   withAppId(appId: string): this {
-    this.params.appId = appId;
-    return this;
+    return this.setParam('appId', appId);
   }
 
   /**
    * Update the OAuth client ID and secret
    */
   withOAuth(clientId: string, clientSecret: string): this {
-    this.params.clientId = clientId;
-    this.params.clientSecret = clientSecret;
-    return this;
+    return this.setParams({ clientId, clientSecret });
   }
 
   /**
    * Update the private key
    */
   withPrivateKey(privateKey: string): this {
-    this.params.privateKey = privateKey;
-    return this;
+    return this.setParam('privateKey', privateKey);
   }
 
   /**
    * Update the GitHub URL
    */
   withUrl(url: string): this {
-    this.params.url = url;
-    return this;
+    return this.setParam('url', url);
   }
 
   /**
    * Update the webhook secret
    */
   withWebhookSecret(webhookSecret: string): this {
-    this.params.webhookSecret = webhookSecret;
-    return this;
+    return this.setParam('webhookSecret', webhookSecret);
   }
 
   async execute(): Promise<void> {
@@ -166,38 +175,28 @@ export class UpdateGitHubBuilder extends BaseAlmBuilder<UpdateGitHubRequest> {
 export class CreateBitbucketCloudBuilder extends BaseAlmBuilder<CreateBitbucketCloudRequest> {
   constructor(executor: (params: CreateBitbucketCloudRequest) => Promise<void>, key: string) {
     super(executor);
-    this.params.key = key;
+    this.setParam('key', key);
   }
 
   /**
    * Set the OAuth consumer key (client ID) and secret
    */
   withOAuth(clientId: string, clientSecret: string): this {
-    this.params.clientId = clientId;
-    this.params.clientSecret = clientSecret;
-    return this;
+    return this.setParams({ clientId, clientSecret });
   }
 
   /**
    * Set the Bitbucket workspace ID
    */
   withWorkspace(workspace: string): this {
-    this.params.workspace = workspace;
-    return this;
+    return this.setParam('workspace', workspace);
   }
 
   async execute(): Promise<void> {
-    if (
-      this.params.clientId === undefined ||
-      this.params.clientId === '' ||
-      this.params.clientSecret === undefined ||
-      this.params.clientSecret === ''
-    ) {
+    if (!isRequired(this.params.clientId) || !isRequired(this.params.clientSecret)) {
       throw new Error('OAuth consumer key and secret are required');
     }
-    if (this.params.workspace === undefined || this.params.workspace === '') {
-      throw new Error('Workspace is required');
-    }
+    validateRequired(this.params.workspace, 'Workspace');
 
     return this.executor(this.params as CreateBitbucketCloudRequest);
   }
@@ -209,32 +208,28 @@ export class CreateBitbucketCloudBuilder extends BaseAlmBuilder<CreateBitbucketC
 export class UpdateBitbucketCloudBuilder extends BaseAlmBuilder<UpdateBitbucketCloudRequest> {
   constructor(executor: (params: UpdateBitbucketCloudRequest) => Promise<void>, key: string) {
     super(executor);
-    this.params.key = key;
+    this.setParam('key', key);
   }
 
   /**
    * Set a new key for the ALM setting
    */
   withNewKey(newKey: string): this {
-    this.params.newKey = newKey;
-    return this;
+    return this.setParam('newKey', newKey);
   }
 
   /**
    * Update the OAuth consumer key (client ID) and secret
    */
   withOAuth(clientId: string, clientSecret: string): this {
-    this.params.clientId = clientId;
-    this.params.clientSecret = clientSecret;
-    return this;
+    return this.setParams({ clientId, clientSecret });
   }
 
   /**
    * Update the Bitbucket workspace ID
    */
   withWorkspace(workspace: string): this {
-    this.params.workspace = workspace;
-    return this;
+    return this.setParam('workspace', workspace);
   }
 
   async execute(): Promise<void> {
@@ -245,32 +240,19 @@ export class UpdateBitbucketCloudBuilder extends BaseAlmBuilder<UpdateBitbucketC
 /**
  * Base builder for project binding operations
  */
-abstract class BaseBindingBuilder<TRequest> {
-  protected params: Partial<TRequest> = {};
-
-  constructor(
-    protected executor: (params: TRequest) => Promise<void>,
-    project: string,
-    almSetting: string
-  ) {
-    const projectParams = this.params as { project?: string; almSetting?: string };
-    projectParams.project = project;
-    projectParams.almSetting = almSetting;
+abstract class BaseBindingBuilder<TRequest> extends BaseAlmBuilder<TRequest> {
+  constructor(executor: (params: TRequest) => Promise<void>, project: string, almSetting: string) {
+    super(executor);
+    // Type assertion is safe here as all binding requests have project and almSetting fields
+    this.setParams({ project, almSetting } as unknown as Partial<TRequest>);
   }
 
   /**
    * Mark this as a monorepo binding
    */
   asMonorepo(): this {
-    const monorepoParams = this.params as { monorepo?: boolean };
-    monorepoParams.monorepo = true;
-    return this;
+    return this.setParam('monorepo' as keyof TRequest, true as TRequest[keyof TRequest]);
   }
-
-  /**
-   * Execute the binding operation
-   */
-  abstract execute(): Promise<void>;
 }
 
 /**
@@ -281,25 +263,19 @@ export class SetAzureBindingBuilder extends BaseBindingBuilder<SetAzureBindingRe
    * Set the Azure project name
    */
   withProjectName(projectName: string): this {
-    this.params.projectName = projectName;
-    return this;
+    return this.setParam('projectName', projectName);
   }
 
   /**
    * Set the Azure repository name
    */
   withRepository(repositoryName: string): this {
-    this.params.repositoryName = repositoryName;
-    return this;
+    return this.setParam('repositoryName', repositoryName);
   }
 
   async execute(): Promise<void> {
-    if (this.params.projectName === undefined || this.params.projectName === '') {
-      throw new Error('Azure project name is required');
-    }
-    if (this.params.repositoryName === undefined || this.params.repositoryName === '') {
-      throw new Error('Repository name is required');
-    }
+    validateRequired(this.params.projectName, 'Azure project name');
+    validateRequired(this.params.repositoryName, 'Repository name');
 
     return this.executor(this.params as SetAzureBindingRequest);
   }
@@ -313,25 +289,19 @@ export class SetBitbucketBindingBuilder extends BaseBindingBuilder<SetBitbucketB
    * Set the Bitbucket repository
    */
   withRepository(repository: string): this {
-    this.params.repository = repository;
-    return this;
+    return this.setParam('repository', repository);
   }
 
   /**
    * Set the repository slug
    */
   withSlug(slug: string): this {
-    this.params.slug = slug;
-    return this;
+    return this.setParam('slug', slug);
   }
 
   async execute(): Promise<void> {
-    if (this.params.repository === undefined || this.params.repository === '') {
-      throw new Error('Repository is required');
-    }
-    if (this.params.slug === undefined || this.params.slug === '') {
-      throw new Error('Repository slug is required');
-    }
+    validateRequired(this.params.repository, 'Repository');
+    validateRequired(this.params.slug, 'Repository slug');
 
     return this.executor(this.params as SetBitbucketBindingRequest);
   }
@@ -345,14 +315,11 @@ export class SetBitbucketCloudBindingBuilder extends BaseBindingBuilder<SetBitbu
    * Set the Bitbucket repository
    */
   withRepository(repository: string): this {
-    this.params.repository = repository;
-    return this;
+    return this.setParam('repository', repository);
   }
 
   async execute(): Promise<void> {
-    if (this.params.repository === undefined || this.params.repository === '') {
-      throw new Error('Repository is required');
-    }
+    validateRequired(this.params.repository, 'Repository');
 
     return this.executor(this.params as SetBitbucketCloudBindingRequest);
   }
@@ -366,22 +333,18 @@ export class SetGitHubBindingBuilder extends BaseBindingBuilder<SetGitHubBinding
    * Set the GitHub repository
    */
   withRepository(repository: string): this {
-    this.params.repository = repository;
-    return this;
+    return this.setParam('repository', repository);
   }
 
   /**
    * Enable summary comments on pull requests
    */
   withSummaryComments(enabled = true): this {
-    this.params.summaryCommentEnabled = enabled;
-    return this;
+    return this.setParam('summaryCommentEnabled', enabled);
   }
 
   async execute(): Promise<void> {
-    if (this.params.repository === undefined || this.params.repository === '') {
-      throw new Error('Repository is required');
-    }
+    validateRequired(this.params.repository, 'Repository');
 
     return this.executor(this.params as SetGitHubBindingRequest);
   }
@@ -395,14 +358,11 @@ export class SetGitLabBindingBuilder extends BaseBindingBuilder<SetGitLabBinding
    * Set the GitLab repository
    */
   withRepository(repository: string): this {
-    this.params.repository = repository;
-    return this;
+    return this.setParam('repository', repository);
   }
 
   async execute(): Promise<void> {
-    if (this.params.repository === undefined || this.params.repository === '') {
-      throw new Error('Repository is required');
-    }
+    validateRequired(this.params.repository, 'Repository');
 
     return this.executor(this.params as SetGitLabBindingRequest);
   }

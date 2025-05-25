@@ -1,4 +1,5 @@
 import { AlmIntegrationsClient } from './resources/alm-integrations';
+import { AlmSettingsClient } from './resources/alm-settings';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -16,6 +17,7 @@ interface IssuesResponse {
 export class SonarQubeClient {
   // Resource clients
   public readonly almIntegrations: AlmIntegrationsClient;
+  public readonly almSettings: AlmSettingsClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -26,6 +28,7 @@ export class SonarQubeClient {
 
     // Initialize resource clients
     this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token);
+    this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -66,3 +69,6 @@ export default SonarQubeClient;
 
 // Re-export types from ALM integrations
 export * from './resources/alm-integrations/types';
+
+// Re-export types from ALM settings
+export type * from './resources/alm-settings/types';

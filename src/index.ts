@@ -1,3 +1,5 @@
+import { AlmIntegrationsClient } from './resources/alm-integrations';
+
 interface ProjectsResponse {
   [key: string]: unknown;
   components: unknown[];
@@ -8,15 +10,25 @@ interface IssuesResponse {
   issues: unknown[];
 }
 
+/**
+ * Main SonarQube API client
+ */
 export class SonarQubeClient {
+  // Resource clients
+  public readonly almIntegrations: AlmIntegrationsClient;
+
   private readonly baseUrl: string;
   private readonly token: string | undefined;
 
   constructor(baseUrl: string, token?: string) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.token = token;
+
+    // Initialize resource clients
+    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token);
   }
 
+  // Legacy methods for backward compatibility
   public async getProjects(): Promise<ProjectsResponse> {
     return this.request<ProjectsResponse>('/projects/search');
   }
@@ -51,3 +63,6 @@ export class SonarQubeClient {
 }
 
 export default SonarQubeClient;
+
+// Re-export types from ALM integrations
+export * from './resources/alm-integrations/types';

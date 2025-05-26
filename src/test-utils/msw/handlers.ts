@@ -1,4 +1,10 @@
 import { http, HttpResponse } from 'msw';
+import {
+  SAMPLE_METRICS,
+  createMetricsSearchResponse,
+  createMetricTypesResponse,
+  createMetricDomainsResponse,
+} from './factories';
 
 /**
  * Default MSW request handlers for common scenarios.
@@ -143,5 +149,20 @@ export const handlers = [
       ],
       paging: { pageIndex: 1, pageSize: 10, total: 1 },
     });
+  }),
+
+  // Metrics endpoints
+  http.get('*/api/metrics/search', () => {
+    return HttpResponse.json(
+      createMetricsSearchResponse([SAMPLE_METRICS.coverage, SAMPLE_METRICS.lines])
+    );
+  }),
+
+  http.get('*/api/metrics/types', () => {
+    return HttpResponse.json(createMetricTypesResponse());
+  }),
+
+  http.get('*/api/metrics/domains', () => {
+    return HttpResponse.json(createMetricDomainsResponse());
   }),
 ];

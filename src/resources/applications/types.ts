@@ -110,7 +110,7 @@ export interface RemoveProjectRequest {
  */
 export interface SetTagsRequest {
   application: string;
-  tags: string;
+  tags: string[];
 }
 
 /**

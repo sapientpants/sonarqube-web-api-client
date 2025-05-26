@@ -204,7 +204,7 @@ describe('ApplicationsClient', () => {
 
       const params: SetTagsRequest = {
         application: 'my-app',
-        tags: 'tag1,tag2,tag3',
+        tags: ['tag1', 'tag2', 'tag3'],
       };
 
       await client.setTags(params);
@@ -215,7 +215,10 @@ describe('ApplicationsClient', () => {
           Authorization: 'Bearer token123',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify({
+          application: 'my-app',
+          tags: 'tag1,tag2,tag3',
+        }),
       });
     });
   });

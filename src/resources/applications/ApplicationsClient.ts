@@ -120,7 +120,10 @@ export class ApplicationsClient extends BaseClient {
   async setTags(params: SetTagsRequest): Promise<void> {
     await this.request('/api/applications/set_tags', {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        ...params,
+        tags: params.tags.join(','),
+      }),
     });
   }
 

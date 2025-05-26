@@ -1,15 +1,11 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
+import { http, HttpResponse } from 'msw';
 import { SonarQubeClient } from '../index';
 import { AuthenticationError } from '../errors';
-
-const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
-global.fetch = mockFetch;
+import { server } from '../test-utils/msw/server';
+import { createProjectsResponse, createIssuesResponse } from '../test-utils/msw/factories';
 
 describe('SonarQubeClient', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('constructor', () => {
     it('should create instance with base URL', () => {
       const client = new SonarQubeClient('https://sonarqube.example.com');
@@ -29,91 +25,86 @@ describe('SonarQubeClient', () => {
 
   describe('getProjects', () => {
     it('should fetch projects', async () => {
-      const mockResponse = { components: [] };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      const mockResponse = createProjectsResponse([]);
+
+      server.use(
+        http.get('https://sonarqube.example.com/api/projects/search', () => {
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const client = new SonarQubeClient('https://sonarqube.example.com');
       const result = await client.getProjects();
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/projects/search',
-        expect.objectContaining({
-          headers: expect.any(Headers),
-        })
-      );
-      const headers = mockFetch.mock.calls[0]?.[1]?.headers as Headers;
-      expect(headers.get('Content-Type')).toBe('application/json');
       expect(result).toEqual(mockResponse);
     });
 
     it('should include auth token when provided', async () => {
-      const mockResponse = { components: [] };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      const mockResponse = createProjectsResponse([]);
+      let capturedHeaders: Headers | undefined;
 
-      const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
-      await client.getProjects();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/projects/search',
-        expect.objectContaining({
-          headers: expect.any(Headers),
+      server.use(
+        http.get('https://sonarqube.example.com/api/projects/search', ({ request }) => {
+          capturedHeaders = request.headers;
+          return HttpResponse.json(mockResponse);
         })
       );
-      const headers = mockFetch.mock.calls[0]?.[1]?.headers as Headers;
-      expect(headers.get('Authorization')).toBe('Bearer test-token');
-      expect(headers.get('Content-Type')).toBe('application/json');
+
+      const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
+      const result = await client.getProjects();
+
+      expect(capturedHeaders).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(capturedHeaders!.get('Authorization')).toBe('Bearer test-token');
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(capturedHeaders!.get('Content-Type')).toBe('application/json');
+      expect(result).toEqual(mockResponse);
     });
   });
 
   describe('getIssues', () => {
     it('should fetch issues without project key', async () => {
-      const mockResponse = { issues: [] };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      const mockResponse = createIssuesResponse([]);
+
+      server.use(
+        http.get('https://sonarqube.example.com/api/issues/search', () => {
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const client = new SonarQubeClient('https://sonarqube.example.com');
       const result = await client.getIssues();
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/issues/search?',
-        expect.any(Object)
-      );
       expect(result).toEqual(mockResponse);
     });
 
     it('should fetch issues with project key', async () => {
-      const mockResponse = { issues: [] };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      const mockResponse = createIssuesResponse([]);
+      let capturedUrl: string | null = null;
+
+      server.use(
+        http.get('https://sonarqube.example.com/api/issues/search', ({ request }) => {
+          capturedUrl = request.url;
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const client = new SonarQubeClient('https://sonarqube.example.com');
       const result = await client.getIssues('my-project');
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/issues/search?componentKeys=my-project',
-        expect.any(Object)
-      );
+      expect(capturedUrl).toContain('componentKeys=my-project');
       expect(result).toEqual(mockResponse);
     });
 
     it('should handle API errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        headers: new Headers(),
-        text: async () => '',
-      } as unknown as Response);
+      server.use(
+        http.get('https://sonarqube.example.com/api/issues/search', () => {
+          return new HttpResponse(null, {
+            status: 401,
+            statusText: 'Unauthorized',
+          });
+        })
+      );
 
       const client = new SonarQubeClient('https://sonarqube.example.com');
 

@@ -1,3 +1,5 @@
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../test-utils/msw/server';
 import { AnalysisCacheClient } from '../AnalysisCacheClient';
 import { AuthorizationError } from '../../../errors';
 
@@ -10,161 +12,196 @@ describe('AnalysisCacheClient', () => {
   beforeEach(() => {
     client = new AnalysisCacheClient(baseUrl, token);
     clientWithoutToken = new AnalysisCacheClient(baseUrl);
-    global.fetch = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
   });
 
   describe('get', () => {
     it('should fetch analysis cache with project parameter', async () => {
       const mockArrayBuffer = new ArrayBuffer(8);
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+
+          return new HttpResponse(mockArrayBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+          });
+        })
+      );
 
       const result = await client.get({ project: 'my-project' });
-
-      expect(global.fetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/analysis_cache/get?project=my-project',
-        {
-          headers: {
-            Authorization: 'Bearer test-token',
-          },
-          responseType: 'arrayBuffer',
-        }
-      );
-      expect(result).toBe(mockArrayBuffer);
+      expect(result).toEqual(mockArrayBuffer);
     });
 
     it('should fetch analysis cache with project and branch parameters', async () => {
       const mockArrayBuffer = new ArrayBuffer(8);
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+          expect(url.searchParams.get('branch')).toBe('feature/my-branch');
+
+          return new HttpResponse(mockArrayBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+          });
+        })
+      );
 
       const result = await client.get({
         project: 'my-project',
         branch: 'feature/my-branch',
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/analysis_cache/get?project=my-project&branch=feature%2Fmy-branch',
-        {
-          headers: {
-            Authorization: 'Bearer test-token',
-          },
-          responseType: 'arrayBuffer',
-        }
-      );
-      expect(result).toBe(mockArrayBuffer);
+      expect(result).toEqual(mockArrayBuffer);
     });
 
     it('should include authorization header when token is provided', async () => {
       const mockArrayBuffer = new ArrayBuffer(8);
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
+          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+
+          return new HttpResponse(mockArrayBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+          });
+        })
+      );
 
       await client.get({ project: 'my-project' });
-
-      const fetchCall = (global.fetch as jest.Mock).mock.calls[0] as [
-        string,
-        RequestInit & { responseType: string },
-      ];
-      const headers = fetchCall[1].headers as Record<string, string>;
-      expect(headers['Authorization']).toBe('Bearer test-token');
     });
 
     it('should handle gzipped response', async () => {
-      // Create a mock gzipped array buffer
-      const gzippedData = new Uint8Array([0x1f, 0x8b, 0x08, 0x00]).buffer;
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(gzippedData),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+      // Test that the client can handle binary responses that would typically be gzipped
+      // Note: In real usage, the server sends gzipped data with Content-Encoding: gzip,
+      // and the browser/node automatically decompresses it before we receive it.
+      // This test verifies our client correctly handles the decompressed binary data.
+      const cacheData = new Uint8Array([0xca, 0xfe, 0xba, 0xbe, 0x00, 0x00, 0x00, 0x01]);
+      const mockBuffer = cacheData.buffer;
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+
+          // In production, this would have Content-Encoding: gzip and the data would be compressed
+          // But for testing, we return uncompressed data as the runtime handles decompression
+          return new HttpResponse(mockBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+              // Not setting Content-Encoding in test because MSW + fetch would try to decompress
+            },
+          });
+        })
+      );
 
       const result = await client.get({ project: 'my-project' });
 
-      expect(result).toBe(gzippedData);
+      // Verify we received an ArrayBuffer with the expected data
+      expect(result).toBeInstanceOf(ArrayBuffer);
+      expect(result.byteLength).toBe(8);
+
+      // Verify the binary data matches what we sent
+      const resultArray = new Uint8Array(result);
+      expect(resultArray[0]).toBe(0xca);
+      expect(resultArray[1]).toBe(0xfe);
+      expect(resultArray[2]).toBe(0xba);
+      expect(resultArray[3]).toBe(0xbe);
     });
 
     it('should throw error on failed request', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        headers: new Headers(),
-        text: jest.fn().mockResolvedValue(
-          JSON.stringify({
-            errors: [{ msg: 'Insufficient privileges' }],
-          })
-        ),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, () => {
+          return HttpResponse.json(
+            {
+              errors: [{ msg: 'Insufficient privileges' }],
+            },
+            {
+              status: 403,
+              statusText: 'Forbidden',
+            }
+          );
+        })
+      );
 
       await expect(client.get({ project: 'my-project' })).rejects.toThrow(AuthorizationError);
     });
 
     it('should handle empty cache data', async () => {
       const emptyBuffer = new ArrayBuffer(0);
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(emptyBuffer),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, () => {
+          return new HttpResponse(emptyBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+          });
+        })
+      );
 
       const result = await client.get({ project: 'my-project' });
-
-      expect(result).toBe(emptyBuffer);
+      expect(result).toEqual(emptyBuffer);
       expect(result.byteLength).toBe(0);
     });
 
     it('should encode special characters in parameters', async () => {
       const mockArrayBuffer = new ArrayBuffer(8);
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my project with spaces');
+          expect(url.searchParams.get('branch')).toBe('feature/branch-with-#-special@chars');
+
+          return new HttpResponse(mockArrayBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+          });
+        })
+      );
 
       await client.get({
         project: 'my project with spaces',
         branch: 'feature/branch-with-#-special@chars',
       });
-
-      expect(global.fetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/analysis_cache/get?project=my+project+with+spaces&branch=feature%2Fbranch-with-%23-special%40chars',
-        expect.any(Object)
-      );
     });
 
     it('should work without authentication token', async () => {
       const mockArrayBuffer = new ArrayBuffer(8);
-      const mockResponse = {
-        ok: true,
-        arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
-      };
-      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+      server.use(
+        http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+          expect(request.headers.get('Authorization')).toBeNull();
+
+          return new HttpResponse(mockArrayBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+          });
+        })
+      );
 
       const result = await clientWithoutToken.get({ project: 'my-project' });
-
-      expect(global.fetch).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/analysis_cache/get?project=my-project',
-        {
-          headers: {},
-          responseType: 'arrayBuffer',
-        }
-      );
-      expect(result).toBe(mockArrayBuffer);
+      expect(result).toEqual(mockArrayBuffer);
     });
   });
 });

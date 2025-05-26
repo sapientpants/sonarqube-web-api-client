@@ -6,6 +6,7 @@ import { ApplicationsClient } from './resources/applications';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
+import { IssuesClient } from './resources/issues';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -30,6 +31,8 @@ export class SonarQubeClient {
   public readonly analysisCache: AnalysisCacheClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
+  /** Issues API */
+  public readonly issues: IssuesClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
   /** Metrics API */
@@ -49,6 +52,7 @@ export class SonarQubeClient {
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
     this.applications = new ApplicationsClient(this.baseUrl, this.token);
+    this.issues = new IssuesClient(this.baseUrl, this.token);
     this.projects = new ProjectsClient(this.baseUrl, this.token);
     this.metrics = new MetricsClient(this.baseUrl, this.token);
     this.measures = new MeasuresClient(this.baseUrl, this.token);
@@ -174,11 +178,11 @@ export type {
   DeleteApplicationRequest,
   DeleteBranchRequest,
   RemoveProjectRequest,
-  SetTagsRequest,
   ShowApplicationRequest,
   ShowApplicationResponse,
   UpdateApplicationRequest,
   UpdateBranchRequest,
+  SetTagsRequest as ApplicationSetTagsRequest,
 } from './resources/applications/types';
 
 // Re-export types from projects
@@ -238,6 +242,30 @@ export type {
   MeasuresHistoryRequest,
   MeasuresHistoryResponse,
 } from './resources/measures/types';
+
+// Re-export types from issues
+export type {
+  Issue,
+  IssueComment,
+  IssueFlow,
+  IssueLocation,
+  TextRange,
+  IssueSeverity,
+  IssueStatus,
+  IssueType,
+  IssueResolution,
+  IssueTransition,
+  SearchIssuesRequest,
+  SearchIssuesResponse,
+  AddCommentRequest,
+  AddCommentResponse,
+  AssignIssueRequest,
+  AssignIssueResponse,
+  DoTransitionRequest,
+  DoTransitionResponse,
+  SetTagsRequest,
+  SetTagsResponse,
+} from './resources/issues/types';
 
 // Re-export error classes
 export {

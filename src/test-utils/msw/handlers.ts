@@ -111,18 +111,234 @@ export const handlers = [
     });
   }),
 
+  // Issues endpoints
   http.get('*/api/issues/search', ({ request }) => {
     const url = new URL(request.url);
     const componentKeys = url.searchParams.get('componentKeys');
+    const projectKeys = url.searchParams.get('projects');
+    const pageSize = Number(url.searchParams.get('ps')) || 100;
+    const page = Number(url.searchParams.get('p')) || 1;
+
+    // Simulate some default issues for testing
+    const allIssues = [
+      {
+        key: 'issue-1',
+        rule: 'typescript:S1234',
+        severity: 'MAJOR',
+        component: 'project:src/file.ts',
+        project: 'project',
+        line: 42,
+        message: 'Fix this issue',
+        type: 'BUG',
+        status: 'OPEN',
+        tags: [],
+        creationDate: '2024-01-01T00:00:00+0000',
+        updateDate: '2024-01-01T00:00:00+0000',
+        transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+        actions: ['assign', 'set_tags', 'comment'],
+      },
+      {
+        key: 'issue-2',
+        rule: 'typescript:S5678',
+        severity: 'CRITICAL',
+        component: 'project:src/other.ts',
+        project: 'project',
+        line: 84,
+        message: 'Critical security issue',
+        type: 'VULNERABILITY',
+        status: 'OPEN',
+        tags: ['security'],
+        assignee: 'john.doe',
+        creationDate: '2024-01-02T00:00:00+0000',
+        updateDate: '2024-01-02T00:00:00+0000',
+        transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+        actions: ['assign', 'set_tags', 'comment'],
+      },
+    ];
+
+    // Filter issues based on component or project keys
+    let filteredIssues = allIssues;
+    if (componentKeys !== null) {
+      filteredIssues = allIssues.filter((issue) =>
+        componentKeys.split(',').some((key) => issue.component.includes(key))
+      );
+    } else if (projectKeys !== null) {
+      filteredIssues = allIssues.filter((issue) => projectKeys.split(',').includes(issue.project));
+    }
+
+    // Handle pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
 
     return HttpResponse.json({
-      issues: [],
+      issues: paginatedIssues,
       paging: {
-        pageIndex: 1,
-        pageSize: 100,
-        total: 0,
+        pageIndex: page,
+        pageSize,
+        total: filteredIssues.length,
       },
-      components: componentKeys !== null ? [{ key: componentKeys }] : [],
+      components: [
+        { key: 'project', name: 'Test Project', qualifier: 'TRK' },
+        { key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL', path: 'src/file.ts' },
+        { key: 'project:src/other.ts', name: 'other.ts', qualifier: 'FIL', path: 'src/other.ts' },
+      ],
+      rules: [
+        {
+          key: 'typescript:S1234',
+          name: 'Bug Rule',
+          status: 'READY',
+          lang: 'ts',
+          langName: 'TypeScript',
+        },
+        {
+          key: 'typescript:S5678',
+          name: 'Security Rule',
+          status: 'READY',
+          lang: 'ts',
+          langName: 'TypeScript',
+        },
+      ],
+      users: [{ login: 'john.doe', name: 'John Doe', active: true }],
+    });
+  }),
+
+  http.post('*/api/issues/add_comment', async ({ request }) => {
+    const body = (await request.json()) as { issue: string; text: string; isFeedback?: boolean };
+
+    const issue = {
+      key: body.issue,
+      rule: 'typescript:S1234',
+      severity: 'MAJOR',
+      component: 'project:src/file.ts',
+      project: 'project',
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: 'OPEN',
+      tags: [],
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+      comments: [
+        {
+          key: 'comment-1',
+          login: 'john.doe',
+          htmlText: `<p>${body.text}</p>`,
+          markdown: body.text,
+          updatable: true,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [{ login: 'john.doe', name: 'John Doe', active: true }],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
+    });
+  }),
+
+  http.post('*/api/issues/assign', async ({ request }) => {
+    const body = (await request.json()) as { issue: string; assignee?: string };
+
+    const issue = {
+      key: body.issue,
+      rule: 'typescript:S1234',
+      severity: 'MAJOR',
+      component: 'project:src/file.ts',
+      project: 'project',
+      assignee: body.assignee,
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: 'OPEN',
+      tags: [],
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [{ login: 'john.doe', name: 'John Doe', active: true }],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
+    });
+  }),
+
+  http.post('*/api/issues/do_transition', async ({ request }) => {
+    const body = (await request.json()) as { issue: string; transition: string };
+
+    const statusMap: Record<string, string> = {
+      confirm: 'CONFIRMED',
+      resolve: 'RESOLVED',
+      reopen: 'REOPENED',
+      falsepositive: 'RESOLVED',
+      wontfix: 'RESOLVED',
+      close: 'CLOSED',
+    };
+
+    const resolutionMap: Record<string, string> = {
+      falsepositive: 'FALSE-POSITIVE',
+      wontfix: 'WONTFIX',
+      resolve: 'FIXED',
+    };
+
+    const issue = {
+      key: body.issue,
+      rule: 'typescript:S1234',
+      severity: 'MAJOR',
+      component: 'project:src/file.ts',
+      project: 'project',
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: statusMap[body.transition] ?? 'OPEN',
+      resolution: resolutionMap[body.transition],
+      tags: [],
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
+    });
+  }),
+
+  http.post('*/api/issues/set_tags', async ({ request }) => {
+    const body = (await request.json()) as { issue: string; tags: string };
+
+    const issue = {
+      key: body.issue,
+      rule: 'typescript:S1234',
+      severity: 'MAJOR',
+      component: 'project:src/file.ts',
+      project: 'project',
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: 'OPEN',
+      tags: body.tags ? body.tags.split(',').map((tag) => tag.trim()) : [],
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
     });
   }),
 

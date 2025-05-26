@@ -54,10 +54,11 @@ describe('SonarQubeClient', () => {
       const result = await client.getProjects();
 
       expect(capturedHeaders).toBeDefined();
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      expect(capturedHeaders!.get('Authorization')).toBe('Bearer test-token');
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      expect(capturedHeaders!.get('Content-Type')).toBe('application/json');
+      if (!capturedHeaders) {
+        throw new Error('Headers were not captured');
+      }
+      expect(capturedHeaders.get('Authorization')).toBe('Bearer test-token');
+      expect(capturedHeaders.get('Content-Type')).toBe('application/json');
       expect(result).toEqual(mockResponse);
     });
   });

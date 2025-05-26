@@ -9,14 +9,6 @@ import { handlers } from './handlers';
 export const server = setupServer(...handlers);
 
 /**
- * Enable request logging for debugging (disabled by default)
- * Uncomment to see all intercepted requests
- */
-// server.events.on('request:start', ({ request }) => {
-//   console.log('MSW intercepted:', request.method, request.url);
-// });
-
-/**
  * Log unhandled requests - helps identify missing handlers
  */
 server.events.on('request:unhandled', ({ request }) => {

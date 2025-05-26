@@ -138,15 +138,14 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchAzureRepos', () => {
       it('should search Azure repositories', async () => {
-        server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, ({ request }) => {
-            const url = new URL(request.url);
-            expect(url.searchParams.get('almSetting')).toBe('azure-devops');
-            expect(url.searchParams.get('projectName')).toBe('Project 1');
-            expect(url.searchParams.get('searchQuery')).toBe('repo');
-            return HttpResponse.json(mockAzureRepos);
-          })
-        );
+        const handler = ({ request }: { request: Request }): HttpResponse => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('almSetting')).toBe('azure-devops');
+          expect(url.searchParams.get('projectName')).toBe('Project 1');
+          expect(url.searchParams.get('searchQuery')).toBe('repo');
+          return HttpResponse.json(mockAzureRepos);
+        };
+        server.use(http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, handler));
 
         const result = await client.searchAzureRepos({
           almSetting: 'azure-devops',
@@ -168,11 +167,8 @@ describe('AlmIntegrationsClient', () => {
           paging: { pageIndex: 1, pageSize: 10, total: 2 },
         };
 
-        server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, () => {
-            return HttpResponse.json(builderResponse);
-          })
-        );
+        const handler = (): HttpResponse => HttpResponse.json(builderResponse);
+        server.use(http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, handler));
 
         const result = await client
           .searchAzureReposBuilder()
@@ -186,27 +182,26 @@ describe('AlmIntegrationsClient', () => {
       });
 
       it('should iterate through all repositories', async () => {
-        server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, ({ request }) => {
-            const url = new URL(request.url);
-            const page = url.searchParams.get('p') ?? '1';
+        const handler = ({ request }: { request: Request }): HttpResponse => {
+          const url = new URL(request.url);
+          const page = url.searchParams.get('p') ?? '1';
 
-            if (page === '1') {
-              return HttpResponse.json({
-                repositories: [
-                  { id: '1', name: 'Repo 1', project: 'Proj 1' },
-                  { id: '2', name: 'Repo 2', project: 'Proj 1' },
-                ],
-                paging: { pageIndex: 1, pageSize: 2, total: 3 },
-              });
-            } else {
-              return HttpResponse.json({
-                repositories: [{ id: '3', name: 'Repo 3', project: 'Proj 1' }],
-                paging: { pageIndex: 2, pageSize: 2, total: 3 },
-              });
-            }
-          })
-        );
+          if (page === '1') {
+            return HttpResponse.json({
+              repositories: [
+                { id: '1', name: 'Repo 1', project: 'Proj 1' },
+                { id: '2', name: 'Repo 2', project: 'Proj 1' },
+              ],
+              paging: { pageIndex: 1, pageSize: 2, total: 3 },
+            });
+          } else {
+            return HttpResponse.json({
+              repositories: [{ id: '3', name: 'Repo 3', project: 'Proj 1' }],
+              paging: { pageIndex: 2, pageSize: 2, total: 3 },
+            });
+          }
+        };
+        server.use(http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, handler));
 
         const builder = client
           .searchAzureReposBuilder()
@@ -252,10 +247,9 @@ describe('AlmIntegrationsClient', () => {
 
     describe('listBitbucketServerProjects', () => {
       it('should list Bitbucket Server projects', async () => {
+        const handler = (): HttpResponse => HttpResponse.json(mockBitbucketProjects);
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/list_bitbucketserver_projects`, () => {
-            return HttpResponse.json(mockBitbucketProjects);
-          })
+          http.get(`${baseUrl}/api/alm_integrations/list_bitbucketserver_projects`, handler)
         );
 
         const result = await client.listBitbucketServerProjects({
@@ -268,10 +262,9 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchBitbucketServerRepos', () => {
       it('should search Bitbucket Server repositories', async () => {
+        const handler = (): HttpResponse => HttpResponse.json(mockBitbucketRepos);
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, () => {
-            return HttpResponse.json(mockBitbucketRepos);
-          })
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, handler)
         );
 
         const result = await client.searchBitbucketServerRepos({
@@ -298,10 +291,9 @@ describe('AlmIntegrationsClient', () => {
           isLastPage: true,
         };
 
+        const handler = (): HttpResponse => HttpResponse.json(builderResponse);
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, () => {
-            return HttpResponse.json(builderResponse);
-          })
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, handler)
         );
 
         const result = await client
@@ -333,10 +325,9 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchBitbucketCloudRepos', () => {
       it('should search Bitbucket Cloud repositories', async () => {
+        const handler = (): HttpResponse => HttpResponse.json(mockBitbucketCloudRepos);
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, () => {
-            return HttpResponse.json(mockBitbucketCloudRepos);
-          })
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, handler)
         );
 
         const result = await client.searchBitbucketCloudRepos({
@@ -350,10 +341,9 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchBitbucketCloudReposBuilder', () => {
       it('should create a builder for Bitbucket Cloud repository search', async () => {
+        const handler = (): HttpResponse => HttpResponse.json(mockBitbucketCloudRepos);
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, () => {
-            return HttpResponse.json(mockBitbucketCloudRepos);
-          })
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, handler)
         );
 
         const result = await client
@@ -384,15 +374,14 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchGitLabRepos', () => {
       it('should search GitLab projects', async () => {
-        server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_gitlab_repos`, ({ request }) => {
-            const url = new URL(request.url);
-            expect(url.searchParams.get('almSetting')).toBe('gitlab');
-            expect(url.searchParams.get('projectName')).toBe('project');
-            expect(url.searchParams.get('minAccessLevel')).toBe('30');
-            return HttpResponse.json(mockGitLabProjects);
-          })
-        );
+        const handler = ({ request }: { request: Request }): HttpResponse => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('almSetting')).toBe('gitlab');
+          expect(url.searchParams.get('projectName')).toBe('project');
+          expect(url.searchParams.get('minAccessLevel')).toBe('30');
+          return HttpResponse.json(mockGitLabProjects);
+        };
+        server.use(http.get(`${baseUrl}/api/alm_integrations/search_gitlab_repos`, handler));
 
         const result = await client.searchGitLabRepos({
           almSetting: 'gitlab',
@@ -418,11 +407,8 @@ describe('AlmIntegrationsClient', () => {
           paging: { pageIndex: 1, pageSize: 10, total: 1 },
         };
 
-        server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_gitlab_repos`, () => {
-            return HttpResponse.json(builderResponse);
-          })
-        );
+        const handler = (): HttpResponse => HttpResponse.json(builderResponse);
+        server.use(http.get(`${baseUrl}/api/alm_integrations/search_gitlab_repos`, handler));
 
         const result = await client
           .searchGitLabReposBuilder()

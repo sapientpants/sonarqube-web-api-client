@@ -4,6 +4,7 @@ import { SonarQubeClient } from '../index';
 import { AuthenticationError } from '../errors';
 import { server } from '../test-utils/msw/server';
 import { createProjectsResponse, createIssuesResponse } from '../test-utils/msw/factories';
+import { assertAuthorizationHeader, assertContentTypeHeader } from '../test-utils/assertions';
 
 describe('SonarQubeClient', () => {
   describe('constructor', () => {
@@ -41,11 +42,11 @@ describe('SonarQubeClient', () => {
 
     it('should include auth token when provided', async () => {
       const mockResponse = createProjectsResponse([]);
-      let capturedHeaders: Headers | undefined;
 
       server.use(
         http.get('https://sonarqube.example.com/api/projects/search', ({ request }) => {
-          capturedHeaders = request.headers;
+          assertAuthorizationHeader(request, 'test-token');
+          assertContentTypeHeader(request);
           return HttpResponse.json(mockResponse);
         })
       );
@@ -53,12 +54,6 @@ describe('SonarQubeClient', () => {
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
       const result = await client.getProjects();
 
-      expect(capturedHeaders).toBeDefined();
-      if (!capturedHeaders) {
-        throw new Error('Headers were not captured');
-      }
-      expect(capturedHeaders.get('Authorization')).toBe('Bearer test-token');
-      expect(capturedHeaders.get('Content-Type')).toBe('application/json');
       expect(result).toEqual(mockResponse);
     });
   });

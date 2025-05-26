@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../test-utils/msw/server';
+import {
+  assertAuthorizationHeader,
+  assertNoAuthorizationHeader,
+  assertQueryParams,
+} from '../../../test-utils/assertions';
 import { AnalysisCacheClient } from '../AnalysisCacheClient';
 import { AuthorizationError } from '../../../errors';
 
@@ -20,9 +25,8 @@ describe('AnalysisCacheClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('project')).toBe('my-project');
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+          assertQueryParams(request, { project: 'my-project' });
+          assertAuthorizationHeader(request, token);
 
           return new HttpResponse(mockArrayBuffer, {
             status: 200,
@@ -42,9 +46,10 @@ describe('AnalysisCacheClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('project')).toBe('my-project');
-          expect(url.searchParams.get('branch')).toBe('feature/my-branch');
+          assertQueryParams(request, {
+            project: 'my-project',
+            branch: 'feature/my-branch',
+          });
 
           return new HttpResponse(mockArrayBuffer, {
             status: 200,
@@ -68,7 +73,7 @@ describe('AnalysisCacheClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+          assertAuthorizationHeader(request, token);
 
           return new HttpResponse(mockArrayBuffer, {
             status: 200,
@@ -92,8 +97,7 @@ describe('AnalysisCacheClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('project')).toBe('my-project');
+          assertQueryParams(request, { project: 'my-project' });
 
           // In production, this would have Content-Encoding: gzip and the data would be compressed
           // But for testing, we return uncompressed data as the runtime handles decompression
@@ -163,9 +167,10 @@ describe('AnalysisCacheClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('project')).toBe('my project with spaces');
-          expect(url.searchParams.get('branch')).toBe('feature/branch-with-#-special@chars');
+          assertQueryParams(request, {
+            project: 'my project with spaces',
+            branch: 'feature/branch-with-#-special@chars',
+          });
 
           return new HttpResponse(mockArrayBuffer, {
             status: 200,
@@ -187,9 +192,8 @@ describe('AnalysisCacheClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/analysis_cache/get`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('project')).toBe('my-project');
-          expect(request.headers.get('Authorization')).toBeNull();
+          assertQueryParams(request, { project: 'my-project' });
+          assertNoAuthorizationHeader(request);
 
           return new HttpResponse(mockArrayBuffer, {
             status: 200,

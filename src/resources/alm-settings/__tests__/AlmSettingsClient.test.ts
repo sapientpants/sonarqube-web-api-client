@@ -2,6 +2,11 @@ import { http, HttpResponse } from 'msw';
 import { AlmSettingsClient } from '../AlmSettingsClient';
 import { AuthenticationError } from '../../../errors';
 import { server } from '../../../test-utils/msw/server';
+import {
+  assertAuthorizationHeader,
+  assertQueryParams,
+  assertRequestBody,
+} from '../../../test-utils/assertions';
 
 describe('AlmSettingsClient', () => {
   let client: AlmSettingsClient;
@@ -14,9 +19,8 @@ describe('AlmSettingsClient', () => {
     it('should count bindings for an ALM setting', async () => {
       server.use(
         http.get('https://sonarqube.example.com/api/alm_settings/count_binding', ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('almSetting')).toBe('my-github');
-          expect(request.headers.get('Authorization')).toBe('Bearer test-token');
+          assertQueryParams(request, { almSetting: 'my-github' });
+          assertAuthorizationHeader(request, 'test-token');
           return HttpResponse.json({ projects: 5 });
         })
       );
@@ -32,13 +36,12 @@ describe('AlmSettingsClient', () => {
         http.post(
           'https://sonarqube.example.com/api/alm_settings/create_azure',
           async ({ request }) => {
-            const body = await request.json();
-            expect(body).toEqual({
+            await assertRequestBody(request, {
               key: 'my-azure',
               personalAccessToken: 'token123',
               url: 'https://dev.azure.com/myorg',
             });
-            expect(request.headers.get('Authorization')).toBe('Bearer test-token');
+            assertAuthorizationHeader(request, 'test-token');
             return new HttpResponse(null, { status: 200 });
           }
         )

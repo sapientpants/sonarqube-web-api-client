@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../test-utils/msw/server';
+import {
+  assertCommonHeaders,
+  assertRequestBody,
+  assertQueryParams,
+} from '../../../test-utils/assertions';
 import { ApplicationsClient } from '../ApplicationsClient';
 import { NotFoundError } from '../../../errors';
 import type {
@@ -35,10 +40,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/add_project`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -67,10 +70,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/create`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return HttpResponse.json(response);
         })
@@ -92,10 +93,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/create_branch`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -113,10 +112,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/delete`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -135,10 +132,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/delete_branch`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -157,10 +152,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/remove_project`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -179,13 +172,11 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/set_tags`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual({
+          await assertRequestBody(request, {
             application: 'my-app',
             tags: 'tag1,tag2,tag3',
           });
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -224,10 +215,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/applications/show`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('application')).toBe('my-app');
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          assertQueryParams(request, { application: 'my-app' });
+          assertCommonHeaders(request, token);
 
           return HttpResponse.json(response);
         })
@@ -253,11 +242,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.get(`${baseUrl}/api/applications/show`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('application')).toBe('my-app');
-          expect(url.searchParams.get('branch')).toBe('feature');
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          assertQueryParams(request, { application: 'my-app', branch: 'feature' });
+          assertCommonHeaders(request, token);
 
           return HttpResponse.json(response);
         })
@@ -278,10 +264,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/update`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })
@@ -303,10 +287,8 @@ describe('ApplicationsClient', () => {
 
       server.use(
         http.post(`${baseUrl}/api/applications/update_branch`, async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual(params);
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+          await assertRequestBody(request, params);
+          assertCommonHeaders(request, token);
 
           return new HttpResponse(null, { status: 204 });
         })

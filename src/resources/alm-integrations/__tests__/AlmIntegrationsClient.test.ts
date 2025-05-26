@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../test-utils/msw/server';
+import { assertAuthorizationHeader, assertQueryParams } from '../../../test-utils/assertions';
 import { AlmIntegrationsClient } from '../AlmIntegrationsClient';
 import { AuthenticationError } from '../../../errors';
 import type {
@@ -85,9 +86,8 @@ describe('AlmIntegrationsClient', () => {
     it('should list Azure projects', async () => {
       server.use(
         http.get(`${baseUrl}/api/alm_integrations/list_azure_projects`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('almSetting')).toBe('azure-devops');
-          expect(request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+          assertQueryParams(request, { almSetting: 'azure-devops' });
+          assertAuthorizationHeader(request, token);
           return HttpResponse.json(mockProjects);
         })
       );

@@ -1,3 +1,5 @@
+import { createErrorFromResponse, createNetworkError } from '../errors';
+
 /**
  * Response type options for BaseClient requests
  */
@@ -31,13 +33,18 @@ export abstract class BaseClient {
         : {}),
     };
 
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      ...options,
-      headers: mergedHeaders,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${url}`, {
+        ...options,
+        headers: mergedHeaders,
+      });
+    } catch (error) {
+      throw createNetworkError(error);
+    }
 
     if (!response.ok) {
-      throw new Error(`SonarQube API error: ${String(response.status)} ${response.statusText}`);
+      throw await createErrorFromResponse(response);
     }
 
     // Handle different response types

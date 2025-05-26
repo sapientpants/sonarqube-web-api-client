@@ -1,4 +1,5 @@
 import { ApplicationsClient } from '../ApplicationsClient';
+import { NotFoundError } from '../../../errors';
 import type {
   AddProjectRequest,
   CreateApplicationRequest,
@@ -366,12 +367,11 @@ describe('ApplicationsClient', () => {
         ok: false,
         status: 404,
         statusText: 'Not Found',
+        headers: new Headers(),
         text: async () => 'Application not found',
       });
 
-      await expect(client.delete({ application: 'non-existent' })).rejects.toThrow(
-        'SonarQube API error: 404 Not Found'
-      );
+      await expect(client.delete({ application: 'non-existent' })).rejects.toThrow(NotFoundError);
     });
   });
 });

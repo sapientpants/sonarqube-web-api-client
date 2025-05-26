@@ -1,4 +1,5 @@
 import { AnalysisCacheClient } from '../AnalysisCacheClient';
+import { AuthorizationError } from '../../../errors';
 
 describe('AnalysisCacheClient', () => {
   let client: AnalysisCacheClient;
@@ -101,15 +102,16 @@ describe('AnalysisCacheClient', () => {
         ok: false,
         status: 403,
         statusText: 'Forbidden',
-        json: jest.fn().mockResolvedValue({
-          errors: [{ msg: 'Insufficient privileges' }],
-        }),
+        headers: new Headers(),
+        text: jest.fn().mockResolvedValue(
+          JSON.stringify({
+            errors: [{ msg: 'Insufficient privileges' }],
+          })
+        ),
       };
       (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
-      await expect(client.get({ project: 'my-project' })).rejects.toThrow(
-        'SonarQube API error: 403 Forbidden'
-      );
+      await expect(client.get({ project: 'my-project' })).rejects.toThrow(AuthorizationError);
     });
 
     it('should handle empty cache data', async () => {

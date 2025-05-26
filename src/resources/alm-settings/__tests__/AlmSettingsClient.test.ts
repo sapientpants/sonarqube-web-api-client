@@ -1,4 +1,5 @@
 import { AlmSettingsClient } from '../AlmSettingsClient';
+import { AuthenticationError } from '../../../errors';
 
 describe('AlmSettingsClient', () => {
   let client: AlmSettingsClient;
@@ -605,9 +606,11 @@ describe('AlmSettingsClient', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
+        headers: new Headers(),
+        text: async () => '',
       });
 
-      await expect(client.list()).rejects.toThrow('SonarQube API error: 401 Unauthorized');
+      await expect(client.list()).rejects.toThrow(AuthenticationError);
     });
   });
 });

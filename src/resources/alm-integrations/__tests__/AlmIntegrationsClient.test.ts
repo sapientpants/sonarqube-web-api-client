@@ -1,4 +1,5 @@
 import { AlmIntegrationsClient } from '../AlmIntegrationsClient';
+import { AuthenticationError } from '../../../errors';
 import type {
   ListAzureProjectsResponse,
   SearchAzureReposResponse,
@@ -29,6 +30,8 @@ describe('AlmIntegrationsClient', () => {
       ok: false,
       status,
       statusText,
+      headers: new Headers(),
+      text: async () => '',
     }) as Response;
 
   const expectAuthHeaders = (): Record<string, string> => ({
@@ -98,7 +101,7 @@ describe('AlmIntegrationsClient', () => {
           almSetting: 'my-github',
           pat: 'invalid-token',
         })
-      ).rejects.toThrow('SonarQube API error: 401 Unauthorized');
+      ).rejects.toThrow(AuthenticationError);
     });
   });
 

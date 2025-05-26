@@ -1,6 +1,7 @@
 import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
+import { ApplicationsClient } from './resources/applications';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -20,6 +21,7 @@ export class SonarQubeClient {
   public readonly almIntegrations: AlmIntegrationsClient;
   public readonly almSettings: AlmSettingsClient;
   public readonly analysisCache: AnalysisCacheClient;
+  public readonly applications: ApplicationsClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -32,6 +34,7 @@ export class SonarQubeClient {
     this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token);
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
+    this.applications = new ApplicationsClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -135,3 +138,23 @@ export type {
   GetAnalysisCacheRequest,
   GetAnalysisCacheResponse,
 } from './resources/analysis-cache/types';
+
+// Re-export types from applications
+export type {
+  Application,
+  ApplicationBranch,
+  ApplicationProject,
+  ApplicationVisibility,
+  AddProjectRequest,
+  CreateApplicationRequest,
+  CreateApplicationResponse,
+  CreateBranchRequest,
+  DeleteApplicationRequest,
+  DeleteBranchRequest,
+  RemoveProjectRequest,
+  SetTagsRequest,
+  ShowApplicationRequest,
+  ShowApplicationResponse,
+  UpdateApplicationRequest,
+  UpdateBranchRequest,
+} from './resources/applications/types';

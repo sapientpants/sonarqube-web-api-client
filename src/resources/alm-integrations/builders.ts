@@ -1,4 +1,4 @@
-import { PaginatedBuilder, validateRequired } from '../../core/builders';
+import { RepositorySearchBuilder, validateRequired } from '../../core/builders';
 import type {
   SearchAzureReposRequest,
   SearchAzureReposResponse,
@@ -17,46 +17,37 @@ import type {
 /**
  * Builder for searching Azure repositories
  */
-export class AzureReposSearchBuilder extends PaginatedBuilder<
+export class AzureReposSearchBuilder extends RepositorySearchBuilder<
   SearchAzureReposRequest,
   SearchAzureReposResponse,
   AzureRepository
 > {
   /**
-   * Set the ALM setting key (required)
-   */
-  withAlmSetting(almSetting: string): this {
-    return this.setParam('almSetting', almSetting);
-  }
-
-  /**
    * Set the Azure project name (required)
+   * @override Uses projectName instead of projectKey
    */
-  inProject(projectName: string): this {
+  override inProject(projectName: string): this {
     return this.setParam('projectName', projectName);
   }
 
   /**
    * Set the search query to filter repositories
+   * @override Maps to searchQuery parameter
    */
-  withQuery(searchQuery: string): this {
+  override withQuery(searchQuery: string): this {
     return this.setParam('searchQuery', searchQuery);
   }
 
   /**
    * Execute the search
    */
-  async execute(): Promise<SearchAzureReposResponse> {
+  override async execute(): Promise<SearchAzureReposResponse> {
     validateRequired(this.params.almSetting, 'ALM setting');
-    validateRequired(this.params.projectName, 'Project name');
-
+    validateRequired(this.params.projectName, 'Azure project name');
     return this.executor(this.params as SearchAzureReposRequest);
   }
 
-  /**
-   * Get the items from the response
-   */
-  protected getItems(response: SearchAzureReposResponse): AzureRepository[] {
+  protected override getItems(response: SearchAzureReposResponse): AzureRepository[] {
     return response.repositories;
   }
 }
@@ -64,29 +55,22 @@ export class AzureReposSearchBuilder extends PaginatedBuilder<
 /**
  * Builder for searching Bitbucket Server repositories
  */
-export class BitbucketServerReposSearchBuilder extends PaginatedBuilder<
+export class BitbucketServerReposSearchBuilder extends RepositorySearchBuilder<
   SearchBitbucketServerReposRequest,
   SearchBitbucketServerReposResponse,
   BitbucketServerRepository
 > {
   /**
-   * Set the ALM setting key (required)
-   */
-  withAlmSetting(almSetting: string): this {
-    return this.setParam('almSetting', almSetting);
-  }
-
-  /**
-   * Set the Bitbucket project key (required)
-   */
-  inProject(projectKey: string): this {
-    return this.setParam('projectKey', projectKey);
-  }
-
-  /**
-   * Set the repository name to filter
+   * Set the repository name filter
    */
   withRepositoryName(repositoryName: string): this {
+    return this.setParam('repositoryName', repositoryName);
+  }
+
+  /**
+   * Set the repository slug filter
+   */
+  withRepoSlug(repositoryName: string): this {
     return this.setParam('repositoryName', repositoryName);
   }
 
@@ -95,14 +79,10 @@ export class BitbucketServerReposSearchBuilder extends PaginatedBuilder<
    */
   async execute(): Promise<SearchBitbucketServerReposResponse> {
     validateRequired(this.params.almSetting, 'ALM setting');
-    validateRequired(this.params.projectKey, 'Project key');
-
+    validateRequired(this.params.projectKey, 'Bitbucket project key');
     return this.executor(this.params as SearchBitbucketServerReposRequest);
   }
 
-  /**
-   * Get the items from the response
-   */
   protected getItems(response: SearchBitbucketServerReposResponse): BitbucketServerRepository[] {
     return response.repositories;
   }
@@ -111,30 +91,31 @@ export class BitbucketServerReposSearchBuilder extends PaginatedBuilder<
 /**
  * Builder for searching Bitbucket Cloud repositories
  */
-export class BitbucketCloudReposSearchBuilder extends PaginatedBuilder<
+export class BitbucketCloudReposSearchBuilder extends RepositorySearchBuilder<
   SearchBitbucketCloudReposRequest,
   SearchBitbucketCloudReposResponse,
   BitbucketCloudRepository
 > {
   /**
-   * Set the ALM setting key (required)
+   * Set the workspace
    */
-  withAlmSetting(almSetting: string): this {
-    return this.setParam('almSetting', almSetting);
+  inWorkspace(workspace: string): this {
+    return this.setParam('workspaceId', workspace);
   }
 
   /**
-   * Set the Bitbucket workspace ID (required)
+   * Set the repository name filter
+   * @deprecated Use withRepoSlug instead
    */
-  inWorkspace(workspaceId: string): this {
-    return this.setParam('workspaceId', workspaceId);
+  withRepositoryName(repoSlug: string): this {
+    return this.withRepoSlug(repoSlug);
   }
 
   /**
-   * Set the repository name to filter
+   * Set the repository name filter
    */
-  withRepositoryName(repositoryName: string): this {
-    return this.setParam('repositoryName', repositoryName);
+  withRepoSlug(repoSlug: string): this {
+    return this.setParam('repositoryName', repoSlug);
   }
 
   /**
@@ -142,14 +123,9 @@ export class BitbucketCloudReposSearchBuilder extends PaginatedBuilder<
    */
   async execute(): Promise<SearchBitbucketCloudReposResponse> {
     validateRequired(this.params.almSetting, 'ALM setting');
-    validateRequired(this.params.workspaceId, 'Workspace ID');
-
     return this.executor(this.params as SearchBitbucketCloudReposRequest);
   }
 
-  /**
-   * Get the items from the response
-   */
   protected getItems(response: SearchBitbucketCloudReposResponse): BitbucketCloudRepository[] {
     return response.repositories;
   }
@@ -158,28 +134,20 @@ export class BitbucketCloudReposSearchBuilder extends PaginatedBuilder<
 /**
  * Builder for searching GitLab projects
  */
-export class GitLabReposSearchBuilder extends PaginatedBuilder<
+export class GitLabReposSearchBuilder extends RepositorySearchBuilder<
   SearchGitLabReposRequest,
   SearchGitLabReposResponse,
   GitLabProject
 > {
   /**
-   * Set the ALM setting key (required)
-   */
-  withAlmSetting(almSetting: string): this {
-    return this.setParam('almSetting', almSetting);
-  }
-
-  /**
-   * Set the project name to search for
+   * Set the GitLab project name filter
    */
   withProjectName(projectName: string): this {
     return this.setParam('projectName', projectName);
   }
 
   /**
-   * Set the minimum access level (GitLab permission level)
-   * 10 = Guest, 20 = Reporter, 30 = Developer, 40 = Maintainer, 50 = Owner
+   * Set the minimum access level
    */
   withMinAccessLevel(minAccessLevel: number): this {
     return this.setParam('minAccessLevel', minAccessLevel);
@@ -190,13 +158,9 @@ export class GitLabReposSearchBuilder extends PaginatedBuilder<
    */
   async execute(): Promise<SearchGitLabReposResponse> {
     validateRequired(this.params.almSetting, 'ALM setting');
-
     return this.executor(this.params as SearchGitLabReposRequest);
   }
 
-  /**
-   * Get the items from the response
-   */
   protected getItems(response: SearchGitLabReposResponse): GitLabProject[] {
     return response.projects;
   }

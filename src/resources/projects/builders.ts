@@ -1,7 +1,6 @@
-import { BaseBuilder, PaginatedBuilder } from '../../core/builders';
+import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
 import type {
   BulkDeleteProjectsRequest,
-  ProjectQualifier,
   ProjectSearchResult,
   SearchProjectsRequest,
   SearchProjectsResponse,
@@ -34,53 +33,28 @@ export class BulkDeleteProjectsBuilder extends BaseBuilder<BulkDeleteProjectsReq
   /**
    * Filter projects last analyzed before the given date (inclusive).
    * Format: date or datetime ISO formats
-   *
-   * @param date - The date threshold
-   * @returns The builder instance for chaining
    */
-  analyzedBefore(date: string): this {
-    return this.setParam('analyzedBefore', date);
-  }
+  analyzedBefore = ParameterHelpers.createStringMethod<typeof this>('analyzedBefore');
 
   /**
    * Filter projects that are provisioned only (not analyzed yet).
-   *
-   * @param value - Whether to filter provisioned only projects (default: true)
-   * @returns The builder instance for chaining
    */
-  onProvisionedOnly(value = true): this {
-    return this.setParam('onProvisionedOnly', value);
-  }
+  onProvisionedOnly = ParameterHelpers.createBooleanMethod<typeof this>('onProvisionedOnly');
 
   /**
    * Comma-separated list of project keys to delete.
-   *
-   * @param projectKeys - Array of project keys
-   * @returns The builder instance for chaining
    */
-  projects(projectKeys: string[]): this {
-    return this.setParam('projects', projectKeys);
-  }
+  projects = ParameterHelpers.createArrayMethod<typeof this>('projects');
 
   /**
    * Limit search to projects that contain the supplied string in their key or name.
-   *
-   * @param query - The search query
-   * @returns The builder instance for chaining
    */
-  query(query: string): this {
-    return this.setParam('q', query);
-  }
+  query = ParameterHelpers.createStringMethod<typeof this>('q');
 
   /**
    * Filter projects by qualifiers.
-   *
-   * @param qualifiers - Array of project qualifiers
-   * @returns The builder instance for chaining
    */
-  qualifiers(qualifiers: ProjectQualifier[]): this {
-    return this.setParam('qualifiers', qualifiers);
-  }
+  qualifiers = ParameterHelpers.createArrayMethod<typeof this>('qualifiers');
 
   async execute(): Promise<void> {
     // Validate that at least one parameter is provided
@@ -128,53 +102,28 @@ export class SearchProjectsBuilder extends PaginatedBuilder<
   /**
    * Filter projects last analyzed before the given date (inclusive).
    * Format: date or datetime ISO formats
-   *
-   * @param date - The date threshold
-   * @returns The builder instance for chaining
    */
-  analyzedBefore(date: string): this {
-    return this.setParam('analyzedBefore', date);
-  }
+  analyzedBefore = ParameterHelpers.createStringMethod<typeof this>('analyzedBefore');
 
   /**
    * Filter projects that are provisioned only (not analyzed yet).
-   *
-   * @param value - Whether to filter provisioned only projects (default: true)
-   * @returns The builder instance for chaining
    */
-  onProvisionedOnly(value = true): this {
-    return this.setParam('onProvisionedOnly', value);
-  }
+  onProvisionedOnly = ParameterHelpers.createBooleanMethod<typeof this>('onProvisionedOnly');
 
   /**
    * Comma-separated list of project keys to filter.
-   *
-   * @param projectKeys - Array of project keys
-   * @returns The builder instance for chaining
    */
-  projects(projectKeys: string[]): this {
-    return this.setParam('projects', projectKeys);
-  }
+  projects = ParameterHelpers.createArrayMethod<typeof this>('projects');
 
   /**
    * Limit search to projects that contain the supplied string in their key or name.
-   *
-   * @param query - The search query
-   * @returns The builder instance for chaining
    */
-  query(query: string): this {
-    return this.setParam('q', query);
-  }
+  query = ParameterHelpers.createStringMethod<typeof this>('q');
 
   /**
    * Filter projects by qualifiers.
-   *
-   * @param qualifiers - Array of project qualifiers
-   * @returns The builder instance for chaining
    */
-  qualifiers(qualifiers: ProjectQualifier[]): this {
-    return this.setParam('qualifiers', qualifiers);
-  }
+  qualifiers = ParameterHelpers.createArrayMethod<typeof this>('qualifiers');
 
   async execute(): Promise<SearchProjectsResponse> {
     return this.executor(this.params as SearchProjectsRequest);

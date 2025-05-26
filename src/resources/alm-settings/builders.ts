@@ -1,4 +1,9 @@
-import { BaseBuilder, isRequired, validateRequired, validateOAuth } from '../../core/builders';
+import {
+  AlmSettingsBuilderWithOAuth,
+  ProjectBindingBuilder,
+  validateRequired,
+  validateOAuth,
+} from '../../core/builders';
 import type {
   CreateGitHubRequest,
   UpdateGitHubRequest,
@@ -14,7 +19,9 @@ import type {
 /**
  * Base builder for GitHub ALM settings operations
  */
-abstract class BaseGitHubBuilder<TRequest> extends BaseBuilder<TRequest> {
+abstract class BaseGitHubBuilder<
+  TRequest extends { clientId?: string; clientSecret?: string },
+> extends AlmSettingsBuilderWithOAuth<TRequest> {
   constructor(executor: (params: TRequest) => Promise<void>, key: string) {
     super(executor);
     this.setParam('key' as keyof TRequest, key as TRequest[keyof TRequest]);
@@ -25,13 +32,6 @@ abstract class BaseGitHubBuilder<TRequest> extends BaseBuilder<TRequest> {
    */
   withAppId(appId: string): this {
     return this.setParam('appId' as keyof TRequest, appId as TRequest[keyof TRequest]);
-  }
-
-  /**
-   * Set the OAuth client ID and secret
-   */
-  withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret } as unknown as Partial<TRequest>);
   }
 
   /**
@@ -92,21 +92,16 @@ export class UpdateGitHubBuilder extends BaseGitHubBuilder<UpdateGitHubRequest> 
 /**
  * Base builder for Bitbucket Cloud ALM settings operations
  */
-abstract class BaseBitbucketCloudBuilder<TRequest> extends BaseBuilder<TRequest> {
+abstract class BaseBitbucketCloudBuilder<
+  TRequest extends { clientId?: string; clientSecret?: string },
+> extends AlmSettingsBuilderWithOAuth<TRequest> {
   constructor(executor: (params: TRequest) => Promise<void>, key: string) {
     super(executor);
     this.setParam('key' as keyof TRequest, key as TRequest[keyof TRequest]);
   }
 
   /**
-   * Set the OAuth consumer key (client ID) and secret
-   */
-  withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret } as unknown as Partial<TRequest>);
-  }
-
-  /**
-   * Set the Bitbucket workspace ID
+   * Set the workspace ID
    */
   withWorkspace(workspace: string): this {
     return this.setParam('workspace' as keyof TRequest, workspace as TRequest[keyof TRequest]);
@@ -118,10 +113,8 @@ abstract class BaseBitbucketCloudBuilder<TRequest> extends BaseBuilder<TRequest>
  */
 export class CreateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<CreateBitbucketCloudRequest> {
   async execute(): Promise<void> {
-    if (!isRequired(this.params.clientId) || !isRequired(this.params.clientSecret)) {
-      throw new Error('OAuth consumer key and secret are required');
-    }
-    validateRequired(this.params.workspace, 'Workspace');
+    validateRequired(this.params.workspace, 'Workspace ID');
+    validateOAuth(this.params.clientId, this.params.clientSecret, 'OAuth');
 
     return this.executor(this.params as CreateBitbucketCloudRequest);
   }
@@ -144,38 +137,27 @@ export class UpdateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<Updat
 }
 
 /**
- * Base builder for project binding operations
+ * Builder for setting Azure DevOps project binding
  */
-abstract class BaseBindingBuilder<TRequest> extends BaseBuilder<TRequest> {
-  constructor(executor: (params: TRequest) => Promise<void>, project: string, almSetting: string) {
-    super(executor);
-    // Type assertion is safe here as all binding requests have project and almSetting fields
-    this.setParams({ project, almSetting } as unknown as Partial<TRequest>);
-  }
-
+export class SetAzureBindingBuilder extends ProjectBindingBuilder<SetAzureBindingRequest> {
   /**
-   * Mark this as a monorepo binding
+   * Whether the project is a monorepo (defaults to false)
    */
-  asMonorepo(): this {
-    return this.setParam('monorepo' as keyof TRequest, true as TRequest[keyof TRequest]);
+  asMonorepo(monorepo = true): this {
+    return this.setParam('monorepo', monorepo);
   }
-}
 
-/**
- * Builder for setting Azure DevOps bindings
- */
-export class SetAzureBindingBuilder extends BaseBindingBuilder<SetAzureBindingRequest> {
   /**
    * Set the Azure project name
    */
-  withProjectName(projectName: string): this {
+  withAzureProjectName(projectName: string): this {
     return this.setParam('projectName', projectName);
   }
 
   /**
-   * Set the Azure repository name
+   * Set the repository name
    */
-  withRepository(repositoryName: string): this {
+  withRepositoryName(repositoryName: string): this {
     return this.setParam('repositoryName', repositoryName);
   }
 
@@ -188,11 +170,18 @@ export class SetAzureBindingBuilder extends BaseBindingBuilder<SetAzureBindingRe
 }
 
 /**
- * Builder for setting Bitbucket Server bindings
+ * Builder for setting Bitbucket Server project binding
  */
-export class SetBitbucketBindingBuilder extends BaseBindingBuilder<SetBitbucketBindingRequest> {
+export class SetBitbucketBindingBuilder extends ProjectBindingBuilder<SetBitbucketBindingRequest> {
   /**
-   * Set the Bitbucket repository
+   * Whether the project is a monorepo (defaults to false)
+   */
+  asMonorepo(monorepo = true): this {
+    return this.setParam('monorepo', monorepo);
+  }
+
+  /**
+   * Set the Bitbucket project key
    */
   withRepository(repository: string): this {
     return this.setParam('repository', repository);
@@ -201,12 +190,12 @@ export class SetBitbucketBindingBuilder extends BaseBindingBuilder<SetBitbucketB
   /**
    * Set the repository slug
    */
-  withSlug(slug: string): this {
+  withRepositorySlug(slug: string): this {
     return this.setParam('slug', slug);
   }
 
   async execute(): Promise<void> {
-    validateRequired(this.params.repository, 'Repository');
+    validateRequired(this.params.repository, 'Bitbucket repository');
     validateRequired(this.params.slug, 'Repository slug');
 
     return this.executor(this.params as SetBitbucketBindingRequest);
@@ -214,11 +203,18 @@ export class SetBitbucketBindingBuilder extends BaseBindingBuilder<SetBitbucketB
 }
 
 /**
- * Builder for setting Bitbucket Cloud bindings
+ * Builder for setting Bitbucket Cloud project binding
  */
-export class SetBitbucketCloudBindingBuilder extends BaseBindingBuilder<SetBitbucketCloudBindingRequest> {
+export class SetBitbucketCloudBindingBuilder extends ProjectBindingBuilder<SetBitbucketCloudBindingRequest> {
   /**
-   * Set the Bitbucket repository
+   * Whether the project is a monorepo (defaults to false)
+   */
+  asMonorepo(monorepo = true): this {
+    return this.setParam('monorepo', monorepo);
+  }
+
+  /**
+   * Set the repository slug
    */
   withRepository(repository: string): this {
     return this.setParam('repository', repository);
@@ -232,21 +228,28 @@ export class SetBitbucketCloudBindingBuilder extends BaseBindingBuilder<SetBitbu
 }
 
 /**
- * Builder for setting GitHub bindings
+ * Builder for setting GitHub project binding
  */
-export class SetGitHubBindingBuilder extends BaseBindingBuilder<SetGitHubBindingRequest> {
+export class SetGitHubBindingBuilder extends ProjectBindingBuilder<SetGitHubBindingRequest> {
   /**
-   * Set the GitHub repository
+   * Whether the project is a monorepo (defaults to false)
+   */
+  asMonorepo(monorepo = true): this {
+    return this.setParam('monorepo', monorepo);
+  }
+
+  /**
+   * Set the repository key
    */
   withRepository(repository: string): this {
     return this.setParam('repository', repository);
   }
 
   /**
-   * Enable summary comments on pull requests
+   * Whether to display summary comments on pull requests (defaults to false)
    */
-  withSummaryComments(enabled = true): this {
-    return this.setParam('summaryCommentEnabled', enabled);
+  withSummaryComments(summaryCommentEnabled = true): this {
+    return this.setParam('summaryCommentEnabled', summaryCommentEnabled);
   }
 
   async execute(): Promise<void> {
@@ -257,11 +260,18 @@ export class SetGitHubBindingBuilder extends BaseBindingBuilder<SetGitHubBinding
 }
 
 /**
- * Builder for setting GitLab bindings
+ * Builder for setting GitLab project binding
  */
-export class SetGitLabBindingBuilder extends BaseBindingBuilder<SetGitLabBindingRequest> {
+export class SetGitLabBindingBuilder extends ProjectBindingBuilder<SetGitLabBindingRequest> {
   /**
-   * Set the GitLab repository
+   * Whether the project is a monorepo (defaults to false)
+   */
+  asMonorepo(monorepo = true): this {
+    return this.setParam('monorepo', monorepo);
+  }
+
+  /**
+   * Set the repository key
    */
   withRepository(repository: string): this {
     return this.setParam('repository', repository);

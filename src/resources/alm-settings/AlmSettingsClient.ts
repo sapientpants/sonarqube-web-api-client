@@ -27,6 +27,17 @@ import type {
   ValidateAlmSettingRequest,
   ValidateAlmSettingResponse,
 } from './types';
+import {
+  CreateGitHubBuilder,
+  UpdateGitHubBuilder,
+  CreateBitbucketCloudBuilder,
+  UpdateBitbucketCloudBuilder,
+  SetAzureBindingBuilder,
+  SetBitbucketBindingBuilder,
+  SetBitbucketCloudBindingBuilder,
+  SetGitHubBindingBuilder,
+  SetGitLabBindingBuilder,
+} from './builders';
 
 /**
  * Client for managing DevOps Platform Settings (ALM Settings)
@@ -294,5 +305,122 @@ export class AlmSettingsClient extends BaseClient {
       key: params.key,
     });
     return this.request(`/api/alm_settings/validate?${query.toString()}`);
+  }
+
+  // Builder methods
+
+  /**
+   * Create a builder for creating GitHub ALM settings
+   * @param key The unique key for the ALM setting
+   * @returns A builder for creating GitHub settings
+   */
+  createGitHubBuilder(key: string): CreateGitHubBuilder {
+    return new CreateGitHubBuilder(async (params) => this.createGitHub(params), key);
+  }
+
+  /**
+   * Create a builder for updating GitHub ALM settings
+   * @param key The key of the ALM setting to update
+   * @returns A builder for updating GitHub settings
+   */
+  updateGitHubBuilder(key: string): UpdateGitHubBuilder {
+    return new UpdateGitHubBuilder(async (params) => this.updateGitHub(params), key);
+  }
+
+  /**
+   * Create a builder for creating Bitbucket Cloud ALM settings
+   * @param key The unique key for the ALM setting
+   * @returns A builder for creating Bitbucket Cloud settings
+   */
+  createBitbucketCloudBuilder(key: string): CreateBitbucketCloudBuilder {
+    return new CreateBitbucketCloudBuilder(
+      async (params) => this.createBitbucketCloud(params),
+      key
+    );
+  }
+
+  /**
+   * Create a builder for updating Bitbucket Cloud ALM settings
+   * @param key The key of the ALM setting to update
+   * @returns A builder for updating Bitbucket Cloud settings
+   */
+  updateBitbucketCloudBuilder(key: string): UpdateBitbucketCloudBuilder {
+    return new UpdateBitbucketCloudBuilder(
+      async (params) => this.updateBitbucketCloud(params),
+      key
+    );
+  }
+
+  /**
+   * Create a builder for setting Azure DevOps project bindings
+   * @param project The project key
+   * @param almSetting The ALM setting key
+   * @returns A builder for setting Azure bindings
+   */
+  setAzureBindingBuilder(project: string, almSetting: string): SetAzureBindingBuilder {
+    return new SetAzureBindingBuilder(
+      async (params) => this.setAzureBinding(params),
+      project,
+      almSetting
+    );
+  }
+
+  /**
+   * Create a builder for setting Bitbucket Server project bindings
+   * @param project The project key
+   * @param almSetting The ALM setting key
+   * @returns A builder for setting Bitbucket bindings
+   */
+  setBitbucketBindingBuilder(project: string, almSetting: string): SetBitbucketBindingBuilder {
+    return new SetBitbucketBindingBuilder(
+      async (params) => this.setBitbucketBinding(params),
+      project,
+      almSetting
+    );
+  }
+
+  /**
+   * Create a builder for setting Bitbucket Cloud project bindings
+   * @param project The project key
+   * @param almSetting The ALM setting key
+   * @returns A builder for setting Bitbucket Cloud bindings
+   */
+  setBitbucketCloudBindingBuilder(
+    project: string,
+    almSetting: string
+  ): SetBitbucketCloudBindingBuilder {
+    return new SetBitbucketCloudBindingBuilder(
+      async (params) => this.setBitbucketCloudBinding(params),
+      project,
+      almSetting
+    );
+  }
+
+  /**
+   * Create a builder for setting GitHub project bindings
+   * @param project The project key
+   * @param almSetting The ALM setting key
+   * @returns A builder for setting GitHub bindings
+   */
+  setGitHubBindingBuilder(project: string, almSetting: string): SetGitHubBindingBuilder {
+    return new SetGitHubBindingBuilder(
+      async (params) => this.setGitHubBinding(params),
+      project,
+      almSetting
+    );
+  }
+
+  /**
+   * Create a builder for setting GitLab project bindings
+   * @param project The project key
+   * @param almSetting The ALM setting key
+   * @returns A builder for setting GitLab bindings
+   */
+  setGitLabBindingBuilder(project: string, almSetting: string): SetGitLabBindingBuilder {
+    return new SetGitLabBindingBuilder(
+      async (params) => this.setGitLabBinding(params),
+      project,
+      almSetting
+    );
   }
 }

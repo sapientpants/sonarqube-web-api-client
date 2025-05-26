@@ -1,3 +1,4 @@
+import { PaginatedBuilder, validateRequired } from '../../core/builders';
 import type {
   SearchAzureReposRequest,
   SearchAzureReposResponse,
@@ -14,255 +15,166 @@ import type {
 } from './types';
 
 /**
- * Base builder for search operations
- */
-abstract class BaseSearchBuilder<TRequest, TResponse> {
-  protected params: Partial<TRequest> = {};
-
-  constructor(protected executor: (params: TRequest) => Promise<TResponse>) {}
-
-  /**
-   * Set the page number
-   */
-  page(pageNumber: number): this {
-    const params = this.params as { p?: number };
-    params.p = pageNumber;
-    return this;
-  }
-
-  /**
-   * Set the page size
-   */
-  pageSize(size: number): this {
-    const params = this.params as { ps?: number };
-    params.ps = size;
-    return this;
-  }
-
-  /**
-   * Execute the search query
-   */
-  abstract execute(): Promise<TResponse>;
-}
-
-/**
  * Builder for searching Azure repositories
  */
-export class AzureReposSearchBuilder extends BaseSearchBuilder<
+export class AzureReposSearchBuilder extends PaginatedBuilder<
   SearchAzureReposRequest,
-  SearchAzureReposResponse
+  SearchAzureReposResponse,
+  AzureRepository
 > {
   /**
    * Set the ALM setting key (required)
    */
   withAlmSetting(almSetting: string): this {
-    this.params.almSetting = almSetting;
-    return this;
+    return this.setParam('almSetting', almSetting);
   }
 
   /**
    * Set the Azure project name (required)
    */
   inProject(projectName: string): this {
-    this.params.projectName = projectName;
-    return this;
+    return this.setParam('projectName', projectName);
   }
 
   /**
    * Set the search query to filter repositories
    */
   withQuery(searchQuery: string): this {
-    this.params.searchQuery = searchQuery;
-    return this;
+    return this.setParam('searchQuery', searchQuery);
   }
 
   /**
    * Execute the search
    */
   async execute(): Promise<SearchAzureReposResponse> {
-    if (this.params.almSetting === undefined || this.params.almSetting === '') {
-      throw new Error('ALM setting is required');
-    }
-    if (this.params.projectName === undefined || this.params.projectName === '') {
-      throw new Error('Project name is required');
-    }
+    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.projectName, 'Project name');
 
     return this.executor(this.params as SearchAzureReposRequest);
   }
 
   /**
-   * Execute and return all repositories using async iteration
+   * Get the items from the response
    */
-  async *all(): AsyncGenerator<AzureRepository> {
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.page(page).execute();
-
-      for (const repo of response.repositories) {
-        yield repo;
-      }
-
-      const totalPages = Math.ceil(response.paging.total / response.paging.pageSize);
-      hasMore = page < totalPages;
-      page++;
-    }
+  protected getItems(response: SearchAzureReposResponse): AzureRepository[] {
+    return response.repositories;
   }
 }
 
 /**
  * Builder for searching Bitbucket Server repositories
  */
-export class BitbucketServerReposSearchBuilder extends BaseSearchBuilder<
+export class BitbucketServerReposSearchBuilder extends PaginatedBuilder<
   SearchBitbucketServerReposRequest,
-  SearchBitbucketServerReposResponse
+  SearchBitbucketServerReposResponse,
+  BitbucketServerRepository
 > {
   /**
    * Set the ALM setting key (required)
    */
   withAlmSetting(almSetting: string): this {
-    this.params.almSetting = almSetting;
-    return this;
+    return this.setParam('almSetting', almSetting);
   }
 
   /**
    * Set the Bitbucket project key (required)
    */
   inProject(projectKey: string): this {
-    this.params.projectKey = projectKey;
-    return this;
+    return this.setParam('projectKey', projectKey);
   }
 
   /**
    * Set the repository name to filter
    */
   withRepositoryName(repositoryName: string): this {
-    this.params.repositoryName = repositoryName;
-    return this;
+    return this.setParam('repositoryName', repositoryName);
   }
 
   /**
    * Execute the search
    */
   async execute(): Promise<SearchBitbucketServerReposResponse> {
-    if (this.params.almSetting === undefined || this.params.almSetting === '') {
-      throw new Error('ALM setting is required');
-    }
-    if (this.params.projectKey === undefined || this.params.projectKey === '') {
-      throw new Error('Project key is required');
-    }
+    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.projectKey, 'Project key');
 
     return this.executor(this.params as SearchBitbucketServerReposRequest);
   }
 
   /**
-   * Execute and return all repositories using async iteration
+   * Get the items from the response
    */
-  async *all(): AsyncGenerator<BitbucketServerRepository> {
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.page(page).execute();
-
-      for (const repo of response.repositories) {
-        yield repo;
-      }
-
-      hasMore = !response.isLastPage;
-      page++;
-    }
+  protected getItems(response: SearchBitbucketServerReposResponse): BitbucketServerRepository[] {
+    return response.repositories;
   }
 }
 
 /**
  * Builder for searching Bitbucket Cloud repositories
  */
-export class BitbucketCloudReposSearchBuilder extends BaseSearchBuilder<
+export class BitbucketCloudReposSearchBuilder extends PaginatedBuilder<
   SearchBitbucketCloudReposRequest,
-  SearchBitbucketCloudReposResponse
+  SearchBitbucketCloudReposResponse,
+  BitbucketCloudRepository
 > {
   /**
    * Set the ALM setting key (required)
    */
   withAlmSetting(almSetting: string): this {
-    this.params.almSetting = almSetting;
-    return this;
+    return this.setParam('almSetting', almSetting);
   }
 
   /**
    * Set the Bitbucket workspace ID (required)
    */
   inWorkspace(workspaceId: string): this {
-    this.params.workspaceId = workspaceId;
-    return this;
+    return this.setParam('workspaceId', workspaceId);
   }
 
   /**
    * Set the repository name to filter
    */
   withRepositoryName(repositoryName: string): this {
-    this.params.repositoryName = repositoryName;
-    return this;
+    return this.setParam('repositoryName', repositoryName);
   }
 
   /**
    * Execute the search
    */
   async execute(): Promise<SearchBitbucketCloudReposResponse> {
-    if (this.params.almSetting === undefined || this.params.almSetting === '') {
-      throw new Error('ALM setting is required');
-    }
-    if (this.params.workspaceId === undefined || this.params.workspaceId === '') {
-      throw new Error('Workspace ID is required');
-    }
+    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.workspaceId, 'Workspace ID');
 
     return this.executor(this.params as SearchBitbucketCloudReposRequest);
   }
 
   /**
-   * Execute and return all repositories using async iteration
+   * Get the items from the response
    */
-  async *all(): AsyncGenerator<BitbucketCloudRepository> {
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.page(page).execute();
-
-      for (const repo of response.repositories) {
-        yield repo;
-      }
-
-      const totalPages = Math.ceil(response.paging.total / response.paging.pageSize);
-      hasMore = page < totalPages;
-      page++;
-    }
+  protected getItems(response: SearchBitbucketCloudReposResponse): BitbucketCloudRepository[] {
+    return response.repositories;
   }
 }
 
 /**
  * Builder for searching GitLab projects
  */
-export class GitLabReposSearchBuilder extends BaseSearchBuilder<
+export class GitLabReposSearchBuilder extends PaginatedBuilder<
   SearchGitLabReposRequest,
-  SearchGitLabReposResponse
+  SearchGitLabReposResponse,
+  GitLabProject
 > {
   /**
    * Set the ALM setting key (required)
    */
   withAlmSetting(almSetting: string): this {
-    this.params.almSetting = almSetting;
-    return this;
+    return this.setParam('almSetting', almSetting);
   }
 
   /**
    * Set the project name to search for
    */
   withProjectName(projectName: string): this {
-    this.params.projectName = projectName;
-    return this;
+    return this.setParam('projectName', projectName);
   }
 
   /**
@@ -270,38 +182,22 @@ export class GitLabReposSearchBuilder extends BaseSearchBuilder<
    * 10 = Guest, 20 = Reporter, 30 = Developer, 40 = Maintainer, 50 = Owner
    */
   withMinAccessLevel(minAccessLevel: number): this {
-    this.params.minAccessLevel = minAccessLevel;
-    return this;
+    return this.setParam('minAccessLevel', minAccessLevel);
   }
 
   /**
    * Execute the search
    */
   async execute(): Promise<SearchGitLabReposResponse> {
-    if (this.params.almSetting === undefined || this.params.almSetting === '') {
-      throw new Error('ALM setting is required');
-    }
+    validateRequired(this.params.almSetting, 'ALM setting');
 
     return this.executor(this.params as SearchGitLabReposRequest);
   }
 
   /**
-   * Execute and return all projects using async iteration
+   * Get the items from the response
    */
-  async *all(): AsyncGenerator<GitLabProject> {
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.page(page).execute();
-
-      for (const project of response.projects) {
-        yield project;
-      }
-
-      const totalPages = Math.ceil(response.paging.total / response.paging.pageSize);
-      hasMore = page < totalPages;
-      page++;
-    }
+  protected getItems(response: SearchGitLabReposResponse): GitLabProject[] {
+    return response.projects;
   }
 }

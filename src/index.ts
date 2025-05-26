@@ -1,5 +1,6 @@
 import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
+import { AnalysisCacheClient } from './resources/analysis-cache';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -18,6 +19,7 @@ export class SonarQubeClient {
   // Resource clients
   public readonly almIntegrations: AlmIntegrationsClient;
   public readonly almSettings: AlmSettingsClient;
+  public readonly analysisCache: AnalysisCacheClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -29,6 +31,7 @@ export class SonarQubeClient {
     // Initialize resource clients
     this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token);
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
+    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -126,3 +129,9 @@ export type {
   // Validation types
   AlmSettingValidationError,
 } from './resources/alm-settings/types';
+
+// Re-export types from analysis cache
+export type {
+  GetAnalysisCacheRequest,
+  GetAnalysisCacheResponse,
+} from './resources/analysis-cache/types';

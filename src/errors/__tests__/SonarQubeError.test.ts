@@ -61,7 +61,7 @@ describe('ValidationError', () => {
   it('should create validation error without field', () => {
     const error = new ValidationError('Invalid request');
 
-    expect(error.details).toEqual({ field: undefined });
+    expect(error.details).toBeUndefined();
   });
 });
 

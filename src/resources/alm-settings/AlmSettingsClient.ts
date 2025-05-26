@@ -199,7 +199,10 @@ export class AlmSettingsClient extends BaseClient {
       query.append('project', params.project);
     }
     const queryString = query.toString();
-    return this.request(`/api/alm_settings/list${queryString ? `?${queryString}` : ''}`);
+    const endpoint = queryString
+      ? `/api/alm_settings/list?${queryString}`
+      : '/api/alm_settings/list';
+    return this.request(endpoint);
   }
 
   /**

@@ -36,5 +36,5 @@
     "noImplicitAny": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "coverage"]
+  "exclude": ["node_modules", "dist", "coverage", "src/**/*.test.ts", "src/**/*.spec.ts", "src/test-utils/**/*"]
 }

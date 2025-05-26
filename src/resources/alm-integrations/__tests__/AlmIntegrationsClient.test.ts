@@ -1,3 +1,6 @@
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../test-utils/msw/server';
+import { assertAuthorizationHeader, assertQueryParams } from '../../../test-utils/assertions';
 import { AlmIntegrationsClient } from '../AlmIntegrationsClient';
 import { AuthenticationError } from '../../../errors';
 import type {
@@ -9,92 +12,58 @@ import type {
   SearchGitLabReposResponse,
 } from '../types';
 
-// Mock fetch globally
-global.fetch = jest.fn();
-
 describe('AlmIntegrationsClient', () => {
   let client: AlmIntegrationsClient;
-  const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
   const baseUrl = 'https://sonarqube.example.com';
   const token = 'test-token';
 
-  // Common test helpers
-  const mockSuccessResponse = (data: unknown): Response =>
-    ({
-      ok: true,
-      text: async () => (data !== null && data !== undefined ? JSON.stringify(data) : ''),
-    }) as Response;
-
-  const mockErrorResponse = (status: number, statusText: string): Response =>
-    ({
-      ok: false,
-      status,
-      statusText,
-      headers: new Headers(),
-      text: async () => '',
-    }) as Response;
-
-  const expectAuthHeaders = (): Record<string, string> => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  });
-
-  const expectApiCall = (endpoint: string, options?: Record<string, unknown>): void => {
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${baseUrl}/api/alm_integrations/${endpoint}`,
-      expect.objectContaining({
-        headers: expectAuthHeaders(),
-        ...options,
-      })
-    );
-  };
-
   beforeEach(() => {
-    jest.clearAllMocks();
     client = new AlmIntegrationsClient(baseUrl, token);
   });
 
   describe('setPat', () => {
     it('should set personal access token', async () => {
-      mockFetch.mockResolvedValueOnce(mockSuccessResponse(''));
+      server.use(
+        http.post(`${baseUrl}/api/alm_integrations/set_pat`, () => {
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
       await client.setPat({
         almSetting: 'my-github',
         pat: 'ghp_xxxxxxxxxxxx',
       });
-
-      expectApiCall('set_pat', {
-        method: 'POST',
-        body: JSON.stringify({
-          almSetting: 'my-github',
-          pat: 'ghp_xxxxxxxxxxxx',
-        }),
-      });
     });
 
     it('should include username for Bitbucket Cloud', async () => {
-      mockFetch.mockResolvedValueOnce(mockSuccessResponse(''));
+      server.use(
+        http.post(`${baseUrl}/api/alm_integrations/set_pat`, async ({ request }) => {
+          const body = await request.json();
+          expect(body).toEqual({
+            almSetting: 'bitbucket-cloud',
+            pat: 'app-password',
+            username: 'john.doe',
+          });
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
       await client.setPat({
         almSetting: 'bitbucket-cloud',
         pat: 'app-password',
         username: 'john.doe',
       });
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          body: JSON.stringify({
-            almSetting: 'bitbucket-cloud',
-            pat: 'app-password',
-            username: 'john.doe',
-          }),
-        })
-      );
     });
 
     it('should throw error on failure', async () => {
-      mockFetch.mockResolvedValueOnce(mockErrorResponse(401, 'Unauthorized'));
+      server.use(
+        http.post(`${baseUrl}/api/alm_integrations/set_pat`, () => {
+          return new HttpResponse(null, {
+            status: 401,
+            statusText: 'Unauthorized',
+          });
+        })
+      );
 
       await expect(
         client.setPat({
@@ -115,38 +84,42 @@ describe('AlmIntegrationsClient', () => {
     };
 
     it('should list Azure projects', async () => {
-      mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockProjects));
+      server.use(
+        http.get(`${baseUrl}/api/alm_integrations/list_azure_projects`, ({ request }) => {
+          assertQueryParams(request, { almSetting: 'azure-devops' });
+          assertAuthorizationHeader(request, token);
+          return HttpResponse.json(mockProjects);
+        })
+      );
 
       const result = await client.listAzureProjects({
         almSetting: 'azure-devops',
       });
 
       expect(result).toEqual(mockProjects);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${baseUrl}/api/alm_integrations/list_azure_projects?almSetting=azure-devops`,
-        expect.objectContaining({
-          headers: expectAuthHeaders(),
-        })
-      );
     });
 
     it('should handle pagination parameters', async () => {
-      const paginatedResponse = {
+      const paginatedResponse: ListAzureProjectsResponse = {
         projects: [],
         paging: { pageIndex: 2, pageSize: 50, total: 100 },
       };
-      mockFetch.mockResolvedValueOnce(mockSuccessResponse(paginatedResponse));
+
+      server.use(
+        http.get(`${baseUrl}/api/alm_integrations/list_azure_projects`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('almSetting')).toBe('azure-devops');
+          expect(url.searchParams.get('p')).toBe('2');
+          expect(url.searchParams.get('ps')).toBe('50');
+          return HttpResponse.json(paginatedResponse);
+        })
+      );
 
       await client.listAzureProjects({
         almSetting: 'azure-devops',
         p: 2,
         ps: 50,
       });
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${baseUrl}/api/alm_integrations/list_azure_projects?almSetting=azure-devops&p=2&ps=50`,
-        expect.any(Object)
-      );
     });
   });
 
@@ -165,7 +138,15 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchAzureRepos', () => {
       it('should search Azure repositories', async () => {
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockAzureRepos));
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, ({ request }) => {
+            const url = new URL(request.url);
+            expect(url.searchParams.get('almSetting')).toBe('azure-devops');
+            expect(url.searchParams.get('projectName')).toBe('Project 1');
+            expect(url.searchParams.get('searchQuery')).toBe('repo');
+            return HttpResponse.json(mockAzureRepos);
+          })
+        );
 
         const result = await client.searchAzureRepos({
           almSetting: 'azure-devops',
@@ -174,10 +155,6 @@ describe('AlmIntegrationsClient', () => {
         });
 
         expect(result).toEqual(mockAzureRepos);
-        expect(mockFetch).toHaveBeenCalledWith(
-          `${baseUrl}/api/alm_integrations/search_azure_repos?almSetting=azure-devops&projectName=Project+1&searchQuery=repo`,
-          expect.any(Object)
-        );
       });
     });
 
@@ -190,7 +167,12 @@ describe('AlmIntegrationsClient', () => {
           ],
           paging: { pageIndex: 1, pageSize: 10, total: 2 },
         };
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(builderResponse));
+
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, () => {
+            return HttpResponse.json(builderResponse);
+          })
+        );
 
         const result = await client
           .searchAzureReposBuilder()
@@ -204,22 +186,25 @@ describe('AlmIntegrationsClient', () => {
       });
 
       it('should iterate through all repositories', async () => {
-        // First page
-        mockFetch.mockResolvedValueOnce(
-          mockSuccessResponse({
-            repositories: [
-              { id: '1', name: 'Repo 1', project: 'Proj 1' },
-              { id: '2', name: 'Repo 2', project: 'Proj 1' },
-            ],
-            paging: { pageIndex: 1, pageSize: 2, total: 3 },
-          })
-        );
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_azure_repos`, ({ request }) => {
+            const url = new URL(request.url);
+            const page = url.searchParams.get('p') ?? '1';
 
-        // Second page
-        mockFetch.mockResolvedValueOnce(
-          mockSuccessResponse({
-            repositories: [{ id: '3', name: 'Repo 3', project: 'Proj 1' }],
-            paging: { pageIndex: 2, pageSize: 2, total: 3 },
+            if (page === '1') {
+              return HttpResponse.json({
+                repositories: [
+                  { id: '1', name: 'Repo 1', project: 'Proj 1' },
+                  { id: '2', name: 'Repo 2', project: 'Proj 1' },
+                ],
+                paging: { pageIndex: 1, pageSize: 2, total: 3 },
+              });
+            } else {
+              return HttpResponse.json({
+                repositories: [{ id: '3', name: 'Repo 3', project: 'Proj 1' }],
+                paging: { pageIndex: 2, pageSize: 2, total: 3 },
+              });
+            }
           })
         );
 
@@ -267,7 +252,11 @@ describe('AlmIntegrationsClient', () => {
 
     describe('listBitbucketServerProjects', () => {
       it('should list Bitbucket Server projects', async () => {
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockBitbucketProjects));
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/list_bitbucketserver_projects`, () => {
+            return HttpResponse.json(mockBitbucketProjects);
+          })
+        );
 
         const result = await client.listBitbucketServerProjects({
           almSetting: 'bitbucket-server',
@@ -279,7 +268,11 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchBitbucketServerRepos', () => {
       it('should search Bitbucket Server repositories', async () => {
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockBitbucketRepos));
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, () => {
+            return HttpResponse.json(mockBitbucketRepos);
+          })
+        );
 
         const result = await client.searchBitbucketServerRepos({
           almSetting: 'bitbucket-server',
@@ -304,7 +297,12 @@ describe('AlmIntegrationsClient', () => {
           ],
           isLastPage: true,
         };
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(builderResponse));
+
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, () => {
+            return HttpResponse.json(builderResponse);
+          })
+        );
 
         const result = await client
           .searchBitbucketServerReposBuilder()
@@ -335,7 +333,11 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchBitbucketCloudRepos', () => {
       it('should search Bitbucket Cloud repositories', async () => {
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockBitbucketCloudRepos));
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, () => {
+            return HttpResponse.json(mockBitbucketCloudRepos);
+          })
+        );
 
         const result = await client.searchBitbucketCloudRepos({
           almSetting: 'bitbucket-cloud',
@@ -348,7 +350,11 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchBitbucketCloudReposBuilder', () => {
       it('should create a builder for Bitbucket Cloud repository search', async () => {
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockBitbucketCloudRepos));
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, () => {
+            return HttpResponse.json(mockBitbucketCloudRepos);
+          })
+        );
 
         const result = await client
           .searchBitbucketCloudReposBuilder()
@@ -378,7 +384,15 @@ describe('AlmIntegrationsClient', () => {
 
     describe('searchGitLabRepos', () => {
       it('should search GitLab projects', async () => {
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(mockGitLabProjects));
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_gitlab_repos`, ({ request }) => {
+            const url = new URL(request.url);
+            expect(url.searchParams.get('almSetting')).toBe('gitlab');
+            expect(url.searchParams.get('projectName')).toBe('project');
+            expect(url.searchParams.get('minAccessLevel')).toBe('30');
+            return HttpResponse.json(mockGitLabProjects);
+          })
+        );
 
         const result = await client.searchGitLabRepos({
           almSetting: 'gitlab',
@@ -387,10 +401,6 @@ describe('AlmIntegrationsClient', () => {
         });
 
         expect(result).toEqual(mockGitLabProjects);
-        expect(mockFetch).toHaveBeenCalledWith(
-          `${baseUrl}/api/alm_integrations/search_gitlab_repos?almSetting=gitlab&projectName=project&minAccessLevel=30`,
-          expect.any(Object)
-        );
       });
     });
 
@@ -407,7 +417,12 @@ describe('AlmIntegrationsClient', () => {
           ],
           paging: { pageIndex: 1, pageSize: 10, total: 1 },
         };
-        mockFetch.mockResolvedValueOnce(mockSuccessResponse(builderResponse));
+
+        server.use(
+          http.get(`${baseUrl}/api/alm_integrations/search_gitlab_repos`, () => {
+            return HttpResponse.json(builderResponse);
+          })
+        );
 
         const result = await client
           .searchGitLabReposBuilder()

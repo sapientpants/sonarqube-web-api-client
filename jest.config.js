@@ -4,16 +4,10 @@ export default {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/test-utils/setupTests.ts'],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      tsconfig: {
-        target: 'ES2020',
-        module: 'commonjs',
-        strict: true,
-        esModuleInterop: true,
-        skipLibCheck: true,
-        forceConsistentCasingInFileNames: true,
-      },
+      tsconfig: '<rootDir>/tsconfig.test.json',
     }],
   },
   collectCoverageFrom: [
@@ -22,6 +16,7 @@ export default {
     '!src/**/*.test.ts',
     '!src/**/*.spec.ts',
     '!src/index.ts',
+    '!src/test-utils/**/*.ts',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],

@@ -1,73 +1,78 @@
+import { http, HttpResponse } from 'msw';
 import { AlmSettingsClient } from '../AlmSettingsClient';
 import { AuthenticationError } from '../../../errors';
+import { server } from '../../../test-utils/msw/server';
+import {
+  assertAuthorizationHeader,
+  assertQueryParams,
+  assertRequestBody,
+} from '../../../test-utils/assertions';
 
 describe('AlmSettingsClient', () => {
   let client: AlmSettingsClient;
-  let fetchMock: jest.Mock;
 
   beforeEach(() => {
-    fetchMock = jest.fn();
-    global.fetch = fetchMock;
     client = new AlmSettingsClient('https://sonarqube.example.com', 'test-token');
   });
 
   describe('countBinding', () => {
     it('should count bindings for an ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ projects: 5 }),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/count_binding', ({ request }) => {
+          assertQueryParams(request, { almSetting: 'my-github' });
+          assertAuthorizationHeader(request, 'test-token');
+          return HttpResponse.json({ projects: 5 });
+        })
+      );
 
       const result = await client.countBinding({ almSetting: 'my-github' });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/count_binding?almSetting=my-github',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
       expect(result).toEqual({ projects: 5 });
     });
   });
 
   describe('create operations', () => {
     it('should create Azure ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/create_azure',
+          async ({ request }) => {
+            await assertRequestBody(request, {
+              key: 'my-azure',
+              personalAccessToken: 'token123',
+              url: 'https://dev.azure.com/myorg',
+            });
+            assertAuthorizationHeader(request, 'test-token');
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.createAzure({
         key: 'my-azure',
         personalAccessToken: 'token123',
         url: 'https://dev.azure.com/myorg',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/create_azure',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-azure',
-            personalAccessToken: 'token123',
-            url: 'https://dev.azure.com/myorg',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should create GitHub ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/create_github',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'my-github',
+              appId: 'app123',
+              clientId: 'client123',
+              clientSecret: 'secret123',
+              privateKey: 'private-key',
+              url: 'https://github.com',
+              webhookSecret: 'webhook-secret',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.createGitHub({
         key: 'my-github',
@@ -78,91 +83,70 @@ describe('AlmSettingsClient', () => {
         url: 'https://github.com',
         webhookSecret: 'webhook-secret',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/create_github',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-github',
-            appId: 'app123',
-            clientId: 'client123',
-            clientSecret: 'secret123',
-            privateKey: 'private-key',
-            url: 'https://github.com',
-            webhookSecret: 'webhook-secret',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should create GitLab ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/create_gitlab',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'my-gitlab',
+              personalAccessToken: 'token123',
+              url: 'https://gitlab.com',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.createGitLab({
         key: 'my-gitlab',
         personalAccessToken: 'token123',
         url: 'https://gitlab.com',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/create_gitlab',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-gitlab',
-            personalAccessToken: 'token123',
-            url: 'https://gitlab.com',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should create Bitbucket ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/create_bitbucket',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'my-bitbucket',
+              personalAccessToken: 'token123',
+              url: 'https://bitbucket.example.com',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.createBitbucket({
         key: 'my-bitbucket',
         personalAccessToken: 'token123',
         url: 'https://bitbucket.example.com',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/create_bitbucket',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-bitbucket',
-            personalAccessToken: 'token123',
-            url: 'https://bitbucket.example.com',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should create Bitbucket Cloud ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/create_bitbucketcloud',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'my-bitbucket-cloud',
+              clientId: 'client123',
+              clientSecret: 'secret123',
+              workspace: 'my-workspace',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.createBitbucketCloud({
         key: 'my-bitbucket-cloud',
@@ -170,106 +154,68 @@ describe('AlmSettingsClient', () => {
         clientSecret: 'secret123',
         workspace: 'my-workspace',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/create_bitbucketcloud',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-bitbucket-cloud',
-            clientId: 'client123',
-            clientSecret: 'secret123',
-            workspace: 'my-workspace',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
   });
 
   describe('update operations', () => {
     it('should update Azure ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/update_azure',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'my-azure',
+              newKey: 'my-azure-renamed',
+              url: 'https://dev.azure.com/neworg',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.updateAzure({
         key: 'my-azure',
         newKey: 'my-azure-renamed',
         url: 'https://dev.azure.com/neworg',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/update_azure',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-azure',
-            newKey: 'my-azure-renamed',
-            url: 'https://dev.azure.com/neworg',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should update GitHub ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/update_github',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'my-github',
+              appId: 'app456',
+              clientId: 'client456',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.updateGitHub({
         key: 'my-github',
         appId: 'app456',
         clientId: 'client456',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/update_github',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            key: 'my-github',
-            appId: 'app456',
-            clientId: 'client456',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
   });
 
   describe('delete', () => {
     it('should delete ALM setting', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post('https://sonarqube.example.com/api/alm_settings/delete', async ({ request }) => {
+          const body = await request.json();
+          expect(body).toEqual({ key: 'my-alm' });
+          return new HttpResponse(null, { status: 200 });
+        })
+      );
 
       await client.delete({ key: 'my-alm' });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/delete',
-        {
-          method: 'POST',
-          body: JSON.stringify({ key: 'my-alm' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
   });
 
@@ -282,22 +228,13 @@ describe('AlmSettingsClient', () => {
         ],
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify(mockResponse),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/list', () => {
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const result = await client.list();
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/list',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -306,22 +243,15 @@ describe('AlmSettingsClient', () => {
         almSettings: [{ key: 'github1', alm: 'github', url: 'https://github.com' }],
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify(mockResponse),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/list', ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const result = await client.list({ project: 'my-project' });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/list?project=my-project',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -334,22 +264,13 @@ describe('AlmSettingsClient', () => {
         gitlab: [{ key: 'gitlab1', alm: 'gitlab', url: 'https://gitlab.com' }],
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify(mockResponse),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/list_definitions', () => {
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const result = await client.listDefinitions();
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/list_definitions',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
       expect(result).toEqual(mockResponse);
     });
   });
@@ -363,51 +284,50 @@ describe('AlmSettingsClient', () => {
         url: 'https://github.com',
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify(mockResponse),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/get_binding', ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const result = await client.getBinding({ project: 'my-project' });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/get_binding?project=my-project',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
       expect(result).toEqual(mockResponse);
     });
 
     it('should delete project binding', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/delete_binding',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({ project: 'my-project' });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.deleteBinding({ project: 'my-project' });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/delete_binding',
-        {
-          method: 'POST',
-          body: JSON.stringify({ project: 'my-project' }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should set Azure binding', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/set_azure_binding',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              almSetting: 'my-azure',
+              project: 'my-project',
+              projectName: 'MyProject',
+              repositoryName: 'MyRepo',
+              monorepo: true,
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.setAzureBinding({
         almSetting: 'my-azure',
@@ -416,31 +336,24 @@ describe('AlmSettingsClient', () => {
         repositoryName: 'MyRepo',
         monorepo: true,
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/set_azure_binding',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            almSetting: 'my-azure',
-            project: 'my-project',
-            projectName: 'MyProject',
-            repositoryName: 'MyRepo',
-            monorepo: true,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should set GitHub binding', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/set_github_binding',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              almSetting: 'my-github',
+              project: 'my-project',
+              repository: 'org/repo',
+              summaryCommentEnabled: true,
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.setGitHubBinding({
         almSetting: 'my-github',
@@ -448,59 +361,47 @@ describe('AlmSettingsClient', () => {
         repository: 'org/repo',
         summaryCommentEnabled: true,
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/set_github_binding',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            almSetting: 'my-github',
-            project: 'my-project',
-            repository: 'org/repo',
-            summaryCommentEnabled: true,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should set GitLab binding', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/set_gitlab_binding',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              almSetting: 'my-gitlab',
+              project: 'my-project',
+              repository: '123',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.setGitLabBinding({
         almSetting: 'my-gitlab',
         project: 'my-project',
         repository: '123',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/set_gitlab_binding',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            almSetting: 'my-gitlab',
-            project: 'my-project',
-            repository: '123',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should set Bitbucket binding', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/set_bitbucket_binding',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              almSetting: 'my-bitbucket',
+              project: 'my-project',
+              repository: 'repo',
+              slug: 'proj',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.setBitbucketBinding({
         almSetting: 'my-bitbucket',
@@ -508,52 +409,29 @@ describe('AlmSettingsClient', () => {
         repository: 'repo',
         slug: 'proj',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/set_bitbucket_binding',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            almSetting: 'my-bitbucket',
-            project: 'my-project',
-            repository: 'repo',
-            slug: 'proj',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
 
     it('should set Bitbucket Cloud binding', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => '',
-      });
+      server.use(
+        http.post(
+          'https://sonarqube.example.com/api/alm_settings/set_bitbucketcloud_binding',
+          async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              almSetting: 'my-bitbucket-cloud',
+              project: 'my-project',
+              repository: 'repo-slug',
+            });
+            return new HttpResponse(null, { status: 200 });
+          }
+        )
+      );
 
       await client.setBitbucketCloudBinding({
         almSetting: 'my-bitbucket-cloud',
         project: 'my-project',
         repository: 'repo-slug',
       });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/set_bitbucketcloud_binding',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            almSetting: 'my-bitbucket-cloud',
-            project: 'my-project',
-            repository: 'repo-slug',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
     });
   });
 
@@ -564,22 +442,15 @@ describe('AlmSettingsClient', () => {
         errors: [],
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify(mockResponse),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/validate', ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('key')).toBe('my-alm');
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const result = await client.validate({ key: 'my-alm' });
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://sonarqube.example.com/api/alm_settings/validate?key=my-alm',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
-          },
-        }
-      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -589,26 +460,27 @@ describe('AlmSettingsClient', () => {
         errors: [{ message: 'Authentication failed', details: 'Invalid token' }],
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify(mockResponse),
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/validate', () => {
+          return HttpResponse.json(mockResponse);
+        })
+      );
 
       const result = await client.validate({ key: 'my-alm' });
-
       expect(result).toEqual(mockResponse);
     });
   });
 
   describe('error handling', () => {
     it('should throw error on non-ok response', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        headers: new Headers(),
-        text: async () => '',
-      });
+      server.use(
+        http.get('https://sonarqube.example.com/api/alm_settings/list', () => {
+          return new HttpResponse(null, {
+            status: 401,
+            statusText: 'Unauthorized',
+          });
+        })
+      );
 
       await expect(client.list()).rejects.toThrow(AuthenticationError);
     });

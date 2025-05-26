@@ -4,6 +4,7 @@ import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
 import { ProjectsClient } from './resources/projects';
+import { MetricsClient } from './resources/metrics';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -25,6 +26,7 @@ export class SonarQubeClient {
   public readonly analysisCache: AnalysisCacheClient;
   public readonly applications: ApplicationsClient;
   public readonly projects: ProjectsClient;
+  public readonly metrics: MetricsClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -39,6 +41,7 @@ export class SonarQubeClient {
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
     this.applications = new ApplicationsClient(this.baseUrl, this.token);
     this.projects = new ProjectsClient(this.baseUrl, this.token);
+    this.metrics = new MetricsClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -192,6 +195,19 @@ export type {
   UpdateProjectKeyRequest,
   UpdateProjectVisibilityRequest,
 } from './resources/projects/types';
+
+// Re-export types from metrics
+export type {
+  Metric,
+  MetricDomain,
+  MetricType,
+  MetricValueType,
+  MetricDirection,
+  SearchMetricsParams,
+  SearchMetricsResponse,
+  MetricTypesResponse,
+  MetricDomainsResponse,
+} from './resources/metrics/types';
 
 // Re-export error classes
 export {

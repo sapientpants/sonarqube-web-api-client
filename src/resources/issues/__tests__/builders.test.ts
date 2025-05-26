@@ -54,6 +54,12 @@ describe('SearchIssuesBuilder', () => {
       expect(result).toBeInstanceOf(SearchIssuesBuilder);
     });
 
+    it('should build branch and pull request filters', () => {
+      const result = builder.onBranch('feature/my-branch').onPullRequest('5461');
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
     it('should build boolean filters', () => {
       const result = builder.onlyAssigned().onlyResolved().inNewCodePeriod().onComponentOnly();
 
@@ -98,6 +104,29 @@ describe('SearchIssuesBuilder', () => {
       response.issues.forEach((issue) => {
         expect(issue.project).toBe('project');
         expect(issue.component).toContain('project:src/file.ts');
+      });
+    });
+
+    it('should handle branch filtering', async () => {
+      const response = await builder
+        .withProjects(['project'])
+        .onBranch('feature/new-feature')
+        .execute();
+
+      expect(response.issues).toBeDefined();
+      // Should return issues from the specific branch
+      response.issues.forEach((issue) => {
+        expect(issue.project).toBe('project');
+      });
+    });
+
+    it('should handle pull request filtering', async () => {
+      const response = await builder.withProjects(['project']).onPullRequest('123').execute();
+
+      expect(response.issues).toBeDefined();
+      // Should return issues from the specific pull request
+      response.issues.forEach((issue) => {
+        expect(issue.project).toBe('project');
       });
     });
 
@@ -358,6 +387,25 @@ describe('SearchIssuesBuilder', () => {
       const result = builder
         .withFacets(['severities', 'types', 'tags'])
         .withAdditionalFields(['transitions', 'actions', 'comments']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle Clean Code taxonomy filters', () => {
+      const result = builder
+        .withCleanCodeAttributeCategories(['ADAPTABLE', 'CONSISTENT'])
+        .withImpactSeverities(['HIGH', 'MEDIUM'])
+        .withImpactSoftwareQualities(['MAINTAINABILITY', 'SECURITY'])
+        .withIssueStatuses(['OPEN', 'CONFIRMED']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle organization and OWASP 2021 filters', () => {
+      const result = builder
+        .inOrganization('my-org')
+        .withOwaspTop10v2021(['a1', 'a2'])
+        .withFacetMode('effort');
 
       expect(result).toBeInstanceOf(SearchIssuesBuilder);
     });

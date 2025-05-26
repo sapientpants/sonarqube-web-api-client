@@ -119,6 +119,31 @@ export interface Issue {
 }
 
 /**
+ * Impact severity levels (for new Clean Code taxonomy)
+ */
+export type ImpactSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
+
+/**
+ * Software quality impact categories (for new Clean Code taxonomy)
+ */
+export type ImpactSoftwareQuality = 'MAINTAINABILITY' | 'RELIABILITY' | 'SECURITY';
+
+/**
+ * Clean Code attribute categories
+ */
+export type CleanCodeAttributeCategory = 'ADAPTABLE' | 'CONSISTENT' | 'INTENTIONAL' | 'RESPONSIBLE';
+
+/**
+ * New issue status values (replacing deprecated statuses)
+ */
+export type IssueStatusNew = 'OPEN' | 'CONFIRMED' | 'RESOLVED' | 'REOPENED' | 'CLOSED';
+
+/**
+ * Facet mode for aggregations
+ */
+export type FacetMode = 'effort' | 'count';
+
+/**
  * Request to search for issues
  */
 export interface SearchIssuesRequest extends PaginatedRequest {
@@ -126,7 +151,10 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   asc?: boolean;
   assigned?: boolean;
   assignees?: string[];
+  author?: string;
   authors?: string[];
+  branch?: string;
+  cleanCodeAttributeCategories?: CleanCodeAttributeCategory[];
   componentKeys?: string[];
   components?: string[];
   createdAfter?: string;
@@ -134,24 +162,32 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   createdBefore?: string;
   createdInLast?: string;
   cwe?: string[];
+  facetMode?: FacetMode;
   facets?: string[];
+  impactSeverities?: ImpactSeverity[];
+  impactSoftwareQualities?: ImpactSoftwareQuality[];
   inNewCodePeriod?: boolean;
+  issueStatuses?: IssueStatusNew[];
   issues?: string[];
   languages?: string[];
   onComponentOnly?: boolean;
+  organization?: string;
   owaspTop10?: string[];
+  owaspTop10v2021?: string[]; // Maps to 'owaspTop10-2021' in API
   projects?: string[];
-  resolutions?: IssueResolution[];
+  pullRequest?: string;
+  resolutions?: IssueResolution[]; // deprecated
   resolved?: boolean;
   rules?: string[];
   s?: string; // sort field
   sansTop25?: string[];
-  severities?: IssueSeverity[];
+  severities?: IssueSeverity[]; // deprecated
   sinceLeakPeriod?: boolean;
+  sonarsourceSecurity?: string[];
   sonarsourceSecurityCategory?: string[];
-  statuses?: IssueStatus[];
+  statuses?: IssueStatus[]; // deprecated
   tags?: string[];
-  types?: IssueType[];
+  types?: IssueType[]; // deprecated
 }
 
 /**

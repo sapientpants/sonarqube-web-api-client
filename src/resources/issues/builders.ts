@@ -7,6 +7,11 @@ import type {
   IssueStatus,
   IssueType,
   IssueResolution,
+  ImpactSeverity,
+  ImpactSoftwareQuality,
+  CleanCodeAttributeCategory,
+  IssueStatusNew,
+  FacetMode,
 } from './types';
 
 /**
@@ -88,6 +93,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter by a single author (alternative to byAuthors for single values)
+   */
+  byAuthorSingle(author: string): this {
+    return this.setParam('author', author);
+  }
+
+  /**
    * Filter by creation date - issues created after this date
    */
   createdAfter(date: string): this {
@@ -130,6 +142,20 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter issues on a specific branch
+   */
+  onBranch(branch: string): this {
+    return this.setParam('branch', branch);
+  }
+
+  /**
+   * Filter issues for a specific pull request
+   */
+  onPullRequest(pullRequestId: string): this {
+    return this.setParam('pullRequest', pullRequestId);
+  }
+
+  /**
    * Filter by rule keys
    */
   withRules(rules: string[]): this {
@@ -169,6 +195,62 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    */
   withSonarSourceSecurity(categories: string[]): this {
     return this.setParam('sonarsourceSecurityCategory', categories);
+  }
+
+  /**
+   * Filter by SonarSource security categories (new parameter name)
+   */
+  withSonarSourceSecurityNew(categories: string[]): this {
+    return this.setParam('sonarsourceSecurity', categories);
+  }
+
+  /**
+   * Filter by Clean Code attribute categories
+   */
+  withCleanCodeAttributeCategories(categories: CleanCodeAttributeCategory[]): this {
+    return this.setParam('cleanCodeAttributeCategories', categories);
+  }
+
+  /**
+   * Filter by impact severities (Clean Code taxonomy)
+   */
+  withImpactSeverities(severities: ImpactSeverity[]): this {
+    return this.setParam('impactSeverities', severities);
+  }
+
+  /**
+   * Filter by software quality impacts (Clean Code taxonomy)
+   */
+  withImpactSoftwareQualities(qualities: ImpactSoftwareQuality[]): this {
+    return this.setParam('impactSoftwareQualities', qualities);
+  }
+
+  /**
+   * Filter by new issue statuses (replaces deprecated statuses)
+   */
+  withIssueStatuses(statuses: IssueStatusNew[]): this {
+    return this.setParam('issueStatuses', statuses);
+  }
+
+  /**
+   * Filter by OWASP Top 10 2021 categories
+   */
+  withOwaspTop10v2021(categories: string[]): this {
+    return this.setParam('owaspTop10v2021', categories);
+  }
+
+  /**
+   * Filter by organization
+   */
+  inOrganization(organization: string): this {
+    return this.setParam('organization', organization);
+  }
+
+  /**
+   * Set facet mode for aggregations
+   */
+  withFacetMode(mode: FacetMode): this {
+    return this.setParam('facetMode', mode);
   }
 
   /**

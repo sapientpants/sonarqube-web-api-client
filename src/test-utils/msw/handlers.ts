@@ -116,10 +116,12 @@ export const handlers = [
     const url = new URL(request.url);
     const componentKeys = url.searchParams.get('componentKeys');
     const projectKeys = url.searchParams.get('projects');
+    const branch = url.searchParams.get('branch');
+    const pullRequest = url.searchParams.get('pullRequest');
     const pageSize = Number(url.searchParams.get('ps')) || 100;
     const page = Number(url.searchParams.get('p')) || 1;
 
-    // Simulate some default issues for testing
+    // Simulate some default issues for testing with branch/PR context
     const allIssues = [
       {
         key: 'issue-1',
@@ -136,6 +138,7 @@ export const handlers = [
         updateDate: '2024-01-01T00:00:00+0000',
         transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
         actions: ['assign', 'set_tags', 'comment'],
+        branch: 'main',
       },
       {
         key: 'issue-2',
@@ -153,11 +156,28 @@ export const handlers = [
         updateDate: '2024-01-02T00:00:00+0000',
         transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
         actions: ['assign', 'set_tags', 'comment'],
+        branch: 'feature/new-feature',
+      },
+      {
+        key: 'issue-3',
+        rule: 'typescript:S9999',
+        severity: 'MINOR',
+        component: 'project:src/pr-file.ts',
+        project: 'project',
+        line: 30,
+        message: 'PR-specific issue',
+        type: 'CODE_SMELL',
+        status: 'OPEN',
+        tags: [],
+        creationDate: '2024-01-03T00:00:00+0000',
+        updateDate: '2024-01-03T00:00:00+0000',
+        transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+        actions: ['assign', 'set_tags', 'comment'],
+        pullRequestId: '123',
       },
     ];
 
-    // Filter issues based on component and/or project keys
-    // When both are provided, they work together (AND logic)
+    // Filter issues based on multiple criteria (all work together with AND logic)
     let filteredIssues = allIssues;
 
     // Apply project filter if provided
@@ -167,11 +187,21 @@ export const handlers = [
       );
     }
 
-    // Apply component filter if provided (works with or without project filter)
+    // Apply component filter if provided
     if (componentKeys !== null) {
       filteredIssues = filteredIssues.filter((issue) =>
         componentKeys.split(',').some((key) => issue.component.includes(key))
       );
+    }
+
+    // Apply branch filter if provided
+    if (branch !== null) {
+      filteredIssues = filteredIssues.filter((issue) => issue.branch === branch);
+    }
+
+    // Apply pull request filter if provided
+    if (pullRequest !== null) {
+      filteredIssues = filteredIssues.filter((issue) => issue.pullRequestId === pullRequest);
     }
 
     // Handle pagination

@@ -15,6 +15,13 @@ export type {
   IssueResolution,
   IssueTransition,
 
+  // New Clean Code types
+  ImpactSeverity,
+  ImpactSoftwareQuality,
+  CleanCodeAttributeCategory,
+  IssueStatusNew,
+  FacetMode,
+
   // Search types
   SearchIssuesRequest,
   SearchIssuesResponse,

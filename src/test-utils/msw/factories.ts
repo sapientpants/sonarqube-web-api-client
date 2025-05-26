@@ -49,9 +49,9 @@ export interface Issue {
 export function createIssue(overrides?: Partial<Issue>): Issue {
   return {
     key: 'issue-1',
-    rule: 'javascript:S1234',
+    rule: 'typescript:S1234',
     severity: 'MAJOR',
-    component: 'project:src/file.js',
+    component: 'project:src/file.ts',
     line: 42,
     message: 'Fix this issue',
     type: 'BUG',

@@ -40,10 +40,28 @@ export interface Issue {
   rule: string;
   severity: string;
   component: string;
+  project: string;
   line?: number;
   message: string;
   type: string;
   status: string;
+  assignee?: string;
+  author?: string;
+  tags: string[];
+  creationDate: string;
+  updateDate: string;
+  closeDate?: string;
+  resolution?: string;
+  transitions?: string[];
+  actions?: string[];
+  comments?: Array<{
+    key: string;
+    login: string;
+    htmlText: string;
+    markdown: string;
+    updatable: boolean;
+    createdAt: string;
+  }>;
 }
 
 export function createIssue(overrides?: Partial<Issue>): Issue {
@@ -52,10 +70,16 @@ export function createIssue(overrides?: Partial<Issue>): Issue {
     rule: 'typescript:S1234',
     severity: 'MAJOR',
     component: 'project:src/file.ts',
+    project: 'project',
     line: 42,
     message: 'Fix this issue',
     type: 'BUG',
     status: 'OPEN',
+    tags: [],
+    creationDate: '2024-01-01T00:00:00+0000',
+    updateDate: '2024-01-01T00:00:00+0000',
+    transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+    actions: ['assign', 'set_tags', 'comment'],
     ...overrides,
   };
 }

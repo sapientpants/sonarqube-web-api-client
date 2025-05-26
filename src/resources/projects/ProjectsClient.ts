@@ -2,6 +2,8 @@ import { BaseClient } from '../../core/BaseClient';
 import { ValidationError } from '../../errors';
 import { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
 import type {
+  BulkUpdateProjectKeyRequest,
+  BulkUpdateProjectKeyResponse,
   CreateProjectRequest,
   CreateProjectResponse,
   DeleteProjectRequest,
@@ -50,6 +52,45 @@ export class ProjectsClient extends BaseClient {
         method: 'POST',
         body: JSON.stringify(params),
       });
+    });
+  }
+
+  /**
+   * Bulk update project keys by replacing a part of the key.
+   * This allows renaming a project and all its sub-components at once.
+   *
+   * @since 6.1
+   * @deprecated Since 7.6 - Use updateKey() for individual project key updates
+   * @param params - The bulk update parameters
+   * @returns Information about the updated keys
+   * @throws {AuthenticationError} If the user is not authenticated
+   * @throws {AuthorizationError} If the user doesn't have 'Administer' permission on the project
+   * @throws {ValidationError} If the replacement would create duplicate keys
+   *
+   * @example
+   * ```typescript
+   * // Rename 'my_old_project' to 'my_new_project' and update all sub-components
+   * const result = await client.projects.bulkUpdateKey({
+   *   project: 'my_old_project',
+   *   from: 'my_old_',
+   *   to: 'my_new_',
+   *   dryRun: true // Test the operation first
+   * });
+   * ```
+   */
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  async bulkUpdateKey(params: BulkUpdateProjectKeyRequest): Promise<BulkUpdateProjectKeyResponse> {
+    const body: Record<string, string> = {
+      project: params.project,
+      from: params.from,
+      to: params.to,
+    };
+    if (params.dryRun !== undefined) {
+      body['dryRun'] = String(params.dryRun);
+    }
+    return this.request<BulkUpdateProjectKeyResponse>('/api/projects/bulk_update_key', {
+      method: 'POST',
+      body: JSON.stringify(body),
     });
   }
 
@@ -107,6 +148,8 @@ export class ProjectsClient extends BaseClient {
    * Keep in mind that this endpoint will return all findings, issues and hotspots
    * (no filter), which can take time and use a lot of resources.
    *
+   * **Note**: This endpoint is only available in SonarQube, not in SonarCloud.
+   *
    * @since 9.1
    * @param params - The export parameters
    * @returns An array of findings
@@ -150,6 +193,8 @@ export class ProjectsClient extends BaseClient {
   /**
    * Get whether a project contains AI code or not.
    *
+   * **Note**: This endpoint is only available in SonarQube, not in SonarCloud.
+   *
    * @since 2025.1
    * @param params - The request parameters
    * @returns Whether the project contains AI code
@@ -177,6 +222,8 @@ export class ProjectsClient extends BaseClient {
    * Help admins to understand how much each project affects the total number of lines of code.
    * Returns the list of projects together with information about their usage,
    * sorted by lines of code descending.
+   *
+   * **Note**: This endpoint is only available in SonarQube, not in SonarCloud.
    *
    * @since 9.4
    * @returns License usage information for all projects
@@ -270,6 +317,8 @@ export class ProjectsClient extends BaseClient {
 
   /**
    * Sets if the project contains AI code or not.
+   *
+   * **Note**: This endpoint is only available in SonarQube, not in SonarCloud.
    *
    * @since 10.8
    * @param params - The request parameters

@@ -93,6 +93,24 @@ export const handlers = [
     });
   }),
 
+  http.post('*/api/projects/bulk_update_key', async ({ request }) => {
+    const body = (await request.json()) as {
+      project: string;
+      from: string;
+      to: string;
+      dryRun?: string;
+    };
+    return HttpResponse.json({
+      keys: [
+        {
+          key: body.project,
+          newKey: body.project.replace(body.from, body.to),
+          duplicate: false,
+        },
+      ],
+    });
+  }),
+
   http.get('*/api/issues/search', ({ request }) => {
     const url = new URL(request.url);
     const componentKeys = url.searchParams.get('componentKeys');

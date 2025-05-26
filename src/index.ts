@@ -21,11 +21,17 @@ interface IssuesResponse {
  */
 export class SonarQubeClient {
   // Resource clients
+  /** ALM Integrations API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly almIntegrations: AlmIntegrationsClient;
+  /** ALM Settings API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly almSettings: AlmSettingsClient;
+  /** Analysis Cache API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly analysisCache: AnalysisCacheClient;
+  /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
+  /** Projects API */
   public readonly projects: ProjectsClient;
+  /** Metrics API */
   public readonly metrics: MetricsClient;
 
   private readonly baseUrl: string;
@@ -174,6 +180,8 @@ export type {
 // Re-export types from projects
 export type {
   BulkDeleteProjectsRequest,
+  BulkUpdateProjectKeyRequest,
+  BulkUpdateProjectKeyResponse,
   CreateProjectRequest,
   CreateProjectResponse,
   DeleteProjectRequest,

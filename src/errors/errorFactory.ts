@@ -38,7 +38,9 @@ async function parseErrorResponse(response: Response): Promise<string> {
     // If parsing fails, fall back to status text
   }
 
-  return response.statusText || `HTTP ${String(response.status)}`;
+  return response.statusText && response.statusText !== ''
+    ? response.statusText
+    : `HTTP ${String(response.status)}`;
 }
 
 /**

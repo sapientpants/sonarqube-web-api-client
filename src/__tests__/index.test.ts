@@ -1,5 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { SonarQubeClient } from '../index';
+import { AuthenticationError } from '../errors';
 
 const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 global.fetch = mockFetch;
@@ -110,11 +111,13 @@ describe('SonarQubeClient', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
-      } as Response);
+        headers: new Headers(),
+        text: async () => '',
+      } as unknown as Response);
 
       const client = new SonarQubeClient('https://sonarqube.example.com');
 
-      await expect(client.getIssues()).rejects.toThrow('SonarQube API error: 401 Unauthorized');
+      await expect(client.getIssues()).rejects.toThrow(AuthenticationError);
     });
   });
 });

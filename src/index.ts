@@ -1,6 +1,7 @@
 import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
+import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
 
 interface ProjectsResponse {
@@ -58,13 +59,18 @@ export class SonarQubeClient {
       headers.set('Authorization', `Bearer ${this.token}`);
     }
 
-    const response = await fetch(`${this.baseUrl}/api${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/api${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch (error) {
+      throw createNetworkError(error);
+    }
 
     if (!response.ok) {
-      throw new Error(`SonarQube API error: ${String(response.status)} ${response.statusText}`);
+      throw await createErrorFromResponse(response);
     }
 
     return response.json() as Promise<T>;
@@ -158,3 +164,17 @@ export type {
   UpdateApplicationRequest,
   UpdateBranchRequest,
 } from './resources/applications/types';
+
+// Re-export error classes
+export {
+  SonarQubeError,
+  ApiError,
+  ValidationError,
+  RateLimitError,
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+  NetworkError,
+  TimeoutError,
+  ServerError,
+} from './errors';

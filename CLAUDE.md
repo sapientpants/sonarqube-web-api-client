@@ -64,3 +64,52 @@ The main class provides methods for interacting with SonarQube API:
 - Private `request()` method handles HTTP requests with auth headers
 
 The library is designed to be extended with additional API endpoints as needed.
+
+### Error Handling
+
+The library uses a custom error hierarchy for better error handling:
+
+```typescript
+import { 
+  SonarQubeClient, 
+  AuthenticationError, 
+  RateLimitError,
+  NetworkError 
+} from 'sonarqube-web-api-client';
+
+const client = new SonarQubeClient('https://sonarqube.example.com', 'token');
+
+try {
+  const projects = await client.getProjects();
+} catch (error) {
+  if (error instanceof AuthenticationError) {
+    // Handle authentication failure (401)
+    console.error('Invalid token or authentication expired');
+  } else if (error instanceof RateLimitError) {
+    // Handle rate limiting (429)
+    console.log(`Rate limited. Retry after ${error.retryAfter} seconds`);
+  } else if (error instanceof NetworkError) {
+    // Handle network issues
+    console.error('Network error:', error.cause);
+  } else {
+    // Handle other errors
+    throw error;
+  }
+}
+```
+
+Available error types:
+- `SonarQubeError` - Base error class
+- `ApiError` - General API errors (4xx)
+- `AuthenticationError` - Authentication failures (401)
+- `AuthorizationError` - Authorization failures (403)
+- `NotFoundError` - Resource not found (404)
+- `RateLimitError` - Rate limit exceeded (429)
+- `ServerError` - Server errors (5xx)
+- `NetworkError` - Network connectivity issues
+- `TimeoutError` - Request timeouts
+- `ValidationError` - Client-side validation errors
+
+## Development Tips
+
+- Use `pnpm format` to fix formatting errors in the code

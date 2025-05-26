@@ -7,14 +7,7 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/src/test-utils/setupTests.ts'],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      tsconfig: {
-        target: 'ES2020',
-        module: 'commonjs',
-        strict: true,
-        esModuleInterop: true,
-        skipLibCheck: true,
-        forceConsistentCasingInFileNames: true,
-      },
+      tsconfig: '<rootDir>/tsconfig.test.json',
     }],
   },
   collectCoverageFrom: [

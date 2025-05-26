@@ -14,7 +14,7 @@ export default tseslint.config(
     },
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: ['./tsconfig.json', './tsconfig.test.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -113,7 +113,7 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
   {
-    files: ['**/*.test.ts', '**/*.spec.ts'],
+    files: ['**/*.test.ts', '**/*.spec.ts', 'src/test-utils/**/*.ts'],
     rules: {
       '@typescript-eslint/dot-notation': 'off',
       '@typescript-eslint/require-await': 'off',

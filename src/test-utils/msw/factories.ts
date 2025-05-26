@@ -111,3 +111,119 @@ export function createIssuesResponse(
 export function createErrorResponse(errors: ApiError[]): { errors: ApiError[] } {
   return { errors };
 }
+
+// Metric-related factories
+
+export interface MetricData {
+  id: string;
+  key: string;
+  name: string;
+  type: string;
+  domain?: string;
+  description?: string;
+  direction?: number;
+  qualitative?: boolean;
+  hidden?: boolean;
+  custom?: boolean;
+  decimalScale?: number;
+}
+
+export function createMetric(overrides?: Partial<MetricData>): MetricData {
+  return {
+    id: '1',
+    key: 'metric-key',
+    name: 'Metric Name',
+    type: 'INT',
+    domain: 'General',
+    description: 'Metric description',
+    direction: 0,
+    qualitative: false,
+    hidden: false,
+    custom: false,
+    ...overrides,
+  };
+}
+
+export const SAMPLE_METRICS = {
+  coverage: createMetric({
+    id: '1',
+    key: 'coverage',
+    name: 'Coverage',
+    type: 'PERCENT',
+    domain: 'Coverage',
+    description: 'Coverage by unit tests',
+    direction: 1,
+    qualitative: true,
+    hidden: false,
+    custom: false,
+    decimalScale: 1,
+  }),
+  lines: createMetric({
+    id: '2',
+    key: 'lines',
+    name: 'Lines of Code',
+    type: 'INT',
+    domain: 'Size',
+    description: 'Lines of code',
+    direction: -1,
+    qualitative: false,
+    hidden: false,
+    custom: false,
+  }),
+};
+
+export const METRIC_TYPES = [
+  'INT',
+  'FLOAT',
+  'PERCENT',
+  'BOOL',
+  'STRING',
+  'LEVEL',
+  'DATA',
+  'DISTRIB',
+  'RATING',
+  'WORK_DUR',
+] as const;
+
+export const METRIC_DOMAINS = [
+  'Issues',
+  'Maintainability',
+  'Reliability',
+  'Size',
+  'Complexity',
+  'Coverage',
+  'SCM',
+  'Duplications',
+  'SecurityReview',
+  'Security',
+  'General',
+  'Documentation',
+  'Releasability',
+] as const;
+
+export interface MetricsSearchResponse {
+  metrics: MetricData[];
+  total: number;
+  p: number;
+  ps: number;
+}
+
+export function createMetricsSearchResponse(
+  metrics: MetricData[],
+  paging?: { p?: number; ps?: number; total?: number }
+): MetricsSearchResponse {
+  return {
+    metrics,
+    total: paging?.total ?? metrics.length,
+    p: paging?.p ?? 1,
+    ps: paging?.ps ?? 50,
+  };
+}
+
+export function createMetricTypesResponse(): { types: Array<(typeof METRIC_TYPES)[number]> } {
+  return { types: [...METRIC_TYPES] };
+}
+
+export function createMetricDomainsResponse(): { domains: Array<(typeof METRIC_DOMAINS)[number]> } {
+  return { domains: [...METRIC_DOMAINS] };
+}

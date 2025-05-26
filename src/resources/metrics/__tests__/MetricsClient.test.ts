@@ -1,13 +1,16 @@
 import { http, HttpResponse } from 'msw';
 import { MetricsClient } from '../MetricsClient';
 import { server } from '../../../test-utils/msw/server';
-import type {
-  SearchMetricsResponse,
-  MetricTypesResponse,
-  MetricDomainsResponse,
-  Metric,
-} from '../types';
+import type { MetricDomainsResponse, Metric } from '../types';
 import { AuthenticationError, NotFoundError, RateLimitError, ServerError } from '../../../errors';
+import {
+  SAMPLE_METRICS,
+  createMetric,
+  createMetricsSearchResponse,
+  createMetricTypesResponse,
+  createApiError,
+  createErrorResponse,
+} from '../../../test-utils/msw/factories';
 
 describe('MetricsClient', () => {
   let client: MetricsClient;
@@ -20,38 +23,10 @@ describe('MetricsClient', () => {
 
   describe('search', () => {
     it('should return metrics with default parameters', async () => {
-      const mockResponse: SearchMetricsResponse = {
-        metrics: [
-          {
-            id: '1',
-            key: 'coverage',
-            name: 'Coverage',
-            type: 'PERCENT',
-            domain: 'Coverage',
-            description: 'Coverage by unit tests',
-            direction: 1,
-            qualitative: true,
-            hidden: false,
-            custom: false,
-            decimalScale: 1,
-          },
-          {
-            id: '2',
-            key: 'lines',
-            name: 'Lines of Code',
-            type: 'INT',
-            domain: 'Size',
-            description: 'Lines of code',
-            direction: -1,
-            qualitative: false,
-            hidden: false,
-            custom: false,
-          },
-        ],
-        total: 2,
-        p: 1,
-        ps: 50,
-      };
+      const mockResponse = createMetricsSearchResponse([
+        SAMPLE_METRICS.coverage,
+        SAMPLE_METRICS.lines,
+      ]);
 
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, () => {
@@ -99,12 +74,7 @@ describe('MetricsClient', () => {
     });
 
     it('should handle empty results', async () => {
-      const mockResponse: SearchMetricsResponse = {
-        metrics: [],
-        total: 0,
-        p: 1,
-        ps: 50,
-      };
+      const mockResponse = createMetricsSearchResponse([]);
 
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, () => {
@@ -122,7 +92,7 @@ describe('MetricsClient', () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, () => {
           return HttpResponse.json(
-            { errors: [{ msg: 'Authentication required' }] },
+            createErrorResponse([createApiError('Authentication required')]),
             { status: 401 }
           );
         })
@@ -134,7 +104,9 @@ describe('MetricsClient', () => {
     it('should handle server errors', async () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, () => {
-          return HttpResponse.json({ errors: [{ msg: 'Internal server error' }] }, { status: 500 });
+          return HttpResponse.json(createErrorResponse([createApiError('Internal server error')]), {
+            status: 500,
+          });
         })
       );
 
@@ -144,13 +116,10 @@ describe('MetricsClient', () => {
     it('should handle rate limiting', async () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, () => {
-          return HttpResponse.json(
-            { errors: [{ msg: 'Rate limit exceeded' }] },
-            {
-              status: 429,
-              headers: { 'Retry-After': '60' },
-            }
-          );
+          return HttpResponse.json(createErrorResponse([createApiError('Rate limit exceeded')]), {
+            status: 429,
+            headers: { 'Retry-After': '60' },
+          });
         })
       );
 
@@ -168,12 +137,14 @@ describe('MetricsClient', () => {
     it('should iterate through all pages of metrics', async () => {
       const metrics: Metric[] = [];
       for (let i = 1; i <= 1200; i++) {
-        metrics.push({
-          id: String(i),
-          key: `metric_${String(i)}`,
-          name: `Metric ${String(i)}`,
-          type: 'INT',
-        });
+        metrics.push(
+          createMetric({
+            id: String(i),
+            key: `metric_${String(i)}`,
+            name: `Metric ${String(i)}`,
+            type: 'INT',
+          }) as Metric
+        );
       }
 
       server.use(
@@ -212,12 +183,16 @@ describe('MetricsClient', () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, ({ request }) => {
           capturedUrls.push(new URL(request.url));
-          return HttpResponse.json({
-            metrics: [{ id: '1', key: 'custom_metric', name: 'Custom Metric', type: 'INT' }],
-            total: 1,
-            p: 1,
-            ps: 500,
-          });
+          return HttpResponse.json(
+            createMetricsSearchResponse([
+              createMetric({
+                id: '1',
+                key: 'custom_metric',
+                name: 'Custom Metric',
+                type: 'INT',
+              }) as Metric,
+            ])
+          );
         })
       );
 
@@ -240,12 +215,7 @@ describe('MetricsClient', () => {
     it('should handle empty results', async () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/search`, () => {
-          return HttpResponse.json({
-            metrics: [],
-            total: 0,
-            p: 1,
-            ps: 500,
-          });
+          return HttpResponse.json(createMetricsSearchResponse([], { ps: 500 }));
         })
       );
 
@@ -265,21 +235,23 @@ describe('MetricsClient', () => {
         http.get(`${baseUrl}/api/metrics/search`, () => {
           callCount++;
           if (callCount === 2) {
-            return HttpResponse.json({ errors: [{ msg: 'Server error' }] }, { status: 500 });
+            return HttpResponse.json(createErrorResponse([createApiError('Server error')]), {
+              status: 500,
+            });
           }
-          return HttpResponse.json({
-            metrics: [
-              {
-                id: String(callCount),
-                key: `metric_${String(callCount)}`,
-                name: `Metric ${String(callCount)}`,
-                type: 'INT',
-              },
-            ],
-            total: 1000,
-            p: callCount,
-            ps: 1,
-          });
+          return HttpResponse.json(
+            createMetricsSearchResponse(
+              [
+                createMetric({
+                  id: String(callCount),
+                  key: `metric_${String(callCount)}`,
+                  name: `Metric ${String(callCount)}`,
+                  type: 'INT',
+                }) as Metric,
+              ],
+              { total: 1000, p: callCount, ps: 1 }
+            )
+          );
         })
       );
 
@@ -297,20 +269,7 @@ describe('MetricsClient', () => {
 
   describe('types', () => {
     it('should return available metric types', async () => {
-      const mockResponse: MetricTypesResponse = {
-        types: [
-          'INT',
-          'FLOAT',
-          'PERCENT',
-          'BOOL',
-          'STRING',
-          'LEVEL',
-          'DATA',
-          'DISTRIB',
-          'RATING',
-          'WORK_DUR',
-        ],
-      };
+      const mockResponse = createMetricTypesResponse();
 
       server.use(
         http.get(`${baseUrl}/api/metrics/types`, () => {
@@ -329,7 +288,7 @@ describe('MetricsClient', () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/types`, () => {
           return HttpResponse.json(
-            { errors: [{ msg: 'Authentication required' }] },
+            createErrorResponse([createApiError('Authentication required')]),
             { status: 401 }
           );
         })
@@ -341,7 +300,9 @@ describe('MetricsClient', () => {
     it('should handle not found errors', async () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/types`, () => {
-          return HttpResponse.json({ errors: [{ msg: 'Not found' }] }, { status: 404 });
+          return HttpResponse.json(createErrorResponse([createApiError('Not found')]), {
+            status: 404,
+          });
         })
       );
 
@@ -374,7 +335,7 @@ describe('MetricsClient', () => {
       server.use(
         http.get(`${baseUrl}/api/metrics/domains`, () => {
           return HttpResponse.json(
-            { errors: [{ msg: 'Authentication required' }] },
+            createErrorResponse([createApiError('Authentication required')]),
             { status: 401 }
           );
         })

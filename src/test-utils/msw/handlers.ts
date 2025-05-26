@@ -1,4 +1,10 @@
 import { http, HttpResponse } from 'msw';
+import {
+  SAMPLE_METRICS,
+  createMetricsSearchResponse,
+  createMetricTypesResponse,
+  createMetricDomainsResponse,
+} from './factories';
 
 /**
  * Default MSW request handlers for common scenarios.
@@ -147,74 +153,16 @@ export const handlers = [
 
   // Metrics endpoints
   http.get('*/api/metrics/search', () => {
-    return HttpResponse.json({
-      metrics: [
-        {
-          id: '1',
-          key: 'coverage',
-          name: 'Coverage',
-          type: 'PERCENT',
-          domain: 'Coverage',
-          description: 'Coverage by unit tests',
-          direction: 1,
-          qualitative: true,
-          hidden: false,
-          custom: false,
-          decimalScale: 1,
-        },
-        {
-          id: '2',
-          key: 'lines',
-          name: 'Lines of Code',
-          type: 'INT',
-          domain: 'Size',
-          description: 'Lines of code',
-          direction: -1,
-          qualitative: false,
-          hidden: false,
-          custom: false,
-        },
-      ],
-      total: 2,
-      p: 1,
-      ps: 50,
-    });
+    return HttpResponse.json(
+      createMetricsSearchResponse([SAMPLE_METRICS.coverage, SAMPLE_METRICS.lines])
+    );
   }),
 
   http.get('*/api/metrics/types', () => {
-    return HttpResponse.json({
-      types: [
-        'INT',
-        'FLOAT',
-        'PERCENT',
-        'BOOL',
-        'STRING',
-        'LEVEL',
-        'DATA',
-        'DISTRIB',
-        'RATING',
-        'WORK_DUR',
-      ],
-    });
+    return HttpResponse.json(createMetricTypesResponse());
   }),
 
   http.get('*/api/metrics/domains', () => {
-    return HttpResponse.json({
-      domains: [
-        'Issues',
-        'Maintainability',
-        'Reliability',
-        'Size',
-        'Complexity',
-        'Coverage',
-        'SCM',
-        'Duplications',
-        'SecurityReview',
-        'Security',
-        'General',
-        'Documentation',
-        'Releasability',
-      ],
-    });
+    return HttpResponse.json(createMetricDomainsResponse());
   }),
 ];

@@ -1,4 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
+import { ValidationError } from '../../errors';
 import { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
 import type {
   CreateProjectRequest,
@@ -129,6 +130,12 @@ export class ProjectsClient extends BaseClient {
    * ```
    */
   async exportFindings(params: ExportFindingsRequest): Promise<Finding[]> {
+    // Validate that only one of branch or pullRequest is specified
+    if ((params.branch ?? '') !== '' && (params.pullRequest ?? '') !== '') {
+      throw new ValidationError(
+        'Cannot specify both branch and pullRequest. Please provide only one of them.'
+      );
+    }
     const query = new URLSearchParams();
     query.append('project', params.project);
     if (params.branch !== undefined) {

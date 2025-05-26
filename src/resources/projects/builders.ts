@@ -1,4 +1,5 @@
 import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
+import { ValidationError } from '../../errors';
 import type {
   BulkDeleteProjectsRequest,
   ProjectSearchResult,
@@ -64,7 +65,9 @@ export class BulkDeleteProjectsBuilder extends BaseBuilder<BulkDeleteProjectsReq
       (finalParams.projects === undefined || finalParams.projects.length === 0) &&
       finalParams.q === undefined
     ) {
-      throw new Error('At least one parameter is required among analyzedBefore, projects and q');
+      throw new ValidationError(
+        'At least one parameter is required among analyzedBefore, projects and q'
+      );
     }
 
     await this.executor(finalParams);

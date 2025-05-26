@@ -150,6 +150,16 @@ describe('ProjectsClient', () => {
 
       expect(result).toEqual(mockFindings);
     });
+
+    it('should throw ValidationError when both branch and pullRequest are provided', async () => {
+      await expect(
+        client.exportFindings({
+          project: 'test-project',
+          branch: 'main',
+          pullRequest: '123',
+        })
+      ).rejects.toThrow('Cannot specify both branch and pullRequest');
+    });
   });
 
   describe('getContainsAiCode', () => {

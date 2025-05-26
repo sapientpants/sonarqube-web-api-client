@@ -1,4 +1,10 @@
-import { BaseBuilder, isRequired, validateRequired, validateOAuth } from '../../core/builders';
+import {
+  AlmSettingsBuilderWithKey,
+  UpdatableAlmSettingsBuilderWithKey,
+  ProjectBindingBuilder,
+  validateRequired,
+  validateOAuth,
+} from '../../core/builders';
 import type {
   CreateGitHubRequest,
   UpdateGitHubRequest,
@@ -14,24 +20,14 @@ import type {
 /**
  * Base builder for GitHub ALM settings operations
  */
-abstract class BaseGitHubBuilder<TRequest> extends BaseBuilder<TRequest> {
-  constructor(executor: (params: TRequest) => Promise<void>, key: string) {
-    super(executor);
-    this.setParam('key' as keyof TRequest, key as TRequest[keyof TRequest]);
-  }
-
+abstract class BaseGitHubBuilder<
+  TRequest extends { clientId?: string; clientSecret?: string; key?: string },
+> extends AlmSettingsBuilderWithKey<TRequest> {
   /**
    * Set the GitHub App ID
    */
   withAppId(appId: string): this {
     return this.setParam('appId' as keyof TRequest, appId as TRequest[keyof TRequest]);
-  }
-
-  /**
-   * Set the OAuth client ID and secret
-   */
-  withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret } as unknown as Partial<TRequest>);
   }
 
   /**
@@ -76,12 +72,45 @@ export class CreateGitHubBuilder extends BaseGitHubBuilder<CreateGitHubRequest> 
 /**
  * Builder for updating GitHub ALM settings
  */
-export class UpdateGitHubBuilder extends BaseGitHubBuilder<UpdateGitHubRequest> {
+export class UpdateGitHubBuilder extends UpdatableAlmSettingsBuilderWithKey<UpdateGitHubRequest> {
   /**
-   * Set a new key for the ALM setting
+   * Set the GitHub App ID
    */
-  withNewKey(newKey: string): this {
-    return this.setParam('newKey', newKey);
+  withAppId(appId: string): this {
+    return this.setParam(
+      'appId' as keyof UpdateGitHubRequest,
+      appId as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+    );
+  }
+
+  /**
+   * Set the GitHub App private key
+   */
+  withPrivateKey(privateKey: string): this {
+    return this.setParam(
+      'privateKey' as keyof UpdateGitHubRequest,
+      privateKey as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+    );
+  }
+
+  /**
+   * Set the GitHub API URL
+   */
+  withUrl(url: string): this {
+    return this.setParam(
+      'url' as keyof UpdateGitHubRequest,
+      url as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+    );
+  }
+
+  /**
+   * Set the webhook secret
+   */
+  withWebhookSecret(webhookSecret: string): this {
+    return this.setParam(
+      'webhookSecret' as keyof UpdateGitHubRequest,
+      webhookSecret as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+    );
   }
 
   async execute(): Promise<void> {
@@ -92,21 +121,11 @@ export class UpdateGitHubBuilder extends BaseGitHubBuilder<UpdateGitHubRequest> 
 /**
  * Base builder for Bitbucket Cloud ALM settings operations
  */
-abstract class BaseBitbucketCloudBuilder<TRequest> extends BaseBuilder<TRequest> {
-  constructor(executor: (params: TRequest) => Promise<void>, key: string) {
-    super(executor);
-    this.setParam('key' as keyof TRequest, key as TRequest[keyof TRequest]);
-  }
-
+abstract class BaseBitbucketCloudBuilder<
+  TRequest extends { clientId?: string; clientSecret?: string; key?: string },
+> extends AlmSettingsBuilderWithKey<TRequest> {
   /**
-   * Set the OAuth consumer key (client ID) and secret
-   */
-  withOAuth(clientId: string, clientSecret: string): this {
-    return this.setParams({ clientId, clientSecret } as unknown as Partial<TRequest>);
-  }
-
-  /**
-   * Set the Bitbucket workspace ID
+   * Set the workspace ID
    */
   withWorkspace(workspace: string): this {
     return this.setParam('workspace' as keyof TRequest, workspace as TRequest[keyof TRequest]);
@@ -118,10 +137,8 @@ abstract class BaseBitbucketCloudBuilder<TRequest> extends BaseBuilder<TRequest>
  */
 export class CreateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<CreateBitbucketCloudRequest> {
   async execute(): Promise<void> {
-    if (!isRequired(this.params.clientId) || !isRequired(this.params.clientSecret)) {
-      throw new Error('OAuth consumer key and secret are required');
-    }
-    validateRequired(this.params.workspace, 'Workspace');
+    validateRequired(this.params.workspace, 'Workspace ID');
+    validateOAuth(this.params.clientId, this.params.clientSecret, 'OAuth');
 
     return this.executor(this.params as CreateBitbucketCloudRequest);
   }
@@ -130,12 +147,15 @@ export class CreateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<Creat
 /**
  * Builder for updating Bitbucket Cloud ALM settings
  */
-export class UpdateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<UpdateBitbucketCloudRequest> {
+export class UpdateBitbucketCloudBuilder extends UpdatableAlmSettingsBuilderWithKey<UpdateBitbucketCloudRequest> {
   /**
-   * Set a new key for the ALM setting
+   * Set the workspace ID
    */
-  withNewKey(newKey: string): this {
-    return this.setParam('newKey', newKey);
+  inWorkspace(workspace: string): this {
+    return this.setParam(
+      'workspace' as keyof UpdateBitbucketCloudRequest,
+      workspace as UpdateBitbucketCloudRequest[keyof UpdateBitbucketCloudRequest]
+    );
   }
 
   async execute(): Promise<void> {
@@ -144,38 +164,20 @@ export class UpdateBitbucketCloudBuilder extends BaseBitbucketCloudBuilder<Updat
 }
 
 /**
- * Base builder for project binding operations
+ * Builder for setting Azure DevOps project binding
  */
-abstract class BaseBindingBuilder<TRequest> extends BaseBuilder<TRequest> {
-  constructor(executor: (params: TRequest) => Promise<void>, project: string, almSetting: string) {
-    super(executor);
-    // Type assertion is safe here as all binding requests have project and almSetting fields
-    this.setParams({ project, almSetting } as unknown as Partial<TRequest>);
-  }
-
-  /**
-   * Mark this as a monorepo binding
-   */
-  asMonorepo(): this {
-    return this.setParam('monorepo' as keyof TRequest, true as TRequest[keyof TRequest]);
-  }
-}
-
-/**
- * Builder for setting Azure DevOps bindings
- */
-export class SetAzureBindingBuilder extends BaseBindingBuilder<SetAzureBindingRequest> {
+export class SetAzureBindingBuilder extends ProjectBindingBuilder<SetAzureBindingRequest> {
   /**
    * Set the Azure project name
    */
-  withProjectName(projectName: string): this {
+  withAzureProjectName(projectName: string): this {
     return this.setParam('projectName', projectName);
   }
 
   /**
-   * Set the Azure repository name
+   * Set the repository name
    */
-  withRepository(repositoryName: string): this {
+  withRepositoryName(repositoryName: string): this {
     return this.setParam('repositoryName', repositoryName);
   }
 
@@ -188,25 +190,18 @@ export class SetAzureBindingBuilder extends BaseBindingBuilder<SetAzureBindingRe
 }
 
 /**
- * Builder for setting Bitbucket Server bindings
+ * Builder for setting Bitbucket Server project binding
  */
-export class SetBitbucketBindingBuilder extends BaseBindingBuilder<SetBitbucketBindingRequest> {
-  /**
-   * Set the Bitbucket repository
-   */
-  withRepository(repository: string): this {
-    return this.setParam('repository', repository);
-  }
-
+export class SetBitbucketBindingBuilder extends ProjectBindingBuilder<SetBitbucketBindingRequest> {
   /**
    * Set the repository slug
    */
-  withSlug(slug: string): this {
+  withRepositorySlug(slug: string): this {
     return this.setParam('slug', slug);
   }
 
   async execute(): Promise<void> {
-    validateRequired(this.params.repository, 'Repository');
+    validateRequired(this.params.repository, 'Bitbucket repository');
     validateRequired(this.params.slug, 'Repository slug');
 
     return this.executor(this.params as SetBitbucketBindingRequest);
@@ -214,16 +209,9 @@ export class SetBitbucketBindingBuilder extends BaseBindingBuilder<SetBitbucketB
 }
 
 /**
- * Builder for setting Bitbucket Cloud bindings
+ * Builder for setting Bitbucket Cloud project binding
  */
-export class SetBitbucketCloudBindingBuilder extends BaseBindingBuilder<SetBitbucketCloudBindingRequest> {
-  /**
-   * Set the Bitbucket repository
-   */
-  withRepository(repository: string): this {
-    return this.setParam('repository', repository);
-  }
-
+export class SetBitbucketCloudBindingBuilder extends ProjectBindingBuilder<SetBitbucketCloudBindingRequest> {
   async execute(): Promise<void> {
     validateRequired(this.params.repository, 'Repository');
 
@@ -232,21 +220,14 @@ export class SetBitbucketCloudBindingBuilder extends BaseBindingBuilder<SetBitbu
 }
 
 /**
- * Builder for setting GitHub bindings
+ * Builder for setting GitHub project binding
  */
-export class SetGitHubBindingBuilder extends BaseBindingBuilder<SetGitHubBindingRequest> {
+export class SetGitHubBindingBuilder extends ProjectBindingBuilder<SetGitHubBindingRequest> {
   /**
-   * Set the GitHub repository
+   * Whether to display summary comments on pull requests (defaults to false)
    */
-  withRepository(repository: string): this {
-    return this.setParam('repository', repository);
-  }
-
-  /**
-   * Enable summary comments on pull requests
-   */
-  withSummaryComments(enabled = true): this {
-    return this.setParam('summaryCommentEnabled', enabled);
+  withSummaryComments(summaryCommentEnabled = true): this {
+    return this.setParam('summaryCommentEnabled', summaryCommentEnabled);
   }
 
   async execute(): Promise<void> {
@@ -257,16 +238,9 @@ export class SetGitHubBindingBuilder extends BaseBindingBuilder<SetGitHubBinding
 }
 
 /**
- * Builder for setting GitLab bindings
+ * Builder for setting GitLab project binding
  */
-export class SetGitLabBindingBuilder extends BaseBindingBuilder<SetGitLabBindingRequest> {
-  /**
-   * Set the GitLab repository
-   */
-  withRepository(repository: string): this {
-    return this.setParam('repository', repository);
-  }
-
+export class SetGitLabBindingBuilder extends ProjectBindingBuilder<SetGitLabBindingRequest> {
   async execute(): Promise<void> {
     validateRequired(this.params.repository, 'Repository');
 

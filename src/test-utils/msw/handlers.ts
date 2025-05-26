@@ -1,4 +1,10 @@
 import { http, HttpResponse } from 'msw';
+import {
+  SAMPLE_METRICS,
+  createMetricsSearchResponse,
+  createMetricTypesResponse,
+  createMetricDomainsResponse,
+} from './factories';
 
 /**
  * Default MSW request handlers for common scenarios.
@@ -87,6 +93,24 @@ export const handlers = [
     });
   }),
 
+  http.post('*/api/projects/bulk_update_key', async ({ request }) => {
+    const body = (await request.json()) as {
+      project: string;
+      from: string;
+      to: string;
+      dryRun?: string;
+    };
+    return HttpResponse.json({
+      keys: [
+        {
+          key: body.project,
+          newKey: body.project.replace(body.from, body.to),
+          duplicate: false,
+        },
+      ],
+    });
+  }),
+
   http.get('*/api/issues/search', ({ request }) => {
     const url = new URL(request.url);
     const componentKeys = url.searchParams.get('componentKeys');
@@ -143,5 +167,20 @@ export const handlers = [
       ],
       paging: { pageIndex: 1, pageSize: 10, total: 1 },
     });
+  }),
+
+  // Metrics endpoints
+  http.get('*/api/metrics/search', () => {
+    return HttpResponse.json(
+      createMetricsSearchResponse([SAMPLE_METRICS.coverage, SAMPLE_METRICS.lines])
+    );
+  }),
+
+  http.get('*/api/metrics/types', () => {
+    return HttpResponse.json(createMetricTypesResponse());
+  }),
+
+  http.get('*/api/metrics/domains', () => {
+    return HttpResponse.json(createMetricDomainsResponse());
   }),
 ];

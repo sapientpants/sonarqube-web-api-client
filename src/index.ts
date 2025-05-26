@@ -3,6 +3,8 @@ import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
+import { ProjectsClient } from './resources/projects';
+import { MetricsClient } from './resources/metrics';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -19,10 +21,18 @@ interface IssuesResponse {
  */
 export class SonarQubeClient {
   // Resource clients
+  /** ALM Integrations API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly almIntegrations: AlmIntegrationsClient;
+  /** ALM Settings API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly almSettings: AlmSettingsClient;
+  /** Analysis Cache API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly analysisCache: AnalysisCacheClient;
+  /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
+  /** Projects API */
+  public readonly projects: ProjectsClient;
+  /** Metrics API */
+  public readonly metrics: MetricsClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -36,6 +46,8 @@ export class SonarQubeClient {
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
     this.applications = new ApplicationsClient(this.baseUrl, this.token);
+    this.projects = new ProjectsClient(this.baseUrl, this.token);
+    this.metrics = new MetricsClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -164,6 +176,46 @@ export type {
   UpdateApplicationRequest,
   UpdateBranchRequest,
 } from './resources/applications/types';
+
+// Re-export types from projects
+export type {
+  BulkDeleteProjectsRequest,
+  BulkUpdateProjectKeyRequest,
+  BulkUpdateProjectKeyResponse,
+  CreateProjectRequest,
+  CreateProjectResponse,
+  DeleteProjectRequest,
+  ExportFindingsRequest,
+  Finding,
+  FindingSeverity,
+  FindingStatus,
+  FindingType,
+  GetContainsAiCodeRequest,
+  GetContainsAiCodeResponse,
+  LicenseUsageResponse,
+  Project,
+  ProjectQualifier,
+  ProjectSearchResult,
+  ProjectVisibility,
+  SearchProjectsRequest,
+  SearchProjectsResponse,
+  SetContainsAiCodeRequest,
+  UpdateProjectKeyRequest,
+  UpdateProjectVisibilityRequest,
+} from './resources/projects/types';
+
+// Re-export types from metrics
+export type {
+  Metric,
+  MetricDomain,
+  MetricType,
+  MetricValueType,
+  MetricDirection,
+  SearchMetricsParams,
+  SearchMetricsResponse,
+  MetricTypesResponse,
+  MetricDomainsResponse,
+} from './resources/metrics/types';
 
 // Re-export error classes
 export {

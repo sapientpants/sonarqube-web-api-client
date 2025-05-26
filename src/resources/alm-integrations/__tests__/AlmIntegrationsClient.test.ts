@@ -300,7 +300,7 @@ describe('AlmIntegrationsClient', () => {
           .searchBitbucketServerReposBuilder()
           .withAlmSetting('bitbucket-server')
           .inProject('PROJ1')
-          .withRepositoryName('repo')
+          .withRepoSlug('repo')
           .pageSize(20)
           .execute();
 
@@ -350,7 +350,7 @@ describe('AlmIntegrationsClient', () => {
           .searchBitbucketCloudReposBuilder()
           .withAlmSetting('bitbucket-cloud')
           .inWorkspace('my-workspace')
-          .withRepositoryName('repo')
+          .withRepoSlug('repo')
           .execute();
 
         expect(result).toEqual(mockBitbucketCloudRepos);

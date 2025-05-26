@@ -5,6 +5,7 @@ import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
+import { MeasuresClient } from './resources/measures';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -33,6 +34,8 @@ export class SonarQubeClient {
   public readonly projects: ProjectsClient;
   /** Metrics API */
   public readonly metrics: MetricsClient;
+  /** Measures API */
+  public readonly measures: MeasuresClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -48,6 +51,7 @@ export class SonarQubeClient {
     this.applications = new ApplicationsClient(this.baseUrl, this.token);
     this.projects = new ProjectsClient(this.baseUrl, this.token);
     this.metrics = new MetricsClient(this.baseUrl, this.token);
+    this.measures = new MeasuresClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -216,6 +220,24 @@ export type {
   MetricTypesResponse,
   MetricDomainsResponse,
 } from './resources/metrics/types';
+
+// Re-export types from measures
+export type {
+  MeasuresAdditionalField,
+  ComponentTreeStrategy,
+  ComponentQualifier,
+  Measure,
+  ComponentMeasures,
+  Period,
+  ComponentMeasuresRequest,
+  ComponentMeasuresResponse,
+  ComponentTreeRequest,
+  ComponentTreeResponse,
+  HistoricalMeasure,
+  ComponentMeasuresHistory,
+  MeasuresHistoryRequest,
+  MeasuresHistoryResponse,
+} from './resources/measures/types';
 
 // Re-export error classes
 export {

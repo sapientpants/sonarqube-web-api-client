@@ -3,6 +3,7 @@ import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
+import { ProjectsClient } from './resources/projects';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -23,6 +24,7 @@ export class SonarQubeClient {
   public readonly almSettings: AlmSettingsClient;
   public readonly analysisCache: AnalysisCacheClient;
   public readonly applications: ApplicationsClient;
+  public readonly projects: ProjectsClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -36,6 +38,7 @@ export class SonarQubeClient {
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
     this.applications = new ApplicationsClient(this.baseUrl, this.token);
+    this.projects = new ProjectsClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -164,6 +167,31 @@ export type {
   UpdateApplicationRequest,
   UpdateBranchRequest,
 } from './resources/applications/types';
+
+// Re-export types from projects
+export type {
+  BulkDeleteProjectsRequest,
+  CreateProjectRequest,
+  CreateProjectResponse,
+  DeleteProjectRequest,
+  ExportFindingsRequest,
+  Finding,
+  FindingSeverity,
+  FindingStatus,
+  FindingType,
+  GetContainsAiCodeRequest,
+  GetContainsAiCodeResponse,
+  LicenseUsageResponse,
+  Project,
+  ProjectQualifier,
+  ProjectSearchResult,
+  ProjectVisibility,
+  SearchProjectsRequest,
+  SearchProjectsResponse,
+  SetContainsAiCodeRequest,
+  UpdateProjectKeyRequest,
+  UpdateProjectVisibilityRequest,
+} from './resources/projects/types';
 
 // Re-export error classes
 export {

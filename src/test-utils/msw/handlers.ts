@@ -96,24 +96,45 @@ export const handlers = [
   }),
 
   // ALM Integrations endpoints
-  http.get('*/api/alm_integrations/list_bitbucket_server_projects', () => {
+  http.get('*/api/alm_integrations/list_bitbucketserver_projects', () => {
     return HttpResponse.json({
-      projects: [],
+      projects: [
+        { key: 'PROJ1', name: 'Project 1', id: 1 },
+        { key: 'PROJ2', name: 'Project 2', id: 2 },
+      ],
       isLastPage: true,
     });
   }),
 
-  http.get('*/api/alm_integrations/search_bitbucket_server_repos', () => {
+  http.get('*/api/alm_integrations/search_bitbucketserver_repos', () => {
     return HttpResponse.json({
-      repositories: [],
+      repositories: [
+        {
+          id: 1,
+          name: 'Repository 1',
+          slug: 'repo1',
+          projectKey: 'PROJ1',
+          links: {
+            clone: [{ href: 'https://bitbucket.example.com/scm/proj1/repo1.git', name: 'http' }],
+          },
+        },
+      ],
       isLastPage: true,
     });
   }),
 
-  http.get('*/api/alm_integrations/search_bitbucket_cloud_repos', () => {
+  http.get('*/api/alm_integrations/search_bitbucketcloud_repos', () => {
     return HttpResponse.json({
-      repositories: [],
-      paging: { pageIndex: 1, pageSize: 10, total: 0 },
+      repositories: [
+        {
+          uuid: '{uuid-1}',
+          name: 'Repository 1',
+          slug: 'repo1',
+          projectKey: 'PROJ1',
+          workspace: 'my-workspace',
+        },
+      ],
+      paging: { pageIndex: 1, pageSize: 10, total: 1 },
     });
   }),
 ];

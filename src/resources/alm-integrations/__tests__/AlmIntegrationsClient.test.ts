@@ -253,7 +253,7 @@ describe('AlmIntegrationsClient', () => {
     describe('listBitbucketServerProjects', () => {
       it('should list Bitbucket Server projects', async () => {
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/list_bitbucket_server_projects`, () => {
+          http.get(`${baseUrl}/api/alm_integrations/list_bitbucketserver_projects`, () => {
             return HttpResponse.json(mockBitbucketProjects);
           })
         );
@@ -269,7 +269,7 @@ describe('AlmIntegrationsClient', () => {
     describe('searchBitbucketServerRepos', () => {
       it('should search Bitbucket Server repositories', async () => {
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucket_server_repos`, () => {
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, () => {
             return HttpResponse.json(mockBitbucketRepos);
           })
         );
@@ -299,7 +299,7 @@ describe('AlmIntegrationsClient', () => {
         };
 
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucket_server_repos`, () => {
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketserver_repos`, () => {
             return HttpResponse.json(builderResponse);
           })
         );
@@ -334,7 +334,7 @@ describe('AlmIntegrationsClient', () => {
     describe('searchBitbucketCloudRepos', () => {
       it('should search Bitbucket Cloud repositories', async () => {
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucket_cloud_repos`, () => {
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, () => {
             return HttpResponse.json(mockBitbucketCloudRepos);
           })
         );
@@ -351,7 +351,7 @@ describe('AlmIntegrationsClient', () => {
     describe('searchBitbucketCloudReposBuilder', () => {
       it('should create a builder for Bitbucket Cloud repository search', async () => {
         server.use(
-          http.get(`${baseUrl}/api/alm_integrations/search_bitbucket_cloud_repos`, () => {
+          http.get(`${baseUrl}/api/alm_integrations/search_bitbucketcloud_repos`, () => {
             return HttpResponse.json(mockBitbucketCloudRepos);
           })
         );

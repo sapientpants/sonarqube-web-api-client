@@ -3,6 +3,16 @@ import { http, HttpResponse } from 'msw';
 /**
  * Default MSW request handlers for common scenarios.
  * These handlers can be overridden in individual tests using server.use()
+ *
+ * Handler evaluation order:
+ * 1. Handlers are evaluated in the order they appear in this array
+ * 2. The first handler that returns a response wins
+ * 3. Handlers returning undefined pass through to the next handler
+ * 4. All http.all handlers for '/api/' routes check specific conditions before responding
+ * 5. Specific endpoint handlers (http.get) are placed after conditional handlers
+ *
+ * This allows tests to simulate various error conditions (auth, rate limit, network)
+ * while still providing default responses for common endpoints.
  */
 export const handlers = [
   // Authentication error handler - returns 401 for any request with invalid token

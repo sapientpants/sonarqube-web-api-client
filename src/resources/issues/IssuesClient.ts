@@ -98,18 +98,24 @@ export class IssuesClient extends BaseClient {
       'additionalFields',
       'assignees',
       'authors',
+      'cleanCodeAttributeCategories',
       'componentKeys',
       'components',
       'cwe',
       'facets',
+      'impactSeverities',
+      'impactSoftwareQualities',
       'issues',
+      'issueStatuses',
       'languages',
       'owaspTop10',
+      'owaspTop10v2021',
       'projects',
       'resolutions',
       'rules',
       'sansTop25',
       'severities',
+      'sonarsourceSecurity',
       'sonarsourceSecurityCategory',
       'statuses',
       'tags',
@@ -119,14 +125,17 @@ export class IssuesClient extends BaseClient {
     // Add parameters to search params
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
+        // Map camelCase parameter names to API parameter names
+        const apiKey = key === 'owaspTop10v2021' ? 'owaspTop10-2021' : key;
+
         if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
           if (value.length > 0) {
-            searchParams.append(key, value.join(','));
+            searchParams.append(apiKey, value.join(','));
           }
         } else if (typeof value === 'boolean') {
-          searchParams.append(key, value.toString());
+          searchParams.append(apiKey, value.toString());
         } else if (typeof value === 'number' || typeof value === 'string') {
-          searchParams.append(key, value.toString());
+          searchParams.append(apiKey, value.toString());
         }
       }
     });

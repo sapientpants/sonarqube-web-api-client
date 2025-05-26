@@ -54,6 +54,8 @@ export interface Issue {
   resolution?: string;
   transitions?: string[];
   actions?: string[];
+  branch?: string;
+  pullRequestId?: string;
   comments?: Array<{
     key: string;
     login: string;

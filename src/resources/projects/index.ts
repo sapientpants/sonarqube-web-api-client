@@ -1,0 +1,25 @@
+export { ProjectsClient } from './ProjectsClient';
+export { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
+export type {
+  BulkDeleteProjectsRequest,
+  CreateProjectRequest,
+  CreateProjectResponse,
+  DeleteProjectRequest,
+  ExportFindingsRequest,
+  Finding,
+  FindingSeverity,
+  FindingStatus,
+  FindingType,
+  GetContainsAiCodeRequest,
+  GetContainsAiCodeResponse,
+  LicenseUsageResponse,
+  Project,
+  ProjectQualifier,
+  ProjectSearchResult,
+  ProjectVisibility,
+  SearchProjectsRequest,
+  SearchProjectsResponse,
+  SetContainsAiCodeRequest,
+  UpdateProjectKeyRequest,
+  UpdateProjectVisibilityRequest,
+} from './types';

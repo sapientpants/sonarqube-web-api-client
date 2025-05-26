@@ -7,6 +7,7 @@ import {
   assertQueryParams,
 } from '../../../test-utils/assertions';
 import type {
+  BulkUpdateProjectKeyResponse,
   CreateProjectResponse,
   Finding,
   GetContainsAiCodeResponse,
@@ -31,6 +32,67 @@ describe('ProjectsClient', () => {
       expect(typeof builder.projects).toBe('function');
       expect(typeof builder.query).toBe('function');
       expect(typeof builder.qualifiers).toBe('function');
+    });
+  });
+
+  describe('bulkUpdateKey', () => {
+    it('should bulk update project keys', async () => {
+      const mockResponse: BulkUpdateProjectKeyResponse = {
+        keys: [
+          { key: 'my_old_project', newKey: 'my_new_project', duplicate: false },
+          { key: 'my_old_project:module1', newKey: 'my_new_project:module1', duplicate: false },
+        ],
+      };
+
+      server.use(
+        http.post(`${baseUrl}/api/projects/bulk_update_key`, async ({ request }) => {
+          assertCommonHeaders(request, token);
+          await assertRequestBody(request, {
+            project: 'my_old_project',
+            from: 'my_old_',
+            to: 'my_new_',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      const result = await client.bulkUpdateKey({
+        project: 'my_old_project',
+        from: 'my_old_',
+        to: 'my_new_',
+      });
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should support dry run mode', async () => {
+      const mockResponse: BulkUpdateProjectKeyResponse = {
+        keys: [{ key: 'my_old_project', newKey: 'my_new_project', duplicate: false }],
+      };
+
+      server.use(
+        http.post(`${baseUrl}/api/projects/bulk_update_key`, async ({ request }) => {
+          assertCommonHeaders(request, token);
+          await assertRequestBody(request, {
+            project: 'my_old_project',
+            from: 'my_old_',
+            to: 'my_new_',
+            dryRun: 'true',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      const result = await client.bulkUpdateKey({
+        project: 'my_old_project',
+        from: 'my_old_',
+        to: 'my_new_',
+        dryRun: true,
+      });
+
+      expect(result).toEqual(mockResponse);
     });
   });
 

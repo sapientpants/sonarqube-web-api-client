@@ -203,6 +203,29 @@ export interface SetContainsAiCodeRequest {
 }
 
 /**
+ * Request parameters for bulk_update_key
+ * @since 6.1
+ * @deprecated Since 7.6
+ */
+export interface BulkUpdateProjectKeyRequest {
+  project: string;
+  from: string;
+  to: string;
+  dryRun?: boolean;
+}
+
+/**
+ * Response from bulk_update_key
+ */
+export interface BulkUpdateProjectKeyResponse {
+  keys: Array<{
+    key: string;
+    newKey: string;
+    duplicate: boolean;
+  }>;
+}
+
+/**
  * Request parameters for update_key
  * @since 6.1
  */

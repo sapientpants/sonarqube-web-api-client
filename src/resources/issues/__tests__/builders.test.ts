@@ -86,6 +86,21 @@ describe('SearchIssuesBuilder', () => {
       expect(response.paging.pageSize).toBe(50);
     });
 
+    it('should handle combined project and component filters', async () => {
+      // Test that both filters work together (AND logic)
+      const response = await builder
+        .withProjects(['project'])
+        .withComponents(['project:src/file.ts'])
+        .execute();
+
+      expect(response.issues).toBeDefined();
+      // Should return issues that match both project AND component filters
+      response.issues.forEach((issue) => {
+        expect(issue.project).toBe('project');
+        expect(issue.component).toContain('project:src/file.ts');
+      });
+    });
+
     it('should handle empty results', async () => {
       server.use(
         http.get('*/api/issues/search', () => {

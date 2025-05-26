@@ -156,14 +156,22 @@ export const handlers = [
       },
     ];
 
-    // Filter issues based on component or project keys
+    // Filter issues based on component and/or project keys
+    // When both are provided, they work together (AND logic)
     let filteredIssues = allIssues;
+
+    // Apply project filter if provided
+    if (projectKeys !== null) {
+      filteredIssues = filteredIssues.filter((issue) =>
+        projectKeys.split(',').includes(issue.project)
+      );
+    }
+
+    // Apply component filter if provided (works with or without project filter)
     if (componentKeys !== null) {
-      filteredIssues = allIssues.filter((issue) =>
+      filteredIssues = filteredIssues.filter((issue) =>
         componentKeys.split(',').some((key) => issue.component.includes(key))
       );
-    } else if (projectKeys !== null) {
-      filteredIssues = allIssues.filter((issue) => projectKeys.split(',').includes(issue.project));
     }
 
     // Handle pagination

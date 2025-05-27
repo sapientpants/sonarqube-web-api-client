@@ -1,8 +1,15 @@
 # 🚀 SonarQube Web API Client
 
-> A modern TypeScript client library for the SonarQube/SonarCloud Web API with type-safe interfaces and comprehensive error handling.
+A modern TypeScript client library for the SonarQube/SonarCloud Web API with type-safe interfaces and comprehensive error handling.
 
+[![CI](https://github.com/sapientpants/sonarqube-web-api-client/actions/workflows/ci.yml/badge.svg)](https://github.com/sapientpants/sonarqube-web-api-client/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=bugs)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
 [![npm version](https://img.shields.io/npm/v/sonarqube-web-api-client.svg)](https://www.npmjs.com/package/sonarqube-web-api-client)
+[![npm downloads](https://img.shields.io/npm/dm/sonarqube-web-api-client.svg)](https://www.npmjs.com/package/sonarqube-web-api-client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 

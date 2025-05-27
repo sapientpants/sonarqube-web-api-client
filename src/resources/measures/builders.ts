@@ -1,4 +1,5 @@
 import { PaginatedBuilder, validateRequired } from '../../core/builders';
+import { ValidationError } from '../../errors';
 import type {
   ComponentTreeRequest,
   ComponentTreeResponse,
@@ -96,14 +97,16 @@ export class ComponentTreeBuilder extends PaginatedBuilder<
   }
 
   async execute(): Promise<ComponentTreeResponse> {
-    validateRequired(this.params.metricKeys, 'Metric keys');
+    if (!this.params.metricKeys || this.params.metricKeys.length === 0) {
+      throw new ValidationError('Metric keys is required');
+    }
 
-    if (this.params.metricKeys && this.params.metricKeys.length > 15) {
-      throw new Error('Maximum 15 metric keys allowed');
+    if (this.params.metricKeys.length > 15) {
+      throw new ValidationError('Maximum 15 metric keys allowed');
     }
 
     if (this.params.component === undefined && this.params.baseComponentId === undefined) {
-      throw new Error('Either component or baseComponentId must be provided');
+      throw new ValidationError('Either component or baseComponentId must be provided');
     }
 
     return this.executor(this.params as ComponentTreeRequest);
@@ -170,7 +173,10 @@ export class MeasuresHistoryBuilder extends PaginatedBuilder<
 
   async execute(): Promise<MeasuresHistoryResponse> {
     validateRequired(this.params.component, 'Component');
-    validateRequired(this.params.metrics, 'Metrics');
+
+    if (!this.params.metrics || this.params.metrics.length === 0) {
+      throw new ValidationError('Metrics is required');
+    }
 
     return this.executor(this.params as MeasuresHistoryRequest);
   }

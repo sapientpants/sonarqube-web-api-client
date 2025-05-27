@@ -125,7 +125,13 @@ export class QualityGatesClient extends BaseClient {
   async setCondition(params: SetConditionRequest): Promise<void> {
     await this.request('/api/qualitygates/create_condition', {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        gateId: params.gateId,
+        metric: params.metric,
+        op: params.operator,
+        error: params.error,
+        warning: params.warning,
+      }),
     });
   }
 
@@ -137,7 +143,13 @@ export class QualityGatesClient extends BaseClient {
   async updateCondition(params: UpdateConditionRequest): Promise<void> {
     await this.request('/api/qualitygates/update_condition', {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        id: params.id,
+        metric: params.metric,
+        op: params.operator,
+        error: params.error,
+        warning: params.warning,
+      }),
     });
   }
 

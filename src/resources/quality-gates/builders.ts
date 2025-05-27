@@ -1,4 +1,5 @@
 import { BaseBuilder, PaginatedBuilder, validateRequired } from '../../core/builders';
+import { ValidationError } from '../../errors';
 import type {
   SetConditionRequest,
   GetProjectsRequest,
@@ -236,10 +237,8 @@ export class AssociateProjectsBuilder extends BaseBuilder<AssociateProjectsReque
   }
 
   async execute(): Promise<void> {
-    validateRequired(this.params.projectKeys, 'Project keys');
-
     if (!this.params.projectKeys || this.params.projectKeys.length === 0) {
-      throw new Error('At least one project key must be specified');
+      throw new ValidationError('At least one project key must be specified');
     }
 
     return this.executor(this.params as AssociateProjectsRequest);

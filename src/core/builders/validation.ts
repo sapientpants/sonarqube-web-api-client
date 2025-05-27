@@ -2,6 +2,8 @@
  * Shared validation utilities for builders
  */
 
+import { ValidationError } from '../../errors';
+
 /**
  * Check if a value is a non-empty string
  */
@@ -11,17 +13,17 @@ export function isRequired(value: unknown): value is string {
 
 /**
  * Validate that a field is required (non-empty string)
- * @throws Error if validation fails
+ * @throws ValidationError if validation fails
  */
 export function validateRequired(value: unknown, fieldName: string): void {
   if (!isRequired(value)) {
-    throw new Error(`${fieldName} is required`);
+    throw new ValidationError(`${fieldName} is required`);
   }
 }
 
 /**
  * Validate OAuth credentials
- * @throws Error if validation fails
+ * @throws ValidationError if validation fails
  */
 export function validateOAuth(
   clientId: unknown,
@@ -29,6 +31,6 @@ export function validateOAuth(
   providerName = 'OAuth'
 ): void {
   if (!isRequired(clientId) || !isRequired(clientSecret)) {
-    throw new Error(`${providerName} client ID and secret are required`);
+    throw new ValidationError(`${providerName} client ID and secret are required`);
   }
 }

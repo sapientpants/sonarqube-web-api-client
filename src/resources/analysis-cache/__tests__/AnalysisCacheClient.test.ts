@@ -16,7 +16,7 @@ describe('AnalysisCacheClient', () => {
 
   beforeEach(() => {
     client = new AnalysisCacheClient(baseUrl, token);
-    clientWithoutToken = new AnalysisCacheClient(baseUrl);
+    clientWithoutToken = new AnalysisCacheClient(baseUrl, '');
   });
 
   describe('get', () => {

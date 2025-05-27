@@ -110,7 +110,10 @@ describe('Error Scenarios with MSW', () => {
     });
 
     it('should handle DNS resolution failures', async () => {
-      const dnsFailClient = new SonarQubeClient('https://non-existent-domain-12345.com');
+      const dnsFailClient = new SonarQubeClient(
+        'https://non-existent-domain-12345.com',
+        'test-token'
+      );
 
       server.use(
         http.get('https://non-existent-domain-12345.com/api/projects/search', () => {

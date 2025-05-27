@@ -16,7 +16,7 @@ describe('SystemClient', () => {
 
   beforeEach(() => {
     client = new SystemClient(baseUrl, token);
-    clientWithoutToken = new SystemClient(baseUrl);
+    clientWithoutToken = new SystemClient(baseUrl, '');
   });
 
   describe('health', () => {

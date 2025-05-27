@@ -1,2 +1,11 @@
 export { SourcesClient } from './SourcesClient';
-export type * from './types';
+export type {
+  GetRawSourceRequest,
+  GetRawSourceResponse,
+  GetScmInfoRequest,
+  GetScmInfoResponse,
+  ScmInfo,
+  ShowSourceRequest,
+  ShowSourceResponse,
+  SourceLine,
+} from './types';

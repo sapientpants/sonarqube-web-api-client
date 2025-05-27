@@ -9,6 +9,7 @@ import { MeasuresClient } from './resources/measures';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
+import { SystemClient } from './resources/system';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -45,6 +46,8 @@ export class SonarQubeClient {
   public readonly qualityGates: QualityGatesClient;
   /** Sources API */
   public readonly sources: SourcesClient;
+  /** System API - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly system: SystemClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -64,6 +67,7 @@ export class SonarQubeClient {
     this.measures = new MeasuresClient(this.baseUrl, this.token);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token);
     this.sources = new SourcesClient(this.baseUrl, this.token);
+    this.system = new SystemClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -317,6 +321,17 @@ export type {
   ShowSourceResponse,
   SourceLine,
 } from './resources/sources/types';
+
+// Re-export types from system
+export type {
+  HealthStatus,
+  SystemStatus,
+  HealthResponse,
+  StatusResponse,
+  PingResponse,
+  SystemInfo,
+  InfoResponse,
+} from './resources/system/types';
 
 // Re-export error classes
 export {

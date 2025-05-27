@@ -10,13 +10,13 @@ import type { HealthResponse, StatusResponse, InfoResponse } from '../types';
 
 describe('SystemClient', () => {
   let client: SystemClient;
-  let clientWithoutToken: SystemClient;
+  let clientWithEmptyToken: SystemClient;
   const baseUrl = 'https://sonarqube.example.com';
   const token = 'test-token';
 
   beforeEach(() => {
     client = new SystemClient(baseUrl, token);
-    clientWithoutToken = new SystemClient(baseUrl, '');
+    clientWithEmptyToken = new SystemClient(baseUrl, '');
   });
 
   describe('health', () => {
@@ -175,7 +175,7 @@ describe('SystemClient', () => {
         })
       );
 
-      const result = await clientWithoutToken.status();
+      const result = await clientWithEmptyToken.status();
       expect(result).toEqual(mockResponse);
     });
   });
@@ -211,7 +211,7 @@ describe('SystemClient', () => {
         })
       );
 
-      const result = await clientWithoutToken.ping();
+      const result = await clientWithEmptyToken.ping();
       expect(result).toBe('pong');
     });
 
@@ -230,7 +230,7 @@ describe('SystemClient', () => {
         })
       );
 
-      await expect(clientWithoutToken.ping()).rejects.toThrow(AuthenticationError);
+      await expect(clientWithEmptyToken.ping()).rejects.toThrow(AuthenticationError);
     });
   });
 

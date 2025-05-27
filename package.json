@@ -29,8 +29,8 @@
     "client",
     "typescript"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Marc Tremblay",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/sapientpants/sonarqube-web-api-client"

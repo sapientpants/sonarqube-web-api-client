@@ -11,7 +11,8 @@ export type ResponseType = 'json' | 'text' | 'arrayBuffer' | 'blob';
 export abstract class BaseClient {
   constructor(
     protected readonly baseUrl: string,
-    protected readonly token?: string
+    protected readonly token: string,
+    protected readonly organization?: string
   ) {}
 
   protected async request<T>(
@@ -22,8 +23,7 @@ export abstract class BaseClient {
 
     const headers: Record<string, string> = {
       ...(responseType === 'json' && { ['Content-Type']: 'application/json' }),
-      ...(this.token !== undefined &&
-        this.token.length > 0 && { ['Authorization']: `Bearer ${this.token}` }),
+      ...(this.token.length > 0 && { ['Authorization']: `Bearer ${this.token}` }),
     };
 
     const mergedHeaders = {

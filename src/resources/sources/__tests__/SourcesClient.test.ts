@@ -17,7 +17,7 @@ describe('SourcesClient', () => {
 
   beforeEach(() => {
     client = new SourcesClient(baseUrl, token);
-    clientWithoutToken = new SourcesClient(baseUrl);
+    clientWithoutToken = new SourcesClient(baseUrl, '');
   });
 
   describe('raw', () => {

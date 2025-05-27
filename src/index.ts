@@ -50,33 +50,42 @@ export class SonarQubeClient {
   public readonly system: SystemClient;
 
   private readonly baseUrl: string;
-  private readonly token: string | undefined;
+  private readonly token: string;
+  private readonly organization: string | undefined;
 
-  constructor(baseUrl: string, token?: string) {
+  constructor(baseUrl: string, token: string, organization?: string) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.token = token;
+    this.organization = organization;
 
     // Initialize resource clients
-    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token);
-    this.almSettings = new AlmSettingsClient(this.baseUrl, this.token);
-    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token);
-    this.applications = new ApplicationsClient(this.baseUrl, this.token);
-    this.issues = new IssuesClient(this.baseUrl, this.token);
-    this.projects = new ProjectsClient(this.baseUrl, this.token);
-    this.metrics = new MetricsClient(this.baseUrl, this.token);
-    this.measures = new MeasuresClient(this.baseUrl, this.token);
-    this.qualityGates = new QualityGatesClient(this.baseUrl, this.token);
-    this.sources = new SourcesClient(this.baseUrl, this.token);
-    this.system = new SystemClient(this.baseUrl, this.token);
+    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token, this.organization);
+    this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.organization);
+    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.organization);
+    this.applications = new ApplicationsClient(this.baseUrl, this.token, this.organization);
+    this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
+    this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
+    this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
+    this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
+    this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
+    this.sources = new SourcesClient(this.baseUrl, this.token, this.organization);
+    this.system = new SystemClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
   public async getProjects(): Promise<ProjectsResponse> {
-    return this.request<ProjectsResponse>('/projects/search');
+    const params = new URLSearchParams();
+    if (this.organization !== undefined && this.organization.length > 0) {
+      params.append('organization', this.organization);
+    }
+    return this.request<ProjectsResponse>(`/projects/search?${params.toString()}`);
   }
 
   public async getIssues(projectKey?: string): Promise<IssuesResponse> {
     const params = new URLSearchParams();
+    if (this.organization !== undefined && this.organization.length > 0) {
+      params.append('organization', this.organization);
+    }
     if (projectKey !== undefined && projectKey.length > 0) {
       params.append('componentKeys', projectKey);
     }
@@ -87,7 +96,7 @@ export class SonarQubeClient {
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
 
-    if (this.token !== undefined && this.token.length > 0) {
+    if (this.token.length > 0) {
       headers.set('Authorization', `Bearer ${this.token}`);
     }
 

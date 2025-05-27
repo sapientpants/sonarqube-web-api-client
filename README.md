@@ -97,13 +97,9 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
-### 📈 Progress
+📊 **Progress**: 11 of 38 APIs implemented (29%)
 
-- **Implemented**: 11 APIs (29%)
-- **Not Implemented**: 27 APIs (71%)
-- **Total APIs**: 38
-
-Want to help? Check out our [contributing guide](#contributing) - we'd love your help implementing more APIs!
+Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
 ## 🔥 Examples
 
@@ -201,47 +197,7 @@ try {
 
 ## 🔌 API Compatibility
 
-### ✅ Available in both SonarQube and SonarCloud
-
-- **Issues API** (`client.issues`)
-  - Search, comment, assign, transition, and tag issues
-  - Advanced filtering with builder pattern
-  - Bulk operations support
-
-- **Measures API** (`client.measures`)
-  - Component measures with multiple metrics
-  - Historical data analysis
-  - Tree navigation with pagination
-
-- **Metrics API** (`client.metrics`)
-  - Search and discover available metrics
-  - Filter by type and domain
-  - Async iteration for large datasets
-
-- **Projects API** (`client.projects`)
-  - Full CRUD operations
-  - Bulk operations (delete, update)
-  - Advanced search capabilities
-
-- **Quality Gates API** (`client.qualityGates`)
-  - Create and manage quality gates
-  - Define conditions and thresholds
-  - Project associations
-
-- **Sources API** (`client.sources`)
-  - Access raw source code
-  - SCM blame information
-  - Line-by-line navigation
-
-### 🏢 SonarQube-only APIs
-
-These powerful APIs are available when connecting to SonarQube Server:
-
-- **ALM Integrations** - Deep integration with your development platforms
-- **System API** - Monitor health, status, and system information
-- **Applications** - Manage application portfolios
-- **Analysis Cache** - Optimize scanner performance
-- **Advanced Project Features** - AI code detection, license usage
+The library supports both SonarQube and SonarCloud APIs. Check the [API Implementation Status](#📊-api-implementation-status) table above for specific availability details.
 
 ## 🛠️ Development
 

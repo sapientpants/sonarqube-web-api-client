@@ -7,6 +7,7 @@ import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
 import { IssuesClient } from './resources/issues';
+import { QualityGatesClient } from './resources/quality-gates';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -39,6 +40,8 @@ export class SonarQubeClient {
   public readonly metrics: MetricsClient;
   /** Measures API */
   public readonly measures: MeasuresClient;
+  /** Quality Gates API */
+  public readonly qualityGates: QualityGatesClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -56,6 +59,7 @@ export class SonarQubeClient {
     this.projects = new ProjectsClient(this.baseUrl, this.token);
     this.metrics = new MetricsClient(this.baseUrl, this.token);
     this.measures = new MeasuresClient(this.baseUrl, this.token);
+    this.qualityGates = new QualityGatesClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -271,6 +275,32 @@ export type {
   SetTagsRequest,
   SetTagsResponse,
 } from './resources/issues/types';
+
+// Re-export types from quality gates
+export type {
+  QualityGate,
+  QualityGateCondition,
+  QualityGateOperator,
+  CreateQualityGateRequest,
+  UpdateQualityGateRequest,
+  DeleteQualityGateRequest,
+  SetAsDefaultRequest,
+  CopyQualityGateRequest,
+  RenameQualityGateRequest,
+  GetQualityGateRequest,
+  ListQualityGatesResponse,
+  SetConditionRequest,
+  UpdateConditionRequest,
+  DeleteConditionRequest,
+  QualityGateProject,
+  GetProjectsRequest,
+  GetProjectsResponse,
+  AssociateProjectsRequest,
+  DissociateProjectsRequest,
+  ProjectQualityGateStatus,
+  QualityGateConditionStatus,
+  GetProjectStatusRequest,
+} from './resources/quality-gates/types';
 
 // Re-export error classes
 export {

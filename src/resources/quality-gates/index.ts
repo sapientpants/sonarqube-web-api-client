@@ -1,0 +1,26 @@
+export { QualityGatesClient } from './QualityGatesClient';
+export { SetConditionBuilder, GetProjectsBuilder, AssociateProjectsBuilder } from './builders';
+export type {
+  QualityGate,
+  QualityGateCondition,
+  QualityGateOperator,
+  CreateQualityGateRequest,
+  UpdateQualityGateRequest,
+  DeleteQualityGateRequest,
+  SetAsDefaultRequest,
+  CopyQualityGateRequest,
+  RenameQualityGateRequest,
+  GetQualityGateRequest,
+  ListQualityGatesResponse,
+  SetConditionRequest,
+  UpdateConditionRequest,
+  DeleteConditionRequest,
+  QualityGateProject,
+  GetProjectsRequest,
+  GetProjectsResponse,
+  AssociateProjectsRequest,
+  DissociateProjectsRequest,
+  ProjectQualityGateStatus,
+  QualityGateConditionStatus,
+  GetProjectStatusRequest,
+} from './types';

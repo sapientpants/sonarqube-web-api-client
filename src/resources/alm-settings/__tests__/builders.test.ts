@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../test-utils/msw/server';
 import { AlmSettingsClient } from '../AlmSettingsClient';
+import { ValidationError } from '../../../errors';
 
 describe('AlmSettings Builders', () => {
   let client: AlmSettingsClient;
@@ -64,6 +65,36 @@ describe('AlmSettings Builders', () => {
           .withUrl('https://github.com') // Explicitly set URL to avoid validation error
           .execute();
       });
+
+      it('should throw validation error when appId is missing', async () => {
+        await expect(
+          client
+            .createGitHubBuilder('github-key')
+            .withOAuth('client-id', 'client-secret')
+            .withPrivateKey('private-key')
+            .execute()
+        ).rejects.toThrow(ValidationError);
+      });
+
+      it('should throw validation error when OAuth credentials are missing', async () => {
+        await expect(
+          client
+            .createGitHubBuilder('github-key')
+            .withAppId('app-123')
+            .withPrivateKey('private-key')
+            .execute()
+        ).rejects.toThrow('OAuth client ID and secret are required');
+      });
+
+      it('should throw validation error when privateKey is missing', async () => {
+        await expect(
+          client
+            .createGitHubBuilder('github-key')
+            .withAppId('app-123')
+            .withOAuth('client-id', 'client-secret')
+            .execute()
+        ).rejects.toThrow('Private key is required');
+      });
     });
 
     describe('updateGitHubBuilder', () => {
@@ -95,9 +126,364 @@ describe('AlmSettings Builders', () => {
           .withWebhookSecret('new-webhook-secret')
           .execute();
       });
+
+      it('should update with partial parameters', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/update_github`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'github-key',
+              appId: 'new-app-123',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.updateGitHubBuilder('github-key').withAppId('new-app-123').execute();
+      });
+    });
+  });
+
+  describe('Azure Builders', () => {
+    describe('createAzureBuilder', () => {
+      it('should create Azure ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/create_azure`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'azure-key',
+              personalAccessToken: 'pat-123',
+              url: 'https://dev.azure.com/org',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.createAzure({
+          key: 'azure-key',
+          personalAccessToken: 'pat-123',
+          url: 'https://dev.azure.com/org',
+        });
+      });
     });
 
-    // setGitHubBindingBuilder test removed due to method name issues
-    // This would need to be implemented once the correct builder methods are available
+    describe('updateAzure', () => {
+      it('should update Azure ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/update_azure`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'azure-key',
+              newKey: 'new-azure-key',
+              personalAccessToken: 'new-pat-123',
+              url: 'https://dev.azure.com/neworg',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.updateAzure({
+          key: 'azure-key',
+          newKey: 'new-azure-key',
+          personalAccessToken: 'new-pat-123',
+          url: 'https://dev.azure.com/neworg',
+        });
+      });
+    });
+  });
+
+  describe('GitLab', () => {
+    describe('createGitLab', () => {
+      it('should create GitLab ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/create_gitlab`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'gitlab-key',
+              personalAccessToken: 'pat-123',
+              url: 'https://gitlab.example.com',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.createGitLab({
+          key: 'gitlab-key',
+          personalAccessToken: 'pat-123',
+          url: 'https://gitlab.example.com',
+        });
+      });
+    });
+
+    describe('updateGitLab', () => {
+      it('should update GitLab ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/update_gitlab`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'gitlab-key',
+              newKey: 'new-gitlab-key',
+              personalAccessToken: 'new-pat-123',
+              url: 'https://new-gitlab.example.com',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.updateGitLab({
+          key: 'gitlab-key',
+          newKey: 'new-gitlab-key',
+          personalAccessToken: 'new-pat-123',
+          url: 'https://new-gitlab.example.com',
+        });
+      });
+    });
+  });
+
+  describe('Bitbucket Server', () => {
+    describe('createBitbucket', () => {
+      it('should create Bitbucket Server ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/create_bitbucket`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'bitbucket-key',
+              personalAccessToken: 'pat-123',
+              url: 'https://bitbucket.example.com',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.createBitbucket({
+          key: 'bitbucket-key',
+          personalAccessToken: 'pat-123',
+          url: 'https://bitbucket.example.com',
+        });
+      });
+    });
+
+    describe('updateBitbucket', () => {
+      it('should update Bitbucket Server ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/update_bitbucket`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'bitbucket-key',
+              newKey: 'new-bitbucket-key',
+              personalAccessToken: 'new-pat-123',
+              url: 'https://new-bitbucket.example.com',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.updateBitbucket({
+          key: 'bitbucket-key',
+          newKey: 'new-bitbucket-key',
+          personalAccessToken: 'new-pat-123',
+          url: 'https://new-bitbucket.example.com',
+        });
+      });
+    });
+  });
+
+  describe('Bitbucket Cloud Builders', () => {
+    describe('createBitbucketCloudBuilder', () => {
+      it('should create Bitbucket Cloud ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/create_bitbucketcloud`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'bitbucket-cloud-key',
+              clientId: 'client-id',
+              clientSecret: 'client-secret',
+              workspace: 'my-workspace',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .createBitbucketCloudBuilder('bitbucket-cloud-key')
+          .withOAuth('client-id', 'client-secret')
+          .withWorkspace('my-workspace')
+          .execute();
+      });
+
+      it('should throw validation error when workspace is missing', async () => {
+        await expect(
+          client
+            .createBitbucketCloudBuilder('bitbucket-cloud-key')
+            .withOAuth('client-id', 'client-secret')
+            .execute()
+        ).rejects.toThrow('Workspace ID is required');
+      });
+
+      it('should throw validation error when OAuth credentials are missing', async () => {
+        await expect(
+          client
+            .createBitbucketCloudBuilder('bitbucket-cloud-key')
+            .withWorkspace('my-workspace')
+            .execute()
+        ).rejects.toThrow('OAuth client ID and secret are required');
+      });
+    });
+
+    describe('updateBitbucketCloudBuilder', () => {
+      it('should update Bitbucket Cloud ALM setting', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/update_bitbucketcloud`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              key: 'bitbucket-cloud-key',
+              newKey: 'new-key',
+              clientId: 'new-client-id',
+              clientSecret: 'new-client-secret',
+              workspace: 'new-workspace',
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .updateBitbucketCloudBuilder('bitbucket-cloud-key')
+          .withNewKey('new-key')
+          .withOAuth('new-client-id', 'new-client-secret')
+          .inWorkspace('new-workspace')
+          .execute();
+      });
+    });
+  });
+
+  describe('Project Binding Builders', () => {
+    describe('setAzureBinding', () => {
+      it('should set Azure binding', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_azure_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'azure-alm',
+              projectName: 'AzureProject',
+              repositoryName: 'AzureRepo',
+              monorepo: true,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.setAzureBinding({
+          project: 'my-project',
+          almSetting: 'azure-alm',
+          projectName: 'AzureProject',
+          repositoryName: 'AzureRepo',
+          monorepo: true,
+        });
+      });
+    });
+
+    describe('setBitbucketBinding', () => {
+      it('should set Bitbucket binding', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_bitbucket_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'bitbucket-alm',
+              repository: 'PROJ/repo',
+              slug: 'repo',
+              monorepo: false,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.setBitbucketBinding({
+          project: 'my-project',
+          almSetting: 'bitbucket-alm',
+          repository: 'PROJ/repo',
+          slug: 'repo',
+          monorepo: false,
+        });
+      });
+    });
+
+    describe('setGitHubBinding', () => {
+      it('should set GitHub binding', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_github_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'github-alm',
+              repository: 'org/repo',
+              summaryCommentEnabled: true,
+              monorepo: true,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.setGitHubBinding({
+          project: 'my-project',
+          almSetting: 'github-alm',
+          repository: 'org/repo',
+          summaryCommentEnabled: true,
+          monorepo: true,
+        });
+      });
+    });
+
+    describe('setGitLabBinding', () => {
+      it('should set GitLab binding', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_gitlab_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'gitlab-alm',
+              repository: '123',
+              monorepo: false,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client.setGitLabBinding({
+          project: 'my-project',
+          almSetting: 'gitlab-alm',
+          repository: '123',
+          monorepo: false,
+        });
+      });
+    });
+
+    describe('setBitbucketCloudBinding', () => {
+      it('should set Bitbucket Cloud binding', async () => {
+        server.use(
+          http.post(
+            `${baseUrl}/api/alm_settings/set_bitbucketcloud_binding`,
+            async ({ request }) => {
+              const body = await request.json();
+              expect(body).toEqual({
+                project: 'my-project',
+                almSetting: 'bitbucket-cloud-alm',
+                repository: 'workspace/repo',
+                monorepo: true,
+              });
+              return new HttpResponse(null, { status: 200 });
+            }
+          )
+        );
+
+        await client.setBitbucketCloudBinding({
+          project: 'my-project',
+          almSetting: 'bitbucket-cloud-alm',
+          repository: 'workspace/repo',
+          monorepo: true,
+        });
+      });
+    });
   });
 });

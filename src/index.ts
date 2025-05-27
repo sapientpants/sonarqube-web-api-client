@@ -8,6 +8,7 @@ import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
+import { SourcesClient } from './resources/sources';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -42,6 +43,8 @@ export class SonarQubeClient {
   public readonly measures: MeasuresClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
+  /** Sources API */
+  public readonly sources: SourcesClient;
 
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -60,6 +63,7 @@ export class SonarQubeClient {
     this.metrics = new MetricsClient(this.baseUrl, this.token);
     this.measures = new MeasuresClient(this.baseUrl, this.token);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token);
+    this.sources = new SourcesClient(this.baseUrl, this.token);
   }
 
   // Legacy methods for backward compatibility
@@ -301,6 +305,18 @@ export type {
   QualityGateConditionStatus,
   GetProjectStatusRequest,
 } from './resources/quality-gates/types';
+
+// Re-export types from sources
+export type {
+  GetRawSourceRequest,
+  GetRawSourceResponse,
+  GetScmInfoRequest,
+  GetScmInfoResponse,
+  ScmInfo,
+  ShowSourceRequest,
+  ShowSourceResponse,
+  SourceLine,
+} from './resources/sources/types';
 
 // Re-export error classes
 export {

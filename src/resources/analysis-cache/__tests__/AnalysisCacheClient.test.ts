@@ -10,13 +10,13 @@ import { AuthorizationError } from '../../../errors';
 
 describe('AnalysisCacheClient', () => {
   let client: AnalysisCacheClient;
-  let clientWithoutToken: AnalysisCacheClient;
+  let clientWithEmptyToken: AnalysisCacheClient;
   const baseUrl = 'https://sonarqube.example.com';
   const token = 'test-token';
 
   beforeEach(() => {
     client = new AnalysisCacheClient(baseUrl, token);
-    clientWithoutToken = new AnalysisCacheClient(baseUrl, '');
+    clientWithEmptyToken = new AnalysisCacheClient(baseUrl, '');
   });
 
   describe('get', () => {
@@ -204,7 +204,7 @@ describe('AnalysisCacheClient', () => {
         })
       );
 
-      const result = await clientWithoutToken.get({ project: 'my-project' });
+      const result = await clientWithEmptyToken.get({ project: 'my-project' });
       expect(result).toEqual(mockArrayBuffer);
     });
   });

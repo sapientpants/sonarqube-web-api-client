@@ -29,6 +29,36 @@ describe('SonarQubeClient', () => {
       expect(client['token']).toBe('test-token');
       expect(client['organization']).toBeUndefined();
     });
+
+    it('should pass organization parameter to all resource clients', () => {
+      const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token', 'my-org');
+
+      // Verify organization is passed to resource clients
+      expect(client.projects['organization']).toBe('my-org');
+      expect(client.issues['organization']).toBe('my-org');
+      expect(client.measures['organization']).toBe('my-org');
+      expect(client.metrics['organization']).toBe('my-org');
+      expect(client.qualityGates['organization']).toBe('my-org');
+      expect(client.sources['organization']).toBe('my-org');
+      expect(client.system['organization']).toBe('my-org');
+      expect(client.almIntegrations['organization']).toBe('my-org');
+      expect(client.almSettings['organization']).toBe('my-org');
+      expect(client.analysisCache['organization']).toBe('my-org');
+      expect(client.applications['organization']).toBe('my-org');
+    });
+
+    it('should pass undefined organization to resource clients when not provided', () => {
+      const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
+
+      // Verify organization is undefined in resource clients
+      expect(client.projects['organization']).toBeUndefined();
+      expect(client.issues['organization']).toBeUndefined();
+      expect(client.measures['organization']).toBeUndefined();
+      expect(client.metrics['organization']).toBeUndefined();
+      expect(client.qualityGates['organization']).toBeUndefined();
+      expect(client.sources['organization']).toBeUndefined();
+      expect(client.system['organization']).toBeUndefined();
+    });
   });
 
   describe('getProjects', () => {

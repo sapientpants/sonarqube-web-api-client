@@ -11,13 +11,13 @@ import type { GetScmInfoResponse, ShowSourceResponse } from '../types';
 
 describe('SourcesClient', () => {
   let client: SourcesClient;
-  let clientWithoutToken: SourcesClient;
+  let clientWithEmptyToken: SourcesClient;
   const baseUrl = 'https://sonarqube.example.com';
   const token = 'test-token';
 
   beforeEach(() => {
     client = new SourcesClient(baseUrl, token);
-    clientWithoutToken = new SourcesClient(baseUrl, '');
+    clientWithEmptyToken = new SourcesClient(baseUrl, '');
   });
 
   describe('raw', () => {
@@ -128,7 +128,7 @@ describe('SourcesClient', () => {
         })
       );
 
-      const result = await clientWithoutToken.raw({ key: 'public_project:src/code.ts' });
+      const result = await clientWithEmptyToken.raw({ key: 'public_project:src/code.ts' });
       expect(result).toBe(mockSourceCode);
     });
 
@@ -433,7 +433,7 @@ describe('SourcesClient', () => {
         })
       );
 
-      const result = await clientWithoutToken.show({ key: 'public_project:src/public.ts' });
+      const result = await clientWithEmptyToken.show({ key: 'public_project:src/public.ts' });
       expect(result).toEqual(mockResponse);
     });
 

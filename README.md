@@ -9,6 +9,7 @@
 ## 🌟 Features
 
 - 🔒 **Type-safe** - Full TypeScript support with comprehensive type definitions
+- 🏢 **Multi-Organization** - Support for SonarCloud organizations and SonarQube instances
 - 🏗️ **Builder Pattern** - Intuitive API with method chaining for complex queries
 - 🔄 **Async Iteration** - Efficiently handle large datasets with built-in pagination
 - 🛡️ **Error Handling** - Rich error types for different failure scenarios
@@ -31,8 +32,11 @@ yarn add sonarqube-web-api-client
 ```typescript
 import { SonarQubeClient } from 'sonarqube-web-api-client';
 
-// Initialize the client
+// Initialize the client (token is required)
 const client = new SonarQubeClient('https://sonarqube.example.com', 'your-token');
+
+// For SonarCloud with organization support
+const cloudClient = new SonarQubeClient('https://sonarcloud.io', 'your-token', 'your-organization');
 
 // Search for projects - it's that easy! 
 const projects = await client.projects.search()
@@ -198,6 +202,34 @@ try {
 ## 🔌 API Compatibility
 
 The library supports both SonarQube and SonarCloud APIs. Check the [API Implementation Status](#📊-api-implementation-status) table above for specific availability details.
+
+### 🏢 Organization Support (SonarCloud)
+
+For SonarCloud users with multiple organizations, you can specify the organization when creating the client:
+
+```typescript
+// SonarCloud with organization
+const client = new SonarQubeClient('https://sonarcloud.io', 'your-token', 'my-organization');
+
+// The organization parameter is automatically included in API requests
+const projects = await client.projects.search().execute();
+// → GET /api/projects/search?organization=my-organization
+```
+
+### 🔄 Migration from v0.1.x
+
+**Version 0.2.0 introduces breaking changes.** The `token` parameter is now required:
+
+```typescript
+// ❌ v0.1.x - token was optional
+const client = new SonarQubeClient('https://sonarqube.example.com');
+
+// ✅ v0.2.0 - token is required
+const client = new SonarQubeClient('https://sonarqube.example.com', 'your-token');
+
+// ✅ v0.2.0 - with organization support
+const client = new SonarQubeClient('https://sonarcloud.io', 'your-token', 'your-org');
+```
 
 ## 🛠️ Development
 

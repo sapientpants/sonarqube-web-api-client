@@ -5,7 +5,7 @@ import {
   assertNoAuthorizationHeader,
 } from '../../../test-utils/assertions';
 import { SystemClient } from '../SystemClient';
-import { AuthorizationError } from '../../../errors';
+import { AuthorizationError, AuthenticationError } from '../../../errors';
 import type { HealthResponse, StatusResponse, InfoResponse } from '../types';
 
 describe('SystemClient', () => {
@@ -230,7 +230,7 @@ describe('SystemClient', () => {
         })
       );
 
-      await expect(clientWithoutToken.ping()).rejects.toThrow();
+      await expect(clientWithoutToken.ping()).rejects.toThrow(AuthenticationError);
     });
   });
 

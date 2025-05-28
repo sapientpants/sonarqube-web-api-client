@@ -124,15 +124,13 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Languages** | `api/languages` | ✅ Implemented | Both | Supported languages list |
 | **Measures** | `api/measures` | ✅ Implemented | Both | Component measures and history |
 | **Metrics** | `api/metrics` | ✅ Implemented | Both | Metric definitions |
-| **Notifications** | `api/notifications` | ❌ Not implemented | Both | User notifications |
+| **Notifications** | `api/notifications` | ✅ Implemented | Both | User notifications |
 | **Permissions** | `api/permissions` | ❌ Not implemented | Both | Permission management |
-| **Project Analyses** | `api/project_analyses` | ❌ Not implemented | Both | Analysis history and events |
+| **Project Analyses** | `api/project_analyses` | ✅ Implemented | Both | Analysis history and events |
 | **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
 | **Project Branches** | `api/project_branches` | ✅ Implemented | Both | Branch management |
-| **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
-| **Project Branches** | `api/project_branches` | ❌ Not implemented | Both | Branch management |
 | **Project Links** | `api/project_links` | ❌ Not implemented | Both | Project external links |
-| **Project Pull Requests** | `api/project_pull_requests` | ❌ Not implemented | Both | Pull request management |
+| **Project Pull Requests** | `api/project_pull_requests` | ✅ Implemented | Both | Pull request management (Branch plugin required) |
 | **Project Tags** | `api/project_tags` | ❌ Not implemented | Both | Project tag management |
 | **Projects** | `api/projects` | ✅ Implemented | Both | Project management |
 | **Properties** | `api/properties` | ❌ Not implemented | Both | Property management (deprecated) |
@@ -439,6 +437,39 @@ const updated = await client.projectAnalyses.updateEvent({
 // Delete an analysis or event
 await client.projectAnalyses.deleteAnalysis({ analysis: 'AU-TpxcA-iU5OvuD2FL1' });
 await client.projectAnalyses.deleteEvent({ event: 'AU-TpxcA-iU5OvuD2FLz' });
+```
+
+### 🔀 Project Pull Requests
+
+**Note**: These endpoints require the Branch plugin to be installed.
+
+```typescript
+// List pull requests for a project
+const pullRequests = await client.projectPullRequests.list({
+  project: 'my-project'
+});
+
+// Process pull request information
+pullRequests.pullRequests.forEach(pr => {
+  console.log(`PR #${pr.key}: ${pr.title}`);
+  console.log(`  Branch: ${pr.branch} -> ${pr.base}`);
+  console.log(`  Quality Gate: ${pr.status.qualityGateStatus}`);
+  console.log(`  Issues: ${pr.status.bugs} bugs, ${pr.status.vulnerabilities} vulnerabilities`);
+  
+  // New fields available in v2 (Apr 2025)
+  if (pr.pullRequestUuidV1) {
+    console.log(`  UUID: ${pr.pullRequestUuidV1}`);
+  }
+  if (pr.pullRequestId) {
+    console.log(`  ID: ${pr.pullRequestId}`);
+  }
+});
+
+// Delete a pull request (requires Administer permission)
+await client.projectPullRequests.delete({
+  project: 'my-project',
+  pullRequest: '1543'
+});
 ```
 
 ### 🔐 Authentication

@@ -9,6 +9,7 @@ import { ComponentsClient } from './resources/components';
 import { DuplicationsClient } from './resources/duplications';
 import { FavoritesClient } from './resources/favorites';
 import { LanguagesClient } from './resources/languages';
+import { NotificationsClient } from './resources/notifications';
 import { ProjectsClient } from './resources/projects';
 import { ProjectBadgesClient } from './resources/project-badges';
 import { ProjectAnalysesClient } from './resources/project-analyses';
@@ -59,6 +60,8 @@ export class SonarQubeClient {
   public readonly languages: LanguagesClient;
   /** Security Hotspots API */
   public readonly hotspots: HotspotsClient;
+  /** Notifications API */
+  public readonly notifications: NotificationsClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
   /** Project Badges API */
@@ -98,6 +101,7 @@ export class SonarQubeClient {
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
     this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
+    this.notifications = new NotificationsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
     this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
@@ -404,6 +408,24 @@ export type {
   ListLanguagesParams,
   ListLanguagesResponse,
 } from './resources/languages/types';
+
+// Re-export types from notifications
+export type {
+  NotificationAddRequest,
+  NotificationListRequest,
+  NotificationListResponse,
+  NotificationModifyRequest,
+  NotificationModifyResponse,
+  NotificationRemoveRequest,
+  Notification,
+  NotificationType,
+} from './resources/notifications/types';
+
+export {
+  NotificationChannel,
+  GlobalNotificationType,
+  ProjectNotificationType,
+} from './resources/notifications/types';
 
 // Re-export types from project badges
 export type {

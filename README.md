@@ -458,6 +458,39 @@ console.log('Successfully logged out');
 // Use it to check if credentials are properly configured
 ```
 
+### 🔔 Managing Notifications
+
+```typescript
+// List current user's notifications
+const result = await client.notifications.list();
+console.log('Active notifications:', result.notifications);
+console.log('Available channels:', result.channels);
+console.log('Global notification types:', result.globalTypes);
+console.log('Per-project notification types:', result.perProjectTypes);
+
+// Add a global notification for new issues assigned to me
+await client.notifications.add({
+  type: GlobalNotificationType.ChangesOnMyIssue
+});
+
+// Add a project-specific notification for quality gate changes
+await client.notifications.add({
+  type: ProjectNotificationType.NewAlerts,
+  project: 'my-project',
+  channel: NotificationChannel.Email
+});
+
+// Remove a notification
+await client.notifications.remove({
+  type: GlobalNotificationType.ChangesOnMyIssue
+});
+
+// Manage notifications for another user (requires admin permissions)
+const userNotifications = await client.notifications.list({
+  login: 'john.doe'
+});
+```
+
 ### 📋 Code Duplications
 
 ```typescript

@@ -10,6 +10,7 @@ import { DuplicationsClient } from './resources/duplications';
 import { FavoritesClient } from './resources/favorites';
 import { LanguagesClient } from './resources/languages';
 import { ProjectsClient } from './resources/projects';
+import { ProjectAnalysesClient } from './resources/project-analyses';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
 import { IssuesClient } from './resources/issues';
@@ -59,6 +60,8 @@ export class SonarQubeClient {
   public readonly hotspots: HotspotsClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
+  /** Project Analyses API */
+  public readonly projectAnalyses: ProjectAnalysesClient;
   /** Metrics API */
   public readonly metrics: MetricsClient;
   /** Measures API */
@@ -93,6 +96,7 @@ export class SonarQubeClient {
     this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
+    this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);

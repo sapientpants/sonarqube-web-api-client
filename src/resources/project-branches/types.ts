@@ -38,7 +38,7 @@ export interface Branch {
   analysisDate?: string;
 
   /**
-   * Whether any component of the branch is a favorite.
+   * Whether the branch is excluded from automatic purge operations.
    */
   excludedFromPurge?: boolean;
 

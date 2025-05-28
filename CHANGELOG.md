@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2025-01-28
+
+### Fixed
+
+- **Type definitions**: Fixed `IssueStatus` type by removing invalid values `TO_REVIEW`, `IN_REVIEW`, and `REVIEWED` which are only valid for security hotspots, not issues
+- **Type definitions**: Fixed `ProjectVisibility` type by removing invalid `INTERNAL` value
+- **Findings**: Updated `FindingStatus` type to include security hotspot status values for findings export
+
+### Added
+
+- **API Reference**: Added complete SonarQube Web API specification file (`sonarqube-web-api-spec.json`) for development reference
+
 ## [0.2.0] - 2025-01-27
 
 ### ⚠️ BREAKING CHANGES

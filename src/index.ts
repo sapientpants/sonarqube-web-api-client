@@ -196,6 +196,7 @@ export type {
   ActivityTask,
   TaskStatus,
   TaskType,
+  BranchType,
   ActivityRequest,
   ActivityResponse,
   ActivityStatusRequest,

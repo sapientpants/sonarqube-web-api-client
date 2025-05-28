@@ -19,6 +19,14 @@ export enum TaskType {
 }
 
 /**
+ * Branch type for CE tasks
+ */
+export enum BranchType {
+  Branch = 'BRANCH',
+  PullRequest = 'PULL_REQUEST',
+}
+
+/**
  * Common task fields
  */
 export interface Task {
@@ -45,7 +53,7 @@ export interface Task {
   errorType?: string;
   hasSomeCodeChanged?: boolean;
   branch?: string;
-  branchType?: 'BRANCH' | 'PULL_REQUEST';
+  branchType?: BranchType;
   pullRequest?: string;
   infoMessages?: string[];
 }

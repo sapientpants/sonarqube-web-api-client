@@ -33,9 +33,20 @@ export abstract class BaseClient {
         : {}),
     };
 
+    // Append organization parameter if provided and not already in URL
+    let finalUrl = url;
+    if (this.organization !== undefined && this.organization.length > 0) {
+      const urlObj = new URL(url, this.baseUrl);
+      // Only add organization if it's not already in the URL
+      if (!urlObj.searchParams.has('organization')) {
+        urlObj.searchParams.set('organization', this.organization);
+      }
+      finalUrl = urlObj.pathname + urlObj.search;
+    }
+
     let response: Response;
     try {
-      response = await fetch(`${this.baseUrl}${url}`, {
+      response = await fetch(`${this.baseUrl}${finalUrl}`, {
         ...options,
         headers: mergedHeaders,
       });

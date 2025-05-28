@@ -127,7 +127,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Notifications** | `api/notifications` | ❌ Not implemented | Both | User notifications |
 | **Permissions** | `api/permissions` | ❌ Not implemented | Both | Permission management |
 | **Project Analyses** | `api/project_analyses` | ❌ Not implemented | Both | Analysis history and events |
-| **Project Badges** | `api/project_badges` | ❌ Not implemented | Both | Project status badges |
+| **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
 | **Project Branches** | `api/project_branches` | ❌ Not implemented | Both | Branch management |
 | **Project Links** | `api/project_links` | ❌ Not implemented | Both | Project external links |
 | **Project Pull Requests** | `api/project_pull_requests` | ❌ Not implemented | Both | Pull request management |
@@ -331,6 +331,48 @@ for await (const language of client.languages.listAll()) {
 for await (const language of client.languages.listAll({ q: 'python' })) {
   console.log(`Found Python-related language: ${language.name}`);
 }
+```
+
+### 🏅 Project Badges
+
+```typescript
+// Generate a quality gate badge SVG
+const qualityGateBadge = await client.projectBadges.qualityGate({
+  project: 'my-project',
+  branch: 'main'
+});
+// Returns SVG content as string
+
+// Generate a metric badge (e.g., coverage)
+const coverageBadge = await client.projectBadges.measure({
+  project: 'my-project',
+  metric: 'coverage',
+  branch: 'develop'
+});
+
+// Generate AI code assurance badge (requires Browse permission)
+const aiBadge = await client.projectBadges.aiCodeAssurance({
+  project: 'my-project'
+});
+
+// Use badges with security tokens for private projects
+const privateBadge = await client.projectBadges.qualityGate({
+  project: 'private-project',
+  token: 'badge-specific-token'  // Different from API token
+});
+
+// Supported metrics for measure badges:
+// 'coverage', 'ncloc', 'code_smells', 'sqale_rating', 
+// 'security_rating', 'bugs', 'vulnerabilities', 
+// 'duplicated_lines_density', 'reliability_rating', 
+// 'alert_status', 'sqale_index'
+
+// Example: Embed in README
+const badge = await client.projectBadges.measure({
+  project: 'my-project',
+  metric: 'coverage'
+});
+// Use the SVG content in your README or web page
 ```
 
 ### 💚 System Health Monitoring

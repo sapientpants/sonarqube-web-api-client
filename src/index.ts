@@ -10,6 +10,7 @@ import { DuplicationsClient } from './resources/duplications';
 import { FavoritesClient } from './resources/favorites';
 import { LanguagesClient } from './resources/languages';
 import { ProjectsClient } from './resources/projects';
+import { ProjectBadgesClient } from './resources/project-badges';
 import { ProjectAnalysesClient } from './resources/project-analyses';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
@@ -60,6 +61,8 @@ export class SonarQubeClient {
   public readonly hotspots: HotspotsClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
+  /** Project Badges API */
+  public readonly projectBadges: ProjectBadgesClient;
   /** Project Analyses API */
   public readonly projectAnalyses: ProjectAnalysesClient;
   /** Metrics API */
@@ -96,6 +99,7 @@ export class SonarQubeClient {
     this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
+    this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
     this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
@@ -400,6 +404,16 @@ export type {
   ListLanguagesParams,
   ListLanguagesResponse,
 } from './resources/languages/types';
+
+// Re-export types from project badges
+export type {
+  BadgeMetric,
+  BaseBadgeParams,
+  AiCodeAssuranceBadgeParams,
+  MeasureBadgeParams,
+  QualityGateBadgeParams,
+  BadgeResponse,
+} from './resources/project-badges/types';
 
 // Re-export types from quality gates
 export type {

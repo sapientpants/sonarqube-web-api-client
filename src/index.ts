@@ -9,6 +9,7 @@ import { ComponentsClient } from './resources/components';
 import { DuplicationsClient } from './resources/duplications';
 import { FavoritesClient } from './resources/favorites';
 import { LanguagesClient } from './resources/languages';
+import { NotificationsClient } from './resources/notifications';
 import { ProjectsClient } from './resources/projects';
 import { ProjectBadgesClient } from './resources/project-badges';
 import { ProjectAnalysesClient } from './resources/project-analyses';
@@ -62,6 +63,8 @@ export class SonarQubeClient {
   public readonly hotspots: HotspotsClient;
   /** Project Branches API - **Note**: Only available when the Branch plugin is installed */
   public readonly projectBranches: ProjectBranchesClient;
+  /** Notifications API */
+  public readonly notifications: NotificationsClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
   /** Project Badges API */
@@ -102,6 +105,7 @@ export class SonarQubeClient {
     this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
     this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.token, this.organization);
+    this.notifications = new NotificationsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
     this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
@@ -418,7 +422,26 @@ export type {
   DeleteBranchParams,
   RenameMainBranchParams,
 } from './resources/project-branches/types';
+
 export { ProjectBranchType, QualityGateStatus } from './resources/project-branches/types';
+
+// Re-export types from notifications
+export type {
+  NotificationAddRequest,
+  NotificationListRequest,
+  NotificationListResponse,
+  NotificationModifyRequest,
+  NotificationModifyResponse,
+  NotificationRemoveRequest,
+  Notification,
+  NotificationType,
+} from './resources/notifications/types';
+
+export {
+  NotificationChannel,
+  GlobalNotificationType,
+  ProjectNotificationType,
+} from './resources/notifications/types';
 
 // Re-export types from project badges
 export type {

@@ -148,8 +148,6 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
-📊 **Progress**: 15 of 38 APIs implemented (39%)
-
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
 ## 🔥 Examples

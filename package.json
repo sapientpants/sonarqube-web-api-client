@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "test": "jest",
     "test:watch": "jest --watch",

@@ -3,6 +3,7 @@ import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
+import { CEClient } from './resources/ce';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
@@ -34,6 +35,8 @@ export class SonarQubeClient {
   public readonly analysisCache: AnalysisCacheClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
+  /** Compute Engine (CE) API */
+  public readonly ce: CEClient;
   /** Issues API */
   public readonly issues: IssuesClient;
   /** Projects API */
@@ -63,6 +66,7 @@ export class SonarQubeClient {
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.organization);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.organization);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.organization);
+    this.ce = new CEClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
@@ -185,6 +189,22 @@ export type {
   GetAnalysisCacheRequest,
   GetAnalysisCacheResponse,
 } from './resources/analysis-cache/types';
+
+// Re-export types from CE (Compute Engine)
+export type {
+  Task,
+  ActivityTask,
+  TaskStatus,
+  TaskType,
+  ActivityRequest,
+  ActivityResponse,
+  ActivityStatusRequest,
+  ActivityStatusResponse,
+  ComponentTasksRequest,
+  ComponentTasksResponse,
+  TaskRequest,
+  TaskResponse,
+} from './resources/ce/types';
 
 // Re-export types from applications
 export type {

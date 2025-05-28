@@ -28,7 +28,7 @@ export class NotificationsClient extends BaseClient {
    * @returns Promise that resolves when the notification is added
    * @throws {AuthenticationError} If the user is not authenticated
    * @throws {AuthorizationError} If the user doesn't have Browse permission on the specified project
-   * @throws {ValidationError} If the notification type is invalid for the scope (global vs project)
+   * @throws {ApiError} If the notification type is invalid for the scope (global vs project)
    *
    * @example
    * ```typescript

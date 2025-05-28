@@ -12,15 +12,7 @@ export type IssueSeverity = 'BLOCKER' | 'CRITICAL' | 'MAJOR' | 'MINOR' | 'INFO';
 /**
  * Issue status values
  */
-export type IssueStatus =
-  | 'OPEN'
-  | 'CONFIRMED'
-  | 'REOPENED'
-  | 'RESOLVED'
-  | 'CLOSED'
-  | 'TO_REVIEW'
-  | 'IN_REVIEW'
-  | 'REVIEWED';
+export type IssueStatus = 'OPEN' | 'CONFIRMED' | 'REOPENED' | 'RESOLVED' | 'CLOSED';
 
 /**
  * Issue type categories

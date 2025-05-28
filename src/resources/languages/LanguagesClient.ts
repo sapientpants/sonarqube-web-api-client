@@ -14,7 +14,7 @@ export class LanguagesClient extends BaseClient {
    *
    * @example
    * ```typescript
-   * const client = new LanguagesClient(config);
+   * const client = new LanguagesClient(baseUrl, token, organization);
    * const languages = await client.list({ ps: 25 });
    * ```
    */
@@ -42,7 +42,7 @@ export class LanguagesClient extends BaseClient {
    *
    * @example
    * ```typescript
-   * const client = new LanguagesClient(config);
+   * const client = new LanguagesClient(baseUrl, token, organization);
    * for await (const language of client.listAll({ q: 'java' })) {
    *   console.log(language.key, language.name);
    * }

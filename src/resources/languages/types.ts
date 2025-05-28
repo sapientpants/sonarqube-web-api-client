@@ -19,7 +19,7 @@ export interface Language {
 export interface ListLanguagesParams {
   /**
    * The size of the list to return, 0 for all languages
-   * @default "0"
+   * @default 0
    */
   ps?: number;
 

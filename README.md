@@ -118,7 +118,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | Background task management |
 | **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
 | **Duplications** | `api/duplications` | ✅ Implemented | Both | Code duplication data |
-| **Favorites** | `api/favorites` | ❌ Not implemented | Both | User favorites management |
+| **Favorites** | `api/favorites` | ✅ Implemented | Both | User favorites management |
 | **Hotspots** | `api/hotspots` | ❌ Not implemented | Both | Security hotspot management |
 | **Issues** | `api/issues` | ✅ Implemented | Both | Issue search and management |
 | **Languages** | `api/languages` | ❌ Not implemented | Both | Supported languages list |
@@ -148,7 +148,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
-📊 **Progress**: 13 of 38 APIs implemented (34%)
+📊 **Progress**: 14 of 38 APIs implemented (37%)
 
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
@@ -229,6 +229,30 @@ const children = await client.components.tree()
   .component('my-project:src')
   .childrenOnly()
   .execute();
+```
+
+### ⭐ Managing User Favorites
+
+```typescript
+// Add a project to favorites
+await client.favorites.add({
+  component: 'my-project'
+});
+
+// Remove a project from favorites
+await client.favorites.remove({
+  component: 'my-project'
+});
+
+// Search favorites with pagination
+const favorites = await client.favorites.search()
+  .pageSize(50)
+  .execute();
+
+// Iterate through all favorites
+for await (const favorite of client.favorites.searchAll()) {
+  console.log(`Favorite project: ${favorite.name} (${favorite.key})`);
+}
 ```
 
 ### 💚 System Health Monitoring

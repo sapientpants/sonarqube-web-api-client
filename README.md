@@ -119,7 +119,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
 | **Duplications** | `api/duplications` | ✅ Implemented | Both | Code duplication data |
 | **Favorites** | `api/favorites` | ✅ Implemented | Both | User favorites management |
-| **Hotspots** | `api/hotspots` | ❌ Not implemented | Both | Security hotspot management |
+| **Hotspots** | `api/hotspots` | ✅ Implemented | Both | Security hotspot management |
 | **Issues** | `api/issues` | ✅ Implemented | Both | Issue search and management |
 | **Languages** | `api/languages` | ❌ Not implemented | Both | Supported languages list |
 | **Measures** | `api/measures` | ✅ Implemented | Both | Component measures and history |
@@ -198,6 +198,58 @@ const criticalIssues = await client.issues.search()
   .assignedTo('john.doe')
   .sortBy('SEVERITY')
   .execute();
+```
+
+### 🔒 Security Hotspots Management
+
+```typescript
+// Search for security hotspots in a project
+const hotspots = await client.hotspots.search()
+  .forProject('my-project')
+  .needingReview()
+  .execute();
+
+// Get detailed information about a specific hotspot
+const hotspotDetails = await client.hotspots.show({
+  hotspot: 'hotspot-key-123'
+});
+
+// Change hotspot status to reviewed and mark as fixed
+await client.hotspots.changeStatus({
+  hotspot: 'hotspot-key-123',
+  status: 'REVIEWED',
+  resolution: 'FIXED',
+  comment: 'Issue has been properly addressed'
+});
+
+// Advanced filtering for hotspots
+const criticalHotspots = await client.hotspots.search()
+  .forProject('my-project')
+  .withStatus('TO_REVIEW')
+  .onlyMine()
+  .sinceLeakPeriod()
+  .inFiles(['src/main/java/Security.java'])
+  .pageSize(50)
+  .execute();
+
+// Use convenience methods for common filters
+const fixedHotspots = await client.hotspots.search()
+  .forProject('my-project')
+  .fixed()
+  .execute();
+
+const safeHotspots = await client.hotspots.search()
+  .forProject('my-project')
+  .safe()
+  .execute();
+
+// Iterate through all hotspots requiring review
+for await (const hotspot of client.hotspots.search()
+  .forProject('my-project')
+  .needingReview()
+  .all()) {
+  console.log(`Hotspot: ${hotspot.message} (${hotspot.vulnerabilityProbability} risk)`);
+}
 ```
 
 ### 🗂️ Component Navigation

@@ -437,4 +437,213 @@ export const handlers = [
   http.get('*/api/metrics/domains', () => {
     return HttpResponse.json(createMetricDomainsResponse());
   }),
+
+  // Components endpoints
+  http.get('*/api/components/show', ({ request }) => {
+    const url = new URL(request.url);
+    const component = url.searchParams.get('component');
+    const _branch = url.searchParams.get('branch');
+    const _pullRequest = url.searchParams.get('pullRequest');
+
+    // Return a mock component based on the requested component key
+    if (component === 'my_project') {
+      return HttpResponse.json({
+        component: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: 'TRK',
+          path: '',
+          description: 'A test project',
+          visibility: 'public',
+        },
+        ancestors: [],
+      });
+    }
+
+    if (component === 'my_project:src/main.ts') {
+      return HttpResponse.json({
+        component: {
+          key: 'my_project:src/main.ts',
+          name: 'main.ts',
+          qualifier: 'FIL',
+          path: 'src/main.ts',
+          language: 'ts',
+        },
+        ancestors: [
+          {
+            key: 'my_project:src',
+            name: 'src',
+            qualifier: 'DIR',
+            path: 'src',
+          },
+          {
+            key: 'my_project',
+            name: 'My Project',
+            qualifier: 'TRK',
+            path: '',
+          },
+        ],
+      });
+    }
+
+    // Default response
+    return HttpResponse.json({
+      component: {
+        key: component ?? 'default_project',
+        name: 'Default Project',
+        qualifier: 'TRK',
+        path: '',
+      },
+      ancestors: [],
+    });
+  }),
+
+  http.get('*/api/components/search', ({ request }) => {
+    const url = new URL(request.url);
+    const _organization = url.searchParams.get('organization');
+    const q = url.searchParams.get('q');
+    const p = parseInt(url.searchParams.get('p') ?? '1', 10);
+    const ps = parseInt(url.searchParams.get('ps') ?? '100', 10);
+
+    // Mock search results
+    let components = [
+      {
+        key: 'project1',
+        name: 'Project 1',
+        qualifier: 'TRK',
+      },
+      {
+        key: 'project2',
+        name: 'Project 2',
+        qualifier: 'TRK',
+      },
+      {
+        key: 'sonar-project',
+        name: 'SonarQube Project',
+        qualifier: 'TRK',
+      },
+    ];
+
+    // Filter by query if provided
+    if (q !== null && q !== '') {
+      components = components.filter(
+        (comp) =>
+          comp.name.toLowerCase().includes(q.toLowerCase()) ||
+          comp.key.toLowerCase().includes(q.toLowerCase())
+      );
+    }
+
+    // Handle pagination
+    const startIndex = (p - 1) * ps;
+    const endIndex = startIndex + ps;
+    const paginatedComponents = components.slice(startIndex, endIndex);
+
+    return HttpResponse.json({
+      components: paginatedComponents,
+      paging: {
+        pageIndex: p,
+        pageSize: ps,
+        total: components.length,
+      },
+    });
+  }),
+
+  http.get('*/api/components/tree', ({ request }) => {
+    const url = new URL(request.url);
+    const component = url.searchParams.get('component');
+    const _branch = url.searchParams.get('branch');
+    const _pullRequest = url.searchParams.get('pullRequest');
+    const q = url.searchParams.get('q');
+    const qualifiers = url.searchParams.get('qualifiers');
+    const _strategy = url.searchParams.get('strategy') ?? 'all';
+    const s = url.searchParams.get('s') ?? 'name';
+    const asc = url.searchParams.get('asc') !== 'false';
+    const p = parseInt(url.searchParams.get('p') ?? '1', 10);
+    const ps = parseInt(url.searchParams.get('ps') ?? '100', 10);
+
+    // Mock tree components
+    let components = [
+      {
+        key: 'my_project:src',
+        name: 'src',
+        qualifier: 'DIR',
+        path: 'src',
+      },
+      {
+        key: 'my_project:src/main.ts',
+        name: 'main.ts',
+        qualifier: 'FIL',
+        path: 'src/main.ts',
+        language: 'ts',
+      },
+      {
+        key: 'my_project:src/UserController.ts',
+        name: 'UserController.ts',
+        qualifier: 'FIL',
+        path: 'src/UserController.ts',
+        language: 'ts',
+      },
+      {
+        key: 'my_project:test',
+        name: 'test',
+        qualifier: 'DIR',
+        path: 'test',
+      },
+      {
+        key: 'my_project:test/main.test.ts',
+        name: 'main.test.ts',
+        qualifier: 'UTS',
+        path: 'test/main.test.ts',
+        language: 'ts',
+      },
+    ];
+
+    // Filter by query if provided
+    if (q !== null && q !== '') {
+      components = components.filter(
+        (comp) =>
+          comp.name.toLowerCase().includes(q.toLowerCase()) ||
+          comp.key.toLowerCase().includes(q.toLowerCase())
+      );
+    }
+
+    // Filter by qualifiers if provided
+    if (qualifiers !== null && qualifiers !== '') {
+      const qualifierList = qualifiers.split(',');
+      components = components.filter((comp) => qualifierList.includes(comp.qualifier));
+    }
+
+    // Sort components
+    components.sort((a, b) => {
+      let result = 0;
+      if (s === 'name') {
+        result = a.name.localeCompare(b.name);
+      } else if (s === 'path') {
+        result = (a.path || '').localeCompare(b.path || '');
+      } else if (s === 'qualifier') {
+        result = a.qualifier.localeCompare(b.qualifier);
+      }
+      return asc ? result : -result;
+    });
+
+    // Handle pagination
+    const startIndex = (p - 1) * ps;
+    const endIndex = startIndex + ps;
+    const paginatedComponents = components.slice(startIndex, endIndex);
+
+    return HttpResponse.json({
+      baseComponent: {
+        key: component ?? 'my_project',
+        name: 'My Project',
+        qualifier: 'TRK',
+        path: '',
+      },
+      components: paginatedComponents,
+      paging: {
+        pageIndex: p,
+        pageSize: ps,
+        total: components.length,
+      },
+    });
+  }),
 ];

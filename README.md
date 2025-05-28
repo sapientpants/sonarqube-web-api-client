@@ -62,6 +62,14 @@ const issues = await client.issues.search()
   .withStatuses(['OPEN'])
   .pageSize(100)
   .execute();
+
+// Navigate component trees with advanced filtering
+const components = await client.components.tree()
+  .component('my-project')
+  .query('Controller')
+  .filesOnly()
+  .sortByName()
+  .execute();
 ```
 
 ## 📊 API Implementation Status
@@ -75,8 +83,8 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Analysis Cache** | `api/analysis_cache` | ✅ Implemented | SonarQube only | Scanner cache data |
 | **Applications** | `api/applications` | ✅ Implemented | SonarQube only | Application portfolio management |
 | **Authentication** | `api/authentication` | ❌ Not implemented | Both | Login/logout endpoints |
-| **CE (Compute Engine)** | `api/ce` | ❌ Not implemented | Both | Background task management |
-| **Components** | `api/components` | ❌ Not implemented | Both | Component navigation and search |
+| **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | Background task management |
+| **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
 | **Duplications** | `api/duplications` | ❌ Not implemented | Both | Code duplication data |
 | **Favorites** | `api/favorites` | ❌ Not implemented | Both | User favorites management |
 | **Hotspots** | `api/hotspots` | ❌ Not implemented | Both | Security hotspot management |
@@ -108,7 +116,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
-📊 **Progress**: 11 of 38 APIs implemented (29%)
+📊 **Progress**: 13 of 38 APIs implemented (34%)
 
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
@@ -157,6 +165,37 @@ const criticalIssues = await client.issues.search()
   .createdAfter('2024-01-01')
   .assignedTo('john.doe')
   .sortBy('SEVERITY')
+  .execute();
+```
+
+### 🗂️ Component Navigation
+
+```typescript
+// Get a component with its ancestors
+const result = await client.components.show('my-project:src/main.ts');
+console.log('Component:', result.component);
+console.log('Ancestors:', result.ancestors);
+
+// Navigate through component trees
+const files = await client.components.tree()
+  .component('my-project')
+  .filesOnly()
+  .sortByPath()
+  .execute();
+
+// Search for specific components with pagination
+for await (const component of client.components.tree()
+  .component('my-project')
+  .query('Controller')
+  .qualifiers(['FIL'])
+  .all()) {
+  console.log('Found file:', component.name);
+}
+
+// Get only direct children of a directory
+const children = await client.components.tree()
+  .component('my-project:src')
+  .childrenOnly()
   .execute();
 ```
 

@@ -4,6 +4,7 @@ import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
 import { CEClient } from './resources/ce';
+import { ComponentsClient } from './resources/components';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
@@ -37,6 +38,8 @@ export class SonarQubeClient {
   public readonly applications: ApplicationsClient;
   /** Compute Engine (CE) API */
   public readonly ce: CEClient;
+  /** Components API */
+  public readonly components: ComponentsClient;
   /** Issues API */
   public readonly issues: IssuesClient;
   /** Projects API */
@@ -67,6 +70,7 @@ export class SonarQubeClient {
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.organization);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.organization);
     this.ce = new CEClient(this.baseUrl, this.token, this.organization);
+    this.components = new ComponentsClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
@@ -253,6 +257,23 @@ export type {
   UpdateProjectKeyRequest,
   UpdateProjectVisibilityRequest,
 } from './resources/projects/types';
+
+// Re-export types from components
+export type {
+  Component,
+  ComponentShowRequest,
+  ComponentShowResponse,
+  ComponentSearchRequest,
+  ComponentSearchResponse,
+  ComponentTreeRequest as ComponentsTreeRequest,
+  ComponentTreeResponse as ComponentsTreeResponse,
+  BooleanString,
+} from './resources/components/types';
+export {
+  ComponentQualifier as ComponentsQualifier,
+  ComponentTreeStrategy as ComponentsTreeStrategy,
+  ComponentSortField,
+} from './resources/components/types';
 
 // Re-export types from metrics
 export type {

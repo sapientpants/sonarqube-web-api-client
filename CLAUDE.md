@@ -112,4 +112,5 @@ Available error types:
 
 ## Development Tips
 
-- Use `pnpm format` to fix formatting errors in the code
+- Use `pnpm format` to fix formatting issues in the code
+- Use `jq` to read json files

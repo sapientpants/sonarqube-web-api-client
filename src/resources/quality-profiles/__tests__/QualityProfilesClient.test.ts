@@ -81,6 +81,34 @@ describe('QualityProfilesClient', () => {
       expect(typeof builder.severities).toBe('function');
       expect(typeof builder.types).toBe('function');
     });
+
+    it('should execute bulk rule activation', async () => {
+      const mockResponse = {
+        succeeded: 5,
+        failed: 0,
+      };
+
+      server.use(
+        http.post(`${baseUrl}/api/qualityprofiles/activate_rules`, async ({ request }) => {
+          assertCommonHeaders(request, token);
+          await assertRequestBody(request, {
+            targetKey: 'java-profile-key',
+            severities: 'CRITICAL',
+            types: 'BUG',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .activateRules()
+        .targetProfile('java-profile-key')
+        .severities('CRITICAL')
+        .types('BUG')
+        .execute();
+
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('addProject', () => {
@@ -221,6 +249,92 @@ describe('QualityProfilesClient', () => {
       expect(typeof builder.since).toBe('function');
       expect(typeof builder.to).toBe('function');
     });
+
+    it('should execute changelog request with profile key', async () => {
+      const mockResponse = {
+        events: [
+          {
+            date: '2024-01-15T10:30:00+0000',
+            action: 'ACTIVATED',
+            ruleKey: 'squid:S1234',
+            ruleName: 'Rule Name',
+          },
+        ],
+        paging: { pageIndex: 1, pageSize: 50, total: 1 },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/changelog`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            key: 'java-profile-key',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.changelog().profile('java-profile-key').execute();
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should execute changelog request with profile name and language', async () => {
+      const mockResponse = {
+        events: [
+          {
+            date: '2024-01-15T10:30:00+0000',
+            action: 'DEACTIVATED',
+            ruleKey: 'squid:S5678',
+            ruleName: 'Another Rule',
+          },
+        ],
+        paging: { pageIndex: 1, pageSize: 50, total: 1 },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/changelog`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            qualityProfile: 'Sonar way',
+            language: 'java',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.changelog().profileByName('Sonar way', 'java').execute();
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should execute changelog request with all parameters', async () => {
+      const mockResponse = {
+        events: [],
+        paging: { pageIndex: 2, pageSize: 100, total: 150 },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/changelog`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            key: 'java-profile-key',
+            p: '2',
+            ps: '100',
+            since: '2024-01-01',
+            to: '2024-12-31',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .changelog()
+        .profile('java-profile-key')
+        .page(2)
+        .pageSize(100)
+        .since('2024-01-01')
+        .to('2024-12-31')
+        .execute();
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('compare', () => {
@@ -248,6 +362,35 @@ describe('QualityProfilesClient', () => {
       const result = await client.compare({
         leftKey: 'old-profile',
         rightKey: 'new-profile',
+      });
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should compare two quality profiles using profile names', async () => {
+      const mockResponse: CompareResponse = {
+        left: { key: 'sonar-way-java', name: 'Sonar way' },
+        right: { key: 'custom-java', name: 'Custom Java' },
+        inLeft: [],
+        inRight: [],
+        modified: [],
+        same: [],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/compare`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            leftQualityProfile: 'Sonar way',
+            rightQualityProfile: 'Custom Java',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.compare({
+        leftQualityProfile: 'Sonar way',
+        rightQualityProfile: 'Custom Java',
       });
 
       expect(result).toEqual(mockResponse);
@@ -349,6 +492,32 @@ describe('QualityProfilesClient', () => {
       expect(typeof builder.targetProfile).toBe('function');
       expect(typeof builder.statuses).toBe('function');
     });
+
+    it('should execute bulk rule deactivation', async () => {
+      const mockResponse = {
+        succeeded: 3,
+        failed: 0,
+      };
+
+      server.use(
+        http.post(`${baseUrl}/api/qualityprofiles/deactivate_rules`, async ({ request }) => {
+          assertCommonHeaders(request, token);
+          await assertRequestBody(request, {
+            targetKey: 'java-profile-key',
+            statuses: 'DEPRECATED',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .deactivateRules()
+        .targetProfile('java-profile-key')
+        .statuses('DEPRECATED')
+        .execute();
+
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('delete', () => {
@@ -412,6 +581,28 @@ describe('QualityProfilesClient', () => {
       });
 
       expect(result).toBe(configContent);
+    });
+
+    it('should export using profile name and language', async () => {
+      const xmlContent = '<?xml version="1.0"?><profile><name>Sonar way</name></profile>';
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/export`, ({ request }) => {
+          assertAuthorizationHeader(request, token);
+          assertQueryParams(request, {
+            qualityProfile: 'Sonar way',
+            language: 'java',
+          });
+          return HttpResponse.text(xmlContent);
+        })
+      );
+
+      const result = await client.export({
+        qualityProfile: 'Sonar way',
+        language: 'java',
+      });
+
+      expect(result).toBe(xmlContent);
     });
   });
 
@@ -501,6 +692,49 @@ describe('QualityProfilesClient', () => {
 
       expect(result).toEqual(mockResponse);
     });
+
+    it('should get profile inheritance information using profile name and language', async () => {
+      const mockResponse: InheritanceResponse = {
+        profile: {
+          key: 'sonar-way-java',
+          name: 'Sonar way',
+          language: 'java',
+          languageName: 'Java',
+          isInherited: false,
+          isBuiltIn: true,
+          activeRuleCount: 200,
+          activeDeprecatedRuleCount: 0,
+          isDefault: true,
+        },
+        ancestors: [],
+        children: [
+          {
+            key: 'custom-java-profile',
+            name: 'Custom Java',
+            activeRuleCount: 150,
+            isBuiltIn: false,
+          },
+        ],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/inheritance`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            qualityProfile: 'Sonar way',
+            language: 'java',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.inheritance({
+        qualityProfile: 'Sonar way',
+        language: 'java',
+      });
+
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('projects', () => {
@@ -510,6 +744,37 @@ describe('QualityProfilesClient', () => {
       expect(typeof builder.profile).toBe('function');
       expect(typeof builder.query).toBe('function');
       expect(typeof builder.selected).toBe('function');
+    });
+
+    it('should execute projects request', async () => {
+      const mockResponse = {
+        results: [
+          { id: '1', key: 'project1', name: 'Project 1', selected: true },
+          { id: '2', key: 'project2', name: 'Project 2', selected: false },
+        ],
+        paging: { pageIndex: 1, pageSize: 50, total: 2 },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/projects`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            key: 'java-profile-key',
+            q: 'mobile',
+            selected: 'deselected',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .projects()
+        .profile('java-profile-key')
+        .query('mobile')
+        .selected('deselected')
+        .execute();
+
+      expect(result).toEqual(mockResponse);
     });
   });
 
@@ -634,6 +899,80 @@ describe('QualityProfilesClient', () => {
       expect(typeof builder.defaults).toBe('function');
       expect(typeof builder.language).toBe('function');
       expect(typeof builder.project).toBe('function');
+    });
+
+    it('should execute search request with no parameters', async () => {
+      const mockResponse = {
+        profiles: [
+          {
+            key: 'java-profile',
+            name: 'Java Profile',
+            language: 'java',
+            languageName: 'Java',
+            isInherited: false,
+            isBuiltIn: false,
+            activeRuleCount: 100,
+            activeDeprecatedRuleCount: 0,
+            isDefault: true,
+          },
+        ],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/search`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          // Check that the URL has no query parameters
+          const url = new URL(request.url);
+          expect(url.search).toBe('');
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.search().execute();
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should execute search request with all parameters', async () => {
+      const mockResponse = {
+        profiles: [
+          {
+            key: 'java-default-profile',
+            name: 'Java Default Profile',
+            language: 'java',
+            languageName: 'Java',
+            isInherited: false,
+            isBuiltIn: true,
+            activeRuleCount: 150,
+            activeDeprecatedRuleCount: 5,
+            isDefault: true,
+          },
+        ],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/qualityprofiles/search`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            defaults: 'true',
+            language: 'java',
+            project: 'my-project',
+            qualityProfile: 'Sonar way',
+            organization: 'my-org',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .search()
+        .defaults(true)
+        .language('java')
+        .project('my-project')
+        .qualityProfile('Sonar way')
+        .organization('my-org')
+        .execute();
+
+      expect(result).toEqual(mockResponse);
     });
   });
 

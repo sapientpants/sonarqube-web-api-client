@@ -7,6 +7,7 @@ import { AuthenticationClient } from './resources/authentication';
 import { CEClient } from './resources/ce';
 import { ComponentsClient } from './resources/components';
 import { DuplicationsClient } from './resources/duplications';
+import { FavoritesClient } from './resources/favorites';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
@@ -46,6 +47,8 @@ export class SonarQubeClient {
   public readonly components: ComponentsClient;
   /** Duplications API */
   public readonly duplications: DuplicationsClient;
+  /** Favorites API */
+  public readonly favorites: FavoritesClient;
   /** Issues API */
   public readonly issues: IssuesClient;
   /** Projects API */
@@ -79,6 +82,7 @@ export class SonarQubeClient {
     this.ce = new CEClient(this.baseUrl, this.token, this.organization);
     this.components = new ComponentsClient(this.baseUrl, this.token, this.organization);
     this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.organization);
+    this.favorites = new FavoritesClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
@@ -213,6 +217,15 @@ export type {
   DuplicatedFile,
   Duplication,
 } from './resources/duplications/types';
+
+// Re-export types from favorites
+export type {
+  AddFavoriteRequest,
+  Favorite,
+  RemoveFavoriteRequest,
+  SearchFavoritesRequest,
+  SearchFavoritesResponse,
+} from './resources/favorites/types';
 
 // Re-export types from CE (Compute Engine)
 export type {

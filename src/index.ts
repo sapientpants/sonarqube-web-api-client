@@ -23,6 +23,7 @@ import { SystemClient } from './resources/system';
 import { HotspotsClient } from './resources/hotspots';
 import { ProjectBranchesClient } from './resources/project-branches';
 import { ProjectPullRequestsClient } from './resources/project-pull-requests';
+import { ProjectTagsClient } from './resources/project-tags';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -87,6 +88,8 @@ export class SonarQubeClient {
   public readonly sources: SourcesClient;
   /** System API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly system: SystemClient;
+  /** Project Tags API */
+  public readonly projectTags: ProjectTagsClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -126,6 +129,7 @@ export class SonarQubeClient {
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
     this.sources = new SourcesClient(this.baseUrl, this.token, this.organization);
     this.system = new SystemClient(this.baseUrl, this.token, this.organization);
+    this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
@@ -548,6 +552,13 @@ export type {
   SystemInfo,
   InfoResponse,
 } from './resources/system/types';
+
+// Re-export types from project tags
+export type {
+  SearchTagsParams,
+  SearchTagsResponse,
+  SetProjectTagsParams,
+} from './resources/project-tags/types';
 
 // Re-export error classes
 export {

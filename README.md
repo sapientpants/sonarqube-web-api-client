@@ -131,7 +131,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Project Branches** | `api/project_branches` | ✅ Implemented | Both | Branch management |
 | **Project Links** | `api/project_links` | ✅ Implemented | Both | Project external links |
 | **Project Pull Requests** | `api/project_pull_requests` | ✅ Implemented | Both | Pull request management (Branch plugin required) |
-| **Project Tags** | `api/project_tags` | ❌ Not implemented | Both | Project tag management |
+| **Project Tags** | `api/project_tags` | ✅ Implemented | Both | Project tag management |
 | **Projects** | `api/projects` | ✅ Implemented | Both | Project management |
 | **Properties** | `api/properties` | ❌ Not implemented | Both | Property management (deprecated) |
 | **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Quality gate management |
@@ -489,6 +489,51 @@ console.log('Successfully logged out');
 
 // Note: The validate() endpoint returns true for anonymous users
 // Use it to check if credentials are properly configured
+```
+
+### 🏷️ Project Tags Management
+
+```typescript
+// Search for existing tags
+const tags = await client.projectTags.search();
+console.log('Available tags:', tags.tags);
+
+// Search tags with filtering
+const financeTags = await client.projectTags.search({
+  q: 'finance',  // Search for tags containing 'finance'
+  ps: 20        // Return up to 20 tags
+});
+
+// Set tags on a project (requires Administer permission)
+await client.projectTags.set({
+  project: 'my-project',
+  tags: 'finance, offshore, production'
+});
+
+// Clear all tags from a project
+await client.projectTags.set({
+  project: 'my-project',
+  tags: ''  // Empty string removes all tags
+});
+
+// Update tags for multiple projects (sequential)
+const projects = ['project-1', 'project-2', 'project-3'];
+for (const project of projects) {
+  await client.projectTags.set({
+    project,
+    tags: 'legacy, needs-refactoring'
+  });
+}
+
+// Update tags for multiple projects (parallel)
+await Promise.all(
+  projects.map(project =>
+    client.projectTags.set({
+      project,
+      tags: 'legacy, needs-refactoring'
+    })
+  )
+);
 ```
 
 ### 🔔 Managing Notifications

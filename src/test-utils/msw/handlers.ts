@@ -808,4 +808,53 @@ export const handlers = [
     // Return empty response on success (as per API specification)
     return HttpResponse.json({});
   }),
+
+  // Project Tags endpoints
+  http.get('*/api/project_tags/search', ({ request }) => {
+    const url = new URL(request.url);
+    const ps = Number(url.searchParams.get('ps')) || 10;
+    const q = url.searchParams.get('q');
+
+    // Mock tags for testing
+    const allTags = [
+      'finance',
+      'offshore',
+      'production',
+      'test',
+      'development',
+      'critical',
+      'legacy',
+    ];
+
+    let filteredTags = [...allTags];
+
+    // Apply query filter if provided
+    if (q !== null && q !== '') {
+      filteredTags = filteredTags.filter((tag) => tag.toLowerCase().includes(q.toLowerCase()));
+    }
+
+    // Apply page size limit
+    filteredTags = filteredTags.slice(0, ps);
+
+    return HttpResponse.json({
+      tags: filteredTags,
+    });
+  }),
+
+  http.post('*/api/project_tags/set', async ({ request }) => {
+    const body = (await request.json()) as {
+      project: string;
+      tags: string;
+    };
+
+    if (!body.project) {
+      return HttpResponse.json(
+        { errors: [{ msg: 'The project parameter is missing' }] },
+        { status: 400 }
+      );
+    }
+
+    // Return empty response on success (as per API specification)
+    return HttpResponse.json({});
+  }),
 ];

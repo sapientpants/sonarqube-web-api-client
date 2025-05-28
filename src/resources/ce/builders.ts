@@ -34,9 +34,16 @@ export class ActivityBuilder extends PaginatedBuilder<
    * Filter by component ID (deprecated since 8.0)
    * @param componentId - Id of the component (project) to filter on
    * @returns Builder instance for chaining
+   * @throws {Error} When query has already been set
    * @deprecated Use withComponent() instead
    */
   withComponentId(componentId: string): this {
+    // Validate that query is not already set
+    if (this.params.q !== undefined) {
+      throw new Error(
+        'Cannot set componentId when query is already set. These parameters are mutually exclusive.'
+      );
+    }
     return this.setParam('componentId', componentId);
   }
 
@@ -96,8 +103,15 @@ export class ActivityBuilder extends PaginatedBuilder<
    *
    * @param query - Search query string
    * @returns Builder instance for chaining
+   * @throws {Error} When componentId has already been set
    */
   withQuery(query: string): this {
+    // Validate that componentId is not already set
+    if (this.params.componentId !== undefined) {
+      throw new Error(
+        'Cannot set query when componentId is already set. These parameters are mutually exclusive.'
+      );
+    }
     return this.setParam('q', query);
   }
 

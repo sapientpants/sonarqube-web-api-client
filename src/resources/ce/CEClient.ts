@@ -44,6 +44,13 @@ export class CEClient extends BaseClient {
    * ```
    */
   async activity(request: ActivityRequest = {}): Promise<ActivityResponse> {
+    // Validate mutual exclusivity of component and componentId
+    if (request.component !== undefined && request.componentId !== undefined) {
+      throw new Error(
+        'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.'
+      );
+    }
+
     const params = new URLSearchParams();
 
     if (request.component !== undefined && request.component.length > 0) {

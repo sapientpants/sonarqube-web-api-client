@@ -74,29 +74,16 @@ describe('CEClient', () => {
     });
 
     it('should validate mutual exclusion of component and componentId', async () => {
-      // Note: The SonarQube API documentation states that component and componentId
-      // cannot be provided together, but the current implementation doesn't enforce this.
-      // This test documents the current behavior - both parameters are accepted
-      // and both are sent to the API, which may return an error.
-      const mockResponse = {
-        tasks: [],
-        paging: { pageIndex: 1, pageSize: 100, total: 0 },
-      };
-
-      server.use(
-        http.get(`${SONARQUBE_URL}/api/ce/activity`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('component')).toBe('my-project');
-          expect(url.searchParams.get('componentId')).toBe('project-123');
-          return HttpResponse.json(mockResponse);
+      // The SonarQube API documentation states that component and componentId
+      // cannot be provided together. The client now enforces this constraint.
+      await expect(
+        client.activity({
+          component: 'my-project',
+          componentId: 'project-123',
         })
+      ).rejects.toThrow(
+        'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.'
       );
-
-      // Both parameters are currently accepted by the client
-      await client.activity({
-        component: 'my-project',
-        componentId: 'project-123',
-      });
     });
 
     it('should handle errors', async () => {

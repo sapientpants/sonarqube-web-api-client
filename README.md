@@ -128,7 +128,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Permissions** | `api/permissions` | ❌ Not implemented | Both | Permission management |
 | **Project Analyses** | `api/project_analyses` | ❌ Not implemented | Both | Analysis history and events |
 | **Project Badges** | `api/project_badges` | ❌ Not implemented | Both | Project status badges |
-| **Project Branches** | `api/project_branches` | ❌ Not implemented | Both | Branch management |
+| **Project Branches** | `api/project_branches` | ✅ Implemented | Both | Branch management |
 | **Project Links** | `api/project_links` | ❌ Not implemented | Both | Project external links |
 | **Project Pull Requests** | `api/project_pull_requests` | ❌ Not implemented | Both | Pull request management |
 | **Project Tags** | `api/project_tags` | ❌ Not implemented | Both | Project tag management |
@@ -402,6 +402,50 @@ const prDuplications = await client.duplications.show({
   key: 'my_project:/src/foo/Bar.php',
   pullRequest: '123'
 });
+```
+
+### 🌿 Project Branches Management
+
+```typescript
+// List all branches for a project
+const branches = await client.projectBranches.list()
+  .withProject('my-project')
+  .execute();
+
+console.log(`Found ${branches.branches.length} branches`);
+branches.branches.forEach(branch => {
+  console.log(`Branch: ${branch.name} (${branch.isMain ? 'main' : 'feature'})`);
+  console.log(`  Status: ${branch.qualityGateStatus}`);
+  console.log(`  Issues: ${branch.issueCount}`);
+});
+
+// List specific branches by IDs
+const specificBranches = await client.projectBranches.list()
+  .withBranchIds(['uuid1', 'uuid2', 'uuid3'])
+  .execute();
+
+// Delete a non-main branch (requires admin rights)
+await client.projectBranches.delete({
+  project: 'my-project',
+  branch: 'feature/old-feature'
+});
+
+// Rename the main branch (requires admin rights)
+await client.projectBranches.rename({
+  project: 'my-project',
+  name: 'main'  // Rename default 'master' to 'main'
+});
+
+// Filter branches by quality gate status
+const failingBranches = branches.branches.filter(
+  branch => branch.qualityGateStatus === 'ERROR'
+);
+
+// Find branches with critical issues
+const criticalBranches = branches.branches.filter(
+  branch => branch.bugCount && branch.bugCount > 0 || 
+            branch.vulnerabilityCount && branch.vulnerabilityCount > 0
+);
 ```
 
 ## 🛡️ Error Handling

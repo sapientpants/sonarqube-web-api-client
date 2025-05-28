@@ -17,6 +17,7 @@ import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
 import { SystemClient } from './resources/system';
 import { HotspotsClient } from './resources/hotspots';
+import { ProjectBranchesClient } from './resources/project-branches';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -57,6 +58,8 @@ export class SonarQubeClient {
   public readonly languages: LanguagesClient;
   /** Security Hotspots API */
   public readonly hotspots: HotspotsClient;
+  /** Project Branches API - **Note**: Only available when the Branch plugin is installed */
+  public readonly projectBranches: ProjectBranchesClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
   /** Metrics API */
@@ -92,6 +95,7 @@ export class SonarQubeClient {
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
     this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
+    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
@@ -396,6 +400,17 @@ export type {
   ListLanguagesParams,
   ListLanguagesResponse,
 } from './resources/languages/types';
+
+// Re-export types from project branches
+export type {
+  Branch,
+  BranchStatus,
+  ListBranchesParams,
+  ListBranchesResponse,
+  DeleteBranchParams,
+  RenameMainBranchParams,
+} from './resources/project-branches/types';
+export { ProjectBranchType, QualityGateStatus } from './resources/project-branches/types';
 
 // Re-export types from quality gates
 export type {

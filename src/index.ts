@@ -13,6 +13,7 @@ import { NotificationsClient } from './resources/notifications';
 import { ProjectsClient } from './resources/projects';
 import { ProjectBadgesClient } from './resources/project-badges';
 import { ProjectAnalysesClient } from './resources/project-analyses';
+import { ProjectLinksClient } from './resources/project-links';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
 import { IssuesClient } from './resources/issues';
@@ -72,6 +73,8 @@ export class SonarQubeClient {
   public readonly projectBadges: ProjectBadgesClient;
   /** Project Analyses API */
   public readonly projectAnalyses: ProjectAnalysesClient;
+  /** Project Links API */
+  public readonly projectLinks: ProjectLinksClient;
   /** Project Pull Requests API - **Note**: Only available when the Branch plugin is installed */
   public readonly projectPullRequests: ProjectPullRequestsClient;
   /** Metrics API */
@@ -112,6 +115,7 @@ export class SonarQubeClient {
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
     this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
+    this.projectLinks = new ProjectLinksClient(this.baseUrl, this.token, this.organization);
     this.projectPullRequests = new ProjectPullRequestsClient(
       this.baseUrl,
       this.token,
@@ -477,6 +481,16 @@ export type {
   UpdateEventRequest,
   UpdateEventResponse,
 } from './resources/project-analyses/types';
+
+// Re-export types from project links
+export type {
+  ProjectLink,
+  CreateProjectLinkRequest,
+  CreateProjectLinkResponse,
+  DeleteProjectLinkRequest,
+  SearchProjectLinksRequest,
+  SearchProjectLinksResponse,
+} from './resources/project-links/types';
 
 // Re-export types from project pull requests
 export type {

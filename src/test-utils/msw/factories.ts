@@ -198,58 +198,210 @@ export const SAMPLE_METRICS = {
   }),
 };
 
-export const METRIC_TYPES = [
-  'INT',
-  'FLOAT',
-  'PERCENT',
-  'BOOL',
-  'STRING',
-  'LEVEL',
-  'DATA',
-  'DISTRIB',
-  'RATING',
-  'WORK_DUR',
-] as const;
-
-export const METRIC_DOMAINS = [
-  'Issues',
-  'Maintainability',
-  'Reliability',
-  'Size',
-  'Complexity',
-  'Coverage',
-  'SCM',
-  'Duplications',
-  'SecurityReview',
-  'Security',
-  'General',
-  'Documentation',
-  'Releasability',
-] as const;
-
-export interface MetricsSearchResponse {
-  metrics: MetricData[];
-  total: number;
-  p: number;
-  ps: number;
-}
-
 export function createMetricsSearchResponse(
   metrics: MetricData[],
-  paging?: { p?: number; ps?: number; total?: number }
-): MetricsSearchResponse {
+  paging?: Partial<PagingInfo>
+): { metrics: MetricData[]; total: number; p: number; ps: number } {
+  const pagingInfo = createPagingInfo(paging);
   return {
     metrics,
-    total: paging?.total ?? metrics.length,
-    p: paging?.p ?? 1,
-    ps: paging?.ps ?? 50,
+    total: pagingInfo.total,
+    p: pagingInfo.pageIndex,
+    ps: pagingInfo.pageSize,
   };
 }
 
-export function createMetricTypesResponse(): { types: Array<(typeof METRIC_TYPES)[number]> } {
-  return { types: [...METRIC_TYPES] };
+export function createMetricTypesResponse(): { types: string[] } {
+  return {
+    types: ['INT', 'FLOAT', 'PERCENT', 'BOOL', 'STRING', 'MILLISEC', 'DATA', 'LEVEL', 'DISTRIB'],
+  };
 }
 
-export function createMetricDomainsResponse(): { domains: Array<(typeof METRIC_DOMAINS)[number]> } {
-  return { domains: [...METRIC_DOMAINS] };
+export function createMetricDomainsResponse(): { domains: string[] } {
+  return {
+    domains: [
+      'Complexity',
+      'Coverage',
+      'Design',
+      'Documentation',
+      'Duplications',
+      'Issues',
+      'Maintainability',
+      'Management',
+      'Reliability',
+      'Security',
+      'SecurityReview',
+      'Size',
+      'Tests',
+    ],
+  };
+}
+
+// Hotspots-related factories
+
+export interface Hotspot {
+  key: string;
+  component: string;
+  project: string;
+  securityCategory: string;
+  vulnerabilityProbability: string;
+  status: string;
+  resolution?: string;
+  line?: number;
+  hash?: string;
+  message: string;
+  assignee?: string;
+  author?: string;
+  creationDate: string;
+  updateDate: string;
+  textRange?: {
+    startLine: number;
+    endLine: number;
+    startOffset: number;
+    endOffset: number;
+  };
+  rule?: {
+    key: string;
+    name: string;
+    securityCategory: string;
+    vulnerabilityProbability: string;
+  };
+}
+
+export function createHotspot(overrides?: Partial<Hotspot>): Hotspot {
+  return {
+    key: 'hotspot-1',
+    component: 'project:src/main/java/com/example/App.java',
+    project: 'project',
+    securityCategory: 'sql-injection',
+    vulnerabilityProbability: 'HIGH',
+    status: 'TO_REVIEW',
+    line: 42,
+    hash: 'abc123def456',
+    message: 'Make sure that this SQL query is not vulnerable to injection attacks.',
+    author: 'john.doe',
+    creationDate: '2024-01-01T00:00:00+0000',
+    updateDate: '2024-01-01T00:00:00+0000',
+    textRange: {
+      startLine: 42,
+      endLine: 42,
+      startOffset: 10,
+      endOffset: 50,
+    },
+    rule: {
+      key: 'java:S2077',
+      name: 'SQL injection vulnerabilities should not be ignored',
+      securityCategory: 'sql-injection',
+      vulnerabilityProbability: 'HIGH',
+    },
+    ...overrides,
+  };
+}
+
+export interface HotspotDetails extends Hotspot {
+  component: {
+    key: string;
+    qualifier: string;
+    name: string;
+    longName: string;
+    path?: string;
+  };
+  project: {
+    key: string;
+    name: string;
+    longName: string;
+  };
+  rule: {
+    key: string;
+    name: string;
+    securityCategory: string;
+    vulnerabilityProbability: string;
+    riskDescription?: string;
+    vulnerabilityDescription?: string;
+    fixRecommendations?: string;
+  };
+  assignee?: {
+    login: string;
+    name: string;
+    email?: string;
+    avatar?: string;
+  };
+  author?: {
+    login: string;
+    name: string;
+    email?: string;
+    avatar?: string;
+  };
+  comment?: Array<{
+    key: string;
+    login: string;
+    htmlText: string;
+    markdown: string;
+    updatable: boolean;
+    createdAt: string;
+    updatedAt?: string;
+  }>;
+}
+
+export function createHotspotDetails(overrides?: Partial<HotspotDetails>): HotspotDetails {
+  const baseHotspot = createHotspot();
+  return {
+    ...baseHotspot,
+    component: {
+      key: 'project:src/main/java/com/example/App.java',
+      qualifier: 'FIL',
+      name: 'App.java',
+      longName: 'src/main/java/com/example/App.java',
+      path: 'src/main/java/com/example/App.java',
+    },
+    project: {
+      key: 'project',
+      name: 'My Project',
+      longName: 'My Project',
+    },
+    rule: {
+      key: 'java:S2077',
+      name: 'SQL injection vulnerabilities should not be ignored',
+      securityCategory: 'sql-injection',
+      vulnerabilityProbability: 'HIGH',
+      riskDescription:
+        'SQL injection is a vulnerability that allows an attacker to alter SQL queries.',
+      vulnerabilityDescription:
+        'The software constructs all or part of an SQL command using externally-influenced input.',
+      fixRecommendations: 'Use parameterized queries to prevent SQL injection.',
+    },
+    author: {
+      login: 'john.doe',
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+    },
+    ...overrides,
+  };
+}
+
+export function createHotspotsResponse(
+  hotspots: Hotspot[],
+  paging?: Partial<PagingInfo>
+): {
+  hotspots: Hotspot[];
+  paging: PagingInfo;
+  components?: Array<{
+    key: string;
+    qualifier: string;
+    name: string;
+    longName: string;
+    path?: string;
+  }>;
+} {
+  return {
+    hotspots,
+    paging: createPagingInfo(paging),
+    components: hotspots.map((h) => ({
+      key: h.component,
+      qualifier: 'FIL',
+      name: h.component.split('/').pop() ?? h.component,
+      longName: h.component.replace('project:', ''),
+      path: h.component.replace('project:', ''),
+    })),
+  };
 }

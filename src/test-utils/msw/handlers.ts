@@ -4,6 +4,9 @@ import {
   createMetricsSearchResponse,
   createMetricTypesResponse,
   createMetricDomainsResponse,
+  createHotspot,
+  createHotspotDetails,
+  createHotspotsResponse,
 } from './factories';
 
 /**
@@ -645,5 +648,145 @@ export const handlers = [
         total: components.length,
       },
     });
+  }),
+
+  // Hotspots endpoints
+  http.get('*/api/hotspots/search', ({ request }) => {
+    const url = new URL(request.url);
+    const projectKey = url.searchParams.get('projectKey');
+    const hotspots = url.searchParams.get('hotspots');
+    const status = url.searchParams.get('status');
+    const resolution = url.searchParams.get('resolution');
+    const _onlyMine = url.searchParams.get('onlyMine');
+    const _sinceLeakPeriod = url.searchParams.get('sinceLeakPeriod');
+    const files = url.searchParams.get('files');
+    const fileUuids = url.searchParams.get('fileUuids');
+    const pageSize = Number(url.searchParams.get('ps')) || 100;
+    const page = Number(url.searchParams.get('p')) || 1;
+
+    // Simulate some default hotspots for testing
+    const allHotspots = [
+      createHotspot({
+        key: 'hotspot-1',
+        status: 'TO_REVIEW',
+        component: 'project:src/main/java/App.java',
+        message: 'Make sure this SQL query is safe',
+        securityCategory: 'sql-injection',
+        vulnerabilityProbability: 'HIGH',
+      }),
+      createHotspot({
+        key: 'hotspot-2',
+        status: 'REVIEWED',
+        resolution: 'FIXED',
+        component: 'project:src/main/java/Security.java',
+        message: 'Ensure proper authentication',
+        securityCategory: 'auth',
+        vulnerabilityProbability: 'MEDIUM',
+      }),
+      createHotspot({
+        key: 'hotspot-3',
+        status: 'REVIEWED',
+        resolution: 'SAFE',
+        component: 'project:src/main/java/Utils.java',
+        message: 'Check cryptographic usage',
+        securityCategory: 'cryptography',
+        vulnerabilityProbability: 'LOW',
+      }),
+    ];
+
+    let filteredHotspots = [...allHotspots];
+
+    // Apply filters
+    if (projectKey !== null) {
+      filteredHotspots = filteredHotspots.filter((h) => h.project === projectKey);
+    }
+
+    if (hotspots !== null) {
+      const hotspotKeys = hotspots.split(',');
+      filteredHotspots = filteredHotspots.filter((h) => hotspotKeys.includes(h.key));
+    }
+
+    if (status !== null) {
+      filteredHotspots = filteredHotspots.filter((h) => h.status === status);
+    }
+
+    if (resolution !== null) {
+      filteredHotspots = filteredHotspots.filter((h) => h.resolution === resolution);
+    }
+
+    if (files !== null) {
+      const fileList = files.split(',');
+      filteredHotspots = filteredHotspots.filter((h) =>
+        fileList.some((file) => h.component.includes(file))
+      );
+    }
+
+    if (fileUuids !== null) {
+      const uuidList = fileUuids.split(',');
+      // For testing, we'll just filter by the hash field
+      filteredHotspots = filteredHotspots.filter((h) => uuidList.includes(h.hash ?? ''));
+    }
+
+    // Handle pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedHotspots = filteredHotspots.slice(startIndex, endIndex);
+
+    return HttpResponse.json(
+      createHotspotsResponse(paginatedHotspots, {
+        pageIndex: page,
+        pageSize,
+        total: filteredHotspots.length,
+      })
+    );
+  }),
+
+  http.get('*/api/hotspots/show', ({ request }) => {
+    const url = new URL(request.url);
+    const hotspotKey = url.searchParams.get('hotspot');
+
+    if (hotspotKey === null || hotspotKey === '') {
+      return new HttpResponse(
+        JSON.stringify({ errors: [{ msg: 'The hotspot parameter is missing' }] }),
+        { status: 400, headers: { 'content-type': 'application/json' } }
+      );
+    }
+
+    // Return detailed hotspot information
+    const hotspotDetails = createHotspotDetails({
+      key: hotspotKey,
+      status: 'TO_REVIEW',
+      message: 'Make sure this SQL query is not vulnerable to injection attacks.',
+      securityCategory: 'sql-injection',
+      vulnerabilityProbability: 'HIGH',
+    });
+
+    return HttpResponse.json(hotspotDetails);
+  }),
+
+  http.post('*/api/hotspots/change_status', async ({ request }) => {
+    const body = (await request.json()) as {
+      hotspot: string;
+      status: string;
+      resolution?: string;
+      comment?: string;
+    };
+
+    if (body.hotspot === '' || body.status === '') {
+      return new HttpResponse(
+        JSON.stringify({ errors: [{ msg: 'Missing required parameters' }] }),
+        { status: 400, headers: { 'content-type': 'application/json' } }
+      );
+    }
+
+    if (body.status === 'REVIEWED' && (body.resolution === undefined || body.resolution === '')) {
+      return new HttpResponse(
+        JSON.stringify({ errors: [{ msg: 'Resolution is required when status is REVIEWED' }] }),
+        { status: 400, headers: { 'content-type': 'application/json' } }
+      );
+    }
+
+    // Return empty response on success (as per API specification)
+    return HttpResponse.json({});
   }),
 ];

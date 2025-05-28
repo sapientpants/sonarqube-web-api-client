@@ -15,6 +15,7 @@ import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
 import { SystemClient } from './resources/system';
+import { HotspotsClient } from './resources/hotspots';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -51,6 +52,8 @@ export class SonarQubeClient {
   public readonly favorites: FavoritesClient;
   /** Issues API */
   public readonly issues: IssuesClient;
+  /** Security Hotspots API */
+  public readonly hotspots: HotspotsClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
   /** Metrics API */
@@ -84,6 +87,7 @@ export class SonarQubeClient {
     this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.organization);
     this.favorites = new FavoritesClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
+    this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
@@ -367,6 +371,20 @@ export type {
   SetTagsRequest,
   SetTagsResponse,
 } from './resources/issues/types';
+
+// Re-export types from hotspots
+export type {
+  Hotspot,
+  HotspotRule,
+  HotspotStatus,
+  HotspotResolution,
+  SearchHotspotsRequest,
+  SearchHotspotsResponse,
+  ShowHotspotRequest,
+  ShowHotspotResponse,
+  ChangeHotspotStatusRequest,
+  ChangeHotspotStatusResponse,
+} from './resources/hotspots/types';
 
 // Re-export types from quality gates
 export type {

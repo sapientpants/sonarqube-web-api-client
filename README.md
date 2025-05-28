@@ -279,9 +279,14 @@ console.log(`Involving ${duplications.files.length} files`);
 duplications.duplications.forEach((duplication, index) => {
   console.log(`\nDuplication set ${index + 1}:`);
   duplication.blocks.forEach((block, blockIndex) => {
-    const file = duplications.files.find(f => f.key.includes(block._ref));
-    console.log(`  Block ${blockIndex + 1}: lines ${block.from}-${block.to} (${block.size} lines)`);
+    // The _ref field is a reference identifier for this duplication block
+    console.log(`  Block ${blockIndex + 1} (ref: ${block._ref}): lines ${block.from}-${block.to} (${block.size} lines)`);
   });
+});
+
+// Access file information separately
+duplications.files.forEach(file => {
+  console.log(`Involved file: ${file.name} (${file.key})`);
 });
 
 // Get duplications for a file on a specific branch

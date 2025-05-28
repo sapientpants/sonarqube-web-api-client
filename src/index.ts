@@ -21,6 +21,7 @@ import { SourcesClient } from './resources/sources';
 import { SystemClient } from './resources/system';
 import { HotspotsClient } from './resources/hotspots';
 import { ProjectBranchesClient } from './resources/project-branches';
+import { ProjectPullRequestsClient } from './resources/project-pull-requests';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -71,6 +72,8 @@ export class SonarQubeClient {
   public readonly projectBadges: ProjectBadgesClient;
   /** Project Analyses API */
   public readonly projectAnalyses: ProjectAnalysesClient;
+  /** Project Pull Requests API - **Note**: Only available when the Branch plugin is installed */
+  public readonly projectPullRequests: ProjectPullRequestsClient;
   /** Metrics API */
   public readonly metrics: MetricsClient;
   /** Measures API */
@@ -109,6 +112,11 @@ export class SonarQubeClient {
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
     this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
+    this.projectPullRequests = new ProjectPullRequestsClient(
+      this.baseUrl,
+      this.token,
+      this.organization
+    );
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
@@ -452,6 +460,31 @@ export type {
   QualityGateBadgeParams,
   BadgeResponse,
 } from './resources/project-badges/types';
+
+// Re-export types from project analyses
+export type {
+  AnalysisEvent,
+  EventCategory,
+  MutableEventCategory,
+  ProjectAnalysis,
+  CreateEventRequest,
+  CreateEventResponse,
+  DeleteEventRequest,
+  SearchAnalysesRequest,
+  SearchAnalysesResponse,
+  SetBaselineRequest,
+  UnsetBaselineRequest,
+  UpdateEventRequest,
+  UpdateEventResponse,
+} from './resources/project-analyses/types';
+
+// Re-export types from project pull requests
+export type {
+  DeletePullRequestRequest,
+  ListPullRequestsRequest,
+  ListPullRequestsResponse,
+  PullRequest,
+} from './resources/project-pull-requests/types';
 
 // Re-export types from quality gates
 export type {

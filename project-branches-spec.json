@@ -1,0 +1,92 @@
+{
+  "path": "api/project_branches",
+  "description": "Manage branch (only available when the Branch plugin is installed)",
+  "actions": [
+    {
+      "key": "delete",
+      "description": "Delete a non-main branch of a project.<br/>Requires 'Administer' rights on the specified project.",
+      "internal": false,
+      "post": true,
+      "hasResponseExample": false,
+      "changelog": [],
+      "params": [
+        {
+          "key": "branch",
+          "description": "Name of the branch",
+          "required": true,
+          "internal": false,
+          "exampleValue": "branch1"
+        },
+        {
+          "key": "project",
+          "description": "Project key",
+          "required": true,
+          "internal": false,
+          "exampleValue": "my_project"
+        }
+      ]
+    },
+    {
+      "key": "list",
+      "description": "List the branches of a project.<br/>The statistics are the overall counts on long branches, and the count of issues detected on the changed code on short branches, and are only provided if the project parameter is specified.<br/>If the project parameter is specified, requires the user to have 'Browse' or 'Execute analysis' rights on that project. Otherwise, only returns branches from projects on which this user has 'Browse' or 'Execute analysis' rights.",
+      "internal": false,
+      "post": false,
+      "hasResponseExample": true,
+      "changelog": [
+        {
+          "description": "Application can be used on this web service",
+          "version": "7.2"
+        },
+        {
+          "description": "Made project parameter optional if a list of branchIds are provided, and added field 'branchId' to response.",
+          "version": "24 May 2024"
+        },
+        {
+          "description": "Added 'branchUuidV1' to response",
+          "version": "14 Mar 2025"
+        }
+      ],
+      "params": [
+        {
+          "key": "branchIds",
+          "description": "List of up to 50 branch IDs - required unless project key is provided",
+          "required": false,
+          "internal": false,
+          "exampleValue": "uuid1,uuid2,uuid3"
+        },
+        {
+          "key": "project",
+          "description": "Project key - required unless branchIds is provided",
+          "required": false,
+          "internal": false,
+          "exampleValue": "my_project"
+        }
+      ]
+    },
+    {
+      "key": "rename",
+      "description": "Rename the main branch of a project.<br/>Requires 'Administer' permission on the specified project.",
+      "internal": false,
+      "post": true,
+      "hasResponseExample": false,
+      "changelog": [],
+      "params": [
+        {
+          "key": "name",
+          "description": "New name of the main branch",
+          "required": true,
+          "internal": false,
+          "exampleValue": "branch1",
+          "maximumLength": 255
+        },
+        {
+          "key": "project",
+          "description": "Project key",
+          "required": true,
+          "internal": false,
+          "exampleValue": "my_project"
+        }
+      ]
+    }
+  ]
+}

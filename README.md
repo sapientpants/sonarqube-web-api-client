@@ -121,7 +121,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Favorites** | `api/favorites` | ✅ Implemented | Both | User favorites management |
 | **Hotspots** | `api/hotspots` | ✅ Implemented | Both | Security hotspot management |
 | **Issues** | `api/issues` | ✅ Implemented | Both | Issue search and management |
-| **Languages** | `api/languages` | ❌ Not implemented | Both | Supported languages list |
+| **Languages** | `api/languages` | ✅ Implemented | Both | Supported languages list |
 | **Measures** | `api/measures` | ✅ Implemented | Both | Component measures and history |
 | **Metrics** | `api/metrics` | ✅ Implemented | Both | Metric definitions |
 | **Notifications** | `api/notifications` | ❌ Not implemented | Both | User notifications |
@@ -148,7 +148,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
-📊 **Progress**: 14 of 38 APIs implemented (37%)
+📊 **Progress**: 15 of 38 APIs implemented (39%)
 
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
@@ -307,6 +307,34 @@ for await (const favorite of client.favorites.searchAll()) {
 }
 ```
 
+### 🌐 Working with Languages
+
+```typescript
+// Get all supported programming languages
+const languages = await client.languages.list();
+console.log('Supported languages:', languages.languages);
+
+// Filter languages by pattern
+const javaLangs = await client.languages.list({
+  q: 'java'  // Matches 'java', 'javascript', etc.
+});
+
+// Limit the number of languages returned
+const someLanguages = await client.languages.list({
+  ps: 10  // Return only first 10 languages, 0 for all
+});
+
+// Iterate through all languages
+for await (const language of client.languages.listAll()) {
+  console.log(`Language: ${language.name} (${language.key})`);
+}
+
+// Filter while iterating
+for await (const language of client.languages.listAll({ q: 'python' })) {
+  console.log(`Found Python-related language: ${language.name}`);
+}
+```
+
 ### 💚 System Health Monitoring
 
 ```typescript
@@ -424,6 +452,7 @@ client.issues          // Issue tracking
 client.measures        // Code metrics
 client.qualityGates    // Quality gate management
 client.components      // Component navigation
+client.languages       // Programming languages
 client.sources         // Source code access
 client.system          // System administration
 // ... and many more

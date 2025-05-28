@@ -13,6 +13,22 @@ A modern TypeScript client library for the SonarQube/SonarCloud Web API with typ
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
+## 💡 Why Use This Library?
+
+Working with the SonarQube/SonarCloud API directly can be challenging:
+- 📚 **Complex API surface** - Hundreds of endpoints with various parameters
+- 🔍 **No TypeScript support** - The official API lacks type definitions
+- 🔄 **Pagination handling** - Manual pagination logic for large datasets
+- ❌ **Generic error responses** - Difficult to handle different error scenarios
+- 🏢 **Multi-organization** - Complexity when working with SonarCloud organizations
+
+This library solves these problems by providing:
+- ✅ **Complete type safety** - Full TypeScript definitions for all endpoints
+- ✅ **Intuitive API design** - Resource-based structure with method chaining
+- ✅ **Automatic pagination** - Built-in async iterators for large datasets
+- ✅ **Rich error handling** - Specific error types for different failures
+- ✅ **Zero dependencies** - Lightweight with no external runtime dependencies
+
 ## 🌟 Features
 
 - 🔒 **Type-safe** - Full TypeScript support with comprehensive type definitions
@@ -45,31 +61,47 @@ const client = new SonarQubeClient('https://sonarqube.example.com', 'your-token'
 // For SonarCloud with organization support
 const cloudClient = new SonarQubeClient('https://sonarcloud.io', 'your-token', 'your-organization');
 
-// Search for projects - it's that easy! 
+// Everything is type-safe and intuitive
 const projects = await client.projects.search()
   .query('my-project')
   .execute();
 
-// Get metrics with type-safe filters
-const metrics = await client.metrics.search()
-  .type('INT')
-  .execute();
-
-// Work with issues using the fluent API
 const issues = await client.issues.search()
   .withProjects(['my-project'])
-  .withSeverities(['CRITICAL', 'MAJOR'])
-  .withStatuses(['OPEN'])
-  .pageSize(100)
+  .withSeverities(['CRITICAL'])
   .execute();
 
-// Navigate component trees with advanced filtering
-const components = await client.components.tree()
+// Async iteration for large datasets
+for await (const component of client.components.tree()
   .component('my-project')
-  .query('Controller')
   .filesOnly()
-  .sortByName()
+  .all()) {
+  console.log(`File: ${component.path}`);
+}
+```
+
+### 📝 Full TypeScript Support
+
+Get autocomplete, type checking, and inline documentation right in your IDE:
+
+```typescript
+// TypeScript knows exactly what parameters are available
+const projects = await client.projects.search()
+  .query('my-app')        // ✅ Autocomplete shows available methods
+  .visibility('private')  // ✅ Type-safe parameter values
+  .pageSize(50)          // ✅ Number validation
+  .execute();            // ✅ Returns typed response
+
+// TypeScript catches errors at compile time
+const issues = await client.issues.search()
+  .withSeverities(['WRONG'])  // ❌ TypeScript error: not a valid severity
   .execute();
+
+// Full type information for responses
+projects.components.forEach(project => {
+  console.log(project.key);        // ✅ TypeScript knows the structure
+  console.log(project.lastAnalysis); // ✅ Optional field handling
+});
 ```
 
 ## 📊 API Implementation Status
@@ -82,7 +114,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **ALM Settings** | `api/alm_settings` | ✅ Implemented | SonarQube only | ALM configuration management |
 | **Analysis Cache** | `api/analysis_cache` | ✅ Implemented | SonarQube only | Scanner cache data |
 | **Applications** | `api/applications` | ✅ Implemented | SonarQube only | Application portfolio management |
-| **Authentication** | `api/authentication` | ❌ Not implemented | Both | Login/logout endpoints |
+| **Authentication** | `api/authentication` | ✅ Implemented | Both | Validate credentials and logout |
 | **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | Background task management |
 | **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
 | **Duplications** | `api/duplications` | ❌ Not implemented | Both | Code duplication data |
@@ -213,6 +245,25 @@ const pong = await client.system.ping();
 console.log(pong); // 'pong'
 ```
 
+### 🔐 Authentication
+
+```typescript
+// Validate current authentication
+const validation = await client.authentication.validate();
+if (validation.valid) {
+  console.log('Authentication is valid');
+} else {
+  console.log('Authentication is invalid or expired');
+}
+
+// Logout current user (invalidates the session)
+await client.authentication.logout();
+console.log('Successfully logged out');
+
+// Note: The validate() endpoint returns true for anonymous users
+// Use it to check if credentials are properly configured
+```
+
 ## 🛡️ Error Handling
 
 The library provides rich error types to help you handle different failure scenarios gracefully:
@@ -242,6 +293,56 @@ try {
     // Network connectivity issues
     console.error('Network error:', error.cause);
   }
+}
+```
+
+## 🏗️ Resource-Based API Design
+
+The library is organized around API resources, making it intuitive and easy to discover available methods:
+
+```typescript
+const client = new SonarQubeClient(baseUrl, token);
+
+// Each resource has its own namespace
+client.authentication   // Authentication endpoints
+client.projects        // Project management
+client.issues          // Issue tracking
+client.measures        // Code metrics
+client.qualityGates    // Quality gate management
+client.components      // Component navigation
+client.sources         // Source code access
+client.system          // System administration
+// ... and many more
+```
+
+Each resource client provides methods that map directly to SonarQube API endpoints, with full TypeScript support for parameters and responses.
+
+### 🔨 Builder Pattern for Complex Queries
+
+Many APIs support complex filtering and pagination. The library provides a fluent builder pattern for these cases:
+
+```typescript
+// Simple method calls for basic operations
+const project = await client.projects.create({
+  key: 'my-project',
+  name: 'My Project'
+});
+
+// Builder pattern for complex queries
+const issues = await client.issues.search()
+  .withProjects(['my-project'])
+  .withSeverities(['CRITICAL', 'MAJOR'])
+  .createdAfter('2024-01-01')
+  .assignedTo('developer@example.com')
+  .sortBy('SEVERITY')
+  .pageSize(50)
+  .execute();
+
+// Async iteration for large datasets
+for await (const issue of client.issues.search()
+  .withSeverities(['CRITICAL'])
+  .all()) {
+  console.log(`Critical issue: ${issue.key}`);
 }
 ```
 
@@ -337,6 +438,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by modern API client design patterns
 
 ---
+
+<p align="center">
+  ⭐ If you find this library helpful, please consider giving it a star on GitHub!
+</p>
 
 <p align="center">
   Made with ❤️ by the open source community

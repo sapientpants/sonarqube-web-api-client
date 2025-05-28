@@ -3,6 +3,7 @@ import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { ApplicationsClient } from './resources/applications';
+import { AuthenticationClient } from './resources/authentication';
 import { CEClient } from './resources/ce';
 import { ComponentsClient } from './resources/components';
 import { ProjectsClient } from './resources/projects';
@@ -36,6 +37,8 @@ export class SonarQubeClient {
   public readonly analysisCache: AnalysisCacheClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
+  /** Authentication API */
+  public readonly authentication: AuthenticationClient;
   /** Compute Engine (CE) API */
   public readonly ce: CEClient;
   /** Components API */
@@ -69,6 +72,7 @@ export class SonarQubeClient {
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.organization);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.organization);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.organization);
+    this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.organization);
     this.ce = new CEClient(this.baseUrl, this.token, this.organization);
     this.components = new ComponentsClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
@@ -193,6 +197,9 @@ export type {
   GetAnalysisCacheRequest,
   GetAnalysisCacheResponse,
 } from './resources/analysis-cache/types';
+
+// Re-export types from authentication
+export type { ValidateResponse, LogoutResponse } from './resources/authentication/types';
 
 // Re-export types from CE (Compute Engine)
 export type {

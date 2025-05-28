@@ -82,7 +82,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **ALM Settings** | `api/alm_settings` | ✅ Implemented | SonarQube only | ALM configuration management |
 | **Analysis Cache** | `api/analysis_cache` | ✅ Implemented | SonarQube only | Scanner cache data |
 | **Applications** | `api/applications` | ✅ Implemented | SonarQube only | Application portfolio management |
-| **Authentication** | `api/authentication` | ❌ Not implemented | Both | Login/logout endpoints |
+| **Authentication** | `api/authentication` | ✅ Implemented | Both | Validate credentials and logout |
 | **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | Background task management |
 | **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
 | **Duplications** | `api/duplications` | ❌ Not implemented | Both | Code duplication data |
@@ -211,6 +211,22 @@ if (health.health === 'RED') {
 // Simple ping check
 const pong = await client.system.ping();
 console.log(pong); // 'pong'
+```
+
+### 🔐 Authentication
+
+```typescript
+// Validate current authentication
+const validation = await client.authentication.validate();
+if (validation.valid) {
+  console.log('Authentication is valid');
+} else {
+  console.log('Authentication is invalid or expired');
+}
+
+// Logout current user
+await client.authentication.logout();
+console.log('Successfully logged out');
 ```
 
 ## 🛡️ Error Handling

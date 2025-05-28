@@ -14,7 +14,7 @@ export class ProjectBadgesClient extends BaseClient {
   /**
    * Generate a badge for project's AI assurance as an SVG
    * Requires 'Browse' permission on the specified project
-   * @param params - Badge parameters
+   * @param params - Badge parameters (token can be used for private projects)
    * @returns SVG badge content
    *
    * @example
@@ -24,14 +24,10 @@ export class ProjectBadgesClient extends BaseClient {
    * ```
    */
   async aiCodeAssurance(params: AiCodeAssuranceBadgeParams): Promise<BadgeResponse> {
-    const searchParams = new URLSearchParams();
-    searchParams.append('project', params.project);
-
-    if (params.token !== undefined) {
-      searchParams.append('token', params.token);
-    }
-
-    const query = searchParams.toString();
+    const query = this.buildBadgeQuery({
+      project: params.project,
+      token: params.token,
+    });
     return await this.request<BadgeResponse>(`/api/project_badges/ai_code_assurance?${query}`, {
       headers: {
         ['Accept']: 'image/svg+xml',
@@ -57,18 +53,12 @@ export class ProjectBadgesClient extends BaseClient {
    * ```
    */
   async measure(params: MeasureBadgeParams): Promise<BadgeResponse> {
-    const searchParams = new URLSearchParams();
-    searchParams.append('project', params.project);
-    searchParams.append('metric', params.metric);
-
-    if (params.branch !== undefined) {
-      searchParams.append('branch', params.branch);
-    }
-    if (params.token !== undefined) {
-      searchParams.append('token', params.token);
-    }
-
-    const query = searchParams.toString();
+    const query = this.buildBadgeQuery({
+      project: params.project,
+      metric: params.metric,
+      branch: params.branch,
+      token: params.token,
+    });
     return await this.request<BadgeResponse>(`/api/project_badges/measure?${query}`, {
       headers: {
         ['Accept']: 'image/svg+xml',
@@ -93,22 +83,33 @@ export class ProjectBadgesClient extends BaseClient {
    * ```
    */
   async qualityGate(params: QualityGateBadgeParams): Promise<BadgeResponse> {
-    const searchParams = new URLSearchParams();
-    searchParams.append('project', params.project);
-
-    if (params.branch !== undefined) {
-      searchParams.append('branch', params.branch);
-    }
-    if (params.token !== undefined) {
-      searchParams.append('token', params.token);
-    }
-
-    const query = searchParams.toString();
+    const query = this.buildBadgeQuery({
+      project: params.project,
+      branch: params.branch,
+      token: params.token,
+    });
     return await this.request<BadgeResponse>(`/api/project_badges/quality_gate?${query}`, {
       headers: {
         ['Accept']: 'image/svg+xml',
       },
       responseType: 'text',
     });
+  }
+
+  /**
+   * Helper method to build query parameters for badge requests
+   * @param params - Badge parameters
+   * @returns URL search params string
+   */
+  private buildBadgeQuery(params: Record<string, string | undefined>): string {
+    const searchParams = new URLSearchParams();
+
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        searchParams.append(key, value);
+      }
+    }
+
+    return searchParams.toString();
   }
 }

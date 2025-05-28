@@ -135,7 +135,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Projects** | `api/projects` | ✅ Implemented | Both | Project management |
 | **Properties** | `api/properties` | ❌ Not implemented | Both | Property management (deprecated) |
 | **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Quality gate management |
-| **Quality Profiles** | `api/qualityprofiles` | ❌ Not implemented | Both | Quality profile management |
+| **Quality Profiles** | `api/qualityprofiles` | ✅ Implemented | Both | Quality profile management |
 | **Rules** | `api/rules` | ❌ Not implemented | Both | Coding rule management |
 | **Settings** | `api/settings` | ❌ Not implemented | Both | Global and project settings |
 | **Sources** | `api/sources` | ✅ Implemented | Both | Source code access |
@@ -569,6 +569,93 @@ const userNotifications = await client.notifications.list({
 });
 ```
 
+### 🎯 Quality Profiles Management
+
+```typescript
+// Search for quality profiles
+const profiles = await client.qualityProfiles.search()
+  .language('java')
+  .defaults(true)
+  .execute();
+
+// Create a new quality profile
+const newProfile = await client.qualityProfiles.create({
+  name: 'Strict Java Rules',
+  language: 'java'
+});
+
+// Copy an existing profile
+const copiedProfile = await client.qualityProfiles.copy({
+  fromKey: 'sonar-way-java',
+  toName: 'My Custom Java Profile'
+});
+
+// Activate rules on a profile using the builder pattern
+const activation = await client.qualityProfiles.activateRules()
+  .targetProfile('my-java-profile')
+  .severities('CRITICAL,MAJOR')
+  .types('BUG,VULNERABILITY')
+  .targetSeverity('BLOCKER')
+  .execute();
+console.log(`Activated ${activation.succeeded} rules`);
+
+// Associate projects with quality profiles
+await client.qualityProfiles.addProject({
+  key: 'my-java-profile',
+  project: 'my-project'
+});
+
+// View quality profile changelog
+for await (const change of client.qualityProfiles.changelog()
+  .profile('my-java-profile')
+  .since('2024-01-01')
+  .all()) {
+  console.log(`${change.date}: ${change.action} - ${change.ruleName}`);
+}
+
+// Compare two quality profiles
+const comparison = await client.qualityProfiles.compare({
+  leftKey: 'old-profile',
+  rightKey: 'new-profile'
+});
+console.log(`Rules only in old: ${comparison.inLeft.length}`);
+console.log(`Rules only in new: ${comparison.inRight.length}`);
+console.log(`Modified rules: ${comparison.modified.length}`);
+
+// Backup and restore profiles
+const backup = await client.qualityProfiles.backup({
+  key: 'my-java-profile'
+});
+// Save backup to file...
+
+const restored = await client.qualityProfiles.restore({
+  backup: backup,
+  organization: 'my-org'
+});
+console.log(`Restored profile: ${restored.profile.name}`);
+console.log(`Rules restored: ${restored.ruleSuccesses}`);
+
+// Set a profile as default for a language
+await client.qualityProfiles.setDefault({
+  key: 'strict-java-profile'
+});
+
+// View profile inheritance hierarchy
+const inheritance = await client.qualityProfiles.inheritance({
+  key: 'custom-java-profile'
+});
+console.log('Parent profile:', inheritance.ancestors[0]?.name);
+console.log('Child profiles:', inheritance.children.map(c => c.name));
+
+// List projects associated with a profile
+for await (const project of client.qualityProfiles.projects()
+  .profile('my-java-profile')
+  .selected('selected')
+  .all()) {
+  console.log(`Associated project: ${project.name}`);
+}
+```
+
 ### 📋 Code Duplications
 
 ```typescript
@@ -696,6 +783,7 @@ client.projects        // Project management
 client.issues          // Issue tracking
 client.measures        // Code metrics
 client.qualityGates    // Quality gate management
+client.qualityProfiles // Quality profile management
 client.components      // Component navigation
 client.languages       // Programming languages
 client.sources         // Source code access

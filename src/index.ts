@@ -24,6 +24,7 @@ import { HotspotsClient } from './resources/hotspots';
 import { ProjectBranchesClient } from './resources/project-branches';
 import { ProjectPullRequestsClient } from './resources/project-pull-requests';
 import { ProjectTagsClient } from './resources/project-tags';
+import { QualityProfilesClient } from './resources/quality-profiles';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -84,6 +85,8 @@ export class SonarQubeClient {
   public readonly measures: MeasuresClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
+  /** Quality Profiles API */
+  public readonly qualityProfiles: QualityProfilesClient;
   /** Sources API */
   public readonly sources: SourcesClient;
   /** System API - **Note**: Only available in SonarQube, not in SonarCloud */
@@ -127,6 +130,7 @@ export class SonarQubeClient {
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
+    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.organization);
     this.sources = new SourcesClient(this.baseUrl, this.token, this.organization);
     this.system = new SystemClient(this.baseUrl, this.token, this.organization);
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
@@ -559,6 +563,52 @@ export type {
   SearchTagsResponse,
   SetProjectTagsParams,
 } from './resources/project-tags/types';
+
+// Re-export types from quality profiles
+export type {
+  QualityProfile,
+  Severity,
+  RuleStatus,
+  RuleType,
+  ActivateRuleRequest,
+  ActivateRulesRequest,
+  ActivateRulesResponse,
+  AddProjectRequest as QualityProfileAddProjectRequest,
+  BackupRequest as QualityProfileBackupRequest,
+  ChangeParentRequest,
+  ChangelogRequest,
+  ChangelogEntry,
+  ChangelogResponse,
+  CompareRequest as QualityProfileCompareRequest,
+  RuleComparison,
+  CompareResponse as QualityProfileCompareResponse,
+  CopyRequest as QualityProfileCopyRequest,
+  CopyResponse as QualityProfileCopyResponse,
+  CreateRequest as CreateQualityProfileRequest,
+  CreateResponse as CreateQualityProfileResponse,
+  DeactivateRuleRequest,
+  DeactivateRulesRequest,
+  DeactivateRulesResponse,
+  DeleteRequest as DeleteQualityProfileRequest,
+  ExportRequest as QualityProfileExportRequest,
+  Exporter,
+  ExportersResponse,
+  Importer,
+  ImportersResponse,
+  InheritanceRequest,
+  ProfileInheritance,
+  InheritanceResponse,
+  ProjectsRequest as QualityProfileProjectsRequest,
+  ProjectAssociation as QualityProfileProjectAssociation,
+  ProjectsResponse as QualityProfileProjectsResponse,
+  RemoveProjectRequest as QualityProfileRemoveProjectRequest,
+  RenameRequest as RenameQualityProfileRequest,
+  RestoreRequest as RestoreQualityProfileRequest,
+  RestoreResponse as RestoreQualityProfileResponse,
+  SearchRequest as SearchQualityProfilesRequest,
+  SearchResponse as SearchQualityProfilesResponse,
+  SetDefaultRequest as SetDefaultQualityProfileRequest,
+} from './resources/quality-profiles/types';
 
 // Re-export error classes
 export {

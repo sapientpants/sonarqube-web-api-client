@@ -127,7 +127,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Notifications** | `api/notifications` | ❌ Not implemented | Both | User notifications |
 | **Permissions** | `api/permissions` | ❌ Not implemented | Both | Permission management |
 | **Project Analyses** | `api/project_analyses` | ❌ Not implemented | Both | Analysis history and events |
-| **Project Badges** | `api/project_badges` | ❌ Not implemented | Both | Project status badges |
+| **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
 | **Project Branches** | `api/project_branches` | ❌ Not implemented | Both | Branch management |
 | **Project Links** | `api/project_links` | ❌ Not implemented | Both | Project external links |
 | **Project Pull Requests** | `api/project_pull_requests` | ❌ Not implemented | Both | Pull request management |
@@ -333,6 +333,48 @@ for await (const language of client.languages.listAll({ q: 'python' })) {
 }
 ```
 
+### 🏅 Project Badges
+
+```typescript
+// Generate a quality gate badge SVG
+const qualityGateBadge = await client.projectBadges.qualityGate({
+  project: 'my-project',
+  branch: 'main'
+});
+// Returns SVG content as string
+
+// Generate a metric badge (e.g., coverage)
+const coverageBadge = await client.projectBadges.measure({
+  project: 'my-project',
+  metric: 'coverage',
+  branch: 'develop'
+});
+
+// Generate AI code assurance badge (requires Browse permission)
+const aiBadge = await client.projectBadges.aiCodeAssurance({
+  project: 'my-project'
+});
+
+// Use badges with security tokens for private projects
+const privateBadge = await client.projectBadges.qualityGate({
+  project: 'private-project',
+  token: 'badge-specific-token'  // Different from API token
+});
+
+// Supported metrics for measure badges:
+// 'coverage', 'ncloc', 'code_smells', 'sqale_rating', 
+// 'security_rating', 'bugs', 'vulnerabilities', 
+// 'duplicated_lines_density', 'reliability_rating', 
+// 'alert_status', 'sqale_index'
+
+// Example: Embed in README
+const badge = await client.projectBadges.measure({
+  project: 'my-project',
+  metric: 'coverage'
+});
+// Use the SVG content in your README or web page
+```
+
 ### 💚 System Health Monitoring
 
 ```typescript
@@ -345,6 +387,56 @@ if (health.health === 'RED') {
 // Simple ping check
 const pong = await client.system.ping();
 console.log(pong); // 'pong'
+```
+
+### 📈 Project Analyses Management
+
+```typescript
+// Search project analyses with events
+const analyses = await client.projectAnalyses.search()
+  .project('my-project')
+  .branch('main')
+  .category('VERSION')  // Filter by event category
+  .from('2024-01-01')
+  .to('2024-12-31')
+  .execute();
+
+// Iterate through all analyses
+for await (const analysis of client.projectAnalyses.searchAll('my-project')) {
+  console.log(`Analysis ${analysis.key} on ${analysis.date}`);
+  analysis.events.forEach(event => {
+    console.log(`  Event: ${event.name} (${event.category})`);
+  });
+}
+
+// Create a version event on an analysis
+const event = await client.projectAnalyses.createEvent({
+  analysis: 'AU-Tpxb--iU5OvuD2FLy',
+  category: 'VERSION',
+  name: '5.6'
+});
+
+// Set analysis as New Code Period baseline
+await client.projectAnalyses.setBaseline({
+  analysis: 'AU-Tpxb--iU5OvuD2FLy',
+  project: 'my-project',
+  branch: 'main'  // Optional: for branch-specific baseline
+});
+
+// Unset manual baseline (restore automatic detection)
+await client.projectAnalyses.unsetBaseline({
+  project: 'my-project'
+});
+
+// Update an existing event
+const updated = await client.projectAnalyses.updateEvent({
+  event: 'AU-TpxcA-iU5OvuD2FL5',
+  name: '5.6.1'
+});
+
+// Delete an analysis or event
+await client.projectAnalyses.deleteAnalysis({ analysis: 'AU-TpxcA-iU5OvuD2FL1' });
+await client.projectAnalyses.deleteEvent({ event: 'AU-TpxcA-iU5OvuD2FLz' });
 ```
 
 ### 🔐 Authentication

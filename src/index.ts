@@ -11,6 +11,8 @@ import { FavoritesClient } from './resources/favorites';
 import { LanguagesClient } from './resources/languages';
 import { NotificationsClient } from './resources/notifications';
 import { ProjectsClient } from './resources/projects';
+import { ProjectBadgesClient } from './resources/project-badges';
+import { ProjectAnalysesClient } from './resources/project-analyses';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
 import { IssuesClient } from './resources/issues';
@@ -62,6 +64,10 @@ export class SonarQubeClient {
   public readonly notifications: NotificationsClient;
   /** Projects API */
   public readonly projects: ProjectsClient;
+  /** Project Badges API */
+  public readonly projectBadges: ProjectBadgesClient;
+  /** Project Analyses API */
+  public readonly projectAnalyses: ProjectAnalysesClient;
   /** Metrics API */
   public readonly metrics: MetricsClient;
   /** Measures API */
@@ -97,6 +103,8 @@ export class SonarQubeClient {
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
     this.notifications = new NotificationsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
+    this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
+    this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
@@ -412,11 +420,22 @@ export type {
   Notification,
   NotificationType,
 } from './resources/notifications/types';
+
 export {
   NotificationChannel,
   GlobalNotificationType,
   ProjectNotificationType,
 } from './resources/notifications/types';
+
+// Re-export types from project badges
+export type {
+  BadgeMetric,
+  BaseBadgeParams,
+  AiCodeAssuranceBadgeParams,
+  MeasureBadgeParams,
+  QualityGateBadgeParams,
+  BadgeResponse,
+} from './resources/project-badges/types';
 
 // Re-export types from quality gates
 export type {

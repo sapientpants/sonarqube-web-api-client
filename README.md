@@ -129,7 +129,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Project Analyses** | `api/project_analyses` | ✅ Implemented | Both | Analysis history and events |
 | **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
 | **Project Branches** | `api/project_branches` | ✅ Implemented | Both | Branch management |
-| **Project Links** | `api/project_links` | ❌ Not implemented | Both | Project external links |
+| **Project Links** | `api/project_links` | ✅ Implemented | Both | Project external links |
 | **Project Pull Requests** | `api/project_pull_requests` | ✅ Implemented | Both | Pull request management (Branch plugin required) |
 | **Project Tags** | `api/project_tags` | ❌ Not implemented | Both | Project tag management |
 | **Projects** | `api/projects` | ✅ Implemented | Both | Project management |

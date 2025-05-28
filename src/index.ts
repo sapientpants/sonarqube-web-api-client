@@ -8,6 +8,7 @@ import { CEClient } from './resources/ce';
 import { ComponentsClient } from './resources/components';
 import { DuplicationsClient } from './resources/duplications';
 import { FavoritesClient } from './resources/favorites';
+import { LanguagesClient } from './resources/languages';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
@@ -52,6 +53,8 @@ export class SonarQubeClient {
   public readonly favorites: FavoritesClient;
   /** Issues API */
   public readonly issues: IssuesClient;
+  /** Languages API */
+  public readonly languages: LanguagesClient;
   /** Security Hotspots API */
   public readonly hotspots: HotspotsClient;
   /** Projects API */
@@ -87,6 +90,7 @@ export class SonarQubeClient {
     this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.organization);
     this.favorites = new FavoritesClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
+    this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
     this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
@@ -385,6 +389,13 @@ export type {
   ChangeHotspotStatusRequest,
   ChangeHotspotStatusResponse,
 } from './resources/hotspots/types';
+
+// Re-export types from languages
+export type {
+  Language,
+  ListLanguagesParams,
+  ListLanguagesResponse,
+} from './resources/languages/types';
 
 // Re-export types from quality gates
 export type {

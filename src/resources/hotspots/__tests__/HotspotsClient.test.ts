@@ -18,6 +18,188 @@ describe('HotspotsClient', () => {
       const builder = client.search();
       expect(builder).toBeInstanceOf(SearchHotspotsBuilder);
     });
+
+    it('should execute search with basic parameters', async () => {
+      const result = await client.search().forProject('test-project').execute();
+
+      expect(result.hotspots).toBeDefined();
+      expect(result.paging).toBeDefined();
+    });
+
+    it('should execute search with multiple hotspot keys', async () => {
+      const result = await client.search().withHotspots(['hotspot-1', 'hotspot-2']).execute();
+
+      expect(result.hotspots).toHaveLength(2);
+      expect(result.hotspots[0].key).toBe('hotspot-1');
+      expect(result.hotspots[1].key).toBe('hotspot-2');
+    });
+
+    it('should execute search with status filter', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .withStatus('TO_REVIEW')
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+      // All returned hotspots should have TO_REVIEW status
+      result.hotspots.forEach((hotspot) => {
+        expect(hotspot.status).toBe('TO_REVIEW');
+      });
+    });
+
+    it('should execute search with resolution filter', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .withResolution('FIXED')
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+      // All returned hotspots should have FIXED resolution
+      result.hotspots.forEach((hotspot) => {
+        expect(hotspot.resolution).toBe('FIXED');
+      });
+    });
+
+    it('should execute search with onlyMine filter', async () => {
+      const result = await client.search().forProject('test-project').onlyMine(true).execute();
+
+      expect(result.hotspots).toBeDefined();
+      // MSW handler filters by assignee === 'john.doe' when onlyMine is true
+      result.hotspots.forEach((hotspot) => {
+        expect(hotspot.assignee).toBe('john.doe');
+      });
+    });
+
+    it('should execute search with sinceLeakPeriod filter', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .sinceLeakPeriod(true)
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+      // MSW handler filters by creation date > 2024-01-01 when sinceLeakPeriod is true
+      result.hotspots.forEach((hotspot) => {
+        const creationDate = new Date(hotspot.creationDate);
+        const leakPeriodDate = new Date('2024-01-01T00:00:00+0000');
+        expect(creationDate.getTime()).toBeGreaterThan(leakPeriodDate.getTime());
+      });
+    });
+
+    it('should execute search with files filter', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .inFiles(['App.java', 'Security.java'])
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should execute search with fileUuids filter', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .inFileUuids(['uuid-1', 'uuid-2'])
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should execute search with pagination parameters', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .pageSize(50)
+        .page(2)
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+      expect(result.paging).toBeDefined();
+      expect(result.paging.pageIndex).toBe(2);
+      expect(result.paging.pageSize).toBe(50);
+    });
+
+    it('should execute search with all parameters combined', async () => {
+      const result = await client
+        .search()
+        .forProject('test-project')
+        .withHotspots(['hotspot-1'])
+        .withStatus('REVIEWED')
+        .withResolution('FIXED')
+        .onlyMine(false)
+        .sinceLeakPeriod(false)
+        .inFiles(['App.java'])
+        .inFileUuids(['uuid-1'])
+        .pageSize(25)
+        .page(1)
+        .execute();
+
+      expect(result.hotspots).toBeDefined();
+      expect(result.paging).toBeDefined();
+    });
+
+    it('should execute search with all convenience methods', async () => {
+      const needingReviewResult = await client.search().needingReview().execute();
+      expect(needingReviewResult.hotspots).toBeDefined();
+
+      const reviewedResult = await client.search().reviewed().execute();
+      expect(reviewedResult.hotspots).toBeDefined();
+
+      const fixedResult = await client.search().fixed().execute();
+      expect(fixedResult.hotspots).toBeDefined();
+
+      const safeResult = await client.search().safe().execute();
+      expect(safeResult.hotspots).toBeDefined();
+    });
+
+    it('should handle empty hotspots array parameter', async () => {
+      const result = await client.search().forProject('test-project').withHotspots([]).execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should handle empty files array parameter', async () => {
+      const result = await client.search().forProject('test-project').inFiles([]).execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should handle empty fileUuids array parameter', async () => {
+      const result = await client.search().forProject('test-project').inFileUuids([]).execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should handle zero page number', async () => {
+      const result = await client.search().forProject('test-project').page(0).execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should handle zero page size', async () => {
+      const result = await client.search().forProject('test-project').pageSize(0).execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should handle empty project key', async () => {
+      const result = await client.search().forProject('').execute();
+
+      expect(result.hotspots).toBeDefined();
+    });
+
+    it('should handle search errors', async () => {
+      server.use(
+        http.get('*/api/hotspots/search', () => {
+          return new HttpResponse(null, { status: 500 });
+        })
+      );
+
+      await expect(client.search().forProject('test-project').execute()).rejects.toThrow();
+    });
   });
 
   describe('show', () => {

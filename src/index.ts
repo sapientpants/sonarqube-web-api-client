@@ -6,6 +6,7 @@ import { ApplicationsClient } from './resources/applications';
 import { AuthenticationClient } from './resources/authentication';
 import { CEClient } from './resources/ce';
 import { ComponentsClient } from './resources/components';
+import { DuplicationsClient } from './resources/duplications';
 import { ProjectsClient } from './resources/projects';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
@@ -43,6 +44,8 @@ export class SonarQubeClient {
   public readonly ce: CEClient;
   /** Components API */
   public readonly components: ComponentsClient;
+  /** Duplications API */
+  public readonly duplications: DuplicationsClient;
   /** Issues API */
   public readonly issues: IssuesClient;
   /** Projects API */
@@ -75,6 +78,7 @@ export class SonarQubeClient {
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.organization);
     this.ce = new CEClient(this.baseUrl, this.token, this.organization);
     this.components = new ComponentsClient(this.baseUrl, this.token, this.organization);
+    this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.organization);
     this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
     this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
@@ -200,6 +204,15 @@ export type {
 
 // Re-export types from authentication
 export type { ValidateResponse, LogoutResponse } from './resources/authentication/types';
+
+// Re-export types from duplications
+export type {
+  ShowDuplicationsRequest,
+  ShowDuplicationsResponse,
+  DuplicationBlock,
+  DuplicatedFile,
+  Duplication,
+} from './resources/duplications/types';
 
 // Re-export types from CE (Compute Engine)
 export type {

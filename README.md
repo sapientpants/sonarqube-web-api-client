@@ -117,7 +117,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Authentication** | `api/authentication` | ✅ Implemented | Both | Validate credentials and logout |
 | **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | Background task management |
 | **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
-| **Duplications** | `api/duplications` | ❌ Not implemented | Both | Code duplication data |
+| **Duplications** | `api/duplications` | ✅ Implemented | Both | Code duplication data |
 | **Favorites** | `api/favorites` | ❌ Not implemented | Both | User favorites management |
 | **Hotspots** | `api/hotspots` | ❌ Not implemented | Both | Security hotspot management |
 | **Issues** | `api/issues` | ✅ Implemented | Both | Issue search and management |
@@ -262,6 +262,39 @@ console.log('Successfully logged out');
 
 // Note: The validate() endpoint returns true for anonymous users
 // Use it to check if credentials are properly configured
+```
+
+### 📋 Code Duplications
+
+```typescript
+// Get duplications for a specific file
+const duplications = await client.duplications.show({
+  key: 'my_project:/src/foo/Bar.php'
+});
+
+console.log(`Found ${duplications.duplications.length} duplication sets`);
+console.log(`Involving ${duplications.files.length} files`);
+
+// Process each duplication set
+duplications.duplications.forEach((duplication, index) => {
+  console.log(`\nDuplication set ${index + 1}:`);
+  duplication.blocks.forEach((block, blockIndex) => {
+    const file = duplications.files.find(f => f.key.includes(block._ref));
+    console.log(`  Block ${blockIndex + 1}: lines ${block.from}-${block.to} (${block.size} lines)`);
+  });
+});
+
+// Get duplications for a file on a specific branch
+const branchDuplications = await client.duplications.show({
+  key: 'my_project:/src/foo/Bar.php',
+  branch: 'feature/my_branch'
+});
+
+// Get duplications for a file in a pull request
+const prDuplications = await client.duplications.show({
+  key: 'my_project:/src/foo/Bar.php',
+  pullRequest: '123'
+});
 ```
 
 ## 🛡️ Error Handling

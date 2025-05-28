@@ -100,15 +100,7 @@ export type FindingSeverity = 'INFO' | 'MINOR' | 'MAJOR' | 'CRITICAL' | 'BLOCKER
 /**
  * Finding status
  */
-export type FindingStatus =
-  | 'OPEN'
-  | 'CONFIRMED'
-  | 'REOPENED'
-  | 'RESOLVED'
-  | 'CLOSED'
-  | 'TO_REVIEW'
-  | 'IN_REVIEW'
-  | 'REVIEWED';
+export type FindingStatus = 'OPEN' | 'CONFIRMED' | 'REOPENED' | 'RESOLVED' | 'CLOSED';
 
 /**
  * Response item from export_findings

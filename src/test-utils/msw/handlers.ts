@@ -657,8 +657,8 @@ export const handlers = [
     const hotspots = url.searchParams.get('hotspots');
     const status = url.searchParams.get('status');
     const resolution = url.searchParams.get('resolution');
-    const _onlyMine = url.searchParams.get('onlyMine');
-    const _sinceLeakPeriod = url.searchParams.get('sinceLeakPeriod');
+    const onlyMine = url.searchParams.get('onlyMine');
+    const sinceLeakPeriod = url.searchParams.get('sinceLeakPeriod');
     const files = url.searchParams.get('files');
     const fileUuids = url.searchParams.get('fileUuids');
     const pageSize = Number(url.searchParams.get('ps')) || 100;
@@ -673,6 +673,8 @@ export const handlers = [
         message: 'Make sure this SQL query is safe',
         securityCategory: 'sql-injection',
         vulnerabilityProbability: 'HIGH',
+        assignee: 'john.doe',
+        creationDate: '2024-01-15T00:00:00+0000',
       }),
       createHotspot({
         key: 'hotspot-2',
@@ -682,6 +684,8 @@ export const handlers = [
         message: 'Ensure proper authentication',
         securityCategory: 'auth',
         vulnerabilityProbability: 'MEDIUM',
+        assignee: 'jane.smith',
+        creationDate: '2023-12-15T00:00:00+0000',
       }),
       createHotspot({
         key: 'hotspot-3',
@@ -691,6 +695,8 @@ export const handlers = [
         message: 'Check cryptographic usage',
         securityCategory: 'cryptography',
         vulnerabilityProbability: 'LOW',
+        assignee: 'john.doe',
+        creationDate: '2024-02-01T00:00:00+0000',
       }),
     ];
 
@@ -712,6 +718,19 @@ export const handlers = [
 
     if (resolution !== null) {
       filteredHotspots = filteredHotspots.filter((h) => h.resolution === resolution);
+    }
+
+    if (onlyMine !== null && onlyMine === 'true') {
+      // In a real implementation, this would filter by the current user
+      // For testing, we'll filter by hotspots assigned to a test user
+      filteredHotspots = filteredHotspots.filter((h) => h.assignee === 'john.doe');
+    }
+
+    if (sinceLeakPeriod !== null && sinceLeakPeriod === 'true') {
+      // In a real implementation, this would filter by the leak period
+      // For testing, we'll filter by hotspots created after a certain date
+      const leakPeriodDate = new Date('2024-01-01T00:00:00+0000');
+      filteredHotspots = filteredHotspots.filter((h) => new Date(h.creationDate) > leakPeriodDate);
     }
 
     if (files !== null) {

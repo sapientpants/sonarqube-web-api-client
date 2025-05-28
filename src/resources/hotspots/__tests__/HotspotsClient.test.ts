@@ -6,6 +6,7 @@ import { http, HttpResponse } from 'msw';
 describe('HotspotsClient', () => {
   const baseUrl = 'https://sonarqube.example.com';
   const token = 'test-token';
+  const invalidToken = 'test-invalid-token';
   let client: HotspotsClient;
 
   beforeEach(() => {
@@ -137,7 +138,16 @@ describe('HotspotsClient', () => {
 
   describe('authentication and error handling', () => {
     it('should handle authentication errors', async () => {
-      const unauthorizedClient = new HotspotsClient(baseUrl, 'invalid-token');
+      server.use(
+        http.get('*/api/hotspots/show', () => {
+          return new HttpResponse(
+            JSON.stringify({ errors: [{ msg: 'Authentication required' }] }),
+            { status: 401, headers: { 'content-type': 'application/json' } }
+          );
+        })
+      );
+
+      const unauthorizedClient = new HotspotsClient(baseUrl, invalidToken);
 
       await expect(unauthorizedClient.show({ hotspot: 'hotspot-1' })).rejects.toThrow();
     });

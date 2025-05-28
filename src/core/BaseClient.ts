@@ -36,11 +36,12 @@ export abstract class BaseClient {
     // Append organization parameter if provided and not already in URL
     let finalUrl = url;
     if (this.organization !== undefined && this.organization.length > 0) {
-      const separator = url.includes('?') ? '&' : '?';
+      const urlObj = new URL(url, this.baseUrl);
       // Only add organization if it's not already in the URL
-      if (!url.includes('organization=')) {
-        finalUrl = `${url}${separator}organization=${encodeURIComponent(this.organization)}`;
+      if (!urlObj.searchParams.has('organization')) {
+        urlObj.searchParams.set('organization', this.organization);
       }
+      finalUrl = urlObj.pathname + urlObj.search;
     }
 
     let response: Response;

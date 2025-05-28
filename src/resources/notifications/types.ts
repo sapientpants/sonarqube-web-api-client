@@ -46,9 +46,9 @@ export enum ProjectNotificationType {
 export type NotificationType = GlobalNotificationType | ProjectNotificationType;
 
 /**
- * Request parameters for notifications/add
+ * Common parameters for notification modification operations
  */
-export interface NotificationAddRequest {
+export interface NotificationModifyRequest {
   /** Notification type */
   type: NotificationType;
   /** Channel through which the notification is sent */
@@ -58,6 +58,11 @@ export interface NotificationAddRequest {
   /** Project key */
   project?: string;
 }
+
+/**
+ * Request parameters for notifications/add
+ */
+export type NotificationAddRequest = NotificationModifyRequest;
 
 /**
  * Request parameters for notifications/list
@@ -70,16 +75,7 @@ export interface NotificationListRequest {
 /**
  * Request parameters for notifications/remove
  */
-export interface NotificationRemoveRequest {
-  /** Notification type */
-  type: NotificationType;
-  /** Channel through which the notification is sent */
-  channel?: NotificationChannel | string;
-  /** User login */
-  login?: string;
-  /** Project key */
-  project?: string;
-}
+export type NotificationRemoveRequest = NotificationModifyRequest;
 
 /**
  * Notification entity

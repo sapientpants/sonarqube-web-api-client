@@ -3,6 +3,7 @@ export type {
   NotificationAddRequest,
   NotificationListRequest,
   NotificationListResponse,
+  NotificationModifyRequest,
   NotificationModifyResponse,
   NotificationRemoveRequest,
   Notification,

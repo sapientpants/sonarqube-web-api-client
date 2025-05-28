@@ -3,6 +3,7 @@ import type {
   NotificationAddRequest,
   NotificationListRequest,
   NotificationListResponse,
+  NotificationModifyRequest,
   NotificationModifyResponse,
   NotificationRemoveRequest,
 } from './types';
@@ -45,19 +46,7 @@ export class NotificationsClient extends BaseClient {
    * ```
    */
   async add(params: NotificationAddRequest): Promise<NotificationModifyResponse> {
-    const searchParams = new URLSearchParams();
-    searchParams.set('type', params.type);
-
-    if (params.channel !== undefined && params.channel !== '') {
-      searchParams.set('channel', params.channel);
-    }
-    if (params.login !== undefined && params.login !== '') {
-      searchParams.set('login', params.login);
-    }
-    if (params.project !== undefined && params.project !== '') {
-      searchParams.set('project', params.project);
-    }
-
+    const searchParams = this.buildNotificationParams(params);
     await this.request(`/api/notifications/add?${searchParams.toString()}`, {
       method: 'POST',
     });
@@ -134,6 +123,17 @@ export class NotificationsClient extends BaseClient {
    * ```
    */
   async remove(params: NotificationRemoveRequest): Promise<NotificationModifyResponse> {
+    const searchParams = this.buildNotificationParams(params);
+    await this.request(`/api/notifications/remove?${searchParams.toString()}`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Build URLSearchParams for notification modification requests
+   * @private
+   */
+  private buildNotificationParams(params: NotificationModifyRequest): URLSearchParams {
     const searchParams = new URLSearchParams();
     searchParams.set('type', params.type);
 
@@ -147,8 +147,6 @@ export class NotificationsClient extends BaseClient {
       searchParams.set('project', params.project);
     }
 
-    await this.request(`/api/notifications/remove?${searchParams.toString()}`, {
-      method: 'POST',
-    });
+    return searchParams;
   }
 }

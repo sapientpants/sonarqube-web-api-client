@@ -87,6 +87,20 @@ describe('ComponentsTreeBuilder', () => {
       expect(sortByPath).toBeInstanceOf(ComponentsTreeBuilder);
       expect(sortByQualifier).toBeInstanceOf(ComponentsTreeBuilder);
     });
+
+    it('should handle ascending method with default parameter', () => {
+      // Test with explicit true
+      const resultTrue = builder.component('my_project').ascending(true);
+      expect(resultTrue).toBeInstanceOf(ComponentsTreeBuilder);
+
+      // Test with explicit false
+      const resultFalse = builder.component('my_project').ascending(false);
+      expect(resultFalse).toBeInstanceOf(ComponentsTreeBuilder);
+
+      // Test with no parameter (default true)
+      const resultDefault = builder.component('my_project').ascending();
+      expect(resultDefault).toBeInstanceOf(ComponentsTreeBuilder);
+    });
   });
 
   describe('validation', () => {
@@ -257,6 +271,37 @@ describe('ComponentsTreeBuilder', () => {
 
       expect(response.components).toHaveLength(1);
       expect(response.components[0].name).toBe('UserController.ts');
+    });
+
+    it('should handle ascending parameter with default value', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        baseComponent: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [],
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 0,
+        },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('component')).toBe('my_project');
+          expect(url.searchParams.get('asc')).toBe('true');
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      await builder
+        .component('my_project')
+        .sortByName()
+        .ascending() // Using default value
+        .execute();
     });
   });
 

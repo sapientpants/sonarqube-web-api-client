@@ -6,6 +6,7 @@ import { assertCommonHeaders, assertQueryParams } from '../../../test-utils/asse
 import {
   type ComponentShowResponse,
   type ComponentSearchResponse,
+  type ComponentTreeResponse,
   type Component,
   ComponentQualifier,
 } from '../types';
@@ -255,6 +256,103 @@ describe('ComponentsClient', () => {
       expect(typeof builder.sortByQualifier).toBe('function');
       expect(typeof builder.execute).toBe('function');
       expect(typeof builder.all).toBe('function');
+    });
+
+    it('should handle tree request with pullRequest parameter', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        baseComponent: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [],
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 0,
+        },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            component: 'my_project',
+            pullRequest: '456',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.tree().component('my_project').pullRequest('456').execute();
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle tree request with branch parameter', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 10,
+        },
+        baseComponent: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            component: 'my_project',
+            branch: 'feature/test',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.tree().component('my_project').branch('feature/test').execute();
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle tree request with empty string parameters', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 10,
+        },
+        baseComponent: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            component: 'my_project',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .tree()
+        .component('my_project')
+        .branch('')
+        .pullRequest('')
+        .execute();
+
+      expect(result).toEqual(mockResponse);
     });
   });
 });

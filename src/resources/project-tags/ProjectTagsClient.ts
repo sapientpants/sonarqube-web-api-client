@@ -47,6 +47,7 @@ export class ProjectTagsClient extends BaseClient {
    * Set tags on a project.
    *
    * @param params - The set tags parameters
+   * @returns Promise that resolves when the tags are set
    * @throws {AuthenticationError} If the user is not authenticated
    * @throws {AuthorizationError} If the user doesn't have 'Administer' rights on the specified project
    * @throws {NotFoundError} If the project doesn't exist

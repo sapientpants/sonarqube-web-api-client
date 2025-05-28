@@ -516,7 +516,7 @@ await client.projectTags.set({
   tags: ''  // Empty string removes all tags
 });
 
-// Update tags for multiple projects
+// Update tags for multiple projects (sequential)
 const projects = ['project-1', 'project-2', 'project-3'];
 for (const project of projects) {
   await client.projectTags.set({
@@ -524,6 +524,16 @@ for (const project of projects) {
     tags: 'legacy, needs-refactoring'
   });
 }
+
+// Update tags for multiple projects (parallel)
+await Promise.all(
+  projects.map(project =>
+    client.projectTags.set({
+      project,
+      tags: 'legacy, needs-refactoring'
+    })
+  )
+);
 ```
 
 ### 🔔 Managing Notifications

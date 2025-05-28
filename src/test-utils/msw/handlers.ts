@@ -848,9 +848,9 @@ export const handlers = [
     };
 
     if (!body.project) {
-      return new HttpResponse(
-        JSON.stringify({ errors: [{ msg: 'The project parameter is missing' }] }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
+      return HttpResponse.json(
+        { errors: [{ msg: 'The project parameter is missing' }] },
+        { status: 400 }
       );
     }
 

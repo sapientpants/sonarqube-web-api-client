@@ -247,6 +247,24 @@ describe('ProjectTagsClient', () => {
       ).rejects.toThrow(ServerError);
     });
 
+    it('should handle missing project parameter', async () => {
+      server.use(
+        http.post(`${baseUrl}/api/project_tags/set`, () => {
+          return HttpResponse.json(
+            { errors: [{ msg: 'The project parameter is missing' }] },
+            { status: 400 }
+          );
+        })
+      );
+
+      await expect(
+        client.set({
+          project: '',
+          tags: 'finance',
+        })
+      ).rejects.toThrow('The project parameter is missing');
+    });
+
     it('should handle rate limiting', async () => {
       server.use(
         http.post(`${baseUrl}/api/project_tags/set`, () => {

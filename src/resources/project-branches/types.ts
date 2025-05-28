@@ -28,9 +28,9 @@ export interface Branch {
   branchUuidV1?: string;
 
   /**
-   * Status of the branch (only for short-lived branches).
+   * Status of the branch.
    */
-  status?: BranchStatus;
+  status?: BranchStatusValue;
 
   /**
    * Date when the branch was last analyzed.
@@ -82,29 +82,9 @@ export enum ProjectBranchType {
 }
 
 /**
- * Branch status enumeration.
+ * Branch status value.
  */
-export interface BranchStatus {
-  /**
-   * Quality gate status.
-   */
-  qualityGateStatus?: QualityGateStatus;
-
-  /**
-   * Number of bugs.
-   */
-  bugs?: number;
-
-  /**
-   * Number of vulnerabilities.
-   */
-  vulnerabilities?: number;
-
-  /**
-   * Number of code smells.
-   */
-  codeSmells?: number;
-}
+export type BranchStatusValue = 'OK' | 'ERROR' | 'NONE';
 
 /**
  * Quality gate status enumeration.

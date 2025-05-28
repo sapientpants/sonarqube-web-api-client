@@ -412,7 +412,7 @@ export type {
 // Re-export types from project branches
 export type {
   Branch,
-  BranchStatus,
+  BranchStatusValue,
   ListBranchesParams,
   ListBranchesResponse,
   DeleteBranchParams,

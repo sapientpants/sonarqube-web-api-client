@@ -39,7 +39,7 @@ export class AuthenticationClient extends BaseClient {
    * ```
    */
   async logout(): Promise<LogoutResponse> {
-    await this.request('/api/authentication/logout', {
+    return this.request('/api/authentication/logout', {
       method: 'POST',
     });
   }

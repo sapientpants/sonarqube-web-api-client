@@ -146,10 +146,10 @@ export class GetUserGroupsBuilder extends PaginatedBuilder<
     const finalParams = this.params as GetUserGroupsRequest;
 
     // Validate required parameters
-    if (!finalParams.login) {
+    if (!finalParams.login || finalParams.login.trim() === '') {
       throw new ValidationError('login is required');
     }
-    if (!finalParams.organization) {
+    if (!finalParams.organization || finalParams.organization.trim() === '') {
       throw new ValidationError('organization is required');
     }
 

@@ -2,7 +2,7 @@
  * Migration assistant for helping developers migrate from deprecated APIs
  */
 
-import type { MigrationExample } from './DeprecationMetadata';
+import type { MigrationExample, DeprecationMetadata } from './DeprecationMetadata';
 import { DeprecationRegistry } from './DeprecationMetadata';
 
 export interface MigrationSuggestion {
@@ -22,22 +22,26 @@ export interface MigrationReport {
   estimatedEffort: string;
 }
 
+interface UsageData {
+  api: string;
+  file: string;
+  line: number;
+  column: number;
+  code: string;
+}
+
 /**
  * Provides tools to help developers migrate from deprecated APIs
  */
 export class MigrationAssistant {
+  private constructor() {
+    // Private constructor to prevent instantiation
+  }
+
   /**
    * Analyze code usage and generate migration suggestions
    */
-  static analyzeUsage(
-    usageData: Array<{
-      api: string;
-      file: string;
-      line: number;
-      column: number;
-      code: string;
-    }>
-  ): MigrationReport {
+  static analyzeUsage(usageData: UsageData[]): MigrationReport {
     const suggestions: MigrationSuggestion[] = [];
     const apiCounts: Record<string, number> = {};
 
@@ -48,7 +52,7 @@ export class MigrationAssistant {
       }
 
       // Count usage
-      apiCounts[usage.api] = (apiCounts[usage.api] || 0) + 1;
+      apiCounts[usage.api] = (apiCounts[usage.api] ?? 0) + 1;
 
       // Generate suggestion
       const suggestion: MigrationSuggestion = {
@@ -61,11 +65,14 @@ export class MigrationAssistant {
 
       // Add example if available
       if (metadata.examples && metadata.examples.length > 0) {
-        suggestion.example = metadata.examples[0];
+        const firstExample = metadata.examples[0];
+        if (firstExample) {
+          suggestion.example = firstExample;
+        }
       }
 
       // Generate automatic fix if possible
-      if (metadata.automaticMigration && metadata.replacement) {
+      if (metadata.automaticMigration === true && metadata.replacement) {
         suggestion.automaticFix = this.generateAutomaticFix(
           usage.code,
           usage.api,
@@ -87,8 +94,8 @@ export class MigrationAssistant {
   /**
    * Generate a human-readable suggestion
    */
-  private static generateSuggestion(metadata: any): string {
-    let suggestion = `Replace '${metadata.api}' with '${metadata.replacement || 'newer API'}'.`;
+  private static generateSuggestion(metadata: DeprecationMetadata): string {
+    let suggestion = `Replace '${metadata.api}' with '${metadata.replacement ?? 'newer API'}'.`;
 
     if (metadata.reason) {
       suggestion += ` Reason: ${metadata.reason}`;
@@ -144,9 +151,12 @@ export class MigrationAssistant {
    */
   static generateMigrationGuide(): string {
     const allMetadata = DeprecationRegistry.getAll();
-    const byRemovalDate = allMetadata.reduce<Record<string, typeof allMetadata>>((acc, m) => {
-      if (!acc[m.removalDate]) acc[m.removalDate] = [];
-      acc[m.removalDate].push(m);
+    const byRemovalDate = allMetadata.reduce<Record<string, DeprecationMetadata[]>>((acc, m) => {
+      const date = m.removalDate;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(m);
       return acc;
     }, {});
 

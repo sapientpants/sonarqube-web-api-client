@@ -71,7 +71,9 @@ export class DeprecationRegistry {
     const metadata = this.getAll();
     const grouped = metadata.reduce<Record<string, DeprecationMetadata[]>>((acc, m) => {
       const date = m.removalDate;
-      if (!acc[date]) acc[date] = [];
+      if (!acc[date]) {
+        acc[date] = [];
+      }
       acc[date].push(m);
       return acc;
     }, {});

@@ -71,7 +71,9 @@ describe('Enhanced Deprecation System', () => {
           removalDate: '2020-01-01', // Past date
           reason: 'Should have been removed',
         })
-        veryOldMethod(): void {}
+        veryOldMethod(): void {
+          // Method implementation
+        }
       }
 
       const instance = new TestClass();
@@ -93,7 +95,7 @@ describe('Enhanced Deprecation System', () => {
         }
       }
 
-      const instance = new OldClass();
+      new OldClass();
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('OldClass'));
     });

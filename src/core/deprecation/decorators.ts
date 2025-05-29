@@ -6,21 +6,21 @@ import { DeprecationManager } from './DeprecationManager';
 import type { DeprecationMetadata } from './DeprecationMetadata';
 import { DeprecationRegistry } from './DeprecationMetadata';
 
+type AnyFunction = (...args: any[]) => any;
+type Constructor = new (...args: any[]) => any;
+
 /**
  * Enhanced deprecation decorator that integrates with TypeScript's @deprecated JSDoc
  * and provides runtime warnings with rich metadata
  */
 export function Deprecated(metadata: Omit<DeprecationMetadata, 'api'>) {
-  return function <T extends (...args: any[]) => any>(
-    target: T,
-    context: ClassMethodDecoratorContext
-  ): T {
+  return function <T extends AnyFunction>(target: T, context: ClassMethodDecoratorContext): T {
     const methodName = String(context.name);
 
     // Return wrapped function
     const wrapper = function (this: any, ...args: Parameters<T>): ReturnType<T> {
       // Get class name at runtime from 'this'
-      const className = this?.constructor?.name || 'Unknown';
+      const className = (this?.constructor?.name as string) ?? 'Unknown';
       const api = `${className}.${methodName}()`;
 
       // Register metadata for tooling (if not already registered)
@@ -44,32 +44,37 @@ export function Deprecated(metadata: Omit<DeprecationMetadata, 'api'>) {
       // Emit deprecation warning with enhanced context
       DeprecationManager.warn({
         api,
-        replacement: metadata.replacement,
+        ...(metadata.replacement ? { replacement: metadata.replacement } : {}),
         removeVersion: metadata.removalDate,
-        migrationGuide: metadata.migrationGuide,
+        ...(metadata.migrationGuide ? { migrationGuide: metadata.migrationGuide } : {}),
         reason: metadata.reason,
       });
 
       // If migration examples exist, show one
       if (metadata.examples && metadata.examples.length > 0) {
         const example = metadata.examples[0];
-        console.log('\n📝 Migration Example:');
-        console.log('Before:', example.before);
-        console.log('After:', example.after);
-        if (example.description) {
-          console.log('Note:', example.description);
+        if (example) {
+          console.log('\n📝 Migration Example:');
+          console.log('Before:', example.before);
+          console.log('After:', example.after);
+          if (example.description) {
+            console.log('Note:', example.description);
+          }
         }
       }
 
       // Call original method
-      return target.apply(this, args);
+      return target.apply(this, args) as ReturnType<T>;
     } as T;
 
     // Copy over any properties from the original function
     Object.setPrototypeOf(wrapper, target);
     Object.getOwnPropertyNames(target).forEach((prop) => {
       if (prop !== 'length' && prop !== 'name' && prop !== 'prototype') {
-        Object.defineProperty(wrapper, prop, Object.getOwnPropertyDescriptor(target, prop)!);
+        const descriptor = Object.getOwnPropertyDescriptor(target, prop);
+        if (descriptor) {
+          Object.defineProperty(wrapper, prop, descriptor);
+        }
       }
     });
 
@@ -81,10 +86,7 @@ export function Deprecated(metadata: Omit<DeprecationMetadata, 'api'>) {
  * Decorator for marking entire classes as deprecated
  */
 export function DeprecatedClass(metadata: Omit<DeprecationMetadata, 'api'>) {
-  return function <T extends new (...args: any[]) => any>(
-    target: T,
-    context: ClassDecoratorContext
-  ): T {
+  return function <T extends Constructor>(target: T, _context: ClassDecoratorContext): T {
     const className = target.name;
     const api = className;
 
@@ -99,9 +101,9 @@ export function DeprecatedClass(metadata: Omit<DeprecationMetadata, 'api'>) {
       constructor(...args: any[]) {
         DeprecationManager.warn({
           api,
-          replacement: metadata.replacement,
+          ...(metadata.replacement ? { replacement: metadata.replacement } : {}),
           removeVersion: metadata.removalDate,
-          migrationGuide: metadata.migrationGuide,
+          ...(metadata.migrationGuide ? { migrationGuide: metadata.migrationGuide } : {}),
           reason: metadata.reason,
         });
 
@@ -115,12 +117,10 @@ export function DeprecatedClass(metadata: Omit<DeprecationMetadata, 'api'>) {
  * Decorator for parameters that will be removed
  */
 export function DeprecatedParameter(parameterName: string, metadata: Partial<DeprecationMetadata>) {
-  return function <T extends (...args: any[]) => any>(
-    target: T,
-    context: ClassMethodDecoratorContext
-  ): T {
+  return function <T extends AnyFunction>(target: T, context: ClassMethodDecoratorContext): T {
     const methodName = String(context.name);
-    const className = context.kind === 'method' ? target.constructor.name : 'Unknown';
+    const className =
+      context.kind === 'method' ? ((target as any).constructor.name as string) : 'Unknown';
 
     return function (this: any, ...args: Parameters<T>): ReturnType<T> {
       // Check if deprecated parameter is being used
@@ -128,7 +128,7 @@ export function DeprecatedParameter(parameterName: string, metadata: Partial<Dep
       if (args[paramIndex] !== undefined) {
         console.warn(
           `⚠️  Parameter '${parameterName}' in ${className}.${methodName}() is deprecated. ${
-            metadata.reason || ''
+            metadata.reason ?? ''
           }`
         );
         if (metadata.replacement) {
@@ -136,7 +136,7 @@ export function DeprecatedParameter(parameterName: string, metadata: Partial<Dep
         }
       }
 
-      return target.apply(this, args);
+      return target.apply(this, args) as ReturnType<T>;
     } as T;
   };
 }

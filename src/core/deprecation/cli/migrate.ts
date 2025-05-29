@@ -14,7 +14,36 @@ interface MigrationOptions {
   dryRun: boolean;
   interactive: boolean;
   generateReport: boolean;
-  targetVersion?: string;
+  targetVersion?: string | undefined;
+}
+
+interface UsageData {
+  api: string;
+  file: string;
+  line: number;
+  column: number;
+  code: string;
+}
+
+interface Suggestion {
+  file: string;
+  line: number;
+  column: number;
+  deprecatedApi: string;
+  suggestion: string;
+  example?: {
+    before: string;
+    after: string;
+    description?: string;
+  };
+  automaticFix?: string;
+}
+
+interface Report {
+  totalDeprecations: number;
+  byApi: Record<string, number>;
+  suggestions: Suggestion[];
+  estimatedEffort: string;
 }
 
 class MigrationCLI {
@@ -43,7 +72,7 @@ class MigrationCLI {
     Object.entries(report.byApi).forEach(([api, count]) => {
       const metadata = DeprecationRegistry.get(api);
       console.log(
-        `   - ${api}: ${count} usage${count > 1 ? 's' : ''} (removes ${metadata?.removalDate || 'unknown'})`
+        `   - ${api}: ${count} usage${count > 1 ? 's' : ''} (removes ${metadata?.removalDate ?? 'unknown'})`
       );
     });
 
@@ -76,7 +105,7 @@ class MigrationCLI {
     this.showPostMigrationAdvice(report);
   }
 
-  private async scanProject(): Promise<any[]> {
+  private async scanProject(): Promise<UsageData[]> {
     // In a real implementation, this would use TypeScript compiler API
     // or a code analysis tool to find deprecated API usage
     console.log('   Analyzing TypeScript files...');
@@ -100,7 +129,7 @@ class MigrationCLI {
     ];
   }
 
-  private async generateDetailedReport(report: any): Promise<void> {
+  private async generateDetailedReport(_report: Report): Promise<void> {
     const reportPath = path.join(this.options.projectPath, 'migration-report.md');
     const content = MigrationAssistant.generateMigrationGuide();
 
@@ -108,7 +137,7 @@ class MigrationCLI {
     console.log(`\n📄 Detailed migration report saved to: ${reportPath}`);
   }
 
-  private async applyMigrations(report: any): Promise<void> {
+  private async applyMigrations(report: Report): Promise<void> {
     let successCount = 0;
     let failureCount = 0;
 
@@ -125,7 +154,7 @@ class MigrationCLI {
           console.log(`   ✅ ${suggestion.file}:${suggestion.line}`);
         } catch (error) {
           failureCount++;
-          console.log(`   ❌ ${suggestion.file}:${suggestion.line} - ${error}`);
+          console.log(`   ❌ ${suggestion.file}:${suggestion.line} - ${String(error)}`);
         }
       } else {
         console.log(`   ⚠️  ${suggestion.file}:${suggestion.line} - Manual migration required`);
@@ -139,17 +168,17 @@ class MigrationCLI {
     filePath: string,
     line: number,
     column: number,
-    fix: string
+    _fix: string
   ): Promise<void> {
     // In a real implementation, this would apply the code fix
     // using a proper AST transformation
     console.log(`   Applying fix to ${filePath}:${line}:${column}`);
   }
 
-  private showMigrationPreview(report: any): void {
+  private showMigrationPreview(report: Report): void {
     console.log('\n📝 Migration preview:');
 
-    report.suggestions.slice(0, 3).forEach((suggestion: any) => {
+    report.suggestions.slice(0, 3).forEach((suggestion: Suggestion) => {
       console.log(`\n${suggestion.file}:${suggestion.line}`);
       console.log(`  ${suggestion.suggestion}`);
 
@@ -166,7 +195,7 @@ class MigrationCLI {
     }
   }
 
-  private showPostMigrationAdvice(report: any): void {
+  private showPostMigrationAdvice(report: Report): void {
     console.log('\n💡 Next steps:');
     console.log('1. Run your test suite to ensure everything works');
     console.log('2. Review the changes and commit them');
@@ -174,7 +203,7 @@ class MigrationCLI {
 
     // Check for urgent migrations
     const urgentApis = new Set<string>();
-    report.suggestions.forEach((s: any) => {
+    report.suggestions.forEach((s: Suggestion) => {
       const metadata = DeprecationRegistry.get(s.deprecatedApi);
       if (metadata) {
         const daysLeft = Math.ceil(
@@ -190,10 +219,12 @@ class MigrationCLI {
       console.log('\n⚠️  URGENT: The following APIs will be removed soon:');
       urgentApis.forEach((api) => {
         const metadata = DeprecationRegistry.get(api);
-        const daysLeft = Math.ceil(
-          (new Date(metadata!.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-        );
-        console.log(`   - ${api} (${daysLeft} days left)`);
+        if (metadata) {
+          const daysLeft = Math.ceil(
+            (new Date(metadata.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          );
+          console.log(`   - ${api} (${daysLeft} days left)`);
+        }
       });
     }
   }
@@ -210,7 +241,7 @@ class MigrationCLI {
  */
 export function registerAllDeprecations(): void {
   // Import and register all API deprecations
-  import('../examples/UsersApiExample').then((module) => {
+  void import('../examples/UsersApiExample').then((module) => {
     module.registerUsersApiDeprecations();
   });
 
@@ -228,5 +259,5 @@ if (require.main === module) {
   };
 
   const cli = new MigrationCLI(options);
-  cli.run().catch(console.error);
+  void cli.run().catch(console.error);
 }

@@ -31,6 +31,7 @@ import { UsersClient } from './resources/users';
 import { UserGroupsClient } from './resources/user-groups';
 import { UserTokensClient } from './resources/user-tokens';
 import { WebhooksClient } from './resources/webhooks';
+import { WebservicesClient } from './resources/webservices';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -111,6 +112,8 @@ export class SonarQubeClient {
   public readonly userTokens: UserTokensClient;
   /** Webhooks API */
   public readonly webhooks: WebhooksClient;
+  /** Webservices API - Get information on the web API supported on this instance */
+  public readonly webservices: WebservicesClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -158,6 +161,7 @@ export class SonarQubeClient {
     this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.organization);
     this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.organization);
     this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.organization);
+    this.webservices = new WebservicesClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
@@ -734,6 +738,15 @@ export type {
   GetWebhookDeliveryRequest,
   GetWebhookDeliveryResponse,
 } from './resources/webhooks/types';
+
+// Re-export types from webservices
+export type {
+  ResponseExampleRequest,
+  WebServiceAction,
+  WebService,
+  ListWebservicesResponse,
+  ResponseExampleResponse,
+} from './resources/webservices/types';
 
 // Re-export error classes
 export {

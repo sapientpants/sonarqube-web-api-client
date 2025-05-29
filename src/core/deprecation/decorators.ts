@@ -128,6 +128,8 @@ export function DeprecatedParameter(
 
     return function (this: any, ...args: Parameters<T>): ReturnType<T> {
       // Get class name at runtime from 'this'
+      // 'Unknown' is used when the method is called without a proper class context
+      // (e.g., when destructured or called as a standalone function)
       const className = this?.constructor?.name ?? 'Unknown';
 
       // Check if deprecated parameter is being used

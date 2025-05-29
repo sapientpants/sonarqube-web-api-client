@@ -11,6 +11,8 @@ export type { ApiMapping } from './CompatibilityBridge';
 
 // Export the static method as a function
 // We need to import it separately to avoid the unbound-method issue
+// The binding is intentional - withCompatibility is a static method that doesn't use 'this',
+// but we bind it to satisfy the ESLint unbound-method rule and ensure consistent behavior
 import { CompatibilityBridge } from './CompatibilityBridge';
 export const withCompatibility = CompatibilityBridge.withCompatibility.bind(CompatibilityBridge);
 

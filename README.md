@@ -146,7 +146,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
 | **Webhooks** | `api/webhooks` | ✅ Implemented | Both | Webhook management |
-| **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
+| **Web Services** | `api/webservices` | ✅ Implemented | Both | API documentation and introspection |
 
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
@@ -640,6 +640,93 @@ async function rotateToken(tokenName: string): Promise<string> {
 // Usage
 const newCIToken = await rotateToken('CI Pipeline Token');
 // Update your CI configuration with the new token
+```
+
+### 🔍 Web Services API Introspection
+
+The Web Services API allows you to discover and explore the SonarQube API itself. This is useful for API documentation, client generators, and understanding available endpoints.
+
+```typescript
+// List all available web services and their endpoints
+const services = await client.webservices.list();
+console.log(`Found ${services.webServices?.length} web services`);
+
+services.webServices?.forEach(service => {
+  console.log(`\nAPI: ${service.path}`);
+  console.log(`Description: ${service.description}`);
+  
+  service.actions?.forEach(action => {
+    console.log(`  Action: ${action.key}`);
+    console.log(`    Description: ${action.description}`);
+    console.log(`    Method: ${action.post ? 'POST' : 'GET'}`);
+    console.log(`    Has example: ${action.hasResponseExample ? 'Yes' : 'No'}`);
+    
+    if (action.params && action.params.length > 0) {
+      console.log(`    Parameters:`);
+      action.params.forEach(param => {
+        const required = param.required ? '(required)' : '(optional)';
+        console.log(`      - ${param.key} ${required}: ${param.description}`);
+        if (param.exampleValue) {
+          console.log(`        Example: ${param.exampleValue}`);
+        }
+      });
+    }
+  });
+});
+
+// Get response example for a specific API endpoint
+const issuesExample = await client.webservices.responseExample({
+  controller: 'api/issues',
+  action: 'search'
+});
+console.log('Example issues/search response:', issuesExample);
+
+// Get response example for authentication validation
+const authExample = await client.webservices.responseExample({
+  controller: 'api/authentication',
+  action: 'validate'
+});
+console.log('Example authentication/validate response:', authExample);
+
+// Get response example for project search
+const projectsExample = await client.webservices.responseExample({
+  controller: 'api/projects',
+  action: 'search'
+});
+console.log('Example projects/search response:', projectsExample);
+
+// Use with dynamic endpoint discovery
+async function exploreEndpoint(servicePath: string, actionKey: string) {
+  try {
+    const example = await client.webservices.responseExample({
+      controller: servicePath,
+      action: actionKey
+    });
+    
+    console.log(`Example for ${servicePath}/${actionKey}:`, example);
+    return example;
+  } catch (error) {
+    console.error(`No example available for ${servicePath}/${actionKey}`);
+    return null;
+  }
+}
+
+// Example: Programmatically explore all endpoints with examples
+const servicesInfo = await client.webservices.list();
+for (const service of servicesInfo.webServices || []) {
+  for (const action of service.actions || []) {
+    if (action.hasResponseExample && service.path && action.key) {
+      console.log(`Getting example for ${service.path}/${action.key}`);
+      await exploreEndpoint(service.path, action.key);
+    }
+  }
+}
+
+// Note: The webservices API is useful for:
+// - API documentation generation
+// - Building dynamic API clients
+// - Understanding parameter requirements
+// - Getting example response formats
 ```
 
 ### 🏷️ Project Tags Management
@@ -1360,6 +1447,7 @@ client.sources         // Source code access
 client.system          // System administration
 client.userGroups      // User group management
 client.webhooks        // Webhook management
+client.webservices     // API documentation and introspection
 // ... and many more
 ```
 

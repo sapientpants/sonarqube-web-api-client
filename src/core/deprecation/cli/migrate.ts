@@ -241,10 +241,12 @@ class MigrationCLI {
  */
 export function registerAllDeprecations(): void {
   // Import and register all API deprecations
-  void import('../examples/UsersApiExample').then((module) => {
-    module.registerUsersApiDeprecations();
-  });
-
+  // Example: Dynamic import of deprecation registrations
+  // void import('../examples/UsersApiExample').then((module) => {
+  //   module.registerUsersApiDeprecations();
+  // });
+  // In a real implementation, you would import and register
+  // all API deprecations from the actual resource modules
   // Register other API deprecations...
 }
 

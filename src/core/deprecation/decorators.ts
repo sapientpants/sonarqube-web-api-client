@@ -128,7 +128,7 @@ export function DeprecatedParameter(
 
     return function (this: any, ...args: Parameters<T>): ReturnType<T> {
       // Get class name at runtime from 'this'
-      const className = this?.constructor?.name || 'Unknown';
+      const className = this?.constructor?.name ?? 'Unknown';
 
       // Check if deprecated parameter is being used
       if (args[parameterIndex] !== undefined) {

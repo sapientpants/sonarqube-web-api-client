@@ -30,6 +30,7 @@ import { SettingsClient } from './resources/settings';
 import { UsersClient } from './resources/users';
 import { UserGroupsClient } from './resources/user-groups';
 import { UserTokensClient } from './resources/user-tokens';
+import { PermissionsClient } from './resources/permissions';
 import { WebhooksClient } from './resources/webhooks';
 import { WebservicesClient } from './resources/webservices';
 
@@ -86,6 +87,8 @@ export class SonarQubeClient {
   public readonly projectLinks: ProjectLinksClient;
   /** Project Pull Requests API - **Note**: Only available when the Branch plugin is installed */
   public readonly projectPullRequests: ProjectPullRequestsClient;
+  /** Permissions API */
+  public readonly permissions: PermissionsClient;
   /** Metrics API */
   public readonly metrics: MetricsClient;
   /** Measures API */
@@ -148,6 +151,7 @@ export class SonarQubeClient {
       this.token,
       this.organization
     );
+    this.permissions = new PermissionsClient(this.baseUrl, this.token, this.organization);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
@@ -535,6 +539,44 @@ export type {
   ListPullRequestsResponse,
   PullRequest,
 } from './resources/project-pull-requests/types';
+
+// Re-export types from permissions
+export type {
+  GlobalPermission,
+  ProjectPermission,
+  Permission,
+  BasePermissionParams,
+  ProjectPermissionParams,
+  TemplateParams,
+  AddUserPermissionRequest,
+  RemoveUserPermissionRequest,
+  AddUserToTemplateRequest,
+  RemoveUserFromTemplateRequest,
+  AddGroupPermissionRequest,
+  RemoveGroupPermissionRequest,
+  AddGroupToTemplateRequest,
+  RemoveGroupFromTemplateRequest,
+  AddProjectCreatorToTemplateRequest,
+  RemoveProjectCreatorFromTemplateRequest,
+  CreateTemplateRequest,
+  UpdateTemplateRequest,
+  DeleteTemplateRequest,
+  ApplyTemplateRequest,
+  BulkApplyTemplateRequest,
+  SetDefaultTemplateRequest,
+  SearchGlobalPermissionsRequest,
+  SearchProjectPermissionsRequest,
+  SearchTemplatesRequest,
+  PermissionTemplate,
+  TemplatePermission,
+  UserPermission,
+  GroupPermission,
+  CreateTemplateResponse,
+  UpdateTemplateResponse,
+  SearchGlobalPermissionsResponse,
+  SearchProjectPermissionsResponse,
+  SearchTemplatesResponse,
+} from './resources/permissions/types';
 
 // Re-export types from quality gates
 export type {

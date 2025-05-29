@@ -125,7 +125,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Measures** | `api/measures` | ✅ Implemented | Both | Component measures and history |
 | **Metrics** | `api/metrics` | ✅ Implemented | Both | Metric definitions |
 | **Notifications** | `api/notifications` | ✅ Implemented | Both | User notifications |
-| **Permissions** | `api/permissions` | ❌ Not implemented | Both | Permission management |
+| **Permissions** | `api/permissions` | ✅ Implemented | Both | Permission management |
 | **Project Analyses** | `api/project_analyses` | ✅ Implemented | Both | Analysis history and events |
 | **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
 | **Project Branches** | `api/project_branches` | ✅ Implemented | Both | Branch management |
@@ -418,6 +418,64 @@ for await (const rule of client.rules.search()
   .all()) {
   console.log(`Rule: ${rule.key} - ${rule.name} (${rule.severity})`);
 }
+```
+
+### 🔐 Permissions Management
+
+```typescript
+// Add user permissions
+await client.permissions.addUserPermission({
+  login: 'john.doe',
+  permission: 'admin',
+  projectKey: 'my-project',
+  organization: 'my-org'
+});
+
+// Add group permissions
+await client.permissions.addGroupPermission({
+  groupName: 'developers',
+  permission: 'codeviewer',
+  projectKey: 'my-project'
+});
+
+// Create a permission template
+const template = await client.permissions.createTemplate({
+  name: 'Mobile Projects Template',
+  description: 'Template for mobile application projects',
+  projectKeyPattern: '.*mobile.*'
+});
+
+// Add users and groups to the template
+await client.permissions.addUserToTemplate({
+  login: 'tech-lead',
+  permission: 'admin',
+  templateId: template.permissionTemplate.id
+});
+
+await client.permissions.addGroupToTemplate({
+  groupName: 'mobile-team',
+  permission: 'codeviewer',
+  templateId: template.permissionTemplate.id
+});
+
+// Apply template to projects
+await client.permissions.bulkApplyTemplate()
+  .templateId(template.permissionTemplate.id)
+  .query('mobile')
+  .execute();
+
+// Search permission templates
+const templates = await client.permissions.searchTemplates()
+  .query('mobile')
+  .execute();
+
+// Remove permissions when needed
+await client.permissions.removeUserPermission({
+  login: 'former.employee',
+  permission: 'admin',
+  projectKey: 'my-project',
+  organization: 'my-org'
+});
 ```
 
 ### 🏅 Project Badges

@@ -4,6 +4,7 @@
 
 export { SettingsClient } from './SettingsClient';
 export { SetSettingBuilder, ResetSettingBuilder, ValuesBuilder } from './builders';
+export { isValidParam, addParamIfValid, splitKeys } from './helpers';
 export type {
   // Request types
   ListDefinitionsRequest,

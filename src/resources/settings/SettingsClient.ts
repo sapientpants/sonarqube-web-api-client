@@ -1,5 +1,6 @@
 import { BaseClient } from '../../core/BaseClient';
 import { SetSettingBuilder, ResetSettingBuilder, ValuesBuilder } from './builders';
+import { addParamIfValid } from './helpers';
 import type {
   ListDefinitionsRequest,
   ListDefinitionsResponse,
@@ -41,9 +42,7 @@ export class SettingsClient extends BaseClient {
   async listDefinitions(options: ListDefinitionsRequest = {}): Promise<ListDefinitionsResponse> {
     const params = new URLSearchParams();
 
-    if (options.component !== undefined && options.component !== '') {
-      params.set('component', options.component);
-    }
+    addParamIfValid(params, 'component', options.component);
 
     const query = params.toString();
     const endpoint = query
@@ -116,13 +115,8 @@ export class SettingsClient extends BaseClient {
         });
       }
 
-      if (params.component !== undefined && params.component !== '') {
-        body.set('component', params.component);
-      }
-
-      if (params.organization !== undefined && params.organization !== '') {
-        body.set('organization', params.organization);
-      }
+      addParamIfValid(body, 'component', params.component);
+      addParamIfValid(body, 'organization', params.organization);
 
       await this.request('/api/settings/set', {
         method: 'POST',
@@ -172,21 +166,10 @@ export class SettingsClient extends BaseClient {
 
       body.set('keys', params.keys);
 
-      if (params.component !== undefined && params.component !== '') {
-        body.set('component', params.component);
-      }
-
-      if (params.branch !== undefined && params.branch !== '') {
-        body.set('branch', params.branch);
-      }
-
-      if (params.pullRequest !== undefined && params.pullRequest !== '') {
-        body.set('pullRequest', params.pullRequest);
-      }
-
-      if (params.organization !== undefined && params.organization !== '') {
-        body.set('organization', params.organization);
-      }
+      addParamIfValid(body, 'component', params.component);
+      addParamIfValid(body, 'branch', params.branch);
+      addParamIfValid(body, 'pullRequest', params.pullRequest);
+      addParamIfValid(body, 'organization', params.organization);
 
       await this.request('/api/settings/reset', {
         method: 'POST',
@@ -234,17 +217,9 @@ export class SettingsClient extends BaseClient {
     return new ValuesBuilder(async (params: ValuesRequest) => {
       const searchParams = new URLSearchParams();
 
-      if (params.keys !== undefined && params.keys !== '') {
-        searchParams.set('keys', params.keys);
-      }
-
-      if (params.component !== undefined && params.component !== '') {
-        searchParams.set('component', params.component);
-      }
-
-      if (params.organization !== undefined && params.organization !== '') {
-        searchParams.set('organization', params.organization);
-      }
+      addParamIfValid(searchParams, 'keys', params.keys);
+      addParamIfValid(searchParams, 'component', params.component);
+      addParamIfValid(searchParams, 'organization', params.organization);
 
       const query = searchParams.toString();
       const endpoint = query ? `/api/settings/values?${query}` : '/api/settings/values';

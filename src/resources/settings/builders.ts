@@ -1,11 +1,16 @@
 import { BaseBuilder } from '../../core/builders';
 import { ValidationError } from '../../errors';
+import { ParameterHelpers } from '../../core/builders/helpers/ParameterHelpers';
+import { isValidParam, splitKeys } from './helpers';
 import type { SetRequest, ResetRequest, ValuesRequest, ValuesResponse } from './types';
 
 /**
  * Builder for setting values
  */
 export class SetSettingBuilder extends BaseBuilder<SetRequest> {
+  component = ParameterHelpers.createStringMethod<SetSettingBuilder>('component');
+  organization = ParameterHelpers.createStringMethod<SetSettingBuilder>('organization');
+
   /**
    * Set the setting key
    * @param key - Setting key
@@ -57,26 +62,10 @@ export class SetSettingBuilder extends BaseBuilder<SetRequest> {
   }
 
   /**
-   * Set the component key
-   * @param component - Component key
-   */
-  component(component: string): this {
-    return this.setParam('component', component);
-  }
-
-  /**
-   * Set the organization key
-   * @param organization - Organization key
-   */
-  organization(organization: string): this {
-    return this.setParam('organization', organization);
-  }
-
-  /**
    * Execute the request
    */
   async execute(): Promise<void> {
-    if (this.params.key === undefined || this.params.key === '') {
+    if (!isValidParam(this.params.key)) {
       throw new ValidationError('Setting key is required', 'MISSING_KEY');
     }
 
@@ -111,6 +100,11 @@ export class SetSettingBuilder extends BaseBuilder<SetRequest> {
  * Builder for resetting settings
  */
 export class ResetSettingBuilder extends BaseBuilder<ResetRequest> {
+  component = ParameterHelpers.createStringMethod<ResetSettingBuilder>('component');
+  branch = ParameterHelpers.createStringMethod<ResetSettingBuilder>('branch');
+  pullRequest = ParameterHelpers.createStringMethod<ResetSettingBuilder>('pullRequest');
+  organization = ParameterHelpers.createStringMethod<ResetSettingBuilder>('organization');
+
   /**
    * Set the keys to reset
    * @param keys - Array of setting keys
@@ -124,48 +118,15 @@ export class ResetSettingBuilder extends BaseBuilder<ResetRequest> {
    * @param key - Setting key to add
    */
   addKey(key: string): this {
-    const currentKeys =
-      this.params.keys !== undefined && this.params.keys !== '' ? this.params.keys.split(',') : [];
+    const currentKeys = splitKeys(this.params.keys);
     return this.setParam('keys', [...currentKeys, key].join(','));
-  }
-
-  /**
-   * Set the component key
-   * @param component - Component key
-   */
-  component(component: string): this {
-    return this.setParam('component', component);
-  }
-
-  /**
-   * Set the branch key
-   * @param branch - Branch key
-   */
-  branch(branch: string): this {
-    return this.setParam('branch', branch);
-  }
-
-  /**
-   * Set the pull request id
-   * @param pullRequest - Pull request id
-   */
-  pullRequest(pullRequest: string): this {
-    return this.setParam('pullRequest', pullRequest);
-  }
-
-  /**
-   * Set the organization key
-   * @param organization - Organization key
-   */
-  organization(organization: string): this {
-    return this.setParam('organization', organization);
   }
 
   /**
    * Execute the request
    */
   async execute(): Promise<void> {
-    if (this.params.keys === undefined || this.params.keys === '') {
+    if (!isValidParam(this.params.keys)) {
       throw new ValidationError('At least one key is required', 'MISSING_KEYS');
     }
 
@@ -177,6 +138,9 @@ export class ResetSettingBuilder extends BaseBuilder<ResetRequest> {
  * Builder for getting setting values
  */
 export class ValuesBuilder extends BaseBuilder<ValuesRequest, ValuesResponse> {
+  component = ParameterHelpers.createStringMethod<ValuesBuilder>('component');
+  organization = ParameterHelpers.createStringMethod<ValuesBuilder>('organization');
+
   /**
    * Set the keys to retrieve
    * @param keys - Array of setting keys
@@ -190,25 +154,8 @@ export class ValuesBuilder extends BaseBuilder<ValuesRequest, ValuesResponse> {
    * @param key - Setting key to add
    */
   addKey(key: string): this {
-    const currentKeys =
-      this.params.keys !== undefined && this.params.keys !== '' ? this.params.keys.split(',') : [];
+    const currentKeys = splitKeys(this.params.keys);
     return this.setParam('keys', [...currentKeys, key].join(','));
-  }
-
-  /**
-   * Set the component key
-   * @param component - Component key
-   */
-  component(component: string): this {
-    return this.setParam('component', component);
-  }
-
-  /**
-   * Set the organization key
-   * @param organization - Organization key
-   */
-  organization(organization: string): this {
-    return this.setParam('organization', organization);
   }
 
   /**
@@ -216,12 +163,7 @@ export class ValuesBuilder extends BaseBuilder<ValuesRequest, ValuesResponse> {
    */
   async execute(): Promise<ValuesResponse> {
     // Component and organization cannot be used together
-    if (
-      this.params.component !== undefined &&
-      this.params.component !== '' &&
-      this.params.organization !== undefined &&
-      this.params.organization !== ''
-    ) {
+    if (isValidParam(this.params.component) && isValidParam(this.params.organization)) {
       throw new ValidationError(
         'Both component and organization parameters cannot be used together',
         'CONFLICTING_PARAMS'

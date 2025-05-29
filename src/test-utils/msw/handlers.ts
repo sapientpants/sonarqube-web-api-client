@@ -857,4 +857,171 @@ export const handlers = [
     // Return empty response on success (as per API specification)
     return HttpResponse.json({});
   }),
+
+  // Rules endpoints
+  http.get('*/api/rules/repositories', ({ request }) => {
+    const url = new URL(request.url);
+    const language = url.searchParams.get('language');
+    const q = url.searchParams.get('q');
+
+    // Mock repositories for testing
+    const allRepositories = [
+      { key: 'java', name: 'SonarQube', language: 'java' },
+      { key: 'squid', name: 'SonarQube (Squid)', language: 'java' },
+      { key: 'javascript', name: 'SonarJS', language: 'js' },
+      { key: 'typescript', name: 'SonarTS', language: 'ts' },
+    ];
+
+    let filteredRepositories = [...allRepositories];
+
+    // Apply language filter
+    if (language !== null) {
+      filteredRepositories = filteredRepositories.filter((repo) => repo.language === language);
+    }
+
+    // Apply query filter
+    if (q !== null && q !== '') {
+      filteredRepositories = filteredRepositories.filter(
+        (repo) =>
+          repo.key.toLowerCase().includes(q.toLowerCase()) ||
+          repo.name.toLowerCase().includes(q.toLowerCase())
+      );
+    }
+
+    return HttpResponse.json({
+      repositories: filteredRepositories,
+    });
+  }),
+
+  http.get('*/api/rules/search', ({ request }) => {
+    const url = new URL(request.url);
+    const p = Number(url.searchParams.get('p')) || 1;
+    const ps = Number(url.searchParams.get('ps')) || 100;
+
+    // Mock rules for testing
+    const rules = [
+      {
+        key: 'java:S1234',
+        repo: 'java',
+        name: 'Rule Name',
+        severity: 'MAJOR',
+        status: 'READY',
+        type: 'BUG',
+        lang: 'java',
+        langName: 'Java',
+      },
+    ];
+
+    return HttpResponse.json({
+      total: rules.length,
+      p,
+      ps,
+      rules,
+    });
+  }),
+
+  http.get('*/api/rules/show', ({ request }) => {
+    const url = new URL(request.url);
+    const key = url.searchParams.get('key');
+    const actives = url.searchParams.get('actives') === 'true';
+
+    if (key === null || key === '') {
+      return new HttpResponse(JSON.stringify({ errors: [{ msg: 'Rule key is required' }] }), {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+
+    const response: Record<string, unknown> = {
+      rule: {
+        key,
+        repo: 'java',
+        name: 'Rule Name',
+        htmlDesc: '<p>Rule description</p>',
+        mdDesc: 'Rule description',
+        severity: 'MAJOR',
+        status: 'READY',
+        type: 'BUG',
+        tags: ['java8', 'security'],
+        sysTags: [],
+        lang: 'java',
+        langName: 'Java',
+      },
+    };
+
+    if (actives) {
+      response['actives'] = [
+        {
+          qProfile: 'java-sonar-way-12345',
+          inherit: 'NONE',
+          severity: 'MAJOR',
+          createdAt: '2024-01-01T00:00:00+0000',
+        },
+      ];
+    }
+
+    return HttpResponse.json(response);
+  }),
+
+  http.get('*/api/rules/tags', ({ request }) => {
+    const url = new URL(request.url);
+    const ps = Number(url.searchParams.get('ps')) || 10;
+    const q = url.searchParams.get('q');
+
+    // Mock tags for testing
+    const allTags = ['security', 'java8', 'performance', 'sql', 'injection'];
+
+    let filteredTags = [...allTags];
+
+    // Apply query filter
+    if (q !== null && q !== '') {
+      filteredTags = filteredTags.filter((tag) => tag.toLowerCase().includes(q.toLowerCase()));
+    }
+
+    // Apply page size limit
+    filteredTags = filteredTags.slice(0, ps);
+
+    return HttpResponse.json({
+      tags: filteredTags,
+    });
+  }),
+
+  http.post('*/api/rules/update', async ({ request }) => {
+    const body = (await request.json()) as {
+      key: string;
+      organization: string;
+      name?: string;
+      severity?: string;
+      tags?: string;
+      markdown_description?: string;
+      markdown_note?: string;
+      remediation_fn_type?: string;
+      remediation_fn_base_effort?: string;
+      remediation_fy_gap_multiplier?: string;
+    };
+
+    if (!body.key || !body.organization) {
+      return new HttpResponse(
+        JSON.stringify({ errors: [{ msg: 'Missing required parameters' }] }),
+        { status: 400, headers: { 'content-type': 'application/json' } }
+      );
+    }
+
+    const rule = {
+      key: body.key,
+      repo: 'java',
+      name: body.name ?? 'Updated Rule Name',
+      severity: body.severity ?? 'CRITICAL',
+      status: 'READY',
+      type: 'BUG',
+      tags: body.tags !== undefined && body.tags.length > 0 ? body.tags.split(',') : [],
+      mdDesc: body.markdown_description ?? 'Updated description',
+      mdNote: body.markdown_note,
+      remFn: body.remediation_fn_type,
+      remFnBaseEffort: body.remediation_fn_base_effort,
+      remFnGapMultiplier: body.remediation_fy_gap_multiplier,
+    };
+
+    return HttpResponse.json({ rule });
+  }),
 ];

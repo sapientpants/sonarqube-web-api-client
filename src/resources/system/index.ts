@@ -4,7 +4,6 @@ export type {
   SystemStatus,
   HealthResponse,
   StatusResponse,
-  PingResponse,
   SystemInfo,
   InfoResponse,
 } from './types';

@@ -58,8 +58,3 @@ export interface QualityGateBadgeParams extends BaseBadgeParams {
    */
   branch?: string;
 }
-
-/**
- * Badge response type (SVG content as string)
- */
-export type BadgeResponse = string;

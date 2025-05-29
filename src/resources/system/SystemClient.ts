@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import type { HealthResponse, StatusResponse, PingResponse, InfoResponse } from './types';
+import type { HealthResponse, StatusResponse, InfoResponse } from './types';
 
 /**
  * Client for interacting with system endpoints
@@ -64,8 +64,8 @@ export class SystemClient extends BaseClient {
    * console.log(response); // 'pong'
    * ```
    */
-  async ping(): Promise<PingResponse> {
-    return this.request<PingResponse>('/api/system/ping', { responseType: 'text' });
+  async ping(): Promise<string> {
+    return this.request<string>('/api/system/ping', { responseType: 'text' });
   }
 
   /**

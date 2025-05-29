@@ -283,7 +283,7 @@ export type {
 } from './resources/analysis-cache/types';
 
 // Re-export types from authentication
-export type { ValidateResponse, LogoutResponse } from './resources/authentication/types';
+export type { ValidateResponse } from './resources/authentication/types';
 
 // Re-export types from duplications
 export type {
@@ -501,7 +501,6 @@ export type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-  BadgeResponse,
 } from './resources/project-badges/types';
 
 // Re-export types from project analyses
@@ -606,7 +605,6 @@ export type {
 // Re-export types from sources
 export type {
   GetRawSourceRequest,
-  GetRawSourceResponse,
   GetScmInfoRequest,
   GetScmInfoResponse,
   ScmInfo,
@@ -621,7 +619,6 @@ export type {
   SystemStatus,
   HealthResponse,
   StatusResponse,
-  PingResponse,
   SystemInfo,
   InfoResponse,
 } from './resources/system/types';

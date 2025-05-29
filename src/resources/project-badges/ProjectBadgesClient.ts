@@ -3,7 +3,6 @@ import type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-  BadgeResponse,
 } from './types';
 
 /**
@@ -23,12 +22,12 @@ export class ProjectBadgesClient extends BaseClient {
    * const svg = await client.aiCodeAssurance({ project: 'my_project' });
    * ```
    */
-  async aiCodeAssurance(params: AiCodeAssuranceBadgeParams): Promise<BadgeResponse> {
+  async aiCodeAssurance(params: AiCodeAssuranceBadgeParams): Promise<string> {
     const query = this.buildBadgeQuery({
       project: params.project,
       token: params.token,
     });
-    return await this.request<BadgeResponse>(`/api/project_badges/ai_code_assurance?${query}`, {
+    return await this.request<string>(`/api/project_badges/ai_code_assurance?${query}`, {
       headers: {
         ['Accept']: 'image/svg+xml',
       },
@@ -52,14 +51,14 @@ export class ProjectBadgesClient extends BaseClient {
    * });
    * ```
    */
-  async measure(params: MeasureBadgeParams): Promise<BadgeResponse> {
+  async measure(params: MeasureBadgeParams): Promise<string> {
     const query = this.buildBadgeQuery({
       project: params.project,
       metric: params.metric,
       branch: params.branch,
       token: params.token,
     });
-    return await this.request<BadgeResponse>(`/api/project_badges/measure?${query}`, {
+    return await this.request<string>(`/api/project_badges/measure?${query}`, {
       headers: {
         ['Accept']: 'image/svg+xml',
       },
@@ -82,13 +81,13 @@ export class ProjectBadgesClient extends BaseClient {
    * });
    * ```
    */
-  async qualityGate(params: QualityGateBadgeParams): Promise<BadgeResponse> {
+  async qualityGate(params: QualityGateBadgeParams): Promise<string> {
     const query = this.buildBadgeQuery({
       project: params.project,
       branch: params.branch,
       token: params.token,
     });
-    return await this.request<BadgeResponse>(`/api/project_badges/quality_gate?${query}`, {
+    return await this.request<string>(`/api/project_badges/quality_gate?${query}`, {
       headers: {
         ['Accept']: 'image/svg+xml',
       },

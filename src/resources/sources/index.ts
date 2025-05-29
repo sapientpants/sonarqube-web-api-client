@@ -1,7 +1,6 @@
 export { SourcesClient } from './SourcesClient';
 export type {
   GetRawSourceRequest,
-  GetRawSourceResponse,
   GetScmInfoRequest,
   GetScmInfoResponse,
   ScmInfo,

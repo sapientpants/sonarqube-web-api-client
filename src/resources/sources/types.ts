@@ -19,12 +19,6 @@ export interface GetRawSourceRequest {
 }
 
 /**
- * Response type for raw source code
- * The response is plain text
- */
-export type GetRawSourceResponse = string;
-
-/**
  * Request parameters for getting SCM information
  */
 export interface GetScmInfoRequest {

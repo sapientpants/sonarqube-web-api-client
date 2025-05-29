@@ -150,6 +150,27 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
 
+### ⚠️ Deprecated APIs
+
+The following APIs or actions are marked as deprecated in the SonarQube Web API:
+
+| API | Deprecated Action(s) | Deprecated Since | Notes |
+|-----|---------------------|------------------|-------|
+| **api/favourites** | `index` | 6.3 | Legacy API endpoint |
+| **api/issues** | `set_severity`, `set_type` | 25 Aug, 2023 | Use newer issue management endpoints |
+| **api/metrics** | `domains` | 7.7 | Domain-based metric categorization removed |
+| **api/permissions** | `search_global_permissions`, `search_project_permissions` | 6.5 | Use newer permission search endpoints |
+| **api/projects** | `bulk_update_key` | 7.6 | Use individual project key updates |
+| **api/properties** | `index` | 6.3 | Entire API is deprecated |
+| **api/qualitygates** | `unset_default` | 7.0 | Use `set_as_default` with different gate |
+| **api/qualityprofiles** | `export`, `exporters`, `importers` | 18 March, 2025 | Profile export/import being redesigned |
+| **api/qualityprofiles** | `restore_built_in` | 6.4 | Built-in profiles restored automatically |
+| **api/timemachine** | `index` | 6.3 | Entire API is deprecated, use `api/measures/history` |
+| **api/user_properties** | `index` | 6.3 | User properties management deprecated |
+| **api/users** | `search` | 10 February, 2025 | Use newer user search endpoints |
+
+**Note**: This library may still provide support for some deprecated APIs for backward compatibility, but we recommend migrating to newer alternatives where available.
+
 ## 🔥 Examples
 
 ### 🔍 Search with Pagination

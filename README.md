@@ -136,7 +136,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Properties** | `api/properties` | ❌ Not implemented | Both | Property management (deprecated) |
 | **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Quality gate management |
 | **Quality Profiles** | `api/qualityprofiles` | ✅ Implemented | Both | Quality profile management |
-| **Rules** | `api/rules` | ❌ Not implemented | Both | Coding rule management |
+| **Rules** | `api/rules` | ✅ Implemented | Both | Coding rule management |
 | **Settings** | `api/settings` | ✅ Implemented | Both | Global and project settings |
 | **Sources** | `api/sources` | ✅ Implemented | Both | Source code access |
 | **System** | `api/system` | ✅ Implemented | SonarQube only | System information and health |
@@ -351,6 +351,72 @@ for await (const language of client.languages.listAll()) {
 // Filter while iterating
 for await (const language of client.languages.listAll({ q: 'python' })) {
   console.log(`Found Python-related language: ${language.name}`);
+}
+```
+
+### 📜 Working with Rules
+
+```typescript
+// List available rule repositories
+const repositories = await client.rules.listRepositories();
+console.log('Available rule repositories:', repositories.repositories);
+
+// Filter repositories by language
+const javaRepos = await client.rules.listRepositories({
+  language: 'java'
+});
+
+// Search for rules with advanced filtering
+const securityRules = await client.rules.search()
+  .withTypes(['VULNERABILITY', 'SECURITY_HOTSPOT'])
+  .withSeverities(['CRITICAL', 'BLOCKER'])
+  .withTags(['security', 'owasp'])
+  .withLanguages(['java', 'javascript'])
+  .includeExternal()
+  .execute();
+
+// Search for rules in a specific quality profile
+const profileRules = await client.rules.search()
+  .inQualityProfile('java-sonar-way-12345')
+  .withActivation(true)
+  .execute();
+
+// Get detailed information about a specific rule
+const ruleDetails = await client.rules.show({
+  key: 'java:S1234',
+  organization: 'my-org',
+  actives: true  // Include activation details
+});
+
+// List all available rule tags
+const tags = await client.rules.listTags({
+  organization: 'my-org',
+  q: 'security'  // Filter tags containing 'security'
+});
+
+// Update a custom rule
+await client.rules.update({
+  key: 'java:S1234',
+  organization: 'my-org',
+  name: 'Updated Rule Name',
+  severity: 'CRITICAL',
+  tags: 'security,owasp-a1',
+  markdown_description: 'Updated rule description in markdown'
+});
+
+// Search with Clean Code attributes (new in SonarQube 10+)
+const cleanCodeRules = await client.rules.search()
+  .withCleanCodeAttributeCategories(['INTENTIONAL', 'CONSISTENT'])
+  .withImpactSeverities(['HIGH', 'MEDIUM'])
+  .withImpactSoftwareQualities(['SECURITY', 'RELIABILITY'])
+  .execute();
+
+// Iterate through all rules with pagination
+for await (const rule of client.rules.search()
+  .withLanguages(['typescript'])
+  .withTypes(['BUG'])
+  .all()) {
+  console.log(`Rule: ${rule.key} - ${rule.name} (${rule.severity})`);
 }
 ```
 

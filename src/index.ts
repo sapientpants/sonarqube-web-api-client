@@ -25,6 +25,7 @@ import { ProjectBranchesClient } from './resources/project-branches';
 import { ProjectPullRequestsClient } from './resources/project-pull-requests';
 import { ProjectTagsClient } from './resources/project-tags';
 import { QualityProfilesClient } from './resources/quality-profiles';
+import { RulesClient } from './resources/rules';
 import { SettingsClient } from './resources/settings';
 
 interface ProjectsResponse {
@@ -88,6 +89,8 @@ export class SonarQubeClient {
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
   public readonly qualityProfiles: QualityProfilesClient;
+  /** Rules API */
+  public readonly rules: RulesClient;
   /** Sources API */
   public readonly sources: SourcesClient;
   /** System API - **Note**: Only available in SonarQube, not in SonarCloud */
@@ -134,6 +137,7 @@ export class SonarQubeClient {
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.organization);
+    this.rules = new RulesClient(this.baseUrl, this.token, this.organization);
     this.sources = new SourcesClient(this.baseUrl, this.token, this.organization);
     this.system = new SystemClient(this.baseUrl, this.token, this.organization);
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
@@ -613,6 +617,35 @@ export type {
   SearchResponse as SearchQualityProfilesResponse,
   SetDefaultRequest as SetDefaultQualityProfileRequest,
 } from './resources/quality-profiles/types';
+
+// Re-export types from rules
+export type {
+  Rule,
+  RuleRepository,
+  RuleParameter,
+  RuleDescriptionSection,
+  RuleImpact,
+  RuleActivation,
+  RuleSeverity,
+  RuleStatus as RuleStatusType,
+  RuleType as RuleTypeEnum,
+  CleanCodeAttributeCategory as RuleCleanCodeAttributeCategory,
+  SoftwareQuality,
+  ImpactSeverity as RuleImpactSeverity,
+  RuleInheritance,
+  RemediationFunctionType,
+  FacetMode as RuleFacetMode,
+  ListRepositoriesRequest,
+  ListRepositoriesResponse,
+  SearchRulesRequest,
+  SearchRulesResponse,
+  ShowRuleRequest,
+  ShowRuleResponse,
+  ListTagsRequest as ListRuleTagsRequest,
+  ListTagsResponse as ListRuleTagsResponse,
+  UpdateRuleRequest,
+  UpdateRuleResponse,
+} from './resources/rules/types';
 
 // Re-export types from settings
 export type {

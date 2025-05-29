@@ -166,7 +166,7 @@ The following APIs or actions are marked as deprecated in the SonarQube Web API:
 | **api/qualityprofiles** | `export`, `exporters`, `importers` | 18 March, 2025 | Profile export/import being redesigned |
 | **api/qualityprofiles** | `restore_built_in` | 6.4 | Built-in profiles restored automatically |
 | **api/timemachine** | `index` | 6.3 | Entire API is deprecated, use `api/measures/history` |
-| **api/user_properties** | `index` | 6.3 | Removed since 6.3, use `api/favorites` and `api/notifications` instead |
+| **api/user_properties** | `index` | 6.3 | Removed as of version 6.3, use `api/favorites` and `api/notifications` instead |
 | **api/users** | `search` | 10 February, 2025 | Use newer user search endpoints |
 
 **Note**: This library may still provide support for some deprecated APIs for backward compatibility, but we recommend migrating to newer alternatives where available.

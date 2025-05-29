@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **User Groups API**: Complete implementation of the SonarQube User Groups API (`api/user_groups`)
+  - Search for user groups with pagination and field selection
+  - Create, update, and delete user groups
+  - Add and remove users from groups
+  - Get users with membership information for a specific group
+  - Builder pattern support for complex search operations
+  - Full async iteration support for paginated results
+
 ## [0.2.2] - 2025-01-28
 
 ### Fixed

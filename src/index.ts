@@ -28,6 +28,7 @@ import { QualityProfilesClient } from './resources/quality-profiles';
 import { RulesClient } from './resources/rules';
 import { SettingsClient } from './resources/settings';
 import { UsersClient } from './resources/users';
+import { UserGroupsClient } from './resources/user-groups';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -102,6 +103,8 @@ export class SonarQubeClient {
   public readonly settings: SettingsClient;
   /** Users API */
   public readonly users: UsersClient;
+  /** User Groups API */
+  public readonly userGroups: UserGroupsClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -146,6 +149,7 @@ export class SonarQubeClient {
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
     this.settings = new SettingsClient(this.baseUrl, this.token, this.organization);
     this.users = new UsersClient(this.baseUrl, this.token, this.organization);
+    this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
@@ -673,13 +677,29 @@ export type {
 export type {
   User,
   UserWithDetails,
-  UserGroup,
+  UserGroup as UsersUserGroup,
   GroupSelectionFilter,
   SearchUsersRequest,
   SearchUsersResponse,
   GetUserGroupsRequest,
   GetUserGroupsResponse,
 } from './resources/users/types';
+
+// Re-export types from user groups
+export type {
+  UserGroup,
+  UserWithMembership,
+  AddUserRequest,
+  CreateGroupRequest,
+  CreateGroupResponse,
+  DeleteGroupRequest,
+  RemoveUserRequest,
+  SearchGroupsRequest,
+  SearchGroupsResponse,
+  UpdateGroupRequest,
+  UsersRequest,
+  UsersResponse,
+} from './resources/user-groups/types';
 
 // Re-export error classes
 export {

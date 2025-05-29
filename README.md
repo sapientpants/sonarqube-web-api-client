@@ -141,7 +141,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Sources** | `api/sources` | ✅ Implemented | Both | Source code access |
 | **System** | `api/system` | ✅ Implemented | SonarQube only | System information and health |
 | **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Historical measures (deprecated) |
-| **User Groups** | `api/user_groups` | ❌ Not implemented | Both | User group management |
+| **User Groups** | `api/user_groups` | ✅ Implemented | Both | User group management |
 | **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
 | **User Tokens** | `api/user_tokens` | ❌ Not implemented | Both | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
@@ -839,6 +839,79 @@ for await (const project of client.qualityProfiles.projects()
 }
 ```
 
+### 👥 User Groups Management
+
+```typescript
+// Search for user groups
+const groups = await client.userGroups.search()
+  .organization('my-org')
+  .query('admin')
+  .fields(['name', 'membersCount'])
+  .pageSize(50)
+  .execute();
+
+// Create a new group
+const newGroup = await client.userGroups.create({
+  name: 'developers',
+  description: 'All developers in the organization',
+  organization: 'my-org'
+});
+
+// Update group information
+await client.userGroups.update({
+  id: '42',
+  name: 'senior-developers',
+  description: 'Senior developers only'
+});
+
+// Add users to a group
+await client.userGroups.addUser({
+  name: 'developers',
+  login: 'john.doe',
+  organization: 'my-org'
+});
+
+// Remove users from a group
+await client.userGroups.removeUser({
+  id: '42',
+  login: 'jane.smith',
+  organization: 'my-org'
+});
+
+// Get users with membership information
+const users = await client.userGroups.users()
+  .groupName('developers')
+  .organization('my-org')
+  .selected('all')  // 'all', 'selected', or 'deselected'
+  .query('john')
+  .execute();
+
+users.users.forEach(user => {
+  console.log(`${user.login}: ${user.selected ? 'member' : 'not member'}`);
+});
+
+// Iterate through all groups
+for await (const group of client.userGroups.searchAll('my-org')) {
+  console.log(`Group: ${group.name} (${group.membersCount} members)`);
+}
+
+// Iterate through all users in a group
+for await (const user of client.userGroups.users()
+  .groupName('developers')
+  .organization('my-org')
+  .all()) {
+  if (user.selected) {
+    console.log(`Member: ${user.name} (${user.login})`);
+  }
+}
+
+// Delete a group (cannot delete default groups)
+await client.userGroups.delete({
+  name: 'old-team',
+  organization: 'my-org'
+});
+```
+
 ### 📋 Code Duplications
 
 ```typescript
@@ -1040,6 +1113,7 @@ client.components      // Component navigation
 client.languages       // Programming languages
 client.sources         // Source code access
 client.system          // System administration
+client.userGroups      // User group management
 // ... and many more
 ```
 

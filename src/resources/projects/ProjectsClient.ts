@@ -1,4 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
+import { DeprecationManager } from '../../core/deprecation/DeprecationManager';
 import { ValidationError } from '../../errors';
 import { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
 import type {
@@ -80,6 +81,13 @@ export class ProjectsClient extends BaseClient {
    */
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   async bulkUpdateKey(params: BulkUpdateProjectKeyRequest): Promise<BulkUpdateProjectKeyResponse> {
+    DeprecationManager.warn({
+      api: 'projects.bulkUpdateKey()',
+      replacement: 'projects.updateKey()',
+      removeVersion: '8.0.0',
+      reason: 'Since 7.6 - Use updateKey() for individual project key updates',
+    });
+
     const body: Record<string, string> = {
       project: params.project,
       from: params.from,

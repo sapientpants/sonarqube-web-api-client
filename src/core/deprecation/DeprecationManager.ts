@@ -30,7 +30,6 @@ export interface DeprecationOptions {
 /**
  * Manages deprecation warnings and migration guidance for the SonarQube client
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class DeprecationManager {
   private static readonly warnings = new Set<string>();
   private static options: DeprecationOptions = {};
@@ -71,7 +70,6 @@ export class DeprecationManager {
     }
 
     // Default behavior: console warning
-    // eslint-disable-next-line no-console
     console.warn(DeprecationManager.formatDeprecationMessage(context));
   }
 
@@ -136,7 +134,6 @@ export class DeprecationManager {
 /**
  * Decorator for deprecating methods
  */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions */
 export function deprecated(
   context: Omit<DeprecationContext, 'api'>
 ): (target: any, propertyKey: string, descriptor?: PropertyDescriptor) => any {
@@ -169,4 +166,3 @@ export function deprecated(
     }
   };
 }
-/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions */

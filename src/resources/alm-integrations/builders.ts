@@ -1,4 +1,5 @@
 import { RepositorySearchBuilder, validateRequired } from '../../core/builders';
+import { DeprecationManager } from '../../core/deprecation';
 import type {
   SearchAzureReposRequest,
   SearchAzureReposResponse,
@@ -108,6 +109,11 @@ export class BitbucketCloudReposSearchBuilder extends RepositorySearchBuilder<
    * @deprecated Use withRepoSlug instead
    */
   withRepositoryName(repoSlug: string): this {
+    DeprecationManager.warn({
+      api: 'BitbucketCloudReposSearchBuilder.withRepositoryName()',
+      replacement: 'withRepoSlug()',
+      reason: 'This method has been deprecated.',
+    });
     return this.withRepoSlug(repoSlug);
   }
 

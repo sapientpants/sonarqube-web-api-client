@@ -21,7 +21,6 @@ describe('DeprecationManager', () => {
       });
 
       expect(consoleSpy).toHaveBeenCalled();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const warningMessage = consoleSpy.mock.calls[0][0] as string;
       expect(warningMessage).toContain('DEPRECATED API USAGE');
       expect(warningMessage).toContain('users.search()');

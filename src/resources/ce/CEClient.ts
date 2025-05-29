@@ -44,46 +44,8 @@ export class CEClient extends BaseClient {
    * ```
    */
   async activity(request: ActivityRequest = {}): Promise<ActivityResponse> {
-    // Validate mutual exclusivity of component and componentId
-    if (request.component !== undefined && request.componentId !== undefined) {
-      throw new Error(
-        'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.'
-      );
-    }
-
-    const params = new URLSearchParams();
-
-    if (request.component !== undefined && request.component.length > 0) {
-      params.append('component', request.component);
-    }
-    if (request.componentId !== undefined && request.componentId.length > 0) {
-      params.append('componentId', request.componentId);
-    }
-    if (request.maxExecutedAt !== undefined && request.maxExecutedAt.length > 0) {
-      params.append('maxExecutedAt', request.maxExecutedAt);
-    }
-    if (request.minSubmittedAt !== undefined && request.minSubmittedAt.length > 0) {
-      params.append('minSubmittedAt', request.minSubmittedAt);
-    }
-    if (request.onlyCurrents !== undefined) {
-      params.append('onlyCurrents', String(request.onlyCurrents));
-    }
-    if (request.q !== undefined && request.q.length > 0) {
-      params.append('q', request.q);
-    }
-    if (request.status && request.status.length > 0) {
-      params.append('status', request.status.join(','));
-    }
-    if (request.type !== undefined) {
-      params.append('type', request.type);
-    }
-    if (request.ps !== undefined) {
-      params.append('ps', String(request.ps));
-    }
-    if (request.p !== undefined) {
-      params.append('p', String(request.p));
-    }
-
+    this.validateActivityRequest(request);
+    const params = this.buildActivityParams(request);
     return this.request<ActivityResponse>(`/api/ce/activity?${params.toString()}`);
   }
 
@@ -205,7 +167,59 @@ export class CEClient extends BaseClient {
     const builders = require('./builders');
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    return new builders.ActivityBuilder(this);
+    return new builders.ActivityBuilder(async (params: ActivityRequest) => this.activity(params));
+  }
+
+  /**
+   * Validates activity request parameters
+   * @private
+   */
+  private validateActivityRequest(request: ActivityRequest): void {
+    if (request.component !== undefined && request.componentId !== undefined) {
+      throw new Error(
+        'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.'
+      );
+    }
+  }
+
+  /**
+   * Builds URL parameters for activity request
+   * @private
+   */
+  private buildActivityParams(request: ActivityRequest): URLSearchParams {
+    const params = new URLSearchParams();
+
+    this.appendStringParam(params, 'component', request.component);
+    this.appendStringParam(params, 'componentId', request.componentId);
+    this.appendStringParam(params, 'maxExecutedAt', request.maxExecutedAt);
+    this.appendStringParam(params, 'minSubmittedAt', request.minSubmittedAt);
+    this.appendStringParam(params, 'q', request.q);
+    this.appendStringParam(params, 'type', request.type);
+
+    if (request.onlyCurrents !== undefined) {
+      params.append('onlyCurrents', String(request.onlyCurrents));
+    }
+    if (request.status && request.status.length > 0) {
+      params.append('status', request.status.join(','));
+    }
+    if (request.ps !== undefined) {
+      params.append('ps', String(request.ps));
+    }
+    if (request.p !== undefined) {
+      params.append('p', String(request.p));
+    }
+
+    return params;
+  }
+
+  /**
+   * Appends string parameter to URLSearchParams if it's not empty
+   * @private
+   */
+  private appendStringParam(params: URLSearchParams, key: string, value: string | undefined): void {
+    if (value !== undefined && value.length > 0) {
+      params.append(key, value);
+    }
   }
 }
 

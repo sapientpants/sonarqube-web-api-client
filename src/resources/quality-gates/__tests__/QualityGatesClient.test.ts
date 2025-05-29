@@ -92,8 +92,8 @@ describe('QualityGatesClient', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update a quality gate', async () => {
+  describe('rename', () => {
+    it('should rename a quality gate', async () => {
       server.use(
         http.post('http://localhost/api/qualitygates/rename', async ({ request }) => {
           const body = await request.json();
@@ -102,7 +102,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
-      await client.update({ id: '3', name: 'Updated Gate' });
+      await client.rename({ id: '3', name: 'Updated Gate' });
     });
   });
 

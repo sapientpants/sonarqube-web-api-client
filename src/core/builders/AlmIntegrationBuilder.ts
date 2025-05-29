@@ -7,6 +7,17 @@ import {
 import { ValidationError } from '../../errors';
 
 /**
+ * Validates that an ALM setting is provided
+ * @param almSetting - The ALM setting to validate
+ * @throws {ValidationError} if almSetting is not set
+ */
+function validateAlmSetting(almSetting: string | undefined): void {
+  if (almSetting === undefined || almSetting.trim() === '') {
+    throw new ValidationError('almSetting is required');
+  }
+}
+
+/**
  * Base builder for ALM integration operations that require an ALM setting
  */
 export abstract class AlmIntegrationBuilder<
@@ -26,10 +37,7 @@ export abstract class AlmIntegrationBuilder<
    * @throws {ValidationError} if almSetting is not set
    */
   protected validateAlmSetting(): void {
-    const { almSetting } = this.params;
-    if (almSetting === undefined || almSetting.trim() === '') {
-      throw new ValidationError('almSetting is required');
-    }
+    validateAlmSetting(this.params.almSetting);
   }
 }
 
@@ -70,9 +78,6 @@ export abstract class RepositorySearchBuilder<
    * @throws {ValidationError} if almSetting is not set
    */
   protected validateAlmSetting(): void {
-    const { almSetting } = this.params;
-    if (almSetting === undefined || almSetting.trim() === '') {
-      throw new ValidationError('almSetting is required');
-    }
+    validateAlmSetting(this.params.almSetting);
   }
 }

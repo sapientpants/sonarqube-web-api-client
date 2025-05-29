@@ -151,42 +151,87 @@ export class ComponentsClient extends BaseClient {
    * ```
    */
   tree(): ComponentsTreeBuilder {
-    return new ComponentsTreeBuilder(async (params: ComponentTreeRequest) => {
-      const searchParams = new URLSearchParams();
+    return new ComponentsTreeBuilder(async (params: ComponentTreeRequest) =>
+      this.executeTreeRequest(params)
+    );
+  }
 
-      // Required parameter
-      searchParams.set('component', params.component);
+  /**
+   * Executes component tree request with proper parameter handling
+   * @private
+   */
+  private async executeTreeRequest(params: ComponentTreeRequest): Promise<ComponentTreeResponse> {
+    const searchParams = this.buildTreeParams(params);
+    return this.request<ComponentTreeResponse>(`/api/components/tree?${searchParams.toString()}`);
+  }
 
-      // Optional parameters
-      if (params.branch !== undefined && params.branch !== '') {
-        searchParams.set('branch', params.branch);
-      }
-      if (params.pullRequest !== undefined && params.pullRequest !== '') {
-        searchParams.set('pullRequest', params.pullRequest);
-      }
-      if (params.q !== undefined && params.q !== '') {
-        searchParams.set('q', params.q);
-      }
-      if (params.qualifiers !== undefined && params.qualifiers.length > 0) {
-        searchParams.set('qualifiers', params.qualifiers.join(','));
-      }
-      if (params.s !== undefined && params.s.length > 0) {
-        searchParams.set('s', params.s.join(','));
-      }
-      if (params.asc !== undefined) {
-        searchParams.set('asc', params.asc);
-      }
-      if (params.strategy !== undefined) {
-        searchParams.set('strategy', params.strategy);
-      }
-      if (params.p !== undefined && params.p > 0) {
-        searchParams.set('p', params.p.toString());
-      }
-      if (params.ps !== undefined && params.ps > 0) {
-        searchParams.set('ps', params.ps.toString());
-      }
+  /**
+   * Builds URL parameters for component tree request
+   * @private
+   */
+  private buildTreeParams(params: ComponentTreeRequest): URLSearchParams {
+    const searchParams = new URLSearchParams();
 
-      return this.request<ComponentTreeResponse>(`/api/components/tree?${searchParams.toString()}`);
-    });
+    // Required parameter
+    searchParams.set('component', params.component);
+
+    // Optional string parameters
+    this.appendNonEmptyStringParam(searchParams, 'branch', params.branch);
+    this.appendNonEmptyStringParam(searchParams, 'pullRequest', params.pullRequest);
+    this.appendNonEmptyStringParam(searchParams, 'q', params.q);
+    this.appendNonEmptyStringParam(searchParams, 'asc', params.asc);
+    this.appendNonEmptyStringParam(searchParams, 'strategy', params.strategy);
+
+    // Array parameters
+    this.appendArrayParam(searchParams, 'qualifiers', params.qualifiers);
+    this.appendArrayParam(searchParams, 's', params.s);
+
+    // Positive number parameters
+    this.appendPositiveNumberParam(searchParams, 'p', params.p);
+    this.appendPositiveNumberParam(searchParams, 'ps', params.ps);
+
+    return searchParams;
+  }
+
+  /**
+   * Helper method to append non-empty string parameters
+   * @private
+   */
+  private appendNonEmptyStringParam(
+    params: URLSearchParams,
+    key: string,
+    value: string | undefined
+  ): void {
+    if (value !== undefined && value !== '') {
+      params.set(key, value);
+    }
+  }
+
+  /**
+   * Helper method to append array parameters as comma-separated strings
+   * @private
+   */
+  private appendArrayParam(
+    params: URLSearchParams,
+    key: string,
+    value: string[] | undefined
+  ): void {
+    if (value !== undefined && value.length > 0) {
+      params.set(key, value.join(','));
+    }
+  }
+
+  /**
+   * Helper method to append positive number parameters
+   * @private
+   */
+  private appendPositiveNumberParam(
+    params: URLSearchParams,
+    key: string,
+    value: number | undefined
+  ): void {
+    if (value !== undefined && value > 0) {
+      params.set(key, value.toString());
+    }
   }
 }

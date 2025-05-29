@@ -2,7 +2,6 @@ import { BaseClient } from '../../core/BaseClient';
 import type {
   QualityGate,
   CreateQualityGateRequest,
-  UpdateQualityGateRequest,
   DeleteQualityGateRequest,
   SetAsDefaultRequest,
   CopyQualityGateRequest,
@@ -52,18 +51,6 @@ export class QualityGatesClient extends BaseClient {
    */
   async create(params: CreateQualityGateRequest): Promise<QualityGate> {
     return this.request('/api/qualitygates/create', {
-      method: 'POST',
-      body: JSON.stringify(params),
-    });
-  }
-
-  /**
-   * Update a quality gate
-   * Requires 'Administer Quality Gates' permission
-   * @since 4.3
-   */
-  async update(params: UpdateQualityGateRequest): Promise<void> {
-    await this.request('/api/qualitygates/rename', {
       method: 'POST',
       body: JSON.stringify(params),
     });

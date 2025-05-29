@@ -4,7 +4,6 @@ import type {
   NotificationListRequest,
   NotificationListResponse,
   NotificationModifyRequest,
-  NotificationModifyResponse,
   NotificationRemoveRequest,
 } from './types';
 
@@ -45,7 +44,7 @@ export class NotificationsClient extends BaseClient {
    * });
    * ```
    */
-  async add(params: NotificationAddRequest): Promise<NotificationModifyResponse> {
+  async add(params: NotificationAddRequest): Promise<undefined> {
     const searchParams = this.buildNotificationParams(params);
     await this.request(`/api/notifications/add?${searchParams.toString()}`, {
       method: 'POST',
@@ -122,7 +121,7 @@ export class NotificationsClient extends BaseClient {
    * });
    * ```
    */
-  async remove(params: NotificationRemoveRequest): Promise<NotificationModifyResponse> {
+  async remove(params: NotificationRemoveRequest): Promise<undefined> {
     const searchParams = this.buildNotificationParams(params);
     await this.request(`/api/notifications/remove?${searchParams.toString()}`, {
       method: 'POST',

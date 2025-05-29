@@ -106,9 +106,3 @@ export interface NotificationListResponse {
   /** List of active notifications */
   notifications: Notification[];
 }
-
-/**
- * Response from notifications/add and notifications/remove
- * These endpoints return 204 No Content on success
- */
-export type NotificationModifyResponse = undefined;

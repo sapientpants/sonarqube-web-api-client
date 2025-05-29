@@ -1,5 +1,4 @@
 import { PaginatedBuilder } from '../../core/builders';
-import type { CEClient } from './CEClient';
 import type {
   ActivityRequest,
   ActivityResponse,
@@ -7,6 +6,11 @@ import type {
   TaskStatus,
   TaskType,
 } from './types';
+
+// Forward declaration to avoid circular dependency
+interface CEClient {
+  activity: (params: ActivityRequest) => Promise<ActivityResponse>;
+}
 
 /**
  * Builder for constructing CE activity search queries
@@ -17,8 +21,15 @@ export class ActivityBuilder extends PaginatedBuilder<
   ActivityResponse,
   ActivityTask
 > {
-  constructor(client: CEClient) {
-    super(async (params) => client.activity(params));
+  constructor(
+    clientOrExecutor: CEClient | ((params: ActivityRequest) => Promise<ActivityResponse>)
+  ) {
+    const executor =
+      typeof clientOrExecutor === 'function'
+        ? clientOrExecutor
+        : async (params: ActivityRequest): Promise<ActivityResponse> =>
+            clientOrExecutor.activity(params);
+    super(executor);
   }
 
   /**

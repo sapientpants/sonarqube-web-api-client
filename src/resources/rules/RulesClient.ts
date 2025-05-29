@@ -169,8 +169,8 @@ export class RulesClient extends BaseClient {
     // Add parameters to search params
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        // Handle special case for owaspTop10-2021
-        const apiKey = key === 'owaspTop10-2021' ? 'owaspTop10-2021' : key;
+        // Assign key directly to apiKey
+        const apiKey = key;
 
         if (arrayParams.includes(key as keyof SearchRulesRequest) && Array.isArray(value)) {
           if (value.length > 0) {

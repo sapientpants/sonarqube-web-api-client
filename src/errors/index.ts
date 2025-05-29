@@ -9,6 +9,7 @@ export {
   NetworkError,
   TimeoutError,
   ServerError,
+  RemovedApiError,
 } from './SonarQubeError';
 
 export { createErrorFromResponse, createNetworkError } from './errorFactory';

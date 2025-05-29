@@ -1,4 +1,6 @@
 import { BaseClient } from '../../core/BaseClient';
+import { Deprecated } from '../../core/deprecation';
+import { RemovedApiError } from '../../errors';
 import type {
   QualityGate,
   CreateQualityGateRequest,
@@ -78,6 +80,24 @@ export class QualityGatesClient extends BaseClient {
       method: 'POST',
       body: JSON.stringify(params),
     });
+  }
+
+  /**
+   * Unset the default quality gate
+   * @deprecated Since 7.0. A default quality gate is now mandatory and cannot be unset.
+   * @throws {RemovedApiError} This API has been removed
+   */
+  @Deprecated({
+    deprecatedSince: '7.0',
+    removalDate: 'Already removed',
+    reason: 'A default quality gate is now mandatory and cannot be unset',
+    replacement: 'Set a different default quality gate instead of unsetting',
+    breakingChanges: ['Returns HTTP 410 Gone status'],
+  })
+  unsetDefault(): void {
+    throw new RemovedApiError(
+      'qualitygates.unsetDefault has been removed since 7.0. A default quality gate is mandatory.'
+    );
   }
 
   /**

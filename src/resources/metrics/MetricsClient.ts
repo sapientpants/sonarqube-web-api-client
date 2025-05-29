@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
+import { Deprecated } from '../../core/deprecation';
 import type {
   SearchMetricsParams,
   SearchMetricsResponse,
@@ -103,7 +103,7 @@ export class MetricsClient extends BaseClient {
 
   /**
    * List all custom metric domains
-   * @deprecated since 7.7
+   * @deprecated Since 7.7. This endpoint is no longer useful as custom metric domains have been removed.
    * @returns List of metric domains
    *
    * @example
@@ -113,13 +113,15 @@ export class MetricsClient extends BaseClient {
    * console.log(domains.domains); // ['Issues', 'Maintainability', ...]
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '7.7',
+    removalDate: 'Already removed',
+    reason: 'Custom metric domains are no longer supported',
+    replacement: 'Metric domains are now fixed and cannot be customized',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/metrics/',
+  })
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   async domains(): Promise<MetricDomainsResponse> {
-    DeprecationManager.warn({
-      api: 'metrics.domains()',
-      removeVersion: '7.7',
-      reason: 'This endpoint has been deprecated and will be removed.',
-    });
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     return await this.request<MetricDomainsResponse>('/api/metrics/domains');
   }

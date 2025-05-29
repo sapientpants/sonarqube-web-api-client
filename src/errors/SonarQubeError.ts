@@ -117,3 +117,12 @@ export class ServerError extends SonarQubeError {
     super(message, 'SERVER_ERROR', statusCode, response);
   }
 }
+
+/**
+ * Error thrown when attempting to use an API that has been removed
+ */
+export class RemovedApiError extends SonarQubeError {
+  constructor(message: string) {
+    super(message, 'REMOVED_API_ERROR', 410);
+  }
+}

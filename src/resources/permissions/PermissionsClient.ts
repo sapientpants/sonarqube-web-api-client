@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
+import { Deprecated } from '../../core/deprecation';
 import {
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
@@ -585,7 +585,7 @@ export class PermissionsClient extends BaseClient {
   /**
    * List global permissions.
    *
-   * @deprecated Since 6.5
+   * @deprecated Since 6.5. Use specific permission endpoints instead.
    * @param params - Parameters for searching global permissions
    * @returns Global permissions response
    * @throws {AuthenticationError} If the user is not authenticated
@@ -600,16 +600,18 @@ export class PermissionsClient extends BaseClient {
    * });
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '6.5',
+    removalDate: 'Already removed',
+    reason: 'Global permissions search has been deprecated in favor of specific permission APIs',
+    replacement: 'Use specific permission endpoints for users and groups',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/permissions/',
+  })
   async searchGlobalPermissions(
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     params: SearchGlobalPermissionsRequest
     // eslint-disable-next-line @typescript-eslint/no-deprecated
   ): Promise<SearchGlobalPermissionsResponse> {
-    DeprecationManager.warn({
-      api: 'permissions.searchGlobalPermissions()',
-      removeVersion: '6.5',
-      reason: 'This endpoint has been deprecated and will be removed.',
-    });
     const query = new URLSearchParams();
     query.append('organization', params.organization);
 
@@ -630,7 +632,7 @@ export class PermissionsClient extends BaseClient {
    * Search project permissions with pagination and filtering.
    * Returns a builder for constructing the search request.
    *
-   * @deprecated Since 6.5
+   * @deprecated Since 6.5. Use specific permission endpoints instead.
    * @returns A builder for constructing the search request
    * @throws {AuthenticationError} If the user is not authenticated
    * @throws {AuthorizationError} If the user lacks appropriate permissions
@@ -652,13 +654,15 @@ export class PermissionsClient extends BaseClient {
    * }
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '6.5',
+    removalDate: 'Already removed',
+    reason: 'Project permissions search has been deprecated in favor of specific permission APIs',
+    replacement: 'Use specific permission endpoints for users and groups',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/permissions/',
+  })
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   searchProjectPermissions(): SearchProjectPermissionsBuilder {
-    DeprecationManager.warn({
-      api: 'permissions.searchProjectPermissions()',
-      removeVersion: '6.5',
-      reason: 'This endpoint has been deprecated and will be removed.',
-    });
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     return new SearchProjectPermissionsBuilder(async (params) => {
       const query = new URLSearchParams();

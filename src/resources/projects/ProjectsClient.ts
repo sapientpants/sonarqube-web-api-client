@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation/DeprecationManager';
+import { Deprecated } from '../../core/deprecation';
 import { ValidationError } from '../../errors';
 import { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
 import type {
@@ -61,7 +61,7 @@ export class ProjectsClient extends BaseClient {
    * This allows renaming a project and all its sub-components at once.
    *
    * @since 6.1
-   * @deprecated Since 7.6 - Use updateKey() for individual project key updates
+   * @deprecated Since 7.6. Use updateKey() for individual project key updates
    * @param params - The bulk update parameters
    * @returns Information about the updated keys
    * @throws {AuthenticationError} If the user is not authenticated
@@ -79,15 +79,24 @@ export class ProjectsClient extends BaseClient {
    * });
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '7.6',
+    removalDate: 'Already removed',
+    replacement: 'updateKey()',
+    reason:
+      'Bulk key updates can cause issues with large projects. Use individual updates instead.',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/projects/#update-key',
+    examples: [
+      {
+        before:
+          'await client.projects.bulkUpdateKey({ project: "old-key", from: "old-", to: "new-" });',
+        after: 'await client.projects.updateKey({ project: "old-key", to: "new-key" });',
+        description: 'Update project keys individually',
+      },
+    ],
+  })
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   async bulkUpdateKey(params: BulkUpdateProjectKeyRequest): Promise<BulkUpdateProjectKeyResponse> {
-    DeprecationManager.warn({
-      api: 'projects.bulkUpdateKey()',
-      replacement: 'projects.updateKey()',
-      removeVersion: '8.0.0',
-      reason: 'Since 7.6 - Use updateKey() for individual project key updates',
-    });
-
     const body: Record<string, string> = {
       project: params.project,
       from: params.from,

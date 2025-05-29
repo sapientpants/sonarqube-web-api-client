@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
+import { Deprecated } from '../../core/deprecation';
 import { ValidationError } from '../../errors';
 import {
   ActivateRulesBuilder,
@@ -440,6 +440,7 @@ export class QualityProfilesClient extends BaseClient {
   /**
    * Export a quality profile.
    *
+   * @deprecated Since March 18, 2025. Use `backup()` instead. The export functionality is being replaced with the backup API which provides better consistency and reliability.
    * @param params - The export parameters
    * @returns The exported content (format depends on the exporter)
    * @throws {AuthenticationError} If the user is not authenticated
@@ -460,6 +461,27 @@ export class QualityProfilesClient extends BaseClient {
    * });
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '2025-03-18',
+    removalDate: '2025-09-18',
+    replacement: 'backup()',
+    reason: 'Export functionality is being replaced with the backup API for better consistency',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/quality-profiles/#backup',
+    examples: [
+      {
+        before: 'const xml = await client.qualityProfiles.export({ key: "java-profile-key" });',
+        after: 'const xml = await client.qualityProfiles.backup({ key: "java-profile-key" });',
+        description: 'Use backup() instead of export() for the default exporter',
+      },
+      {
+        before:
+          'const config = await client.qualityProfiles.export({ key: "js-profile-key", exporterKey: "eslint" });',
+        after:
+          '// Note: Specific exporters are no longer supported. Use backup() for the standard XML format.\nconst xml = await client.qualityProfiles.backup({ key: "js-profile-key" });',
+        description: 'Specific exporters are deprecated. Use backup() for standard format',
+      },
+    ],
+  })
   async export(params: ExportRequest): Promise<string> {
     this.validateProfileIdentification(params);
     const query = new URLSearchParams();
@@ -486,7 +508,7 @@ export class QualityProfilesClient extends BaseClient {
   /**
    * List available profile exporters.
    *
-   * @deprecated Since 18 March, 2025 - This endpoint will be removed
+   * @deprecated Since March 18, 2025. Profile exporters are being removed. Use the standard backup format instead.
    * @returns The list of available exporters
    * @throws {AuthenticationError} If the user is not authenticated
    *
@@ -498,19 +520,29 @@ export class QualityProfilesClient extends BaseClient {
    * });
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '2025-03-18',
+    removalDate: '2025-09-18',
+    reason: 'Profile exporters are being removed. Use the standard backup format instead.',
+    replacement: 'Use backup() method for standard XML format',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/quality-profiles/#backup',
+    examples: [
+      {
+        before:
+          'const exporters = await client.qualityProfiles.exporters();\nconst config = await client.qualityProfiles.export({ key: "profile-key", exporterKey: "eslint" });',
+        after: 'const xml = await client.qualityProfiles.backup({ key: "profile-key" });',
+        description: 'Use backup() for all profile exports',
+      },
+    ],
+  })
   async exporters(): Promise<ExportersResponse> {
-    DeprecationManager.warn({
-      api: 'qualityProfiles.exporters()',
-      removeVersion: 'March 18, 2025',
-      reason: 'This endpoint will be removed.',
-    });
     return this.request('/api/qualityprofiles/exporters');
   }
 
   /**
    * List supported importers.
    *
-   * @deprecated Since 18 March, 2025 - This endpoint will be removed
+   * @deprecated Since March 18, 2025. Profile importers are being removed. Use the standard restore format instead.
    * @returns The list of available importers
    * @throws {AuthenticationError} If the user is not authenticated
    *
@@ -522,12 +554,22 @@ export class QualityProfilesClient extends BaseClient {
    * });
    * ```
    */
+  @Deprecated({
+    deprecatedSince: '2025-03-18',
+    removalDate: '2025-09-18',
+    reason: 'Profile importers are being removed. Use the standard restore format instead.',
+    replacement: 'Use restore() method for standard XML format',
+    migrationGuide: 'https://docs.sonarqube.org/latest/api/quality-profiles/#restore',
+    examples: [
+      {
+        before:
+          'const importers = await client.qualityProfiles.importers();\n// Then use specific importer',
+        after: 'const result = await client.qualityProfiles.restore({ backup: xmlContent });',
+        description: 'Use restore() for all profile imports',
+      },
+    ],
+  })
   async importers(): Promise<ImportersResponse> {
-    DeprecationManager.warn({
-      api: 'qualityProfiles.importers()',
-      removeVersion: 'March 18, 2025',
-      reason: 'This endpoint will be removed.',
-    });
     return this.request('/api/qualityprofiles/importers');
   }
 

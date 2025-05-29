@@ -38,29 +38,49 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by issue statuses
+   * @deprecated Since July 3, 2024. Use withIssueStatuses() with the new status values instead.
    */
   withStatuses(statuses: IssueStatus[]): this {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "⚠️  Parameter 'statuses' in SearchIssuesBuilder.withStatuses() is deprecated since July 3, 2024. Use withIssueStatuses() with the new status values instead."
+    );
     return this.setParam('statuses', statuses);
   }
 
   /**
    * Filter by issue types
+   * @deprecated Since August 25, 2023. Issue types are now managed automatically based on Clean Code categories.
    */
   withTypes(types: IssueType[]): this {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "⚠️  Parameter 'types' in SearchIssuesBuilder.withTypes() is deprecated since August 25, 2023. Issue types are now managed automatically based on Clean Code categories."
+    );
     return this.setParam('types', types);
   }
 
   /**
    * Filter by issue severities
+   * @deprecated Since August 25, 2023. Issue severities are now managed automatically. Use impact severities instead.
    */
   withSeverities(severities: IssueSeverity[]): this {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "⚠️  Parameter 'severities' in SearchIssuesBuilder.withSeverities() is deprecated since August 25, 2023. Issue severities are now managed automatically. Use withImpactSeverities() instead."
+    );
     return this.setParam('severities', severities);
   }
 
   /**
    * Filter by issue resolutions
+   * @deprecated Since July 3, 2024. Issue resolutions are being phased out in favor of the new status model.
    */
   withResolutions(resolutions: IssueResolution[]): this {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "⚠️  Parameter 'resolutions' in SearchIssuesBuilder.withResolutions() is deprecated since July 3, 2024. Issue resolutions are being phased out in favor of the new status model."
+    );
     return this.setParam('resolutions', resolutions);
   }
 
@@ -248,8 +268,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Set facet mode for aggregations
+   * @deprecated Since 7.9. Facet mode is no longer supported.
    */
   withFacetMode(mode: FacetMode): this {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "⚠️  Parameter 'facetMode' in SearchIssuesBuilder.withFacetMode() is deprecated since 7.9. Facet mode is no longer supported."
+    );
     return this.setParam('facetMode', mode);
   }
 

@@ -74,7 +74,36 @@ export default tseslint.config(
       '@typescript-eslint/promise-function-async': 'error',
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
       '@typescript-eslint/consistent-indexed-object-style': ['error', 'record'],
-      '@typescript-eslint/member-ordering': 'error',
+      '@typescript-eslint/member-ordering': ['error', {
+        default: {
+          memberTypes: [
+            // Static fields
+            'public-static-field',
+            'protected-static-field',
+            'private-static-field',
+            
+            // Static methods
+            'public-static-method',
+            'protected-static-method',
+            'private-static-method',
+            
+            // Instance fields
+            'public-instance-field',
+            'protected-instance-field',
+            'private-instance-field',
+            
+            // Constructors
+            'public-constructor',
+            'protected-constructor',
+            'private-constructor',
+            
+            // Instance methods (including deprecated)
+            'public-instance-method',
+            'protected-instance-method',
+            'private-instance-method',
+          ],
+        },
+      }],
       '@typescript-eslint/method-signature-style': ['error', 'property'],
       '@typescript-eslint/no-confusing-void-expression': 'error',
       '@typescript-eslint/no-dynamic-delete': 'error',
@@ -122,6 +151,7 @@ export default tseslint.config(
         modifiers: ['requiresQuotes'],
         format: null,
       }],
+      '@typescript-eslint/no-deprecated': 'off', // Allow testing deprecated methods
     },
   },
   {
@@ -171,7 +201,7 @@ export default tseslint.config(
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-this-alias': 'off',
-      '@typescript-eslint/no-deprecated': 'off',
+      '@typescript-eslint/no-deprecated': 'warn', // Warn but don't error on deprecated decorator usage
       '@typescript-eslint/consistent-type-imports': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'off',
       
@@ -179,6 +209,12 @@ export default tseslint.config(
       'no-console': 'off', // Needed for deprecation warnings
       'no-duplicate-imports': 'off',
       'curly': 'off',
+    },
+  },
+  {
+    files: ['src/resources/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-deprecated': 'warn', // Warn but don't error when using @Deprecated decorator
     },
   },
   {

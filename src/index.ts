@@ -29,6 +29,7 @@ import { RulesClient } from './resources/rules';
 import { SettingsClient } from './resources/settings';
 import { UsersClient } from './resources/users';
 import { UserGroupsClient } from './resources/user-groups';
+import { UserTokensClient } from './resources/user-tokens';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -105,6 +106,8 @@ export class SonarQubeClient {
   public readonly users: UsersClient;
   /** User Groups API */
   public readonly userGroups: UserGroupsClient;
+  /** User Tokens API */
+  public readonly userTokens: UserTokensClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -150,6 +153,7 @@ export class SonarQubeClient {
     this.settings = new SettingsClient(this.baseUrl, this.token, this.organization);
     this.users = new UsersClient(this.baseUrl, this.token, this.organization);
     this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.organization);
+    this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
@@ -700,6 +704,16 @@ export type {
   UsersRequest,
   UsersResponse,
 } from './resources/user-groups/types';
+
+// Re-export types from user tokens
+export type {
+  GenerateTokenRequest,
+  GenerateTokenResponse,
+  RevokeTokenRequest,
+  SearchTokensRequest,
+  SearchTokensResponse,
+  UserToken,
+} from './resources/user-tokens/types';
 
 // Re-export error classes
 export {

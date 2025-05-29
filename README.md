@@ -143,7 +143,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Historical measures (deprecated) |
 | **User Groups** | `api/user_groups` | ✅ Implemented | Both | User group management |
 | **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
-| **User Tokens** | `api/user_tokens` | ❌ Not implemented | Both | User token management |
+| **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
@@ -576,6 +576,70 @@ console.log('Successfully logged out');
 
 // Note: The validate() endpoint returns true for anonymous users
 // Use it to check if credentials are properly configured
+```
+
+### 🔑 User Tokens Management
+
+```typescript
+// Generate a new access token for the current user
+const tokenResult = await client.userTokens.generate({
+  name: 'CI Pipeline Token'
+});
+console.log('Generated token:', tokenResult.token);
+console.log('Save this token securely - it cannot be retrieved again!');
+
+// Generate a token for another user (requires admin permissions)
+const adminToken = await client.userTokens.generate({
+  login: 'jenkins-user',
+  name: 'Jenkins CI Token'
+});
+
+// List all tokens for the current user
+const tokens = await client.userTokens.search();
+console.log(`You have ${tokens.userTokens.length} tokens:`);
+tokens.userTokens.forEach(token => {
+  console.log(`- ${token.name} (created: ${token.createdAt})`);
+  if (token.lastConnectionDate) {
+    console.log(`  Last used: ${token.lastConnectionDate}`);
+  }
+});
+
+// List tokens for another user (requires admin permissions)
+const userTokens = await client.userTokens.search({
+  login: 'jenkins-user'
+});
+
+// Revoke a token for the current user
+await client.userTokens.revoke({
+  name: 'Old CI Token'
+});
+console.log('Token revoked successfully');
+
+// Revoke a token for another user (requires admin permissions)
+await client.userTokens.revoke({
+  login: 'jenkins-user',
+  name: 'Deprecated Token'
+});
+
+// Example: Rotate CI tokens
+async function rotateToken(tokenName: string): Promise<string> {
+  // First, revoke the old token
+  try {
+    await client.userTokens.revoke({ name: tokenName });
+    console.log(`Old token '${tokenName}' revoked`);
+  } catch (error) {
+    // Token might not exist, which is fine
+  }
+  
+  // Generate a new token with the same name
+  const newToken = await client.userTokens.generate({ name: tokenName });
+  console.log(`New token '${tokenName}' generated`);
+  return newToken.token;
+}
+
+// Usage
+const newCIToken = await rotateToken('CI Pipeline Token');
+// Update your CI configuration with the new token
 ```
 
 ### 🏷️ Project Tags Management

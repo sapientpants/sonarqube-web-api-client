@@ -145,7 +145,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
 | **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
-| **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
+| **Webhooks** | `api/webhooks` | ✅ Implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
 Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
@@ -1127,6 +1127,187 @@ const selectedGroups = await client.users.groups()
 // user management endpoints when they become available.
 ```
 
+### 🔗 Webhooks Management
+
+Webhooks allow you to notify external services when a project analysis is completed:
+
+```typescript
+// Create a webhook for a project
+const { webhook } = await client.webhooks.create({
+  name: 'CI/CD Notification',
+  organization: 'my-org',
+  project: 'my-project',
+  url: 'https://my-ci-server.com/sonarqube-webhook',
+  secret: 'my-secret-key'  // Optional: for HMAC-SHA256 signature
+});
+
+console.log(`Created webhook: ${webhook.key}`);
+
+// Create a global webhook (organization-level)
+const { webhook: globalWebhook } = await client.webhooks.create({
+  name: 'Global Quality Gate Monitor',
+  organization: 'my-org',
+  url: 'https://monitoring.example.com/webhooks/sonar'
+});
+
+// List all webhooks for an organization
+const webhooks = await client.webhooks.list()
+  .organization('my-org')
+  .execute();
+
+console.log(`Found ${webhooks.webhooks.length} webhooks`);
+webhooks.webhooks.forEach(webhook => {
+  console.log(`Webhook: ${webhook.name}`);
+  console.log(`  URL: ${webhook.url}`);
+  console.log(`  Has Secret: ${webhook.hasSecret}`);
+});
+
+// List webhooks for a specific project
+const projectWebhooks = await client.webhooks.list()
+  .organization('my-org')
+  .project('my-project')
+  .execute();
+
+// Update a webhook
+await client.webhooks.update({
+  webhook: 'webhook-key-123',
+  name: 'Updated Webhook Name',
+  url: 'https://new-endpoint.example.com/webhook',
+  secret: 'new-secret'  // Updates the secret
+});
+
+// Remove the secret from a webhook
+await client.webhooks.update({
+  webhook: 'webhook-key-123',
+  name: 'Webhook Without Secret',
+  url: 'https://endpoint.example.com/webhook',
+  secret: ''  // Empty string removes the secret
+});
+
+// Delete a webhook
+await client.webhooks.delete({
+  webhook: 'webhook-key-123'
+});
+
+// Get recent webhook deliveries for a project
+const deliveries = await client.webhooks.deliveries()
+  .componentKey('my-project')
+  .pageSize(20)
+  .execute();
+
+console.log(`Found ${deliveries.deliveries.length} recent deliveries`);
+deliveries.deliveries.forEach(delivery => {
+  console.log(`Delivery ${delivery.id}:`);
+  console.log(`  Webhook: ${delivery.name}`);
+  console.log(`  Success: ${delivery.success}`);
+  console.log(`  HTTP Status: ${delivery.httpStatus || 'N/A'}`);
+  console.log(`  Duration: ${delivery.durationMs}ms`);
+  console.log(`  Timestamp: ${delivery.at}`);
+});
+
+// Get deliveries for a specific webhook
+const webhookDeliveries = await client.webhooks.deliveries()
+  .webhook('webhook-key-123')
+  .execute();
+
+// Get deliveries for a specific Compute Engine task
+const taskDeliveries = await client.webhooks.deliveries()
+  .ceTaskId('AU-Tpxb--iU5OvuD2FLy')
+  .execute();
+
+// Get detailed information about a specific delivery
+const delivery = await client.webhooks.delivery({
+  deliveryId: 'delivery-id-456'
+});
+
+console.log('Delivery details:');
+console.log(`  Webhook: ${delivery.delivery.name}`);
+console.log(`  Project: ${delivery.delivery.componentKey}`);
+console.log(`  Success: ${delivery.delivery.success}`);
+console.log(`  Duration: ${delivery.delivery.durationMs}ms`);
+
+if (delivery.delivery.payload) {
+  console.log('  Payload:', JSON.parse(delivery.delivery.payload));
+}
+
+if (delivery.delivery.errorStacktrace) {
+  console.log('  Error:', delivery.delivery.errorStacktrace);
+}
+
+// Monitor webhook delivery status
+async function checkWebhookHealth(webhookKey: string): Promise<void> {
+  const recentDeliveries = await client.webhooks.deliveries()
+    .webhook(webhookKey)
+    .pageSize(10)
+    .execute();
+
+  const failedDeliveries = recentDeliveries.deliveries.filter(d => !d.success);
+  
+  if (failedDeliveries.length > 0) {
+    console.warn(`Warning: ${failedDeliveries.length} failed deliveries for webhook ${webhookKey}`);
+    
+    for (const failed of failedDeliveries) {
+      const details = await client.webhooks.delivery({ 
+        deliveryId: failed.id 
+      });
+      console.error(`Failed delivery: ${details.delivery.errorStacktrace}`);
+    }
+  } else {
+    console.log(`Webhook ${webhookKey} is healthy`);
+  }
+}
+
+// Example webhook payload structure (what your endpoint receives):
+/*
+{
+  "serverUrl": "http://localhost:9000",
+  "taskId": "AU-TpxcB-iU5OvuD2FL1",
+  "status": "SUCCESS",
+  "analysedAt": "2016-11-18T10:46:28+0100",
+  "revision": "d8ac0bfd95b14f8b3b5bb5c6f74e1b0e3e1c9e4d",
+  "changedAt": "2016-11-18T10:46:28+0100",
+  "project": {
+    "key": "my-project",
+    "name": "My Project",
+    "url": "http://localhost:9000/dashboard?id=my-project"
+  },
+  "branch": {
+    "name": "main",
+    "type": "LONG",
+    "isMain": true,
+    "url": "http://localhost:9000/dashboard?id=my-project&branch=main"
+  },
+  "qualityGate": {
+    "name": "Sonar way",
+    "status": "OK",
+    "conditions": [
+      {
+        "metric": "new_reliability_rating",
+        "operator": "GREATER_THAN",
+        "value": "1",
+        "status": "OK",
+        "errorThreshold": "1"
+      }
+    ]
+  },
+  "properties": {}
+}
+*/
+```
+
+**Webhook Security:**
+- Use HTTPS endpoints for webhook URLs to prevent man-in-the-middle attacks
+- Set a secret to enable HMAC-SHA256 signature verification
+- The signature is sent in the `X-Sonar-Webhook-HMAC-SHA256` header
+- Verify the signature on your receiving endpoint to ensure authenticity
+
+**Common Use Cases:**
+- Trigger CI/CD pipelines after analysis completion
+- Send notifications to Slack, Teams, or email
+- Update external dashboards or monitoring systems
+- Integrate with issue tracking systems
+- Archive quality gate results
+
 ## 🛡️ Error Handling
 
 The library provides rich error types to help you handle different failure scenarios gracefully:
@@ -1178,6 +1359,7 @@ client.languages       // Programming languages
 client.sources         // Source code access
 client.system          // System administration
 client.userGroups      // User group management
+client.webhooks        // Webhook management
 // ... and many more
 ```
 

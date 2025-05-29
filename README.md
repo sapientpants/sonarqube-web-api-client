@@ -142,7 +142,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **System** | `api/system` | ✅ Implemented | SonarQube only | System information and health |
 | **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Historical measures (deprecated) |
 | **User Groups** | `api/user_groups` | ✅ Implemented | Both | User group management |
-| **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
+| **User Properties** | `api/user_properties` | ⚠️ Deprecated | Removed in 6.3 | Use favorites and notifications APIs |
 | **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
 | **Webhooks** | `api/webhooks` | ✅ Implemented | Both | Webhook management |

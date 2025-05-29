@@ -32,6 +32,7 @@ import { SettingsClient } from './resources/settings';
 import { UsersClient } from './resources/users';
 import { UserGroupsClient } from './resources/user-groups';
 import { UserTokensClient } from './resources/user-tokens';
+import { UserPropertiesClient } from './resources/user-properties';
 import { PermissionsClient } from './resources/permissions';
 import { WebhooksClient } from './resources/webhooks';
 import { WebservicesClient } from './resources/webservices';
@@ -115,6 +116,12 @@ export class SonarQubeClient {
   public readonly userGroups: UserGroupsClient;
   /** User Tokens API */
   public readonly userTokens: UserTokensClient;
+  /**
+   * User Properties API - **Removed since SonarQube 6.3**
+   * @deprecated Use favorites and notifications APIs instead
+   */
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  public readonly userProperties: UserPropertiesClient;
   /** Webhooks API */
   public readonly webhooks: WebhooksClient;
   /** Webservices API - Get information on the web API supported on this instance */
@@ -175,6 +182,8 @@ export class SonarQubeClient {
     this.users = new UsersClient(this.baseUrl, this.token, this.options);
     this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.options);
     this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    this.userProperties = new UserPropertiesClient(this.baseUrl, this.token, this.options);
     this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
     this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
   }
@@ -776,6 +785,9 @@ export type {
   SearchTokensResponse,
   UserToken,
 } from './resources/user-tokens/types';
+
+// Re-export types from user properties (deprecated)
+export type { UserPropertiesResponse, UserProperty } from './resources/user-properties/types';
 
 // Re-export types from webhooks
 export type {

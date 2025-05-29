@@ -27,6 +27,7 @@ import { ProjectTagsClient } from './resources/project-tags';
 import { QualityProfilesClient } from './resources/quality-profiles';
 import { RulesClient } from './resources/rules';
 import { SettingsClient } from './resources/settings';
+import { UsersClient } from './resources/users';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -99,6 +100,8 @@ export class SonarQubeClient {
   public readonly projectTags: ProjectTagsClient;
   /** Settings API */
   public readonly settings: SettingsClient;
+  /** Users API */
+  public readonly users: UsersClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -142,6 +145,7 @@ export class SonarQubeClient {
     this.system = new SystemClient(this.baseUrl, this.token, this.organization);
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
     this.settings = new SettingsClient(this.baseUrl, this.token, this.organization);
+    this.users = new UsersClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
@@ -664,6 +668,18 @@ export type {
   SettingField,
   SettingValue,
 } from './resources/settings/types';
+
+// Re-export types from users
+export type {
+  User,
+  UserWithDetails,
+  UserGroup,
+  GroupSelectionFilter,
+  SearchUsersRequest,
+  SearchUsersResponse,
+  GetUserGroupsRequest,
+  GetUserGroupsResponse,
+} from './resources/users/types';
 
 // Re-export error classes
 export {

@@ -144,7 +144,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **User Groups** | `api/user_groups` | ❌ Not implemented | Both | User group management |
 | **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
 | **User Tokens** | `api/user_tokens` | ❌ Not implemented | Both | User token management |
-| **Users** | `api/users` | ❌ Not implemented | Both | User management |
+| **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
 | **Webhooks** | `api/webhooks` | ❌ Not implemented | Both | Webhook management |
 | **Web Services** | `api/webservices` | ❌ Not implemented | Both | API documentation |
 
@@ -167,7 +167,7 @@ The following APIs or actions are marked as deprecated in the SonarQube Web API:
 | **api/qualityprofiles** | `restore_built_in` | 6.4 | Built-in profiles restored automatically |
 | **api/timemachine** | `index` | 6.3 | Entire API is deprecated, use `api/measures/history` |
 | **api/user_properties** | `index` | 6.3 | Removed as of version 6.3, use `api/favorites` and `api/notifications` instead |
-| **api/users** | `search` | 10 February, 2025 | Use newer user search endpoints |
+| **api/users** | `search` | 10 February, 2025 | Use newer user search endpoints (will be dropped August 13, 2025) |
 
 **Note**: This library may still provide support for some deprecated APIs for backward compatibility, but we recommend migrating to newer alternatives where available.
 
@@ -919,6 +919,75 @@ const criticalBranches = branches.branches.filter(
   branch => branch.bugCount && branch.bugCount > 0 || 
             branch.vulnerabilityCount && branch.vulnerabilityCount > 0
 );
+```
+
+### 👥 User Management
+
+```typescript
+// Search for users (deprecated but still supported)
+const users = await client.users.search()
+  .query('john')        // Search by login, name, or email
+  .pageSize(50)         // Limit results
+  .execute();
+
+console.log(`Found ${users.users.length} users`);
+users.users.forEach(user => {
+  console.log(`User: ${user.name} (${user.login})`);
+  if (user.active) {
+    console.log('  Status: Active');
+  }
+  // Additional fields available for admin users:
+  if (user.email) console.log(`  Email: ${user.email}`);
+  if (user.lastConnectionDate) console.log(`  Last connection: ${user.lastConnectionDate}`);
+});
+
+// Search by specific user IDs
+const specificUsers = await client.users.search()
+  .ids(['uuid-1', 'uuid-2', 'uuid-3'])
+  .execute();
+
+// Iterate through all users with pagination
+for await (const user of client.users.searchAll()) {
+  console.log(`Processing user: ${user.name}`);
+}
+
+// Get groups for a specific user
+const userGroups = await client.users.groups()
+  .login('john.doe')
+  .organization('my-org')
+  .execute();
+
+console.log(`User belongs to ${userGroups.groups.length} groups`);
+userGroups.groups.forEach(group => {
+  console.log(`Group: ${group.name}`);
+  if (group.description) console.log(`  Description: ${group.description}`);
+  if (group.default) console.log('  This is a default group');
+});
+
+// Filter groups by name
+const adminGroups = await client.users.groups()
+  .login('john.doe')
+  .organization('my-org')
+  .query('admin')         // Search for groups containing 'admin'
+  .selected('all')        // Show all groups (selected, deselected, or all)
+  .execute();
+
+// Iterate through all groups for a user
+for await (const group of client.users.groupsAll('john.doe', 'my-org')) {
+  console.log(`User group: ${group.name}`);
+}
+
+// Advanced group filtering
+const selectedGroups = await client.users.groups()
+  .login('john.doe')
+  .organization('my-org')
+  .selected('selected')   // Only groups the user belongs to
+  .pageSize(25)
+  .execute();
+
+// Note: The users/search endpoint is deprecated since Feb 10, 2025
+// and will be removed on Aug 13, 2025. Consider migrating to newer
+// user management endpoints when they become available.
 ```
 
 ## 🛡️ Error Handling

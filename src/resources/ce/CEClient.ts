@@ -1,4 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
+import { ValidationError } from '../../errors';
 import type {
   ActivityRequest,
   ActivityResponse,
@@ -176,7 +177,7 @@ export class CEClient extends BaseClient {
    */
   private validateActivityRequest(request: ActivityRequest): void {
     if (request.component !== undefined && request.componentId !== undefined) {
-      throw new Error(
+      throw new ValidationError(
         'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.'
       );
     }

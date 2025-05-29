@@ -133,9 +133,9 @@ export class MeasuresClient extends BaseClient {
     this.appendOptionalArrayParam(query, 'qualifiers', params.qualifiers);
 
     // Optional boolean and number parameters
-    this.appendOptionalBooleanParam(query, 'asc', params.asc);
-    this.appendOptionalNumberParam(query, 'p', params.p);
-    this.appendOptionalNumberParam(query, 'ps', params.ps);
+    this.appendOptionalParam(query, 'asc', params.asc);
+    this.appendOptionalParam(query, 'p', params.p);
+    this.appendOptionalParam(query, 'ps', params.ps);
 
     return query;
   }
@@ -169,27 +169,13 @@ export class MeasuresClient extends BaseClient {
   }
 
   /**
-   * Helper method to append optional boolean parameters
+   * Helper method to append optional parameters
    * @private
    */
-  private appendOptionalBooleanParam(
+  private appendOptionalParam(
     params: URLSearchParams,
     key: string,
-    value: boolean | undefined
-  ): void {
-    if (value !== undefined) {
-      params.append(key, value.toString());
-    }
-  }
-
-  /**
-   * Helper method to append optional number parameters
-   * @private
-   */
-  private appendOptionalNumberParam(
-    params: URLSearchParams,
-    key: string,
-    value: number | undefined
+    value: boolean | number | undefined
   ): void {
     if (value !== undefined) {
       params.append(key, value.toString());

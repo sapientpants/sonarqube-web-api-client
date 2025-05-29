@@ -250,6 +250,9 @@ export function registerAllDeprecations(): void {
   // Register other API deprecations...
 }
 
+// Export for testing
+export { MigrationCLI };
+
 // CLI entry point
 if (require.main === module) {
   const options: MigrationOptions = {

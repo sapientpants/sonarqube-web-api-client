@@ -120,6 +120,22 @@ export class CompatibilityBridge {
   }
 
   /**
+   * Helper to apply compatibility bridge to a client
+   */
+  static withCompatibility<T extends object>(
+    client: T,
+    mappings: ApiMapping[] = UserApiV1ToV2Mappings
+  ): T {
+    // Register all mappings
+    mappings.forEach((m) => {
+      CompatibilityBridge.register(m);
+    });
+
+    // Return proxied client
+    return CompatibilityBridge.createProxy(client);
+  }
+
+  /**
    * Transform async results if needed
    */
   private static async transformResult(

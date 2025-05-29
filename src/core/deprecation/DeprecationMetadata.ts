@@ -60,8 +60,18 @@ export class DeprecationRegistry {
   /**
    * Export metadata for external tooling
    */
-  static export(): Record<string, DeprecationMetadata> {
-    return Object.fromEntries(this.metadata);
+  static export(): string {
+    return JSON.stringify(Array.from(this.metadata.values()));
+  }
+
+  static clear(): void {
+    this.metadata.clear();
+  }
+
+  static getTimeline(): DeprecationMetadata[] {
+    return this.getAll()
+      .filter((m) => m.removalDate && !isNaN(new Date(m.removalDate).getTime()))
+      .sort((a, b) => new Date(a.removalDate).getTime() - new Date(b.removalDate).getTime());
   }
 
   /**

@@ -1,6 +1,7 @@
 import {
   Deprecated,
   DeprecatedClass,
+  DeprecatedParameter,
   DeprecationRegistry,
   CompatibilityBridge,
   MigrationAssistant,
@@ -98,6 +99,34 @@ describe('Enhanced Deprecation System', () => {
       new OldClass();
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('OldClass'));
+    });
+
+    it('should handle parameter deprecation', () => {
+      class TestClass {
+        @DeprecatedParameter(1, 'oldParam', {
+          reason: 'This parameter is no longer needed',
+          replacement: 'Use options object instead',
+        })
+        method(value: string, oldParam?: boolean): string {
+          return oldParam ? value.toUpperCase() : value;
+        }
+      }
+
+      const instance = new TestClass();
+
+      // Call without deprecated parameter - no warning
+      consoleSpy.mockClear();
+      instance.method('test');
+      expect(consoleSpy).not.toHaveBeenCalled();
+
+      // Call with deprecated parameter - should warn
+      instance.method('test', true);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Parameter 'oldParam' in TestClass.method() is deprecated")
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Use options object instead')
+      );
     });
   });
 

@@ -115,17 +115,23 @@ export function DeprecatedClass(metadata: Omit<DeprecationMetadata, 'api'>) {
 
 /**
  * Decorator for parameters that will be removed
+ * Note: This requires the parameter index to be specified explicitly
+ * because TypeScript 5.x parameter decorators don't provide the index in the context
  */
-export function DeprecatedParameter(parameterName: string, metadata: Partial<DeprecationMetadata>) {
+export function DeprecatedParameter(
+  parameterIndex: number,
+  parameterName: string,
+  metadata: Partial<DeprecationMetadata>
+) {
   return function <T extends AnyFunction>(target: T, context: ClassMethodDecoratorContext): T {
     const methodName = String(context.name);
-    const className =
-      context.kind === 'method' ? ((target as any).constructor.name as string) : 'Unknown';
 
     return function (this: any, ...args: Parameters<T>): ReturnType<T> {
+      // Get class name at runtime from 'this'
+      const className = this?.constructor?.name || 'Unknown';
+
       // Check if deprecated parameter is being used
-      const paramIndex = target.length - 1; // Assuming it's checking the last parameter
-      if (args[paramIndex] !== undefined) {
+      if (args[parameterIndex] !== undefined) {
         console.warn(
           `⚠️  Parameter '${parameterName}' in ${className}.${methodName}() is deprecated. ${
             metadata.reason ?? ''

@@ -1,4 +1,5 @@
 import { createErrorFromResponse, createNetworkError } from '../errors';
+import type { DeprecationOptions } from './deprecation';
 
 /**
  * Response type options for BaseClient requests
@@ -6,14 +7,35 @@ import { createErrorFromResponse, createNetworkError } from '../errors';
 export type ResponseType = 'json' | 'text' | 'arrayBuffer' | 'blob';
 
 /**
+ * Client configuration options
+ */
+export interface ClientOptions extends DeprecationOptions {
+  /** Organization key for SonarQube Cloud */
+  organization?: string;
+}
+
+/**
  * Base client class for resource modules
  */
 export abstract class BaseClient {
+  protected readonly options: ClientOptions;
+
   constructor(
     protected readonly baseUrl: string,
     protected readonly token: string,
-    protected readonly organization?: string
-  ) {}
+    organizationOrOptions?: string | ClientOptions
+  ) {
+    // Handle backward compatibility: organization can be string or options object
+    if (typeof organizationOrOptions === 'string') {
+      this.options = { organization: organizationOrOptions };
+    } else {
+      this.options = organizationOrOptions ?? {};
+    }
+  }
+
+  protected get organization(): string | undefined {
+    return this.options.organization;
+  }
 
   protected async request<T>(
     url: string,

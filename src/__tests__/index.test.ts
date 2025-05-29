@@ -21,7 +21,7 @@ describe('SonarQubeClient', () => {
     it('should accept organization parameter', () => {
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token', 'my-org');
       expect(client['token']).toBe('test-token');
-      expect(client['organization']).toBe('my-org');
+      expect(client['options'].organization).toBe('my-org');
     });
 
     it('should handle undefined organization parameter', () => {

@@ -56,6 +56,74 @@ describe('RulesClient', () => {
       const builder = client.search();
       expect(builder).toBeInstanceOf(SearchRulesBuilder);
     });
+
+    it('should execute search with various parameters', async () => {
+      const result = await client
+        .search()
+        .withLanguages(['java', 'javascript'])
+        .withSeverities(['CRITICAL', 'MAJOR'])
+        .withTypes(['BUG', 'VULNERABILITY'])
+        .withTags(['security', 'performance'])
+        .withStatuses(['READY'])
+        .withActivation(true)
+        .withActiveSeverities(['BLOCKER'])
+        .availableSince('2024-01-01')
+        .withCleanCodeAttributeCategories(['INTENTIONAL'])
+        .withCwe(['CWE-89'])
+        .withFields(['name', 'severity'])
+        .withFacets(['languages', 'repositories'])
+        .withImpactSeverities(['HIGH'])
+        .withImpactSoftwareQualities(['SECURITY'])
+        .includeExternal(true)
+        .withInheritance(['INHERITED'])
+        .isTemplate(false)
+        .inOrganization('my-org')
+        .withOwaspTop10(['a1'])
+        .withOwaspTop10v2021(['a01'])
+        .withQuery('injection')
+        .inQualityProfile('profile-key')
+        .withRepositories(['java'])
+        .withRuleKey('java:S1234')
+        .withRuleKeys(['java:S1234', 'java:S5678'])
+        .sortBy('name', false)
+        .withSonarSourceSecurity(['sql-injection'])
+        .withTemplateKey('java:S001')
+        .pageSize(50)
+        .page(2)
+        .execute();
+
+      // Verify the response structure
+      expect(result).toHaveProperty('total');
+      expect(result).toHaveProperty('p');
+      expect(result).toHaveProperty('ps');
+      expect(result).toHaveProperty('rules');
+      expect(Array.isArray(result.rules)).toBe(true);
+    });
+
+    it('should handle search with empty arrays', async () => {
+      const result = await client
+        .search()
+        .withLanguages([])
+        .withSeverities([])
+        .withTypes([])
+        .execute();
+
+      // Should still return a valid response even with empty filters
+      expect(result).toHaveProperty('total');
+      expect(result).toHaveProperty('rules');
+      expect(Array.isArray(result.rules)).toBe(true);
+    });
+
+    it('should handle search with minimal parameters', async () => {
+      const result = await client.search().execute();
+
+      // Should return the expected response structure
+      expect(result).toHaveProperty('total');
+      expect(result).toHaveProperty('p');
+      expect(result).toHaveProperty('ps');
+      expect(result).toHaveProperty('rules');
+      expect(Array.isArray(result.rules)).toBe(true);
+    });
   });
 
   describe('show', () => {
@@ -179,6 +247,28 @@ describe('RulesClient', () => {
       expect(result.rule.remFn).toBe('LINEAR');
       expect(result.rule.remFnBaseEffort).toBe('5min');
       expect(result.rule.remFnGapMultiplier).toBe('10min');
+    });
+
+    it('should update rule with params', async () => {
+      const result = await client.update({
+        key: 'java:S1234',
+        organization: 'my-org',
+        params: 'max=10;format=text',
+      });
+
+      expect(result.rule).toBeDefined();
+      expect(result.rule.key).toBe('java:S1234');
+    });
+
+    it('should update rule status', async () => {
+      const result = await client.update({
+        key: 'java:S1234',
+        organization: 'my-org',
+        status: 'DEPRECATED',
+      });
+
+      expect(result.rule).toBeDefined();
+      expect(result.rule.key).toBe('java:S1234');
     });
 
     it('should throw on authorization error', async () => {

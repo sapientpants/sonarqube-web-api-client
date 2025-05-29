@@ -1,4 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
+import { DeprecationManager } from '../../core/deprecation/DeprecationManager';
 import { ComponentsTreeBuilder } from './builders';
 import type {
   ComponentShowResponse,
@@ -97,6 +98,14 @@ export class ComponentsClient extends BaseClient {
     } = {}
     // eslint-disable-next-line @typescript-eslint/no-deprecated
   ): Promise<ComponentSearchResponse> {
+    DeprecationManager.warn({
+      api: 'components.search()',
+      replacement: 'components.tree()',
+      removeVersion: '9.0.0',
+      reason:
+        'The search endpoint is being replaced with the more flexible tree() method since 6.3',
+    });
+
     const params = new URLSearchParams();
     params.set('organization', organization);
 

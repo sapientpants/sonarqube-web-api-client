@@ -1,4 +1,5 @@
 import { PaginatedBuilder } from '../../core/builders';
+import { DeprecationManager } from '../../core/deprecation';
 import type {
   ActivityRequest,
   ActivityResponse,
@@ -49,6 +50,12 @@ export class ActivityBuilder extends PaginatedBuilder<
    * @deprecated Use withComponent() instead
    */
   withComponentId(componentId: string): this {
+    DeprecationManager.warn({
+      api: 'ActivityBuilder.withComponentId()',
+      removeVersion: '8.0',
+      replacement: 'withComponent()',
+      reason: 'This method has been deprecated.',
+    });
     // Validate that query is not already set
     if (this.params.q !== undefined) {
       throw new Error(

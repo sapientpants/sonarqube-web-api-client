@@ -1,4 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
+import { DeprecationManager } from '../../core/deprecation';
 import { ValidationError } from '../../errors';
 import {
   ActivateRulesBuilder,
@@ -498,6 +499,11 @@ export class QualityProfilesClient extends BaseClient {
    * ```
    */
   async exporters(): Promise<ExportersResponse> {
+    DeprecationManager.warn({
+      api: 'qualityProfiles.exporters()',
+      removeVersion: 'March 18, 2025',
+      reason: 'This endpoint will be removed.',
+    });
     return this.request('/api/qualityprofiles/exporters');
   }
 
@@ -517,6 +523,11 @@ export class QualityProfilesClient extends BaseClient {
    * ```
    */
   async importers(): Promise<ImportersResponse> {
+    DeprecationManager.warn({
+      api: 'qualityProfiles.importers()',
+      removeVersion: 'March 18, 2025',
+      reason: 'This endpoint will be removed.',
+    });
     return this.request('/api/qualityprofiles/importers');
   }
 

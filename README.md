@@ -137,7 +137,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Quality gate management |
 | **Quality Profiles** | `api/qualityprofiles` | ✅ Implemented | Both | Quality profile management |
 | **Rules** | `api/rules` | ❌ Not implemented | Both | Coding rule management |
-| **Settings** | `api/settings` | ❌ Not implemented | Both | Global and project settings |
+| **Settings** | `api/settings` | ✅ Implemented | Both | Global and project settings |
 | **Sources** | `api/sources` | ✅ Implemented | Both | Source code access |
 | **System** | `api/system` | ✅ Implemented | SonarQube only | System information and health |
 | **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Historical measures (deprecated) |
@@ -588,6 +588,102 @@ await client.notifications.remove({
 const userNotifications = await client.notifications.list({
   login: 'john.doe'
 });
+```
+
+### ⚙️ Settings Management
+
+```typescript
+// List all settings definitions
+const definitions = await client.settings.listDefinitions();
+console.log(`Found ${definitions.definitions.length} setting definitions`);
+
+// List settings definitions for a specific component
+const componentDefs = await client.settings.listDefinitions({
+  component: 'my-project'
+});
+
+// Get current setting values
+const allSettings = await client.settings.values().execute();
+console.log('Current settings:', allSettings.settings);
+
+// Get specific setting values
+const specificSettings = await client.settings.values()
+  .keys(['sonar.test.inclusions', 'sonar.exclusions'])
+  .execute();
+
+// Get component-specific settings
+const projectSettings = await client.settings.values()
+  .component('my-project')
+  .execute();
+
+// Set a simple string value
+await client.settings.set()
+  .key('sonar.links.scm')
+  .value('git@github.com:MyOrg/my-project.git')
+  .execute();
+
+// Set multiple values for a setting
+await client.settings.set()
+  .key('sonar.exclusions')
+  .values(['**/test/**', '**/vendor/**', '**/node_modules/**'])
+  .execute();
+
+// Set field values for property set settings
+await client.settings.set()
+  .key('sonar.issue.ignore.multicriteria')
+  .fieldValues([
+    { ruleKey: 'java:S1135', resourceKey: '**/test/**' },
+    { ruleKey: 'java:S2589', resourceKey: '**/generated/**' }
+  ])
+  .execute();
+
+// Set component-specific settings
+await client.settings.set()
+  .key('sonar.coverage.exclusions')
+  .value('**/test/**,**/vendor/**')
+  .component('my-project')
+  .execute();
+
+// Reset settings to their defaults
+await client.settings.reset()
+  .keys(['sonar.links.scm', 'sonar.debt.hoursInDay'])
+  .execute();
+
+// Reset component-specific settings
+await client.settings.reset()
+  .keys(['sonar.coverage.exclusions'])
+  .component('my-project')
+  .execute();
+
+// Reset settings on a specific branch
+await client.settings.reset()
+  .keys(['sonar.coverage.exclusions'])
+  .component('my-project')
+  .branch('feature/my_branch')
+  .execute();
+
+// Add values incrementally using builder methods
+await client.settings.set()
+  .key('sonar.inclusions')
+  .addValue('src/**')
+  .addValue('lib/**')
+  .addValue('app/**')
+  .execute();
+
+// Work with inherited settings
+const orgSettings = await client.settings.values()
+  .organization('my-org')
+  .execute();
+
+orgSettings.settings.forEach(setting => {
+  if (setting.inherited) {
+    console.log(`${setting.key} is inherited from ${setting.parentOrigin}`);
+    console.log(`Parent value: ${setting.parentValue}`);
+  }
+});
+
+// Note: The settings defined in conf/sonar.properties are read-only
+// and cannot be changed through the API
 ```
 
 ### 🎯 Quality Profiles Management

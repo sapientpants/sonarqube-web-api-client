@@ -25,6 +25,7 @@ import { ProjectBranchesClient } from './resources/project-branches';
 import { ProjectPullRequestsClient } from './resources/project-pull-requests';
 import { ProjectTagsClient } from './resources/project-tags';
 import { QualityProfilesClient } from './resources/quality-profiles';
+import { SettingsClient } from './resources/settings';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -93,6 +94,8 @@ export class SonarQubeClient {
   public readonly system: SystemClient;
   /** Project Tags API */
   public readonly projectTags: ProjectTagsClient;
+  /** Settings API */
+  public readonly settings: SettingsClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -134,6 +137,7 @@ export class SonarQubeClient {
     this.sources = new SourcesClient(this.baseUrl, this.token, this.organization);
     this.system = new SystemClient(this.baseUrl, this.token, this.organization);
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
+    this.settings = new SettingsClient(this.baseUrl, this.token, this.organization);
   }
 
   // Legacy methods for backward compatibility
@@ -219,7 +223,7 @@ export type {
   CountBindingResponse,
   ListAlmSettingsRequest,
   ListAlmSettingsResponse,
-  ListDefinitionsResponse,
+  ListDefinitionsResponse as AlmListDefinitionsResponse,
   GetBindingRequest,
   DeleteBindingRequest,
   ValidateAlmSettingRequest,
@@ -609,6 +613,24 @@ export type {
   SearchResponse as SearchQualityProfilesResponse,
   SetDefaultRequest as SetDefaultQualityProfileRequest,
 } from './resources/quality-profiles/types';
+
+// Re-export types from settings
+export type {
+  // Request types
+  ListDefinitionsRequest as SettingsListDefinitionsRequest,
+  ResetRequest as SettingsResetRequest,
+  SetRequest as SettingsSetRequest,
+  ValuesRequest as SettingsValuesRequest,
+
+  // Response types
+  ListDefinitionsResponse as SettingsListDefinitionsResponse,
+  ValuesResponse as SettingsValuesResponse,
+
+  // Entity types
+  SettingDefinition,
+  SettingField,
+  SettingValue,
+} from './resources/settings/types';
 
 // Re-export error classes
 export {

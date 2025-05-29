@@ -5,8 +5,10 @@ import type {
   CreateWebhookRequest,
   CreateWebhookResponse,
   DeleteWebhookRequest,
+  GetWebhookDeliveriesResponse,
   GetWebhookDeliveryRequest,
   GetWebhookDeliveryResponse,
+  ListWebhooksResponse,
   UpdateWebhookRequest,
 } from './types';
 
@@ -137,7 +139,9 @@ export class WebhooksClient extends BaseClient {
         searchParams.append('ps', params.ps.toString());
       }
 
-      return this.request(`/api/webhooks/deliveries?${searchParams.toString()}`);
+      return this.request<GetWebhookDeliveriesResponse>(
+        `/api/webhooks/deliveries?${searchParams.toString()}`
+      );
     });
   }
 
@@ -204,7 +208,7 @@ export class WebhooksClient extends BaseClient {
         searchParams.append('project', params.project.trim());
       }
 
-      return this.request(`/api/webhooks/list?${searchParams.toString()}`);
+      return this.request<ListWebhooksResponse>(`/api/webhooks/list?${searchParams.toString()}`);
     });
   }
 

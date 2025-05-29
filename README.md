@@ -1133,7 +1133,7 @@ Webhooks allow you to notify external services when a project analysis is comple
 
 ```typescript
 // Create a webhook for a project
-const webhook = await client.webhooks.create({
+const { webhook } = await client.webhooks.create({
   name: 'CI/CD Notification',
   organization: 'my-org',
   project: 'my-project',
@@ -1141,10 +1141,10 @@ const webhook = await client.webhooks.create({
   secret: 'my-secret-key'  // Optional: for HMAC-SHA256 signature
 });
 
-console.log(`Created webhook: ${webhook.webhook.key}`);
+console.log(`Created webhook: ${webhook.key}`);
 
 // Create a global webhook (organization-level)
-const globalWebhook = await client.webhooks.create({
+const { webhook: globalWebhook } = await client.webhooks.create({
   name: 'Global Quality Gate Monitor',
   organization: 'my-org',
   url: 'https://monitoring.example.com/webhooks/sonar'

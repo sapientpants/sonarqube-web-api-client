@@ -1,7 +1,6 @@
 import { BaseClient } from '../../core/BaseClient';
 import type {
   GetRawSourceRequest,
-  GetRawSourceResponse,
   GetScmInfoRequest,
   GetScmInfoResponse,
   ShowSourceRequest,
@@ -20,7 +19,7 @@ export class SourcesClient extends BaseClient {
    * @param params - Request parameters
    * @returns The raw source code as a string
    */
-  async raw(params: GetRawSourceRequest): Promise<GetRawSourceResponse> {
+  async raw(params: GetRawSourceRequest): Promise<string> {
     const searchParams = new URLSearchParams();
     searchParams.append('key', params.key);
 

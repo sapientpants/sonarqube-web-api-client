@@ -7,5 +7,4 @@ export type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-  BadgeResponse,
 } from './types';

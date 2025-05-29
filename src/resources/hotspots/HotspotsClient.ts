@@ -56,48 +56,87 @@ export class HotspotsClient extends BaseClient {
    * Private method to execute search requests with proper parameter handling
    */
   private async searchExecutor(params: SearchHotspotsRequest): Promise<SearchHotspotsResponse> {
+    const urlParams = this.buildSearchParams(params);
+    return this.request<SearchHotspotsResponse>(`/api/hotspots/search?${urlParams.toString()}`);
+  }
+
+  /**
+   * Builds URL parameters for hotspots search
+   * @private
+   */
+  private buildSearchParams(params: SearchHotspotsRequest): URLSearchParams {
     const urlParams = new URLSearchParams();
 
-    if (params.projectKey !== undefined && params.projectKey !== '') {
-      urlParams.append('projectKey', params.projectKey);
-    }
+    this.appendNonEmptyStringParam(urlParams, 'projectKey', params.projectKey);
+    this.appendNonEmptyStringParam(urlParams, 'status', params.status);
+    this.appendNonEmptyStringParam(urlParams, 'resolution', params.resolution);
 
-    if (params.hotspots !== undefined && params.hotspots.length > 0) {
-      urlParams.append('hotspots', params.hotspots.join(','));
-    }
+    this.appendArrayParam(urlParams, 'hotspots', params.hotspots);
+    this.appendArrayParam(urlParams, 'files', params.files);
+    this.appendArrayParam(urlParams, 'fileUuids', params.fileUuids);
 
-    if (params.status !== undefined) {
-      urlParams.append('status', params.status);
-    }
+    this.appendBooleanParam(urlParams, 'onlyMine', params.onlyMine);
+    this.appendBooleanParam(urlParams, 'sinceLeakPeriod', params.sinceLeakPeriod);
 
-    if (params.resolution !== undefined) {
-      urlParams.append('resolution', params.resolution);
-    }
+    this.appendPositiveNumberParam(urlParams, 'p', params.p);
+    this.appendPositiveNumberParam(urlParams, 'ps', params.ps);
 
-    if (params.onlyMine !== undefined) {
-      urlParams.append('onlyMine', params.onlyMine.toString());
-    }
+    return urlParams;
+  }
 
-    if (params.sinceLeakPeriod !== undefined) {
-      urlParams.append('sinceLeakPeriod', params.sinceLeakPeriod.toString());
+  /**
+   * Appends non-empty string parameter to URLSearchParams
+   * @private
+   */
+  private appendNonEmptyStringParam(
+    params: URLSearchParams,
+    key: string,
+    value: string | undefined
+  ): void {
+    if (value !== undefined && value !== '') {
+      params.append(key, value);
     }
+  }
 
-    if (params.files !== undefined && params.files.length > 0) {
-      urlParams.append('files', params.files.join(','));
+  /**
+   * Appends array parameter to URLSearchParams as comma-separated string
+   * @private
+   */
+  private appendArrayParam(
+    params: URLSearchParams,
+    key: string,
+    value: string[] | undefined
+  ): void {
+    if (value !== undefined && value.length > 0) {
+      params.append(key, value.join(','));
     }
+  }
 
-    if (params.fileUuids !== undefined && params.fileUuids.length > 0) {
-      urlParams.append('fileUuids', params.fileUuids.join(','));
+  /**
+   * Appends boolean parameter to URLSearchParams
+   * @private
+   */
+  private appendBooleanParam(
+    params: URLSearchParams,
+    key: string,
+    value: boolean | undefined
+  ): void {
+    if (value !== undefined) {
+      params.append(key, value.toString());
     }
+  }
 
-    if (params.p !== undefined && params.p > 0) {
-      urlParams.append('p', params.p.toString());
+  /**
+   * Appends positive number parameter to URLSearchParams
+   * @private
+   */
+  private appendPositiveNumberParam(
+    params: URLSearchParams,
+    key: string,
+    value: number | undefined
+  ): void {
+    if (value !== undefined && value > 0) {
+      params.append(key, value.toString());
     }
-
-    if (params.ps !== undefined && params.ps > 0) {
-      urlParams.append('ps', params.ps.toString());
-    }
-
-    return this.request<SearchHotspotsResponse>(`/api/hotspots/search?${urlParams.toString()}`);
   }
 }

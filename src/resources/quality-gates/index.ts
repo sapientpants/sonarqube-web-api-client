@@ -5,7 +5,6 @@ export type {
   QualityGateCondition,
   QualityGateOperator,
   CreateQualityGateRequest,
-  UpdateQualityGateRequest,
   DeleteQualityGateRequest,
   SetAsDefaultRequest,
   CopyQualityGateRequest,

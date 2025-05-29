@@ -1,10 +1,14 @@
 import { BaseClient } from '../../core/BaseClient';
+import { DeprecationManager } from '../../core/deprecation';
 import { SearchUsersBuilder, GetUserGroupsBuilder } from './builders';
+import { SearchUsersV2Builder } from './buildersV2';
 import type {
   UserWithDetails,
   SearchUsersResponse,
   GetUserGroupsResponse,
   UserGroup,
+  SearchUsersV2Response,
+  UserV2,
 } from './types';
 
 /**
@@ -42,6 +46,15 @@ export class UsersClient extends BaseClient {
    */
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   search(): SearchUsersBuilder {
+    DeprecationManager.warn({
+      api: 'users.search()',
+      replacement: 'users.searchV2()',
+      removeVersion: 'v1.0.0 (August 13th, 2025)',
+      reason: 'SonarQube API v1 endpoint deprecated since 10.8',
+      migrationGuide:
+        'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api',
+    });
+
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     return new SearchUsersBuilder(async (params) => {
       const query = new URLSearchParams();
@@ -79,6 +92,15 @@ export class UsersClient extends BaseClient {
    * ```
    */
   searchAll(): AsyncIterableIterator<UserWithDetails> {
+    DeprecationManager.warn({
+      api: 'users.searchAll()',
+      replacement: 'users.searchV2().all()',
+      removeVersion: 'v1.0.0 (August 13th, 2025)',
+      reason: 'SonarQube API v1 endpoint deprecated since 10.8',
+      migrationGuide:
+        'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api',
+    });
+
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     return this.search().all();
   }
@@ -155,5 +177,87 @@ export class UsersClient extends BaseClient {
    */
   groupsAll(login: string, organization: string): AsyncIterableIterator<UserGroup> {
     return this.groups().login(login).organization(organization).all();
+  }
+
+  // ============================================================================
+  // V2 API METHODS
+  // ============================================================================
+
+  /**
+   * Search users using the new v2 API endpoint.
+   * This is the recommended method that replaces the deprecated search() method.
+   *
+   * @since 10.8
+   * @returns A builder for constructing the v2 search request
+   * @throws {AuthenticationError} If the user is not authenticated
+   * @throws {RateLimitError} If the rate limit is exceeded
+   *
+   * @example
+   * ```typescript
+   * // Search for users by query
+   * const results = await client.users.searchV2()
+   *   .query('john')
+   *   .pageSize(50)
+   *   .active(true)
+   *   .execute();
+   *
+   * // Search by IDs with enhanced info
+   * const users = await client.users.searchV2()
+   *   .ids(['uuid-1', 'uuid-2'])
+   *   .includeExternalProvider(true)
+   *   .execute();
+   *
+   * // Iterate through all active users
+   * for await (const user of client.users.searchV2().active(true).all()) {
+   *   console.log(user.name);
+   * }
+   * ```
+   */
+  searchV2(): SearchUsersV2Builder {
+    return new SearchUsersV2Builder(async (params) => {
+      const query = new URLSearchParams();
+
+      if (params.ids !== undefined && params.ids.length > 0) {
+        query.append('ids', params.ids.join(','));
+      }
+      if (params.page !== undefined) {
+        query.append('page', String(params.page));
+      }
+      if (params.pageSize !== undefined) {
+        query.append('pageSize', String(params.pageSize));
+      }
+      if (params.query !== undefined) {
+        query.append('query', params.query);
+      }
+      if (params.active !== undefined) {
+        query.append('active', String(params.active));
+      }
+      if (params.includeExternalProvider !== undefined) {
+        query.append('includeExternalProvider', String(params.includeExternalProvider));
+      }
+
+      const queryString = query.toString();
+      const url = queryString ? `/api/v2/users/search?${queryString}` : '/api/v2/users/search';
+
+      return this.request<SearchUsersV2Response>(url);
+    });
+  }
+
+  /**
+   * Convenience method to iterate through all users using the v2 API.
+   * This is equivalent to calling searchV2().all()
+   *
+   * @since 10.8
+   * @returns An async iterator for all users
+   *
+   * @example
+   * ```typescript
+   * for await (const user of client.users.searchAllV2()) {
+   *   console.log(user.name);
+   * }
+   * ```
+   */
+  searchAllV2(): AsyncIterableIterator<UserV2> {
+    return this.searchV2().all();
   }
 }

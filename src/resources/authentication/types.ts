@@ -9,9 +9,3 @@ export interface ValidateResponse {
    */
   valid: boolean;
 }
-
-/**
- * Response from the logout endpoint
- * The logout endpoint returns no content
- */
-export type LogoutResponse = undefined;

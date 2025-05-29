@@ -88,3 +88,81 @@ export interface GetUserGroupsResponse {
     total: number;
   };
 }
+
+// ============================================================================
+// V2 API TYPES
+// ============================================================================
+
+/**
+ * Request parameters for v2 users search
+ * @since 10.8
+ */
+export interface SearchUsersV2Request {
+  /** User IDs to filter by */
+  ids?: string[];
+  /** Page number (1-based) */
+  page?: number;
+  /** Page size (max 500) */
+  pageSize?: number;
+  /** Search query for login, name, or email */
+  query?: string;
+  /** Filter by active status */
+  active?: boolean;
+  /** Include external provider information */
+  includeExternalProvider?: boolean;
+}
+
+/**
+ * V2 User information with enhanced details
+ * @since 10.8
+ */
+export interface UserV2 {
+  /** Unique user identifier */
+  id: string;
+  /** User login name */
+  login: string;
+  /** Display name */
+  name: string;
+  /** Email address */
+  email?: string;
+  /** Avatar URL */
+  avatar?: string;
+  /** Whether the user is active */
+  active: boolean;
+  /** Whether the user is a local user */
+  local: boolean;
+  /** External identity information */
+  externalProvider?: string;
+  /** External identity */
+  externalIdentity?: string;
+  /** User groups */
+  groups?: UserGroup[];
+  /** Last connection timestamp */
+  lastConnectionDate?: string;
+  /** Number of tokens */
+  tokensCount?: number;
+  /** Creation date */
+  createdAt?: string;
+  /** Last update date */
+  updatedAt?: string;
+}
+
+/**
+ * Response from v2 users search
+ * @since 10.8
+ */
+export interface SearchUsersV2Response {
+  /** List of users */
+  users: UserV2[];
+  /** Pagination information */
+  page: {
+    /** Current page number (1-based) */
+    pageIndex: number;
+    /** Number of items per page */
+    pageSize: number;
+    /** Total number of items */
+    totalItems: number;
+    /** Total number of pages */
+    totalPages: number;
+  };
+}

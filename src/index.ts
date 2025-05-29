@@ -2,6 +2,8 @@ import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { createErrorFromResponse, createNetworkError } from './errors';
+import { DeprecationManager } from './core/deprecation';
+import { type ClientOptions } from './core/BaseClient';
 import { ApplicationsClient } from './resources/applications';
 import { AuthenticationClient } from './resources/authentication';
 import { CEClient } from './resources/ce';
@@ -120,67 +122,76 @@ export class SonarQubeClient {
 
   private readonly baseUrl: string;
   private readonly token: string;
-  private readonly organization: string | undefined;
+  private readonly options: ClientOptions;
 
-  constructor(baseUrl: string, token: string, organization?: string) {
+  constructor(baseUrl: string, token: string, organizationOrOptions?: string | ClientOptions) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.token = token;
-    this.organization = organization;
+
+    // Handle backward compatibility
+    if (typeof organizationOrOptions === 'string') {
+      this.options = { organization: organizationOrOptions };
+    } else {
+      this.options = organizationOrOptions ?? {};
+    }
+
+    // Configure global deprecation settings
+    DeprecationManager.configure(this.options);
 
     // Initialize resource clients
-    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token, this.organization);
-    this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.organization);
-    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.organization);
-    this.applications = new ApplicationsClient(this.baseUrl, this.token, this.organization);
-    this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.organization);
-    this.ce = new CEClient(this.baseUrl, this.token, this.organization);
-    this.components = new ComponentsClient(this.baseUrl, this.token, this.organization);
-    this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.organization);
-    this.favorites = new FavoritesClient(this.baseUrl, this.token, this.organization);
-    this.issues = new IssuesClient(this.baseUrl, this.token, this.organization);
-    this.languages = new LanguagesClient(this.baseUrl, this.token, this.organization);
-    this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.organization);
-    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.token, this.organization);
-    this.notifications = new NotificationsClient(this.baseUrl, this.token, this.organization);
-    this.projects = new ProjectsClient(this.baseUrl, this.token, this.organization);
-    this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.organization);
-    this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.organization);
-    this.projectLinks = new ProjectLinksClient(this.baseUrl, this.token, this.organization);
+    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token, this.options);
+    this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.options);
+    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.options);
+    this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
+    this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
+    this.ce = new CEClient(this.baseUrl, this.token, this.options);
+    this.components = new ComponentsClient(this.baseUrl, this.token, this.options);
+    this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.options);
+    this.favorites = new FavoritesClient(this.baseUrl, this.token, this.options);
+    this.issues = new IssuesClient(this.baseUrl, this.token, this.options);
+    this.languages = new LanguagesClient(this.baseUrl, this.token, this.options);
+    this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.options);
+    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.token, this.options);
+    this.notifications = new NotificationsClient(this.baseUrl, this.token, this.options);
+    this.projects = new ProjectsClient(this.baseUrl, this.token, this.options);
+    this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.options);
+    this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.options);
+    this.projectLinks = new ProjectLinksClient(this.baseUrl, this.token, this.options);
     this.projectPullRequests = new ProjectPullRequestsClient(
       this.baseUrl,
       this.token,
-      this.organization
+      this.options
     );
-    this.permissions = new PermissionsClient(this.baseUrl, this.token, this.organization);
-    this.metrics = new MetricsClient(this.baseUrl, this.token, this.organization);
-    this.measures = new MeasuresClient(this.baseUrl, this.token, this.organization);
-    this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.organization);
-    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.organization);
-    this.rules = new RulesClient(this.baseUrl, this.token, this.organization);
-    this.sources = new SourcesClient(this.baseUrl, this.token, this.organization);
-    this.system = new SystemClient(this.baseUrl, this.token, this.organization);
-    this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.organization);
-    this.settings = new SettingsClient(this.baseUrl, this.token, this.organization);
-    this.users = new UsersClient(this.baseUrl, this.token, this.organization);
-    this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.organization);
-    this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.organization);
-    this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.organization);
-    this.webservices = new WebservicesClient(this.baseUrl, this.token, this.organization);
+    this.permissions = new PermissionsClient(this.baseUrl, this.token, this.options);
+    this.metrics = new MetricsClient(this.baseUrl, this.token, this.options);
+    this.measures = new MeasuresClient(this.baseUrl, this.token, this.options);
+    this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
+    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
+    this.rules = new RulesClient(this.baseUrl, this.token, this.options);
+    this.sources = new SourcesClient(this.baseUrl, this.token, this.options);
+    this.system = new SystemClient(this.baseUrl, this.token, this.options);
+    this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.options);
+    this.settings = new SettingsClient(this.baseUrl, this.token, this.options);
+    this.users = new UsersClient(this.baseUrl, this.token, this.options);
+    this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.options);
+    this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
+    this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
+    this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
   }
 
   // Legacy methods for backward compatibility
   public async getProjects(): Promise<ProjectsResponse> {
     const params = new URLSearchParams();
-    if (this.organization !== undefined && this.organization.length > 0) {
-      params.append('organization', this.organization);
+    if (this.options.organization !== undefined && this.options.organization.length > 0) {
+      params.append('organization', this.options.organization);
     }
     return this.request<ProjectsResponse>(`/projects/search?${params.toString()}`);
   }
 
   public async getIssues(projectKey?: string): Promise<IssuesResponse> {
     const params = new URLSearchParams();
-    if (this.organization !== undefined && this.organization.length > 0) {
-      params.append('organization', this.organization);
+    if (this.options.organization !== undefined && this.options.organization.length > 0) {
+      params.append('organization', this.options.organization);
     }
     if (projectKey !== undefined && projectKey.length > 0) {
       params.append('componentKeys', projectKey);
@@ -283,7 +294,7 @@ export type {
 } from './resources/analysis-cache/types';
 
 // Re-export types from authentication
-export type { ValidateResponse, LogoutResponse } from './resources/authentication/types';
+export type { ValidateResponse } from './resources/authentication/types';
 
 // Re-export types from duplications
 export type {
@@ -483,7 +494,6 @@ export type {
   NotificationListRequest,
   NotificationListResponse,
   NotificationModifyRequest,
-  NotificationModifyResponse,
   NotificationRemoveRequest,
   Notification,
   NotificationType,
@@ -502,7 +512,6 @@ export type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-  BadgeResponse,
 } from './resources/project-badges/types';
 
 // Re-export types from project analyses
@@ -607,7 +616,6 @@ export type {
 // Re-export types from sources
 export type {
   GetRawSourceRequest,
-  GetRawSourceResponse,
   GetScmInfoRequest,
   GetScmInfoResponse,
   ScmInfo,
@@ -622,7 +630,6 @@ export type {
   SystemStatus,
   HealthResponse,
   StatusResponse,
-  PingResponse,
   SystemInfo,
   InfoResponse,
 } from './resources/system/types';
@@ -729,6 +736,7 @@ export type {
 
 // Re-export types from users
 export type {
+  // V1 API (deprecated)
   User,
   UserWithDetails,
   UserGroup as UsersUserGroup,
@@ -737,6 +745,10 @@ export type {
   SearchUsersResponse,
   GetUserGroupsRequest,
   GetUserGroupsResponse,
+  // V2 API
+  UserV2,
+  SearchUsersV2Request,
+  SearchUsersV2Response,
 } from './resources/users/types';
 
 // Re-export types from user groups
@@ -803,3 +815,8 @@ export {
   TimeoutError,
   ServerError,
 } from './errors';
+
+// Re-export deprecation management
+export { DeprecationManager, deprecated } from './core/deprecation';
+export type { DeprecationContext, DeprecationOptions } from './core/deprecation';
+export type { ClientOptions } from './core/BaseClient';

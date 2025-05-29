@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import type { ValidateResponse, LogoutResponse } from './types';
+import type { ValidateResponse } from './types';
 
 /**
  * Client for handling authentication operations
@@ -38,7 +38,7 @@ export class AuthenticationClient extends BaseClient {
    * // User is now logged out
    * ```
    */
-  async logout(): Promise<LogoutResponse> {
+  async logout(): Promise<undefined> {
     return this.request('/api/authentication/logout', {
       method: 'POST',
     });

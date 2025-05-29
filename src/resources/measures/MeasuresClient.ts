@@ -3,6 +3,7 @@ import type {
   ComponentMeasuresRequest,
   ComponentMeasuresResponse,
   ComponentTreeRequest,
+  ComponentTreeResponse,
   MeasuresHistoryRequest,
 } from './types';
 import { ComponentTreeBuilder, MeasuresHistoryBuilder } from './builders';
@@ -49,57 +50,7 @@ export class MeasuresClient extends BaseClient {
    */
   componentTree(component: string, metricKeys: string[]): ComponentTreeBuilder {
     return new ComponentTreeBuilder(
-      async (params: ComponentTreeRequest) => {
-        const query = new URLSearchParams();
-
-        if (params.component !== undefined) {
-          query.append('component', params.component);
-        }
-        if (params.baseComponentId !== undefined) {
-          query.append('baseComponentId', params.baseComponentId);
-        }
-
-        query.append('metricKeys', params.metricKeys.join(','));
-
-        if (params.additionalFields !== undefined && params.additionalFields.length > 0) {
-          query.append('additionalFields', params.additionalFields.join(','));
-        }
-        if (params.strategy !== undefined) {
-          query.append('strategy', params.strategy);
-        }
-        if (params.qualifiers !== undefined && params.qualifiers.length > 0) {
-          query.append('qualifiers', params.qualifiers.join(','));
-        }
-        if (params.branch !== undefined) {
-          query.append('branch', params.branch);
-        }
-        if (params.pullRequest !== undefined) {
-          query.append('pullRequest', params.pullRequest);
-        }
-        if (params.q !== undefined) {
-          query.append('q', params.q);
-        }
-        if (params.metricSort !== undefined) {
-          query.append('metricSort', params.metricSort);
-        }
-        if (params.metricSortFilter !== undefined) {
-          query.append('metricSortFilter', params.metricSortFilter);
-        }
-        if (params.s !== undefined) {
-          query.append('s', params.s);
-        }
-        if (params.asc !== undefined) {
-          query.append('asc', params.asc.toString());
-        }
-        if (params.p !== undefined) {
-          query.append('p', params.p.toString());
-        }
-        if (params.ps !== undefined) {
-          query.append('ps', params.ps.toString());
-        }
-
-        return this.request(`/api/measures/component_tree?${query.toString()}`);
-      },
+      async (params: ComponentTreeRequest) => this.executeComponentTreeRequest(params),
       component,
       metricKeys
     );
@@ -143,5 +94,105 @@ export class MeasuresClient extends BaseClient {
       component,
       metrics
     );
+  }
+
+  /**
+   * Executes component tree request with measures
+   * @private
+   */
+  private async executeComponentTreeRequest(
+    params: ComponentTreeRequest
+  ): Promise<ComponentTreeResponse> {
+    const query = this.buildComponentTreeParams(params);
+    return this.request(`/api/measures/component_tree?${query.toString()}`);
+  }
+
+  /**
+   * Builds URL parameters for component tree request
+   * @private
+   */
+  private buildComponentTreeParams(params: ComponentTreeRequest): URLSearchParams {
+    const query = new URLSearchParams();
+
+    // Required parameters
+    this.appendOptionalStringParam(query, 'component', params.component);
+    this.appendOptionalStringParam(query, 'baseComponentId', params.baseComponentId);
+    query.append('metricKeys', params.metricKeys.join(','));
+
+    // Optional string parameters
+    this.appendOptionalStringParam(query, 'strategy', params.strategy);
+    this.appendOptionalStringParam(query, 'branch', params.branch);
+    this.appendOptionalStringParam(query, 'pullRequest', params.pullRequest);
+    this.appendOptionalStringParam(query, 'q', params.q);
+    this.appendOptionalStringParam(query, 'metricSort', params.metricSort);
+    this.appendOptionalStringParam(query, 'metricSortFilter', params.metricSortFilter);
+    this.appendOptionalStringParam(query, 's', params.s);
+
+    // Optional array parameters
+    this.appendOptionalArrayParam(query, 'additionalFields', params.additionalFields);
+    this.appendOptionalArrayParam(query, 'qualifiers', params.qualifiers);
+
+    // Optional boolean and number parameters
+    this.appendOptionalBooleanParam(query, 'asc', params.asc);
+    this.appendOptionalNumberParam(query, 'p', params.p);
+    this.appendOptionalNumberParam(query, 'ps', params.ps);
+
+    return query;
+  }
+
+  /**
+   * Helper method to append optional string parameters
+   * @private
+   */
+  private appendOptionalStringParam(
+    params: URLSearchParams,
+    key: string,
+    value: string | undefined
+  ): void {
+    if (value !== undefined) {
+      params.append(key, value);
+    }
+  }
+
+  /**
+   * Helper method to append optional array parameters
+   * @private
+   */
+  private appendOptionalArrayParam(
+    params: URLSearchParams,
+    key: string,
+    value: string[] | undefined
+  ): void {
+    if (value !== undefined && value.length > 0) {
+      params.append(key, value.join(','));
+    }
+  }
+
+  /**
+   * Helper method to append optional boolean parameters
+   * @private
+   */
+  private appendOptionalBooleanParam(
+    params: URLSearchParams,
+    key: string,
+    value: boolean | undefined
+  ): void {
+    if (value !== undefined) {
+      params.append(key, value.toString());
+    }
+  }
+
+  /**
+   * Helper method to append optional number parameters
+   * @private
+   */
+  private appendOptionalNumberParam(
+    params: URLSearchParams,
+    key: string,
+    value: number | undefined
+  ): void {
+    if (value !== undefined) {
+      params.append(key, value.toString());
+    }
   }
 }

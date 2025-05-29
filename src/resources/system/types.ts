@@ -52,12 +52,6 @@ export interface StatusResponse {
 }
 
 /**
- * Response from the ping endpoint
- * Simple text response: "pong"
- */
-export type PingResponse = string;
-
-/**
  * System information
  * Note: This endpoint might not be available in all versions
  * The property names match the API response format

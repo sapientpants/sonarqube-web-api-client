@@ -151,7 +151,7 @@ export default tseslint.config(
         modifiers: ['requiresQuotes'],
         format: null,
       }],
-      '@typescript-eslint/no-deprecated': 'off', // Allow testing deprecated methods
+      '@typescript-eslint/no-deprecated': 'off', // Allow testing deprecated methods in test files
     },
   },
   {

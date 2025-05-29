@@ -86,6 +86,7 @@ export class QualityGatesClient extends BaseClient {
    * Unset the default quality gate
    * @deprecated Since 7.0. A default quality gate is now mandatory and cannot be unset.
    * @throws {RemovedApiError} This API has been removed
+   * @returns {void} Never returns, always throws
    */
   @Deprecated({
     deprecatedSince: '7.0',

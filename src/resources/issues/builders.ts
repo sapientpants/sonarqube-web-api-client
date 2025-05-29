@@ -41,6 +41,8 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * @deprecated Since July 3, 2024. Use withIssueStatuses() with the new status values instead.
    */
   withStatuses(statuses: IssueStatus[]): this {
+    // Note: @DeprecatedParameter is for decorating method parameters, not for deprecating
+    // entire builder methods. Using console.warn is appropriate for builder pattern deprecations.
     // eslint-disable-next-line no-console
     console.warn(
       "⚠️  Parameter 'statuses' in SearchIssuesBuilder.withStatuses() is deprecated since July 3, 2024. Use withIssueStatuses() with the new status values instead."

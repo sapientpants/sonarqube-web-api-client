@@ -64,6 +64,7 @@ export class SearchProjectPermissionsBuilder extends PaginatedBuilder<
   /**
    * Execute the search request and return the response
    */
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   async execute(): Promise<SearchProjectPermissionsResponse> {
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     return await this.executor(this.params as SearchProjectPermissionsRequest);
@@ -72,8 +73,9 @@ export class SearchProjectPermissionsBuilder extends PaginatedBuilder<
   /**
    * Get the items from the response for pagination
    */
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   protected getItems(response: SearchProjectPermissionsResponse): UserPermission[] {
-    return response.users || [];
+    return Array.isArray(response.users) ? response.users : [];
   }
 }
 
@@ -173,18 +175,18 @@ export class BulkApplyTemplateBuilder extends BaseBuilder<BulkApplyTemplateReque
   qualifiers = ParameterHelpers.createStringMethod<typeof this>('qualifiers');
 
   /**
+   * Filter for projects on provisioned only
+   * @param value - Whether to filter for provisioned projects only (default: true)
+   */
+  onProvisionedOnly = ParameterHelpers.createBooleanMethod<typeof this>('onProvisionedOnly', true);
+
+  /**
    * Set the analyzed before date filter (ISO date string)
    * @param date - ISO date string (e.g., '2024-01-01')
    */
   analyzedBefore(date: string): this {
     return this.setParam('analyzedBefore', date);
   }
-
-  /**
-   * Filter for projects on provisioned only
-   * @param value - Whether to filter for provisioned projects only (default: true)
-   */
-  onProvisionedOnly = ParameterHelpers.createBooleanMethod<typeof this>('onProvisionedOnly', true);
 
   /**
    * Set specific project keys to apply the template to (max 1000)
@@ -199,18 +201,28 @@ export class BulkApplyTemplateBuilder extends BaseBuilder<BulkApplyTemplateReque
   }
 
   /**
+   * Execute the bulk apply template request
+   * @throws {ValidationError} If required parameters are missing or invalid
+   */
+  async execute(): Promise<void> {
+    this.validateParams();
+    await this.executor(this.params as BulkApplyTemplateRequest);
+  }
+
+  /**
    * Validate the request parameters before execution
    */
   private validateParams(): void {
-    const hasTemplate = this.params.templateId || this.params.templateName;
+    const hasTemplate =
+      (this.params.templateId ?? '') !== '' || (this.params.templateName ?? '') !== '';
     if (!hasTemplate) {
       throw new ValidationError('Either templateId or templateName must be provided', 'template');
     }
 
     // Check for conflicting project selection methods
-    const hasProjects = this.params.projects && this.params.projects.length > 0;
-    const hasQuery = this.params.q && this.params.q.length > 0;
-    const hasAnalyzedBefore = this.params.analyzedBefore && this.params.analyzedBefore.length > 0;
+    const hasProjects = (this.params.projects?.length ?? 0) > 0;
+    const hasQuery = (this.params.q ?? '').length > 0;
+    const hasAnalyzedBefore = (this.params.analyzedBefore ?? '').length > 0;
     const hasProvisionedOnly = this.params.onProvisionedOnly !== undefined;
 
     const selectionMethods = [hasProjects, hasQuery, hasAnalyzedBefore, hasProvisionedOnly].filter(
@@ -223,14 +235,5 @@ export class BulkApplyTemplateBuilder extends BaseBuilder<BulkApplyTemplateReque
         'projectSelection'
       );
     }
-  }
-
-  /**
-   * Execute the bulk apply template request
-   * @throws {ValidationError} If required parameters are missing or invalid
-   */
-  async execute(): Promise<void> {
-    this.validateParams();
-    await this.executor(this.params as BulkApplyTemplateRequest);
   }
 }

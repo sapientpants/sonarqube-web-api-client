@@ -4,6 +4,7 @@ import {
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
 } from './builders';
+import { addParamIfValid } from './helpers';
 import type {
   AddUserPermissionRequest,
   RemoveUserPermissionRequest,
@@ -71,14 +72,10 @@ export class PermissionsClient extends BaseClient {
     query.append('permission', params.permission);
     query.append('organization', params.organization);
 
-    if (params.projectId) {
-      query.append('projectId', params.projectId);
-    }
-    if (params.projectKey) {
-      query.append('projectKey', params.projectKey);
-    }
+    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, 'projectKey', params.projectKey);
 
-    await this.request<void>(`/api/permissions/add_user?${query}`, {
+    await this.request(`/api/permissions/add_user?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -118,14 +115,10 @@ export class PermissionsClient extends BaseClient {
     query.append('permission', params.permission);
     query.append('organization', params.organization);
 
-    if (params.projectId) {
-      query.append('projectId', params.projectId);
-    }
-    if (params.projectKey) {
-      query.append('projectKey', params.projectKey);
-    }
+    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, 'projectKey', params.projectKey);
 
-    await this.request<void>(`/api/permissions/remove_user?${query}`, {
+    await this.request(`/api/permissions/remove_user?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -153,17 +146,11 @@ export class PermissionsClient extends BaseClient {
     query.append('login', params.login);
     query.append('permission', params.permission);
 
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
 
-    await this.request<void>(`/api/permissions/add_user_to_template?${query}`, {
+    await this.request(`/api/permissions/add_user_to_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -191,17 +178,11 @@ export class PermissionsClient extends BaseClient {
     query.append('login', params.login);
     query.append('permission', params.permission);
 
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
 
-    await this.request<void>(`/api/permissions/remove_user_from_template?${query}`, {
+    await this.request(`/api/permissions/remove_user_from_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -243,23 +224,13 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
 
-    if (params.groupName) {
-      query.append('groupName', params.groupName);
-    }
-    if (params.groupId) {
-      query.append('groupId', params.groupId);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.projectId) {
-      query.append('projectId', params.projectId);
-    }
-    if (params.projectKey) {
-      query.append('projectKey', params.projectKey);
-    }
+    addParamIfValid(query, 'groupName', params.groupName);
+    addParamIfValid(query, 'groupId', params.groupId);
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, 'projectKey', params.projectKey);
 
-    await this.request<void>(`/api/permissions/add_group?${query}`, {
+    await this.request(`/api/permissions/add_group?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -290,23 +261,13 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
 
-    if (params.groupName) {
-      query.append('groupName', params.groupName);
-    }
-    if (params.groupId) {
-      query.append('groupId', params.groupId);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.projectId) {
-      query.append('projectId', params.projectId);
-    }
-    if (params.projectKey) {
-      query.append('projectKey', params.projectKey);
-    }
+    addParamIfValid(query, 'groupName', params.groupName);
+    addParamIfValid(query, 'groupId', params.groupId);
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, 'projectKey', params.projectKey);
 
-    await this.request<void>(`/api/permissions/remove_group?${query}`, {
+    await this.request(`/api/permissions/remove_group?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -334,23 +295,13 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
 
-    if (params.groupName) {
-      query.append('groupName', params.groupName);
-    }
-    if (params.groupId) {
-      query.append('groupId', params.groupId);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
+    addParamIfValid(query, 'groupName', params.groupName);
+    addParamIfValid(query, 'groupId', params.groupId);
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
 
-    await this.request<void>(`/api/permissions/add_group_to_template?${query}`, {
+    await this.request(`/api/permissions/add_group_to_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -378,23 +329,13 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
 
-    if (params.groupName) {
-      query.append('groupName', params.groupName);
-    }
-    if (params.groupId) {
-      query.append('groupId', params.groupId);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
+    addParamIfValid(query, 'groupName', params.groupName);
+    addParamIfValid(query, 'groupId', params.groupId);
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
 
-    await this.request<void>(`/api/permissions/remove_group_from_template?${query}`, {
+    await this.request(`/api/permissions/remove_group_from_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -424,17 +365,11 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
 
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
 
-    await this.request<void>(`/api/permissions/add_project_creator_to_template?${query}`, {
+    await this.request(`/api/permissions/add_project_creator_to_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -462,19 +397,16 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
 
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
+    addParamIfValid(query, 'organization', params.organization);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
 
-    await this.request<void>(`/api/permissions/remove_project_creator_from_template?${query}`, {
-      method: 'POST',
-    });
+    await this.request(
+      `/api/permissions/remove_project_creator_from_template?${query.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   // ============================================================================
@@ -504,19 +436,16 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('name', params.name);
 
-    if (params.description) {
-      query.append('description', params.description);
-    }
-    if (params.projectKeyPattern) {
-      query.append('projectKeyPattern', params.projectKeyPattern);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
+    addParamIfValid(query, 'description', params.description);
+    addParamIfValid(query, 'projectKeyPattern', params.projectKeyPattern);
+    addParamIfValid(query, 'organization', params.organization);
 
-    return await this.request<CreateTemplateResponse>(`/api/permissions/create_template?${query}`, {
-      method: 'POST',
-    });
+    return await this.request<CreateTemplateResponse>(
+      `/api/permissions/create_template?${query.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   /**
@@ -542,22 +471,17 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('id', params.id);
 
-    if (params.name) {
-      query.append('name', params.name);
-    }
-    if (params.description) {
-      query.append('description', params.description);
-    }
-    if (params.projectKeyPattern) {
-      query.append('projectKeyPattern', params.projectKeyPattern);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
+    addParamIfValid(query, 'name', params.name);
+    addParamIfValid(query, 'description', params.description);
+    addParamIfValid(query, 'projectKeyPattern', params.projectKeyPattern);
+    addParamIfValid(query, 'organization', params.organization);
 
-    return await this.request<UpdateTemplateResponse>(`/api/permissions/update_template?${query}`, {
-      method: 'POST',
-    });
+    return await this.request<UpdateTemplateResponse>(
+      `/api/permissions/update_template?${query.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   /**
@@ -580,17 +504,11 @@ export class PermissionsClient extends BaseClient {
   async deleteTemplate(params: DeleteTemplateRequest): Promise<void> {
     const query = new URLSearchParams();
 
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
+    addParamIfValid(query, 'organization', params.organization);
 
-    await this.request<void>(`/api/permissions/delete_template?${query}`, {
+    await this.request(`/api/permissions/delete_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -617,23 +535,13 @@ export class PermissionsClient extends BaseClient {
   async applyTemplate(params: ApplyTemplateRequest): Promise<void> {
     const query = new URLSearchParams();
 
-    if (params.projectId) {
-      query.append('projectId', params.projectId);
-    }
-    if (params.projectKey) {
-      query.append('projectKey', params.projectKey);
-    }
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
+    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, 'projectKey', params.projectKey);
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
+    addParamIfValid(query, 'organization', params.organization);
 
-    await this.request<void>(`/api/permissions/apply_template?${query}`, {
+    await this.request(`/api/permissions/apply_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -659,20 +567,12 @@ export class PermissionsClient extends BaseClient {
   async setDefaultTemplate(params: SetDefaultTemplateRequest): Promise<void> {
     const query = new URLSearchParams();
 
-    if (params.templateId) {
-      query.append('templateId', params.templateId);
-    }
-    if (params.templateName) {
-      query.append('templateName', params.templateName);
-    }
-    if (params.qualifier) {
-      query.append('qualifier', params.qualifier);
-    }
-    if (params.organization) {
-      query.append('organization', params.organization);
-    }
+    addParamIfValid(query, 'templateId', params.templateId);
+    addParamIfValid(query, 'templateName', params.templateName);
+    addParamIfValid(query, 'qualifier', params.qualifier);
+    addParamIfValid(query, 'organization', params.organization);
 
-    await this.request<void>(`/api/permissions/set_default_template?${query}`, {
+    await this.request(`/api/permissions/set_default_template?${query.toString()}`, {
       method: 'POST',
     });
   }
@@ -699,16 +599,17 @@ export class PermissionsClient extends BaseClient {
    * });
    * ```
    */
-
   async searchGlobalPermissions(
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     params: SearchGlobalPermissionsRequest
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
   ): Promise<SearchGlobalPermissionsResponse> {
     const query = new URLSearchParams();
     query.append('organization', params.organization);
 
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     return await this.request<SearchGlobalPermissionsResponse>(
-      `/api/permissions/search_global_permissions?${query}`,
+      `/api/permissions/search_global_permissions?${query.toString()}`,
       {
         method: 'GET',
       }
@@ -751,28 +652,24 @@ export class PermissionsClient extends BaseClient {
     return new SearchProjectPermissionsBuilder(async (params) => {
       const query = new URLSearchParams();
 
-      if (params.projectId !== undefined) {
-        query.append('projectId', params.projectId);
-      }
-      if (params.projectKey !== undefined) {
-        query.append('projectKey', params.projectKey);
-      }
+      addParamIfValid(query, 'projectId', params.projectId);
+      addParamIfValid(query, 'projectKey', params.projectKey);
       if (params.p !== undefined) {
         query.append('p', params.p.toString());
       }
       if (params.ps !== undefined) {
         query.append('ps', params.ps.toString());
       }
-      if (params.q !== undefined) {
-        query.append('q', params.q);
-      }
-      if (params.organization !== undefined) {
-        query.append('organization', params.organization);
-      }
+      addParamIfValid(query, 'q', params.q);
+      addParamIfValid(query, 'organization', params.organization);
 
-      return await this.request<any>(`/api/permissions/search_project_permissions?${query}`, {
-        method: 'GET',
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
+      return await this.request<any>(
+        `/api/permissions/search_project_permissions?${query.toString()}`,
+        {
+          method: 'GET',
+        }
+      );
     });
   }
 
@@ -801,14 +698,11 @@ export class PermissionsClient extends BaseClient {
     return new SearchTemplatesBuilder(async (params) => {
       const query = new URLSearchParams();
 
-      if (params.q !== undefined) {
-        query.append('q', params.q);
-      }
-      if (params.organization !== undefined) {
-        query.append('organization', params.organization);
-      }
+      addParamIfValid(query, 'q', params.q);
+      addParamIfValid(query, 'organization', params.organization);
 
-      return await this.request<any>(`/api/permissions/search_templates?${query}`, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
+      return await this.request<any>(`/api/permissions/search_templates?${query.toString()}`, {
         method: 'GET',
       });
     });
@@ -845,32 +739,20 @@ export class PermissionsClient extends BaseClient {
     return new BulkApplyTemplateBuilder(async (params) => {
       const query = new URLSearchParams();
 
-      if (params.templateId !== undefined) {
-        query.append('templateId', params.templateId);
-      }
-      if (params.templateName !== undefined) {
-        query.append('templateName', params.templateName);
-      }
-      if (params.analyzedBefore !== undefined) {
-        query.append('analyzedBefore', params.analyzedBefore);
-      }
+      addParamIfValid(query, 'templateId', params.templateId);
+      addParamIfValid(query, 'templateName', params.templateName);
+      addParamIfValid(query, 'analyzedBefore', params.analyzedBefore);
       if (params.onProvisionedOnly !== undefined) {
         query.append('onProvisionedOnly', params.onProvisionedOnly.toString());
       }
       if (params.projects !== undefined) {
         query.append('projects', params.projects.join(','));
       }
-      if (params.q !== undefined) {
-        query.append('q', params.q);
-      }
-      if (params.qualifiers !== undefined) {
-        query.append('qualifiers', params.qualifiers);
-      }
-      if (params.organization !== undefined) {
-        query.append('organization', params.organization);
-      }
+      addParamIfValid(query, 'q', params.q);
+      addParamIfValid(query, 'qualifiers', params.qualifiers);
+      addParamIfValid(query, 'organization', params.organization);
 
-      await this.request<void>(`/api/permissions/bulk_apply_template?${query}`, {
+      await this.request(`/api/permissions/bulk_apply_template?${query.toString()}`, {
         method: 'POST',
       });
     });

@@ -9,7 +9,6 @@ import type {
   SearchProjectPermissionsResponse,
   SearchTemplatesResponse,
   UserPermission,
-  PermissionTemplate,
 } from '../types';
 
 describe('Permissions Builders', () => {
@@ -357,13 +356,13 @@ describe('Permissions Builders', () => {
 
     describe('projects validation', () => {
       it('should accept up to 1000 projects', () => {
-        const projectKeys = Array.from({ length: 1000 }, (_, i) => `project-${i}`);
+        const projectKeys = Array.from({ length: 1000 }, (_, i) => `project-${i.toString()}`);
         expect(() => builder.projects(projectKeys)).not.toThrow();
         expect(builder['params'].projects).toEqual(projectKeys);
       });
 
       it('should throw ValidationError for more than 1000 projects', () => {
-        const projectKeys = Array.from({ length: 1001 }, (_, i) => `project-${i}`);
+        const projectKeys = Array.from({ length: 1001 }, (_, i) => `project-${i.toString()}`);
         expect(() => builder.projects(projectKeys)).toThrow(ValidationError);
         expect(() => builder.projects(projectKeys)).toThrow(
           'Maximum of 1000 projects can be specified'

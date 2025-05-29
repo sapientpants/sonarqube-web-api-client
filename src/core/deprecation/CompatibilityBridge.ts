@@ -143,12 +143,7 @@ export class CompatibilityBridge {
     transformer: ResultTransformerFunction
   ): Promise<unknown> {
     // Handle promises
-    if (
-      result &&
-      typeof result === 'object' &&
-      'then' in result &&
-      typeof result.then === 'function'
-    ) {
+    if (result instanceof Promise) {
       const resolved = await result;
       return transformer(resolved);
     }
@@ -194,16 +189,3 @@ export const UserApiV1ToV2Mappings: ApiMapping[] = [
     },
   },
 ];
-
-/**
- * Helper to apply compatibility bridge to a client
- */
-export function withCompatibility<T extends object>(client: T, mappings: ApiMapping[]): T {
-  // Register all mappings
-  mappings.forEach((m) => {
-    CompatibilityBridge.register(m);
-  });
-
-  // Return proxied client
-  return CompatibilityBridge.createProxy(client);
-}

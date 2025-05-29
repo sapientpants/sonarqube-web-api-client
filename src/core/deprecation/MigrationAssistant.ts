@@ -153,9 +153,7 @@ export class MigrationAssistant {
     const allMetadata = DeprecationRegistry.getAll();
     const byRemovalDate = allMetadata.reduce<Record<string, DeprecationMetadata[]>>((acc, m) => {
       const date = m.removalDate;
-      if (!acc[date]) {
-        acc[date] = [];
-      }
+      acc[date] ??= [];
       acc[date].push(m);
       return acc;
     }, {});

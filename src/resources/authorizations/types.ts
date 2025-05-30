@@ -3,7 +3,7 @@
  * @since 10.5
  */
 
-import type { V2Resource, V2SearchParams } from '../../core/types/v2-common';
+import type { V2Resource, V2SearchParams, V2AuditFields } from '../../core/types/v2-common';
 
 /**
  * Permission types in v2
@@ -336,4 +336,276 @@ export interface EffectivePermissionsV2 {
    * All effective permissions (combined)
    */
   effective: PermissionTypeV2[];
+}
+
+// ============================================================================
+// GROUP MANAGEMENT TYPES (moved from user-groups/types-v2.ts)
+// ============================================================================
+
+/**
+ * Group v2 model (renamed from UserGroupV2)
+ */
+export interface GroupV2 extends V2Resource, V2AuditFields {
+  /**
+   * Group name (unique)
+   */
+  name: string;
+
+  /**
+   * Group description
+   */
+  description?: string;
+
+  /**
+   * Whether this is a default group
+   */
+  default: boolean;
+
+  /**
+   * Number of members in the group
+   */
+  membersCount: number;
+
+  /**
+   * Associated permissions count
+   */
+  permissionsCount?: number;
+
+  /**
+   * Whether the group is managed externally (LDAP, SAML, etc.)
+   */
+  managed: boolean;
+
+  /**
+   * External provider identifier
+   */
+  externalProvider?: string;
+
+  /**
+   * External group identifier
+   */
+  externalId?: string;
+}
+
+/**
+ * Request parameters for searching groups (v2)
+ */
+export interface SearchGroupsV2Request extends V2SearchParams {
+  /**
+   * Search query (searches in name and description)
+   */
+  query?: string;
+
+  /**
+   * Filter by managed status
+   */
+  managed?: boolean;
+
+  /**
+   * Include default groups
+   */
+  includeDefault?: boolean;
+
+  /**
+   * Filter by external provider
+   */
+  externalProvider?: string;
+
+  /**
+   * Include permission counts
+   */
+  includePermissions?: boolean;
+
+  /**
+   * Minimum number of members
+   */
+  minMembers?: number;
+
+  /**
+   * Maximum number of members
+   */
+  maxMembers?: number;
+}
+
+/**
+ * Response from group search (v2)
+ */
+export interface SearchGroupsV2Response {
+  /**
+   * List of groups
+   */
+  groups: GroupV2[];
+
+  /**
+   * Pagination information
+   */
+  page: {
+    pageIndex: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
+/**
+ * Request to create a group (v2)
+ */
+export interface CreateGroupV2Request {
+  /**
+   * Group name (required, unique)
+   */
+  name: string;
+
+  /**
+   * Group description
+   */
+  description?: string;
+
+  /**
+   * Set as default group
+   */
+  default?: boolean;
+}
+
+/**
+ * Request to update a group (v2)
+ */
+export interface UpdateGroupV2Request {
+  /**
+   * New group name
+   */
+  name?: string;
+
+  /**
+   * New description
+   */
+  description?: string;
+
+  /**
+   * Update default status
+   */
+  default?: boolean;
+}
+
+/**
+ * Group member (v2)
+ */
+export interface GroupMemberV2 {
+  /**
+   * User ID (UUID)
+   */
+  userId: string;
+
+  /**
+   * User login
+   */
+  login: string;
+
+  /**
+   * User name
+   */
+  name: string;
+
+  /**
+   * User email
+   */
+  email?: string;
+
+  /**
+   * Whether user is active
+   */
+  active: boolean;
+
+  /**
+   * Whether user is managed externally
+   */
+  managed: boolean;
+
+  /**
+   * When the user was added to the group (ISO 8601)
+   */
+  addedAt: string;
+}
+
+/**
+ * Group membership v2 model
+ */
+export interface GroupMembershipV2 extends V2Resource {
+  /**
+   * Group ID
+   */
+  groupId: string;
+
+  /**
+   * Group name
+   */
+  groupName: string;
+
+  /**
+   * User ID
+   */
+  userId: string;
+
+  /**
+   * User login
+   */
+  userLogin: string;
+
+  /**
+   * When the membership was created
+   */
+  createdAt: string;
+}
+
+/**
+ * Request to add a group membership (v2)
+ */
+export interface AddGroupMembershipV2Request {
+  /**
+   * Group ID
+   */
+  groupId: string;
+
+  /**
+   * User ID
+   */
+  userId: string;
+}
+
+/**
+ * Request parameters for searching group memberships (v2)
+ */
+export interface SearchGroupMembershipsV2Request extends V2SearchParams {
+  /**
+   * Filter by group IDs
+   */
+  groupIds?: string[];
+
+  /**
+   * Filter by user IDs
+   */
+  userIds?: string[];
+
+  /**
+   * Search query
+   */
+  query?: string;
+}
+
+/**
+ * Response from group memberships search (v2)
+ */
+export interface SearchGroupMembershipsV2Response {
+  /**
+   * List of group memberships
+   */
+  memberships: GroupMembershipV2[];
+
+  /**
+   * Pagination information
+   */
+  page: {
+    pageIndex: number;
+    pageSize: number;
+    total: number;
+  };
 }

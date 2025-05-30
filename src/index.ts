@@ -1,11 +1,13 @@
 import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
+import { AnalysisClient } from './resources/analysis';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
 import { ApplicationsClient } from './resources/applications';
 import { AuthenticationClient } from './resources/authentication';
+import { AuthorizationsClient } from './resources/authorizations';
 import { CEClient } from './resources/ce';
 import { ComponentsClient } from './resources/components';
 import { DuplicationsClient } from './resources/duplications';
@@ -30,7 +32,6 @@ import { QualityProfilesClient } from './resources/quality-profiles';
 import { RulesClient } from './resources/rules';
 import { SettingsClient } from './resources/settings';
 import { UsersClient } from './resources/users';
-import { UserGroupsClient } from './resources/user-groups';
 import { UserTokensClient } from './resources/user-tokens';
 import { PermissionsClient } from './resources/permissions';
 import { WebhooksClient } from './resources/webhooks';
@@ -57,10 +58,14 @@ export class SonarQubeClient {
   public readonly almSettings: AlmSettingsClient;
   /** Analysis Cache API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly analysisCache: AnalysisCacheClient;
+  /** Analysis API v2 - Scanner management and project analysis - **Note**: Only available in SonarQube 10.3+ */
+  public readonly analysis: AnalysisClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
   /** Authentication API */
   public readonly authentication: AuthenticationClient;
+  /** Authorizations API v2 - Groups and permissions management - **Note**: Only available in SonarQube 10.5+ */
+  public readonly authorizations: AuthorizationsClient;
   /** Compute Engine (CE) API */
   public readonly ce: CEClient;
   /** Components API */
@@ -111,8 +116,6 @@ export class SonarQubeClient {
   public readonly settings: SettingsClient;
   /** Users API */
   public readonly users: UsersClient;
-  /** User Groups API */
-  public readonly userGroups: UserGroupsClient;
   /** User Tokens API */
   public readonly userTokens: UserTokensClient;
   /** Webhooks API */
@@ -142,8 +145,10 @@ export class SonarQubeClient {
     this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token, this.options);
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.options);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.options);
+    this.analysis = new AnalysisClient(this.baseUrl, this.token, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
+    this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);
     this.ce = new CEClient(this.baseUrl, this.token, this.options);
     this.components = new ComponentsClient(this.baseUrl, this.token, this.options);
     this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.options);
@@ -173,7 +178,6 @@ export class SonarQubeClient {
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.options);
     this.settings = new SettingsClient(this.baseUrl, this.token, this.options);
     this.users = new UsersClient(this.baseUrl, this.token, this.options);
-    this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.options);
     this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
     this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
     this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
@@ -293,8 +297,57 @@ export type {
   GetAnalysisCacheResponse,
 } from './resources/analysis-cache/types';
 
+// Re-export types from analysis v2
+export type {
+  // Request types
+  GetActiveRulesV2Request,
+  DownloadOptions,
+
+  // Response types
+  GetActiveRulesV2Response,
+  EngineMetadataV2,
+  GetJresV2Response,
+  VersionV2Response,
+
+  // Data types
+  ActiveRuleV2,
+  JreMetadataV2,
+  DownloadProgress,
+} from './resources/analysis/types';
+
 // Re-export types from authentication
 export type { ValidateResponse } from './resources/authentication/types';
+
+// Re-export types from authorizations
+export type {
+  // Core v2 types
+  GroupV2,
+  GroupMembershipV2,
+  GroupMemberV2,
+  PermissionV2,
+  PermissionTypeV2,
+  PermissionScope,
+  PermissionTemplateV2,
+  EffectivePermissionsV2,
+
+  // Request types
+  CreateGroupV2Request,
+  UpdateGroupV2Request,
+  SearchGroupsV2Request,
+  SearchGroupMembershipsV2Request,
+  AddGroupMembershipV2Request,
+  GetGroupPermissionsV2Request,
+  GetUserPermissionsV2Request,
+  GrantPermissionV2Request,
+  SearchPermissionTemplatesV2Request,
+
+  // Response types
+  SearchGroupsV2Response,
+  SearchGroupMembershipsV2Response,
+  GetGroupPermissionsV2Response,
+  GetUserPermissionsV2Response,
+  SearchPermissionTemplatesV2Response,
+} from './resources/authorizations/types';
 
 // Re-export types from duplications
 export type {
@@ -750,22 +803,6 @@ export type {
   SearchUsersV2Request,
   SearchUsersV2Response,
 } from './resources/users/types';
-
-// Re-export types from user groups
-export type {
-  UserGroup,
-  UserWithMembership,
-  AddUserRequest,
-  CreateGroupRequest,
-  CreateGroupResponse,
-  DeleteGroupRequest,
-  RemoveUserRequest,
-  SearchGroupsRequest,
-  SearchGroupsResponse,
-  UpdateGroupRequest,
-  UsersRequest,
-  UsersResponse,
-} from './resources/user-groups/types';
 
 // Re-export types from user tokens
 export type {

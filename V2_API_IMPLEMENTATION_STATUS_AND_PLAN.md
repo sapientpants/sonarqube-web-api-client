@@ -26,20 +26,39 @@ This document provides the current implementation status of SonarQube v2 APIs in
    - Located in: `src/resources/system/SystemClient.ts`
    - Since: SonarQube 10.6
 
-### 🟡 Type Definitions Only (No Implementation)
+### ✅ Fully Implemented v2 APIs (continued)
 
-1. **Authorizations API** (`/api/v2/authorizations/*`)
-   - Types defined in: `src/resources/authorizations/types.ts`
-   - Group types incorrectly placed in: `src/resources/user-groups/types-v2.ts`
-   - No client implementation yet
-   - Note: v2 API combines group management and permissions under authorizations
+3. **Authorizations API** (`/api/v2/authorizations/*`)
+   - Full implementation with AuthorizationsClient
+   - Group CRUD operations (search, create, get, update, delete)
+   - Group membership management (search, add, remove)
+   - Builder pattern for search operations
+   - Located in: `src/resources/authorizations/AuthorizationsClient.ts`
+   - Since: SonarQube 10.5+
+   - Note: Replaces the legacy user_groups API entirely
+
+4. **Analysis API** (`/api/v2/analysis/*`)
+   - Full implementation with AnalysisClient
+   - Active rules retrieval for project analysis
+   - Scanner engine metadata and binary downloads
+   - JRE listing, metadata, and binary downloads
+   - Server version information
+   - Download progress tracking with streaming support
+   - Located in: `src/resources/analysis/AnalysisClient.ts`
+   - Since: SonarQube 10.3
+   - Note: Handles both JSON metadata and binary file downloads
 
 ### ⚠️ Incorrectly Created Types (No v2 API Exists)
 
 1. **Projects** (`src/resources/projects/types-v2.ts`)
    - **No Projects v2 API exists in SonarQube**
-   - This file should be removed
+   - ✅ This file has been removed
    - Projects API remains v1 only
+
+2. **User Groups** (`src/resources/user-groups/*`)
+   - **No separate User Groups v2 API exists**
+   - ✅ UserGroupsClient was never released (skipped entirely)
+   - ✅ All group management functionality is now under AuthorizationsClient
 
 ### 🔲 v2 APIs Available but Not Implemented
 
@@ -65,11 +84,6 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
    - Endpoints: 1 (sbom-reports)
    - Priority: HIGH (security/compliance)
 
-5. **Analysis API** (`/api/v2/analysis/*`)
-   - Purpose: Scanner management and project analysis
-   - Endpoints: 5 (active rules, engine, JREs, version)
-   - Priority: HIGH (core functionality)
-
 ## Discovered v2 Endpoints from SonarQube Documentation
 
 ### Users Management (✅ Implemented)
@@ -84,7 +98,7 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
 - `GET /api/v2/system/liveness` - Kubernetes liveness probe
 - `GET /api/v2/system/migrations-status` - Database migration status
 
-### Authorizations (🟡 Types Only)
+### Authorizations (✅ Implemented)
 **Group Management:**
 - `POST /api/v2/authorizations/groups` - Create a new group
 - `GET /api/v2/authorizations/groups` - Group search
@@ -111,7 +125,7 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
 ### SCA (🔲 Not Implemented)
 - `GET /api/v2/sca/sbom-reports` - Get a software bill of materials (SBOM) report
 
-### Analysis (🔲 Not Implemented)
+### Analysis (✅ Implemented)
 - `GET /api/v2/analysis/active_rules` - Get all active rules for a specific project
 - `GET /api/v2/analysis/engine` - Scanner engine download/metadata
 - `GET /api/v2/analysis/jres` - All JREs metadata
@@ -120,33 +134,32 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
 
 ## Implementation Plan
 
-### Phase 1: Complete Partially Implemented APIs (Week 1)
+### Phase 1: ✅ COMPLETED (January 30, 2025)
 
-#### 1. Authorizations API
-Implement the full authorizations API with both group management and permissions:
+#### 1. Authorizations API - ✅ FULLY IMPLEMENTED
+The Authorizations API has been fully implemented with all group management operations:
 
-```typescript
-// src/resources/authorizations/AuthorizationsClient.ts
-export class AuthorizationsClient extends BaseClient {
-  // Group management (v2)
-  searchGroupsV2(): SearchGroupsV2Builder
-  createGroupV2(data: CreateGroupV2Request): Promise<GroupV2>
-  getGroupV2(id: string): Promise<GroupV2>
-  updateGroupV2(id: string, data: UpdateGroupV2Request): Promise<GroupV2>
-  deleteGroupV2(id: string): Promise<void>
-  
-  // Group memberships (v2)
-  searchGroupMembershipsV2(): SearchGroupMembershipsV2Builder
-  addGroupMembershipV2(data: AddGroupMembershipV2Request): Promise<GroupMembershipV2>
-  removeGroupMembershipV2(id: string): Promise<void>
-}
-```
+- ✅ `searchGroupsV2()` - Search groups with advanced filtering
+- ✅ `createGroupV2()` - Create new groups
+- ✅ `getGroupV2()` - Fetch single group details
+- ✅ `updateGroupV2()` - Update group information
+- ✅ `deleteGroupV2()` - Delete groups
+- ✅ `searchGroupMembershipsV2()` - Search group memberships
+- ✅ `addGroupMembershipV2()` - Add users to groups
+- ✅ `removeGroupMembershipV2()` - Remove users from groups
 
-**Note**: The group types currently in `src/resources/user-groups/types-v2.ts` should be moved to the authorizations module since the v2 API endpoints are under `/api/v2/authorizations/groups/*`.
+**Implementation Details:**
+- Full builder pattern support with fluent API
+- UUID-based identification
+- Support for external providers (LDAP/SAML)
+- Comprehensive test coverage with MSW v2
+- Complete TypeScript type definitions
 
-#### 2. Cleanup Incorrect Types
-Remove the incorrectly created Projects v2 types:
-- Delete `src/resources/projects/types-v2.ts` (no Projects v2 API exists)
+#### 2. Cleanup - ✅ COMPLETED
+- ✅ Removed incorrect `src/resources/projects/types-v2.ts`
+- ✅ Moved group types from `user-groups/types-v2.ts` to `authorizations/types.ts`
+- ✅ Deleted entire `user-groups` directory (never released)
+- ✅ Updated all imports and exports
 
 ### Phase 2: High-Priority New APIs (Week 2)
 
@@ -355,21 +368,25 @@ For each implemented v2 API:
 
 ## Summary of v2 API Implementation Status
 
-### Current Status
+### Current Status (Updated: January 30, 2025)
 - **Total v2 API Categories**: 8 (not 10 - Projects v2 doesn't exist)
-- **Fully Implemented**: 2 (Users, System)
-- **Partially Implemented (Types Only)**: 1 (Authorizations)
-- **Not Implemented**: 5 (Fix Suggestions, DOP Translation, Clean Code Policy, SCA, Analysis)
-- **Incorrectly Created**: Projects v2 types (should be removed)
+- **Fully Implemented**: 4 (Users, System, Authorizations, Analysis)
+- **Not Implemented**: 4 (Fix Suggestions, DOP Translation, Clean Code Policy, SCA)
+- **Cleanup Completed**: 
+  - ✅ Removed incorrect Projects v2 types
+  - ✅ Removed unreleased UserGroupsClient
+  - ✅ Consolidated group management under Authorizations
 
 ### Implementation Priority Summary
-1. **Immediate (Week 1)**: 
-   - Complete Authorizations API (types already exist)
-   - Clean up incorrect Projects v2 types
-   - Move user-groups types to authorizations
-2. **High Priority (Week 2)**: Analysis API (core functionality) and SCA API (security/compliance)
-3. **Medium Priority (Week 3)**: Clean Code Policy and Fix Suggestions APIs
-4. **Low Priority (Week 4)**: DOP Translation API
+1. **✅ Completed (January 30, 2025)**: 
+   - ✅ Authorizations API fully implemented
+   - ✅ Analysis API fully implemented with binary download support
+   - ✅ Cleaned up incorrect Projects v2 types
+   - ✅ Moved user-groups types to authorizations
+   - ✅ Removed unreleased UserGroupsClient
+2. **High Priority (Next)**: SCA API (security/compliance)
+3. **Medium Priority**: Clean Code Policy and Fix Suggestions APIs
+4. **Low Priority**: DOP Translation API
 
 ### Key Architectural Changes in v2
 - User Groups management moved under Authorizations API
@@ -380,14 +397,33 @@ For each implemented v2 API:
 
 ## Next Steps
 
-1. **Immediate**: 
-   - Remove incorrect `src/resources/projects/types-v2.ts` file
-   - Move user-groups types to authorizations module
-2. **Week 1**: Implement Authorizations v2 API
-3. **Week 2**: Add Analysis and SCA APIs for core functionality
-4. **Week 3**: Implement Fix Suggestions and Clean Code Policy APIs
-5. **Week 4**: Add DOP Translation API
-6. **Ongoing**: Monitor SonarQube releases for new v2 endpoints
+1. **✅ Completed (January 30, 2025)**: 
+   - ✅ Removed incorrect `src/resources/projects/types-v2.ts` file
+   - ✅ Moved user-groups types to authorizations module
+   - ✅ Implemented complete Authorizations v2 API
+   - ✅ Added comprehensive documentation and examples
+2. **Next Priority**: Add Analysis and SCA APIs for core functionality
+3. **Medium Priority**: Implement Fix Suggestions and Clean Code Policy APIs
+4. **Low Priority**: Add DOP Translation API
+5. **Ongoing**: Monitor SonarQube releases for new v2 endpoints
+
+## Implementation Achievements
+
+### Authorizations API (January 30, 2025)
+- **Decision**: Skipped v1 UserGroups API entirely, went directly to v2
+- **Rationale**: Since UserGroupsClient was unreleased, avoided deprecation burden
+- **Benefits**: Clean API surface, no legacy code, modern REST design
+- **ADR**: Created ADR-0011 documenting the decision
+- **Documentation**: Updated README with comprehensive examples
+- **Testing**: Full test coverage with MSW v2 handlers
+
+### Analysis API (January 30, 2025)
+- **Implementation**: Complete with all 5 endpoints (7 methods)
+- **Binary Downloads**: Implemented streaming support for large JRE files
+- **Progress Tracking**: Added download progress callbacks
+- **Special Features**: Conditional responses based on Accept headers
+- **Testing**: Comprehensive tests including binary download scenarios
+- **Integration**: Fully integrated into main SonarQubeClient
 
 ## References
 

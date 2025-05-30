@@ -345,7 +345,11 @@ export default tseslint.config(
   },
   {
     files: ['src/resources/dop-translation/**/*.ts'],
-    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
     rules: {
       // Temporary relaxations for DOP Translation API
       // TODO: Fix these issues properly

@@ -5,6 +5,7 @@ import { AnalysisClient } from './resources/analysis';
 import { ScaClient } from './resources/sca';
 import { FixSuggestionsClient } from './resources/fix-suggestions';
 import { CleanCodePolicyClient } from './resources/clean-code-policy';
+import { DopTranslationClient } from './resources/dop-translation';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
@@ -69,6 +70,8 @@ export class SonarQubeClient {
   public readonly fixSuggestions: FixSuggestionsClient;
   /** Clean Code Policy API v2 - Create custom code quality rules - **Note**: Only available in SonarQube 10.6+ */
   public readonly cleanCodePolicy: CleanCodePolicyClient;
+  /** DOP Translation API v2 - DevOps platform integration and project binding - **Note**: Only available in SonarQube 10.6+ */
+  public readonly dopTranslation: DopTranslationClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
   /** Authentication API */
@@ -158,6 +161,7 @@ export class SonarQubeClient {
     this.sca = new ScaClient(this.baseUrl, this.token, this.options);
     this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.token, this.options);
     this.cleanCodePolicy = new CleanCodePolicyClient(this.baseUrl, this.token, this.options);
+    this.dopTranslation = new DopTranslationClient(this.baseUrl, this.token, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
     this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);
@@ -950,6 +954,89 @@ export type {
 
 // Re-export Fix Suggestions utilities
 export { FixSuggestionUtils, FixSuggestionIntegration } from './resources/fix-suggestions/utils';
+
+// Re-export types from DOP Translation v2 API
+export type {
+  // Core request/response types
+  CreateBoundProjectV2Request,
+  CreateBoundProjectV2Response,
+  DopSettingsV2Response,
+  DopPlatformSetting,
+
+  // Platform configuration types
+  PlatformSpecificConfig,
+  GitHubConfig,
+  GitLabConfig,
+  BitbucketConfig,
+  AzureDevOpsConfig,
+
+  // Authentication types
+  AuthenticationConfig,
+  AuthenticationCredentials,
+  OAuthCredentials,
+  PersonalAccessTokenCredentials,
+  AppPasswordCredentials,
+  InstallationTokenCredentials,
+
+  // SonarQube project types
+  SonarQubeProjectConfig,
+  SonarQubeProjectDetails,
+  QualityGateStatus as DopQualityGateStatus,
+  QualityGateCondition as DopQualityGateCondition,
+  BranchInfo as DopBranchInfo,
+
+  // Binding and platform types
+  DopBinding,
+  PlatformConfiguration,
+  PlatformEndpoints,
+  RateLimitConfig,
+  WebhookConfig,
+
+  // Builder interfaces
+  CreateBoundProjectV2Builder,
+
+  // Validation types
+  ValidationResult as DopValidationResult,
+  ValidationError as DopValidationError,
+  ValidationWarning as DopValidationWarning,
+  PlatformValidationResult,
+
+  // Platform detection types
+  PlatformDetectionResult,
+  ExtractedPlatformInfo,
+
+  // Batch operation types
+  BatchCreateRequest,
+  BatchCreateResponse,
+  BatchProjectResult,
+  BatchSummary,
+  BatchSettings,
+
+  // Error types
+  DopTranslationError,
+  PlatformAuthenticationError,
+  RepositoryNotFoundError,
+  InsufficientPermissionsError,
+} from './resources/dop-translation/types';
+
+// Re-export DOP Translation enums
+export {
+  DevOpsPlatform,
+  ProjectBindingStatus,
+  PlatformStatus,
+  SyncStatus,
+  ProjectVisibility as DopProjectVisibility,
+  AuthenticationType,
+} from './resources/dop-translation/types';
+
+// Re-export DOP Translation utilities
+export {
+  PlatformDetector,
+  ConfigurationValidator,
+  ProjectMapper,
+  AuthenticationHelper,
+  ConfigurationTemplates,
+} from './resources/dop-translation/utils';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

@@ -238,10 +238,7 @@ export class ScaClient extends BaseClient {
   private async requestText(url: string, options?: RequestInit): Promise<string> {
     const response = await fetch(`${this.baseUrl}${url}`, {
       ...options,
-      headers: {
-        ...this.getAuthHeaders(),
-        ...(options?.headers ? options.headers : {}),
-      },
+      headers: Object.assign({}, this.getAuthHeaders(), options?.headers ?? {}),
     });
 
     if (!response.ok) {

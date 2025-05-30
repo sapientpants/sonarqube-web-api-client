@@ -19,6 +19,7 @@ import type {
 /**
  * Utility class for converting between SBOM formats
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class SbomFormatConverter {
   /**
    * Convert SonarQube SBOM to SPDX format
@@ -42,6 +43,7 @@ export class SbomFormatConverter {
       },
       name: sbom.document.primaryComponent.name,
       packages: sbom.components.map((component) => ({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         SPDXID: `SPDXRef-${this.sanitizeId(component.id)}`,
         name: component.name,
         versionInfo: component.version,
@@ -101,7 +103,7 @@ export class SbomFormatConverter {
         type: component.type,
         name: component.name,
         version: component.version,
-        ...(component.purl && { purl: component.purl }),
+        ...(component.purl !== undefined && component.purl.length > 0 && { purl: component.purl }),
         ...(component.licenses && {
           licenses: component.licenses.map((license) => ({ license: { id: license } })),
         }),
@@ -109,9 +111,9 @@ export class SbomFormatConverter {
           externalReferences: [
             {
               type: 'website',
-              url: component.source.homepage || component.source.repository || '',
+              url: component.source.homepage ?? component.source.repository ?? '',
             },
-          ].filter((ref) => ref.url),
+          ].filter((ref) => ref.url.length > 0),
         }),
       })),
       dependencies: sbom.dependencies.map((dep) => ({
@@ -129,13 +131,16 @@ export class SbomFormatConverter {
                 score: vuln.cvss.score,
                 severity: vuln.cvss.severity.toLowerCase(),
                 method: `CVSSv${vuln.cvss.version}`,
-                ...(vuln.cvss.vector && { vector: vuln.cvss.vector }),
+                ...(vuln.cvss.vector !== undefined &&
+                  vuln.cvss.vector.length > 0 && { vector: vuln.cvss.vector }),
               },
             ],
           }),
-          ...(vuln.description && { description: vuln.description }),
-          ...(vuln.dates.published && { published: vuln.dates.published }),
-          ...(vuln.dates.updated && { updated: vuln.dates.updated }),
+          ...(vuln.description !== undefined &&
+            vuln.description.length > 0 && { description: vuln.description }),
+          ...(vuln.dates.published.length > 0 && { published: vuln.dates.published }),
+          ...(vuln.dates.updated !== undefined &&
+            vuln.dates.updated.length > 0 && { updated: vuln.dates.updated }),
           affects: vuln.affects.map((affect) => ({
             ref: affect.componentId,
             versions: [{ version: affect.versionRange }],
@@ -159,6 +164,7 @@ export class SbomFormatConverter {
 /**
  * Utility class for analyzing SBOM reports for security and compliance
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class SbomAnalyzer {
   /**
    * Analyze SBOM for security risks and vulnerabilities
@@ -183,7 +189,7 @@ export class SbomAnalyzer {
    * ```
    */
   static analyzeSecurityRisks(sbom: SbomReportV2Response): SecurityRiskAnalysis {
-    const vulnerabilities = sbom.vulnerabilities || [];
+    const vulnerabilities = sbom.vulnerabilities ?? [];
     const criticalVulns = vulnerabilities.filter((v) => v.cvss?.severity === 'CRITICAL');
     const highVulns = vulnerabilities.filter((v) => v.cvss?.severity === 'HIGH');
     const outdatedComponents = sbom.components.filter((c) => this.isOutdated(c));
@@ -226,7 +232,7 @@ export class SbomAnalyzer {
    * ```
    */
   static analyzeLicenseCompliance(sbom: SbomReportV2Response): LicenseComplianceAnalysis {
-    const licenses = sbom.licenses || [];
+    const licenses = sbom.licenses ?? [];
     const riskLicenses = licenses.filter((l) => l.riskLevel === 'HIGH');
     const copyleftLicenses = licenses.filter((l) => l.category === 'copyleft');
     const proprietaryLicenses = licenses.filter((l) => l.category === 'proprietary');
@@ -272,7 +278,7 @@ export class SbomAnalyzer {
     vulnerabilityCount: number;
     highestSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'NONE';
   }> {
-    const vulnerabilities = sbom.vulnerabilities || [];
+    const vulnerabilities = sbom.vulnerabilities ?? [];
 
     const componentVulns = new Map<
       string,
@@ -293,7 +299,10 @@ export class SbomAnalyzer {
               vulnerabilities: [],
             });
           }
-          componentVulns.get(affect.componentId)!.vulnerabilities.push(vuln);
+          const componentData = componentVulns.get(affect.componentId);
+          if (componentData) {
+            componentData.vulnerabilities.push(vuln);
+          }
         }
       });
     });
@@ -306,7 +315,18 @@ export class SbomAnalyzer {
       }))
       .sort((a, b) => {
         // Sort by severity first, then by count
-        const severityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1, NONE: 0 };
+        const severityOrder = {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          CRITICAL: 4,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          HIGH: 3,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          MEDIUM: 2,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          LOW: 1,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          NONE: 0,
+        };
         const severityDiff = severityOrder[b.highestSeverity] - severityOrder[a.highestSeverity];
         return severityDiff !== 0 ? severityDiff : b.vulnerabilityCount - a.vulnerabilityCount;
       })
@@ -338,20 +358,20 @@ export class SbomAnalyzer {
     byRisk: Record<string, number>;
     osiApproved: number;
   } {
-    const licenses = sbom.licenses || [];
+    const licenses = sbom.licenses ?? [];
 
     const byCategory = licenses.reduce<Record<string, number>>((acc, license) => {
-      acc[license.category] = (acc[license.category] || 0) + 1;
+      acc[license.category] = (acc[license.category] ?? 0) + 1;
       return acc;
     }, {});
 
     const byRisk = licenses.reduce<Record<string, number>>((acc, license) => {
       const risk = license.riskLevel.toLowerCase();
-      acc[risk] = (acc[risk] || 0) + 1;
+      acc[risk] = (acc[risk] ?? 0) + 1;
       return acc;
     }, {});
 
-    const osiApproved = licenses.filter((l) => l.osiApproved).length;
+    const osiApproved = licenses.filter((l) => l.osiApproved === true).length;
 
     return {
       total: licenses.length,
@@ -397,13 +417,13 @@ export class SbomAnalyzer {
     critical: number,
     high: number
   ): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
-    if (critical > 0) {
+    if (critical !== 0) {
       return 'CRITICAL';
     }
     if (high > 5) {
       return 'HIGH';
     }
-    if (high > 0) {
+    if (high !== 0) {
       return 'MEDIUM';
     }
     return 'LOW';
@@ -417,10 +437,10 @@ export class SbomAnalyzer {
     riskLicenses: SbomLicenseV2[],
     proprietaryLicenses: SbomLicenseV2[]
   ): 'COMPLIANT' | 'AT_RISK' | 'NON_COMPLIANT' {
-    if (riskLicenses.length > 0 || proprietaryLicenses.length > 2) {
+    if (riskLicenses.length !== 0 || proprietaryLicenses.length > 2) {
       return 'NON_COMPLIANT';
     }
-    if (proprietaryLicenses.length > 0) {
+    if (proprietaryLicenses.length !== 0) {
       return 'AT_RISK';
     }
     return 'COMPLIANT';
@@ -470,7 +490,7 @@ export class SbomAnalyzer {
 
     if (critical.length > 0) {
       recommendations.push(
-        `🚨 URGENT: Address ${critical.length} critical vulnerabilities immediately`
+        `🚨 URGENT: Address ${critical.length.toString()} critical vulnerabilities immediately`
       );
       const criticalComponents = new Set(
         critical.flatMap((v) => v.affects.map((a) => a.componentId))
@@ -481,11 +501,13 @@ export class SbomAnalyzer {
     }
 
     if (high.length > 0) {
-      recommendations.push(`⚠️  Fix ${high.length} high-severity vulnerabilities`);
+      recommendations.push(`⚠️  Fix ${high.length.toString()} high-severity vulnerabilities`);
     }
 
     if (outdated.length > 0) {
-      recommendations.push(`📅 Update ${outdated.length} outdated components to latest versions`);
+      recommendations.push(
+        `📅 Update ${outdated.length.toString()} outdated components to latest versions`
+      );
     }
 
     if (critical.length === 0 && high.length === 0) {
@@ -495,7 +517,9 @@ export class SbomAnalyzer {
     // Add specific CVE recommendations for critical vulnerabilities
     critical.slice(0, 3).forEach((vuln) => {
       if (vuln.fixes && vuln.fixes.length > 0) {
-        recommendations.push(`Fix ${vuln.id}: Upgrade to version ${vuln.fixes[0]?.version}`);
+        recommendations.push(
+          `Fix ${vuln.id}: Upgrade to version ${vuln.fixes[0]?.version ?? 'unknown'}`
+        );
       }
     });
 
@@ -514,7 +538,9 @@ export class SbomAnalyzer {
     const recommendations = [];
 
     if (risk.length > 0) {
-      recommendations.push(`⚖️  Review ${risk.length} high-risk licenses for compliance`);
+      recommendations.push(
+        `⚖️  Review ${risk.length.toString()} high-risk licenses for compliance`
+      );
       recommendations.push(
         `High-risk licenses: ${risk
           .map((l) => l.name)
@@ -525,7 +551,7 @@ export class SbomAnalyzer {
 
     if (copyleft.length > 0) {
       recommendations.push(
-        `📋 Verify compliance requirements for ${copyleft.length} copyleft licenses`
+        `📋 Verify compliance requirements for ${copyleft.length.toString()} copyleft licenses`
       );
       recommendations.push(
         'Ensure source code disclosure obligations are met for copyleft dependencies'
@@ -533,7 +559,9 @@ export class SbomAnalyzer {
     }
 
     if (proprietary.length > 0) {
-      recommendations.push(`💼 Review ${proprietary.length} proprietary licenses for usage rights`);
+      recommendations.push(
+        `💼 Review ${proprietary.length.toString()} proprietary licenses for usage rights`
+      );
     }
 
     if (risk.length === 0 && proprietary.length === 0) {

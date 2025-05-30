@@ -499,7 +499,7 @@ describe('ScaClient', () => {
       server.use(
         http.get('*/api/v2/sca/sbom-reports', ({ request }) => {
           const acceptHeader = request.headers.get('accept');
-          if (acceptHeader?.includes('application/json')) {
+          if (acceptHeader?.includes('application/json') === true) {
             return HttpResponse.text(mockSbomText, {
               headers: { 'Content-Type': 'application/json' },
             });

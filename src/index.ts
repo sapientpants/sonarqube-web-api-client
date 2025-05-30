@@ -4,6 +4,7 @@ import { AnalysisCacheClient } from './resources/analysis-cache';
 import { AnalysisClient } from './resources/analysis';
 import { ScaClient } from './resources/sca';
 import { FixSuggestionsClient } from './resources/fix-suggestions';
+import { CleanCodePolicyClient } from './resources/clean-code-policy';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
@@ -66,6 +67,8 @@ export class SonarQubeClient {
   public readonly sca: ScaClient;
   /** Fix Suggestions API v2 - AI-powered code fix suggestions - **Note**: Only available in SonarQube 10.7+ */
   public readonly fixSuggestions: FixSuggestionsClient;
+  /** Clean Code Policy API v2 - Create custom code quality rules - **Note**: Only available in SonarQube 10.6+ */
+  public readonly cleanCodePolicy: CleanCodePolicyClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
   /** Authentication API */
@@ -154,6 +157,7 @@ export class SonarQubeClient {
     this.analysis = new AnalysisClient(this.baseUrl, this.token, this.options);
     this.sca = new ScaClient(this.baseUrl, this.token, this.options);
     this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.token, this.options);
+    this.cleanCodePolicy = new CleanCodePolicyClient(this.baseUrl, this.token, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
     this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);

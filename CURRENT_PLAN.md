@@ -1,1163 +1,704 @@
-# Fix Suggestions API v2 Implementation Plan
+# Clean Code Policy API v2 Implementation Plan
 
 ## Executive Summary
 
-This document outlines a comprehensive plan to implement the SonarQube Fix Suggestions API v2 (`/api/v2/fix-suggestions/*`) in the sonarqube-web-api-client library. This API provides AI-powered code fix suggestions for SonarQube issues, representing a significant advancement in automated code quality improvement.
+This document outlines a comprehensive plan to implement the SonarQube Clean Code Policy API v2 (`/api/v2/clean-code-policy/*`) in the sonarqube-web-api-client library. This API enables organizations to define and manage custom code quality rules, implement organization-specific clean code policies, and maintain consistent code standards across projects.
 
 ## Context and Strategic Importance
 
-### Why Fix Suggestions API Next?
+### Why Clean Code Policy API Next?
 
-1. **AI-Driven Development Trend**: Aligns with the industry shift toward AI-assisted development tools
-2. **High Developer Value**: Directly improves developer productivity by suggesting automated fixes
-3. **Strategic Positioning**: Positions the client library as a modern, AI-enabled solution
-4. **Clear ROI**: Reduces time-to-fix for code quality issues identified by SonarQube
-5. **Manageable Scope**: Only 2 endpoints, focused implementation scope
+1. **Organizational Governance**: Enables companies to enforce custom coding standards
+2. **Policy as Code**: Aligns with DevSecOps practices by treating quality policies as code
+3. **Compliance Requirements**: Helps meet industry-specific compliance standards
+4. **Team Autonomy**: Allows teams to define project-specific quality rules
+5. **Medium Priority**: Balances importance with implementation complexity
 
 ### Current Implementation Status
 
-**✅ Completed v2 APIs (5/8):**
+**✅ Completed v2 APIs (6/8):**
 - Users API (`/api/v2/users/*`) - Complete
 - System API (`/api/v2/system/*`) - Complete  
 - Authorizations API (`/api/v2/authorizations/*`) - Complete
 - Analysis API (`/api/v2/analysis/*`) - Complete
 - SCA API (`/api/v2/sca/*`) - Complete
+- Fix Suggestions API (`/api/v2/fix-suggestions/*`) - Complete
 
-**🔲 Remaining v2 APIs (3/8):**
-- **Fix Suggestions API** (`/api/v2/fix-suggestions/*`) - **NEXT** (Medium Priority)
-- Clean Code Policy API (`/api/v2/clean-code-policy/*`) - Medium Priority
+**🔲 Remaining v2 APIs (2/8):**
+- **Clean Code Policy API** (`/api/v2/clean-code-policy/*`) - **NEXT** (Medium Priority)
 - DOP Translation API (`/api/v2/dop-translation/*`) - Low Priority
 
 ## API Overview
 
-### Fix Suggestions API Endpoints
+### Clean Code Policy API Endpoints
 
 Based on SonarQube v2 API documentation:
 
-1. **`GET /api/v2/fix-suggestions/issues`**
-   - **Purpose**: Check if AI fix suggestions are available for a specific issue
-   - **Method**: GET
-   - **Parameters**: Issue ID/key
-   - **Response**: Availability status, reason if unavailable
-
-2. **`POST /api/v2/fix-suggestions/ai-suggestions`**
-   - **Purpose**: Request AI-generated fix suggestions for an issue
+1. **`POST /api/v2/clean-code-policy/rules`**
+   - **Purpose**: Create custom rules for code quality policies
    - **Method**: POST
-   - **Parameters**: Issue ID/key, context preferences
-   - **Response**: AI-generated fix suggestions with code changes
+   - **Request Body**: Rule definition with patterns, severity, and remediation
+   - **Response**: Created rule with unique identifier
+   - **Since**: SonarQube 10.6+
 
-### Key Features and Capabilities
+### Extended API Capabilities (Research-Based Projections)
 
-1. **AI-Powered Fix Generation**: Leverage SonarQube's AI capabilities for automated code fixes
-2. **Issue-Specific Suggestions**: Tailored fixes based on specific rule violations
-3. **Multi-Language Support**: Support for various programming languages
-4. **Code Context Awareness**: AI considers surrounding code context
-5. **Confidence Scoring**: Suggestions include confidence levels
-6. **Multiple Fix Options**: Multiple alternative fixes when available
+While the documentation shows only one endpoint, based on typical policy management patterns and SonarQube's architecture, the API likely supports:
 
-## Technical Architecture
+1. **Rule Management**
+   - Create custom rules with complex patterns
+   - Define rule templates for reuse
+   - Set rule parameters and thresholds
+   - Configure remediation functions
 
-### Core Components
+2. **Policy Definition**
+   - Group rules into policies
+   - Set policy activation conditions
+   - Define quality gate integration
+   - Configure policy inheritance
 
-```
-src/resources/fix-suggestions/
-├── FixSuggestionsClient.ts          # Main client implementation
-├── builders.ts                      # Builder patterns for complex requests
-├── types.ts                         # TypeScript type definitions
-├── utils.ts                         # Utility functions for fix processing
-├── index.ts                         # Module exports
-└── __tests__/
-    ├── FixSuggestionsClient.test.ts # Comprehensive test suite
-    ├── builders.test.ts             # Builder pattern tests
-    └── utils.test.ts                # Utility function tests
-```
+3. **Language Support**
+   - Multi-language rule definitions
+   - Language-specific patterns
+   - Cross-language policy enforcement
+   - Framework-specific rules
 
-### Integration Points
+4. **Integration Features**
+   - Quality profile integration
+   - Quality gate conditions
+   - Project-level overrides
+   - Organization-wide defaults
 
-1. **Main SonarQubeClient**: Add `fixSuggestions` property
-2. **Issues Integration**: Link with existing Issues API
-3. **Error Handling**: Extend error factory for AI-specific errors
-4. **Type System**: Full TypeScript support with generics
+## Implementation Plan: 3-Day Sprint
 
-## Implementation Timeline: 3-Day Sprint
+### Day 1: API Research & Type System Design (8 hours)
 
-### Day 1: Core API Research & Type System Design (8 hours)
+#### Hour 1-2: Deep API Research
+- **Explore SonarQube Documentation**: Study clean code policy concepts
+- **Analyze Rule Structure**: Understand rule definition patterns
+- **Research Pattern Syntax**: Learn rule pattern languages (XPath, regex, AST)
+- **Study Quality Profiles**: Understand integration with existing profiles
 
-#### Hour 1-2: API Research and Documentation Analysis
-- **Research SonarQube AI Fix Suggestions**: Study official documentation and examples
-- **Endpoint Behavior Analysis**: Understand request/response patterns
-- **AI Model Capabilities**: Research supported languages and fix types
-- **Rate Limiting and Quotas**: Understand AI service limitations
+#### Hour 3-4: Type System Architecture
+- **Core Types**: Rule definitions, policies, patterns
+- **Request/Response Types**: API contracts for rule creation
+- **Domain Types**: Severity levels, rule types, languages
+- **Pattern Types**: AST patterns, regex patterns, XPath queries
 
-#### Hour 3-4: Type System Design
-- **Core Request/Response Types**: Define comprehensive interfaces
-- **AI-Specific Types**: Model confidence scores, fix alternatives, reasoning
-- **Language-Specific Types**: Support for different programming languages
-- **Error Types**: AI-specific error conditions and fallbacks
+#### Hour 5-6: Advanced Type Design
+- **Rule Template System**: Reusable rule patterns
+- **Policy Composition**: Combining rules into policies
+- **Validation Types**: Pattern validation, syntax checking
+- **Integration Types**: Quality profile and gate connections
 
-#### Hour 5-6: Project Structure Setup
-- **Module Scaffolding**: Create directory structure and base files
-- **Export Configuration**: Set up index files and module exports
-- **Integration Points**: Prepare main client integration
-- **Testing Framework**: Set up test infrastructure with MSW
-
-#### Hour 7-8: Advanced Type Definitions
-- **Fix Suggestion Types**: Comprehensive modeling of AI responses
-- **Builder Pattern Types**: Type-safe request building
-- **Utility Types**: Helper types for fix processing and validation
-- **Generic Types**: Flexible types for different fix scenarios
+#### Hour 7-8: Project Structure & Planning
+- **Module Setup**: Create clean-code-policy directory structure
+- **Export Strategy**: Plan public API surface
+- **Testing Strategy**: Design comprehensive test scenarios
+- **Documentation Plan**: API documentation structure
 
 **Day 1 Deliverables:**
 - Complete type system (`types.ts`)
-- Module structure and exports (`index.ts`)
+- Module structure and exports
 - Test infrastructure setup
-- Integration preparation in main client
+- Research documentation
 
 ### Day 2: Core Implementation (8 hours)
 
-#### Hour 1-2: FixSuggestionsClient Core Methods
-- **`getIssueAvailabilityV2()`**: Check if AI suggestions are available
-- **`requestAiSuggestionsV2()`**: Request AI-generated fix suggestions
-- **Base Client Integration**: Extend BaseClient with proper error handling
-- **Authentication Support**: Handle token-based authentication
+#### Hour 1-2: CleanCodePolicyClient Core
+- **Base Client Setup**: Extend BaseClient with v2 patterns
+- **`createCustomRuleV2()`**: Main rule creation method
+- **Request Building**: Parameter validation and formatting
+- **Response Handling**: Parse and type API responses
 
-#### Hour 3-4: Request Builder Implementation
-- **GetIssueAvailabilityBuilder**: Builder pattern for availability checks
-- **RequestAiSuggestionsBuilder**: Builder for AI suggestion requests
-- **Parameter Validation**: Comprehensive input validation
-- **Fluent API Design**: Chainable method calls for ease of use
+#### Hour 3-4: Builder Pattern Implementation
+- **`CustomRuleBuilder`**: Fluent API for rule creation
+- **Pattern Builders**: AST, regex, XPath pattern builders
+- **Validation Methods**: Client-side pattern validation
+- **Chaining Support**: Intuitive method chaining
 
-#### Hour 5-6: Response Processing and Utilities
-- **Fix Processing Utils**: Parse and validate AI suggestions
-- **Code Change Utilities**: Handle file diffs and line changes
-- **Confidence Analysis**: Process AI confidence scores
-- **Language Detection**: Auto-detect programming languages
+#### Hour 5-6: Advanced Features
+- **Template System**: Rule template creation and application
+- **Batch Operations**: Multiple rule creation support
+- **Policy Composition**: Combine rules into policies
+- **Language Detection**: Auto-detect rule language
 
-#### Hour 7-8: Error Handling and Edge Cases
-- **AI Service Errors**: Handle AI service unavailability
-- **Rate Limiting**: Implement proper rate limit handling
-- **Timeout Management**: Handle long AI processing times
-- **Fallback Strategies**: Graceful degradation when AI unavailable
+#### Hour 7-8: Integration Features
+- **Quality Profile Integration**: Link rules to profiles
+- **Project Binding**: Apply rules to specific projects
+- **Organization Defaults**: Set org-wide policies
+- **Import/Export**: Rule serialization support
 
 **Day 2 Deliverables:**
-- Complete `FixSuggestionsClient.ts` implementation
-- Builder patterns in `builders.ts`
-- Utility functions in `utils.ts`
-- Error handling integration
+- Complete CleanCodePolicyClient implementation
+- Builder pattern with fluent API
+- Advanced features (templates, batch operations)
+- Integration capabilities
 
-### Day 3: Testing, Integration & Documentation (8 hours)
+### Day 3: Testing, Utilities & Polish (8 hours)
 
-#### Hour 1-2: Comprehensive Test Suite
-- **Client Method Tests**: Unit tests for all client methods
-- **MSW Mock Handlers**: Realistic AI response mocking
-- **Error Scenario Testing**: Test all error conditions
-- **Builder Pattern Tests**: Validate fluent API functionality
+#### Hour 1-2: Comprehensive Testing
+- **Unit Tests**: Test all client methods
+- **Builder Tests**: Validate builder patterns
+- **Pattern Tests**: Test various rule patterns
+- **Integration Tests**: Test with mock SonarQube
 
-#### Hour 3-4: Integration Testing
-- **Main Client Integration**: Test integration with SonarQubeClient
-- **End-to-End Scenarios**: Full workflow testing
-- **Performance Testing**: Validate response times and memory usage
-- **Edge Case Testing**: Unusual inputs and boundary conditions
+#### Hour 3-4: Utility Development
+- **Pattern Validators**: Validate AST, regex, XPath patterns
+- **Rule Analyzers**: Analyze rule effectiveness
+- **Policy Composer**: Build complex policies
+- **Migration Tools**: Migrate v1 custom rules
 
-#### Hour 5-6: Advanced Testing Scenarios
-- **AI Response Variations**: Test different AI suggestion formats
-- **Multi-Language Testing**: Validate support across languages
-- **Large Response Testing**: Handle complex fix suggestions
-- **Concurrent Request Testing**: Multiple simultaneous AI requests
+#### Hour 5-6: Error Handling & Edge Cases
+- **Pattern Syntax Errors**: Detailed error messages
+- **Language Compatibility**: Handle unsupported languages
+- **Conflict Resolution**: Handle rule conflicts
+- **Performance Optimization**: Efficient pattern matching
 
-#### Hour 7-8: Documentation and Examples
-- **API Documentation**: Comprehensive JSDoc comments
-- **Usage Examples**: Real-world usage scenarios
-- **Integration Guide**: How to integrate with existing workflows
-- **Migration Examples**: Show integration with Issues API
+#### Hour 7-8: Documentation & Examples
+- **API Documentation**: Comprehensive JSDoc
+- **Usage Examples**: Real-world scenarios
+- **Pattern Library**: Common rule patterns
+- **Migration Guide**: From v1 custom rules
 
 **Day 3 Deliverables:**
-- Complete test suite with >95% coverage
-- Integration with main SonarQubeClient
-- Comprehensive documentation
-- Usage examples and guides
+- 100% test coverage
+- Utility classes and helpers
+- Complete documentation
+- Production-ready implementation
 
-## Detailed Technical Specifications
+## Technical Design
 
-### Type System Design
+### Type System
 
 ```typescript
-// Core request/response types
-export interface GetIssueAvailabilityV2Request {
-  /** Issue key or UUID */
-  issueKey: string;
-  /** Optional project context */
-  projectKey?: string;
-  /** Branch context for multi-branch projects */
-  branch?: string;
-  /** Pull request context */
-  pullRequest?: string;
+// Core rule types
+export interface CustomRuleV2Request {
+  key: string;
+  name: string;
+  description: string;
+  severity: RuleSeverity;
+  type: RuleType;
+  language: string;
+  pattern: RulePattern;
+  parameters?: RuleParameter[];
+  tags?: string[];
+  remediationFunction?: RemediationFunction;
+  template?: string;
 }
 
-export interface FixSuggestionAvailabilityV2Response {
-  /** Whether AI suggestions are available for this issue */
-  available: boolean;
-  /** Reason if not available */
-  reason?: 'unsupported_rule' | 'language_not_supported' | 'ai_service_unavailable' | 'quota_exceeded';
-  /** Estimated processing time in seconds */
-  estimatedProcessingTime?: number;
-  /** AI model information */
-  aiModel?: {
-    name: string;
-    version: string;
-    capabilities: string[];
-  };
-}
-
-export interface RequestAiSuggestionsV2Request {
-  /** Issue key or UUID */
-  issueKey: string;
-  /** Include surrounding code context */
-  includeContext?: boolean;
-  /** Number of alternative fixes to generate */
-  maxAlternatives?: number;
-  /** Preferred fix style */
-  fixStyle?: 'minimal' | 'comprehensive' | 'defensive';
-  /** Language-specific preferences */
-  languagePreferences?: Record<string, unknown>;
-}
-
-export interface AiSuggestionResponseV2 {
-  /** Unique suggestion session ID */
-  sessionId: string;
-  /** Issue information */
-  issue: {
-    key: string;
-    rule: string;
-    severity: string;
-    type: string;
-    message: string;
-  };
-  /** Generated fix suggestions */
-  suggestions: AiFixSuggestionV2[];
-  /** AI processing metadata */
-  metadata: {
-    processingTime: number;
-    modelUsed: string;
-    confidenceThreshold: number;
-    contextAnalyzed: boolean;
-  };
-}
-
-export interface AiFixSuggestionV2 {
-  /** Unique suggestion ID */
+export interface CustomRuleV2Response {
   id: string;
-  /** Human-readable explanation */
-  explanation: string;
-  /** Confidence score (0-100) */
-  confidence: number;
-  /** Fix complexity rating */
-  complexity: 'low' | 'medium' | 'high';
-  /** Estimated fix success rate */
-  successRate: number;
-  /** Code changes */
-  changes: AiCodeChangeV2[];
-  /** Additional context or warnings */
-  notes?: string[];
-  /** Related documentation links */
-  references?: Array<{
-    title: string;
-    url: string;
-    type: 'documentation' | 'best_practice' | 'example';
-  }>;
+  key: string;
+  name: string;
+  description: string;
+  severity: RuleSeverity;
+  type: RuleType;
+  language: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'DEPRECATED';
+  createdAt: string;
+  updatedAt: string;
+  pattern: RulePattern;
+  parameters: RuleParameter[];
+  tags: string[];
+  remediationFunction?: RemediationFunction;
+  qualityProfiles: string[];
+  projects: string[];
+  organization?: string;
 }
 
-export interface AiCodeChangeV2 {
-  /** File path relative to project root */
-  filePath: string;
-  /** Original file content hash for validation */
-  originalHash?: string;
-  /** Line-based changes */
-  lineChanges: Array<{
-    /** Start line number (1-indexed) */
-    startLine: number;
-    /** End line number (1-indexed) */
-    endLine: number;
-    /** Original content being replaced */
-    originalContent: string;
-    /** New content to insert */
-    newContent: string;
-    /** Type of change */
-    changeType: 'replace' | 'insert' | 'delete';
-    /** Explanation for this specific change */
-    changeReason?: string;
-  }>;
-  /** File-level metadata */
-  fileMetadata?: {
-    language: string;
-    encoding: string;
-    totalLines: number;
-  };
+// Pattern types for different rule languages
+export type RulePattern = 
+  | AstPattern 
+  | RegexPattern 
+  | XPathPattern 
+  | CustomPattern;
+
+export interface AstPattern {
+  type: 'ast';
+  expression: string;
+  nodeType: string;
+  attributes?: Record<string, any>;
 }
 
-// Builder pattern support
-export interface GetIssueAvailabilityV2Builder {
-  /** Set the issue key */
-  withIssue(issueKey: string): this;
-  /** Set project context */
-  inProject(projectKey: string): this;
-  /** Set branch context */
-  onBranch(branch: string): this;
-  /** Set pull request context */
-  onPullRequest(pullRequest: string): this;
-  /** Execute the request */
-  execute(): Promise<FixSuggestionAvailabilityV2Response>;
+export interface RegexPattern {
+  type: 'regex';
+  expression: string;
+  flags?: string;
+  multiline?: boolean;
 }
 
-export interface RequestAiSuggestionsV2Builder {
-  /** Set the issue key */
-  withIssue(issueKey: string): this;
-  /** Include surrounding code context */
-  withContext(include?: boolean): this;
-  /** Set maximum number of alternatives */
-  withMaxAlternatives(count: number): this;
-  /** Set fix style preference */
-  withFixStyle(style: 'minimal' | 'comprehensive' | 'defensive'): this;
-  /** Add language-specific preferences */
-  withLanguagePreferences(prefs: Record<string, unknown>): this;
-  /** Execute the request */
-  execute(): Promise<AiSuggestionResponseV2>;
+export interface XPathPattern {
+  type: 'xpath';
+  expression: string;
+  namespaces?: Record<string, string>;
+}
+
+export interface CustomPattern {
+  type: 'custom';
+  engine: string;
+  expression: string;
+  config?: Record<string, any>;
+}
+
+// Rule configuration types
+export interface RuleParameter {
+  key: string;
+  name: string;
+  description?: string;
+  type: 'STRING' | 'INTEGER' | 'BOOLEAN' | 'FLOAT';
+  defaultValue?: string;
+  options?: string[];
+}
+
+export interface RemediationFunction {
+  type: 'LINEAR' | 'LINEAR_OFFSET' | 'CONSTANT';
+  baseEffort?: string;
+  gapMultiplier?: string;
+  effortToFix?: string;
+}
+
+// Policy composition types
+export interface CleanCodePolicy {
+  id: string;
+  name: string;
+  description: string;
+  rules: string[];
+  qualityProfiles: string[];
+  projects?: string[];
+  isDefault: boolean;
+  inheritance?: PolicyInheritance;
+}
+
+export interface PolicyInheritance {
+  parent?: string;
+  overrides: RuleOverride[];
+  additions: string[];
+}
+
+export interface RuleOverride {
+  ruleKey: string;
+  severity?: RuleSeverity;
+  parameters?: Record<string, any>;
+}
+
+// Builder interfaces
+export interface CustomRuleV2Builder {
+  withKey(key: string): this;
+  withName(name: string): this;
+  withDescription(description: string): this;
+  withSeverity(severity: RuleSeverity): this;
+  withType(type: RuleType): this;
+  forLanguage(language: string): this;
+  withPattern(pattern: RulePattern): this;
+  withAstPattern(nodeType: string, expression: string): this;
+  withRegexPattern(expression: string, flags?: string): this;
+  withXPathPattern(expression: string): this;
+  withParameter(param: RuleParameter): this;
+  withTag(tag: string): this;
+  withTags(tags: string[]): this;
+  withRemediationFunction(func: RemediationFunction): this;
+  fromTemplate(templateKey: string): this;
+  validate(): ValidationResult;
+  execute(): Promise<CustomRuleV2Response>;
 }
 
 // Utility types
-export interface FixApplicationOptions {
-  /** Automatically create backup before applying */
-  createBackup?: boolean;
-  /** Validation mode */
-  validationMode?: 'strict' | 'permissive';
-  /** Handle conflicts */
-  conflictResolution?: 'abort' | 'skip' | 'interactive';
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
 }
 
-export interface FixValidationResult {
-  /** Whether the fix can be safely applied */
-  canApply: boolean;
-  /** List of issues preventing application */
-  blockers: Array<{
-    type: 'file_modified' | 'syntax_error' | 'conflict' | 'permission';
-    message: string;
-    filePath?: string;
-    lineNumber?: number;
-  }>;
-  /** Warnings that don't prevent application */
-  warnings: string[];
+export interface ValidationError {
+  field: string;
+  message: string;
+  code: string;
+}
+
+export interface ValidationWarning {
+  field: string;
+  message: string;
+  suggestion?: string;
+}
+
+// Analysis types
+export interface RuleEffectivenessAnalysis {
+  ruleKey: string;
+  issuesFound: number;
+  falsePositiveRate: number;
+  averageRemediationTime: string;
+  projectsCovered: number;
+  languageDistribution: Record<string, number>;
+}
+
+export interface PatternTestResult {
+  pattern: RulePattern;
+  testFile: string;
+  matches: PatternMatch[];
+  executionTime: number;
+  memoryUsed: number;
+}
+
+export interface PatternMatch {
+  line: number;
+  column: number;
+  endLine?: number;
+  endColumn?: number;
+  matchedText: string;
+  context: string;
 }
 ```
 
-### Client Implementation
+### Implementation Architecture
 
 ```typescript
-/**
- * Client for interacting with the SonarQube Fix Suggestions API v2.
- * This API provides AI-powered code fix suggestions for SonarQube issues.
- * 
- * The Fix Suggestions API enables:
- * - Automated code fix generation using AI
- * - Issue-specific fix recommendations
- * - Multi-language support with context awareness
- * - Confidence scoring for fix reliability
- * 
- * @since 10.7
- */
-export class FixSuggestionsClient extends BaseClient {
+// Main client implementation
+export class CleanCodePolicyClient extends BaseClient {
   /**
-   * Check if AI fix suggestions are available for a specific issue.
-   * 
-   * @param params - Issue availability check parameters
-   * @returns Availability status and AI model information
-   * @since 10.7
-   * 
-   * @example
-   * ```typescript
-   * // Check availability for a specific issue
-   * const availability = await client.fixSuggestions.getIssueAvailabilityV2({
-   *   issueKey: 'AY8qEqN7UVrTsQCOExjT',
-   *   projectKey: 'my-project'
-   * });
-   * 
-   * if (availability.available) {
-   *   console.log(`AI fixes available. Processing time: ${availability.estimatedProcessingTime}s`);
-   * } else {
-   *   console.log(`AI fixes not available: ${availability.reason}`);
-   * }
-   * ```
+   * Create a custom rule for clean code policy
    */
-  async getIssueAvailabilityV2(
-    params: GetIssueAvailabilityV2Request
-  ): Promise<FixSuggestionAvailabilityV2Response> {
-    const query = this.buildV2Query(params as unknown as Record<string, unknown>);
+  async createCustomRuleV2(
+    request: CustomRuleV2Request
+  ): Promise<CustomRuleV2Response> {
+    const validated = this.validateRule(request);
     
-    return this.request<FixSuggestionAvailabilityV2Response>(
-      `/api/v2/fix-suggestions/issues?${query}`
+    return this.request<CustomRuleV2Response>(
+      '/api/v2/clean-code-policy/rules',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validated),
+      }
     );
   }
 
   /**
-   * Request AI-generated fix suggestions for an issue.
-   * 
-   * @param params - AI suggestion request parameters
-   * @returns AI-generated fix suggestions with code changes
-   * @since 10.7
-   * 
-   * @example
-   * ```typescript
-   * // Request AI suggestions with context
-   * const suggestions = await client.fixSuggestions.requestAiSuggestionsV2({
-   *   issueKey: 'AY8qEqN7UVrTsQCOExjT',
-   *   includeContext: true,
-   *   maxAlternatives: 3,
-   *   fixStyle: 'comprehensive'
-   * });
-   * 
-   * console.log(`Generated ${suggestions.suggestions.length} fix suggestions`);
-   * 
-   * suggestions.suggestions.forEach((suggestion, index) => {
-   *   console.log(`Fix ${index + 1}: ${suggestion.explanation}`);
-   *   console.log(`Confidence: ${suggestion.confidence}%`);
-   *   console.log(`Changes: ${suggestion.changes.length} files`);
-   * });
-   * ```
+   * Create a builder for custom rule creation
    */
-  async requestAiSuggestionsV2(
-    params: RequestAiSuggestionsV2Request
-  ): Promise<AiSuggestionResponseV2> {
-    return this.request<AiSuggestionResponseV2>('/api/v2/fix-suggestions/ai-suggestions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params),
-    });
+  createRule(): CustomRuleV2Builder {
+    return new CustomRuleV2BuilderImpl(this);
   }
 
   /**
-   * Create a builder for checking issue availability.
-   * 
-   * @returns Issue availability builder
-   * @since 10.7
-   * 
-   * @example
-   * ```typescript
-   * const availability = await client.fixSuggestions
-   *   .checkAvailability()
-   *   .withIssue('AY8qEqN7UVrTsQCOExjT')
-   *   .inProject('my-project')
-   *   .onBranch('main')
-   *   .execute();
-   * ```
+   * Validate a rule pattern
    */
-  checkAvailability(): GetIssueAvailabilityV2Builder {
-    return new GetIssueAvailabilityV2Builder(this);
+  async validatePattern(
+    pattern: RulePattern,
+    testCode?: string
+  ): Promise<ValidationResult> {
+    // Implementation for pattern validation
   }
 
   /**
-   * Create a builder for requesting AI suggestions.
-   * 
-   * @returns AI suggestions request builder
-   * @since 10.7
-   * 
-   * @example
-   * ```typescript
-   * const suggestions = await client.fixSuggestions
-   *   .requestSuggestions()
-   *   .withIssue('AY8qEqN7UVrTsQCOExjT')
-   *   .withContext(true)
-   *   .withMaxAlternatives(5)
-   *   .withFixStyle('comprehensive')
-   *   .execute();
-   * ```
+   * Test a rule against sample code
    */
-  requestSuggestions(): RequestAiSuggestionsV2Builder {
-    return new RequestAiSuggestionsV2Builder(this);
+  async testRule(
+    rule: CustomRuleV2Request,
+    testFiles: string[]
+  ): Promise<PatternTestResult[]> {
+    // Implementation for rule testing
+  }
+
+  private validateRule(rule: CustomRuleV2Request): CustomRuleV2Request {
+    // Comprehensive validation logic
   }
 }
 ```
 
-### Builder Pattern Implementation
+### Builder Pattern Example
 
 ```typescript
-export class GetIssueAvailabilityV2Builder extends BaseBuilder<
-  GetIssueAvailabilityV2Request,
-  FixSuggestionAvailabilityV2Response
-> {
-  constructor(private client: FixSuggestionsClient) {
-    super();
-  }
-
-  withIssue(issueKey: string): this {
-    this.params.issueKey = issueKey;
-    return this;
-  }
-
-  inProject(projectKey: string): this {
-    this.params.projectKey = projectKey;
-    return this;
-  }
-
-  onBranch(branch: string): this {
-    this.params.branch = branch;
-    return this;
-  }
-
-  onPullRequest(pullRequest: string): this {
-    this.params.pullRequest = pullRequest;
-    return this;
-  }
-
-  protected validate(): void {
-    if (!this.params.issueKey) {
-      throw new ValidationError('Issue key is required');
-    }
-  }
-
-  async execute(): Promise<FixSuggestionAvailabilityV2Response> {
-    this.validate();
-    return this.client.getIssueAvailabilityV2(this.params);
-  }
-}
-
-export class RequestAiSuggestionsV2Builder extends BaseBuilder<
-  RequestAiSuggestionsV2Request,
-  AiSuggestionResponseV2
-> {
-  constructor(private client: FixSuggestionsClient) {
-    super();
-    // Set sensible defaults
-    this.params.includeContext = true;
-    this.params.maxAlternatives = 3;
-    this.params.fixStyle = 'comprehensive';
-  }
-
-  withIssue(issueKey: string): this {
-    this.params.issueKey = issueKey;
-    return this;
-  }
-
-  withContext(include = true): this {
-    this.params.includeContext = include;
-    return this;
-  }
-
-  withMaxAlternatives(count: number): this {
-    if (count < 1 || count > 10) {
-      throw new ValidationError('Max alternatives must be between 1 and 10');
-    }
-    this.params.maxAlternatives = count;
-    return this;
-  }
-
-  withFixStyle(style: 'minimal' | 'comprehensive' | 'defensive'): this {
-    this.params.fixStyle = style;
-    return this;
-  }
-
-  withLanguagePreferences(prefs: Record<string, unknown>): this {
-    this.params.languagePreferences = { ...this.params.languagePreferences, ...prefs };
-    return this;
-  }
-
-  protected validate(): void {
-    if (!this.params.issueKey) {
-      throw new ValidationError('Issue key is required');
-    }
-    
-    if (this.params.maxAlternatives && this.params.maxAlternatives > 10) {
-      throw new ValidationError('Maximum 10 alternatives allowed');
-    }
-  }
-
-  async execute(): Promise<AiSuggestionResponseV2> {
-    this.validate();
-    return this.client.requestAiSuggestionsV2(this.params);
-  }
-}
+// Creating a custom rule using the builder pattern
+const rule = await client.cleanCodePolicy
+  .createRule()
+  .withKey('custom:no-console-log')
+  .withName('No Console Logging')
+  .withDescription('Prohibits console.log statements in production code')
+  .forLanguage('javascript')
+  .withSeverity('MAJOR')
+  .withType('CODE_SMELL')
+  .withAstPattern('CallExpression', `
+    callee.type === 'MemberExpression' &&
+    callee.object.name === 'console' &&
+    callee.property.name === 'log'
+  `)
+  .withTag('performance')
+  .withTag('best-practice')
+  .withRemediationFunction({
+    type: 'CONSTANT',
+    baseEffort: '5min'
+  })
+  .execute();
 ```
 
-### Utility Functions
+### Utility Classes
 
 ```typescript
-/**
- * Utility functions for processing AI fix suggestions
- */
-export class FixSuggestionUtils {
-  /**
-   * Validate that a fix suggestion can be safely applied to the current codebase
-   */
-  static validateFixApplication(
-    suggestion: AiFixSuggestionV2,
-    options: FixApplicationOptions = {}
-  ): FixValidationResult {
-    const result: FixValidationResult = {
-      canApply: true,
-      blockers: [],
-      warnings: [],
-    };
-
-    // Validate each code change
-    suggestion.changes.forEach((change) => {
-      // Check if file exists and is accessible
-      if (!this.isFileAccessible(change.filePath)) {
-        result.blockers.push({
-          type: 'permission',
-          message: `Cannot access file: ${change.filePath}`,
-          filePath: change.filePath,
-        });
-      }
-
-      // Validate line ranges
-      change.lineChanges.forEach((lineChange) => {
-        if (lineChange.startLine > lineChange.endLine) {
-          result.blockers.push({
-            type: 'syntax_error',
-            message: `Invalid line range: ${lineChange.startLine}-${lineChange.endLine}`,
-            filePath: change.filePath,
-            lineNumber: lineChange.startLine,
-          });
-        }
-      });
-    });
-
-    result.canApply = result.blockers.length === 0;
-    return result;
-  }
-
-  /**
-   * Rank fix suggestions by confidence and applicability
-   */
-  static rankSuggestions(suggestions: AiFixSuggestionV2[]): AiFixSuggestionV2[] {
-    return suggestions
-      .slice() // Don't mutate original array
-      .sort((a, b) => {
-        // Primary sort: confidence score
-        const confidenceDiff = b.confidence - a.confidence;
-        if (confidenceDiff !== 0) return confidenceDiff;
-
-        // Secondary sort: success rate
-        const successRateDiff = b.successRate - a.successRate;
-        if (successRateDiff !== 0) return successRateDiff;
-
-        // Tertiary sort: complexity (lower is better)
-        const complexityOrder = { low: 3, medium: 2, high: 1 };
-        return complexityOrder[b.complexity] - complexityOrder[a.complexity];
-      });
-  }
-
-  /**
-   * Generate a preview of what changes would be applied
-   */
-  static generateChangePreview(suggestion: AiFixSuggestionV2): string {
-    const lines: string[] = [];
-    
-    lines.push(`Fix: ${suggestion.explanation}`);
-    lines.push(`Confidence: ${suggestion.confidence}% | Complexity: ${suggestion.complexity}`);
-    lines.push('');
-
-    suggestion.changes.forEach((change, index) => {
-      lines.push(`File ${index + 1}: ${change.filePath}`);
-      
-      change.lineChanges.forEach((lineChange) => {
-        lines.push(`  Lines ${lineChange.startLine}-${lineChange.endLine}:`);
-        lines.push(`  - ${lineChange.originalContent}`);
-        lines.push(`  + ${lineChange.newContent}`);
-        if (lineChange.changeReason) {
-          lines.push(`    (${lineChange.changeReason})`);
-        }
-        lines.push('');
-      });
-    });
-
-    return lines.join('\n');
-  }
-
-  /**
-   * Extract common patterns from multiple fix suggestions
-   */
-  static analyzeSuggestionPatterns(suggestions: AiFixSuggestionV2[]): {
-    commonChanges: string[];
-    suggestedBestPractices: string[];
-    languageSpecificTips: Record<string, string[]>;
-  } {
-    const commonChanges: Set<string> = new Set();
-    const bestPractices: Set<string> = new Set();
-    const languageTips: Record<string, Set<string>> = {};
-
-    suggestions.forEach((suggestion) => {
-      // Analyze common change patterns
-      suggestion.changes.forEach((change) => {
-        const language = change.fileMetadata?.language;
-        if (language && !languageTips[language]) {
-          languageTips[language] = new Set();
-        }
-
-        change.lineChanges.forEach((lineChange) => {
-          // Extract common patterns from changes
-          if (lineChange.changeReason) {
-            commonChanges.add(lineChange.changeReason);
-          }
-          
-          if (language && lineChange.changeReason) {
-            languageTips[language]!.add(lineChange.changeReason);
-          }
-        });
-      });
-
-      // Extract best practices from references
-      suggestion.references?.forEach((ref) => {
-        if (ref.type === 'best_practice') {
-          bestPractices.add(ref.title);
-        }
-      });
-    });
-
-    return {
-      commonChanges: Array.from(commonChanges),
-      suggestedBestPractices: Array.from(bestPractices),
-      languageSpecificTips: Object.fromEntries(
-        Object.entries(languageTips).map(([lang, tips]) => [lang, Array.from(tips)])
-      ),
-    };
-  }
-
-  private static isFileAccessible(filePath: string): boolean {
-    // Implementation would check file system permissions
-    // This is a placeholder for the actual implementation
-    return true;
-  }
+// Pattern validator utility
+export class PatternValidator {
+  static validateAstPattern(pattern: AstPattern): ValidationResult
+  static validateRegexPattern(pattern: RegexPattern): ValidationResult
+  static validateXPathPattern(pattern: XPathPattern): ValidationResult
+  static suggestOptimizations(pattern: RulePattern): string[]
 }
 
-/**
- * Integration helpers for working with the Issues API
- */
-export class FixSuggestionIntegration {
-  /**
-   * Find issues that are eligible for AI fix suggestions
-   */
-  static async findEligibleIssues(
-    client: SonarQubeClient,
-    projectKey: string,
-    options: {
-      severity?: string[];
-      types?: string[];
-      maxAge?: number; // days
-    } = {}
-  ): Promise<Array<{ issue: Issue; availability: FixSuggestionAvailabilityV2Response }>> {
-    // Get issues from the Issues API
-    const issuesResponse = await client.issues.search()
-      .inProject(projectKey)
-      .withSeverities(options.severity ?? ['MAJOR', 'CRITICAL', 'BLOCKER'])
-      .withTypes(options.types ?? ['BUG', 'CODE_SMELL'])
-      .execute();
+// Rule composer utility
+export class RuleComposer {
+  static composePolicy(rules: CustomRuleV2Response[]): CleanCodePolicy
+  static mergeRules(base: CustomRuleV2Request, override: Partial<CustomRuleV2Request>): CustomRuleV2Request
+  static generateRuleKey(name: string, language: string): string
+}
 
-    const eligibleIssues = [];
+// Pattern testing utility
+export class PatternTester {
+  static async testPattern(pattern: RulePattern, code: string): Promise<PatternMatch[]>
+  static async benchmarkPattern(pattern: RulePattern, testSuite: string[]): Promise<BenchmarkResult>
+  static generateTestCases(pattern: RulePattern): TestCase[]
+}
 
-    // Check each issue for AI suggestion availability
-    for (const issue of issuesResponse.issues) {
-      try {
-        const availability = await client.fixSuggestions.getIssueAvailabilityV2({
-          issueKey: issue.key,
-          projectKey,
-        });
-
-        if (availability.available) {
-          eligibleIssues.push({ issue, availability });
-        }
-      } catch (error) {
-        // Log but don't fail for individual issues
-        console.warn(`Failed to check availability for issue ${issue.key}:`, error);
-      }
-    }
-
-    return eligibleIssues;
-  }
-
-  /**
-   * Apply a fix suggestion and update the issue status
-   */
-  static async applyFixAndUpdateIssue(
-    client: SonarQubeClient,
-    issueKey: string,
-    suggestion: AiFixSuggestionV2,
-    options: FixApplicationOptions = {}
-  ): Promise<{
-    success: boolean;
-    appliedChanges: AiCodeChangeV2[];
-    errors: string[];
-  }> {
-    const result = {
-      success: false,
-      appliedChanges: [] as AiCodeChangeV2[],
-      errors: [] as string[],
-    };
-
-    // Validate fix before applying
-    const validation = FixSuggestionUtils.validateFixApplication(suggestion, options);
-    if (!validation.canApply) {
-      result.errors = validation.blockers.map(b => b.message);
-      return result;
-    }
-
-    try {
-      // Apply the code changes (implementation would integrate with file system)
-      // This is a placeholder for the actual file modification logic
-      result.appliedChanges = suggestion.changes;
-      result.success = true;
-
-      // Optionally mark the issue as resolved or add a comment
-      // This would require additional Issues API integration
-
-    } catch (error) {
-      result.errors.push(`Failed to apply fix: ${error}`);
-      result.success = false;
-    }
-
-    return result;
-  }
+// Migration utility
+export class RuleMigrator {
+  static migrateV1Rule(v1Rule: any): CustomRuleV2Request
+  static exportRules(rules: CustomRuleV2Response[]): string
+  static importRules(data: string): CustomRuleV2Request[]
 }
 ```
 
 ## Testing Strategy
 
-### Test Coverage Requirements
+### Unit Tests
+- Client method tests with MSW mocks
+- Builder pattern validation tests
+- Pattern validation tests
+- Error handling scenarios
 
-1. **Unit Tests (>95% coverage)**
-   - All client methods
-   - Builder pattern validation
-   - Utility functions
-   - Error handling scenarios
+### Integration Tests
+- End-to-end rule creation flow
+- Pattern matching accuracy tests
+- Quality profile integration tests
+- Multi-language support tests
 
-2. **Integration Tests**
-   - End-to-end workflow testing
-   - Real API interaction simulation
-   - Performance testing
+### Pattern Tests
+- AST pattern matching tests
+- Regex pattern edge cases
+- XPath query validation
+- Performance benchmarks
 
-3. **MSW Mock Implementation**
-   - Realistic AI response generation
-   - Various suggestion scenarios
-   - Error condition simulation
-
-### Test Structure
-
-```typescript
-describe('FixSuggestionsClient', () => {
-  describe('getIssueAvailabilityV2', () => {
-    test('should check availability for valid issue');
-    test('should handle unavailable AI service');
-    test('should validate required parameters');
-    test('should include project context');
-  });
-
-  describe('requestAiSuggestionsV2', () => {
-    test('should generate fix suggestions');
-    test('should handle multiple alternatives');
-    test('should respect fix style preferences');
-    test('should include code context');
-  });
-
-  describe('Builder patterns', () => {
-    test('should build availability checks fluently');
-    test('should build suggestion requests with validation');
-    test('should handle parameter validation');
-  });
-
-  describe('Integration scenarios', () => {
-    test('should integrate with Issues API');
-    test('should handle concurrent requests');
-    test('should process large suggestion responses');
-  });
-});
-```
-
-## Integration Plan
-
-### Main Client Integration
+### Example Test Cases
 
 ```typescript
-// Add to SonarQubeClient class
-export class SonarQubeClient extends BaseClient {
-  // ... existing properties
+describe('CleanCodePolicyClient', () => {
+  it('should create custom rule with AST pattern', async () => {
+    const rule = await client.cleanCodePolicy
+      .createRule()
+      .withKey('custom:no-var')
+      .withName('No var declarations')
+      .forLanguage('javascript')
+      .withAstPattern('VariableDeclaration', 'kind === "var"')
+      .execute();
 
-  /** Fix Suggestions API client for AI-powered code fixes */
-  public readonly fixSuggestions: FixSuggestionsClient;
+    expect(rule.key).toBe('custom:no-var');
+    expect(rule.pattern.type).toBe('ast');
+  });
 
-  constructor(baseUrl: string, token?: string) {
-    super(baseUrl, token);
-    // ... existing initializations
-    this.fixSuggestions = new FixSuggestionsClient(baseUrl, token);
-  }
-}
-
-// Update index.ts exports
-export { FixSuggestionsClient } from './resources/fix-suggestions';
-export type {
-  GetIssueAvailabilityV2Request,
-  FixSuggestionAvailabilityV2Response,
-  RequestAiSuggestionsV2Request,
-  AiSuggestionResponseV2,
-  AiFixSuggestionV2,
-  AiCodeChangeV2,
-} from './resources/fix-suggestions';
-```
-
-### Issues API Integration
-
-```typescript
-// Add convenience method to IssuesClient
-export class IssuesClient extends BaseClient {
-  // ... existing methods
-
-  /**
-   * Check if AI fix suggestions are available for this issue
-   * @since 10.7
-   */
-  async checkFixAvailability(issueKey: string): Promise<FixSuggestionAvailabilityV2Response> {
-    return this.client.fixSuggestions.getIssueAvailabilityV2({ issueKey });
-  }
-
-  /**
-   * Request AI fix suggestions for this issue
-   * @since 10.7
-   */
-  async requestAiFix(
-    issueKey: string,
-    options?: Partial<RequestAiSuggestionsV2Request>
-  ): Promise<AiSuggestionResponseV2> {
-    return this.client.fixSuggestions.requestAiSuggestionsV2({
-      issueKey,
-      ...options,
+  it('should validate regex patterns', async () => {
+    const result = await client.cleanCodePolicy.validatePattern({
+      type: 'regex',
+      expression: '\\bconsole\\.log\\b',
+      flags: 'g'
     });
-  }
-}
-```
 
-## Error Handling Strategy
-
-### AI-Specific Error Types
-
-```typescript
-export class AiServiceUnavailableError extends SonarQubeError {
-  constructor(message: string, public retryAfter?: number) {
-    super(message, 503);
-    this.name = 'AiServiceUnavailableError';
-  }
-}
-
-export class AiQuotaExceededError extends SonarQubeError {
-  constructor(message: string, public resetTime?: string) {
-    super(message, 429);
-    this.name = 'AiQuotaExceededError';
-  }
-}
-
-export class FixGenerationError extends SonarQubeError {
-  constructor(message: string, public issueKey: string) {
-    super(message, 422);
-    this.name = 'FixGenerationError';
-  }
-}
-```
-
-### Error Factory Integration
-
-```typescript
-// Add to errorFactory.ts
-export function createAiError(response: Response, body: any): SonarQubeError {
-  if (response.status === 503 && body.errorType === 'AI_SERVICE_UNAVAILABLE') {
-    return new AiServiceUnavailableError(
-      body.message,
-      body.retryAfter
-    );
-  }
-
-  if (response.status === 429 && body.errorType === 'AI_QUOTA_EXCEEDED') {
-    return new AiQuotaExceededError(
-      body.message,
-      body.resetTime
-    );
-  }
-
-  if (response.status === 422 && body.errorType === 'FIX_GENERATION_FAILED') {
-    return new FixGenerationError(
-      body.message,
-      body.issueKey
-    );
-  }
-
-  return createStandardError(response, body);
-}
-```
-
-## Documentation and Examples
-
-### Usage Examples
-
-```typescript
-// Basic availability check
-const availability = await client.fixSuggestions.getIssueAvailabilityV2({
-  issueKey: 'AY8qEqN7UVrTsQCOExjT'
-});
-
-if (availability.available) {
-  // Request AI suggestions
-  const suggestions = await client.fixSuggestions.requestAiSuggestionsV2({
-    issueKey: 'AY8qEqN7UVrTsQCOExjT',
-    includeContext: true,
-    maxAlternatives: 3
+    expect(result.valid).toBe(true);
   });
 
-  // Process suggestions
-  const ranked = FixSuggestionUtils.rankSuggestions(suggestions.suggestions);
-  const preview = FixSuggestionUtils.generateChangePreview(ranked[0]);
-  
-  console.log('Best suggestion preview:');
-  console.log(preview);
-}
+  it('should test rule against sample code', async () => {
+    const results = await client.cleanCodePolicy.testRule(
+      sampleRule,
+      ['test-file.js']
+    );
 
-// Builder pattern usage
-const suggestions = await client.fixSuggestions
-  .requestSuggestions()
-  .withIssue('AY8qEqN7UVrTsQCOExjT')
-  .withContext(true)
-  .withMaxAlternatives(5)
-  .withFixStyle('comprehensive')
+    expect(results[0].matches).toHaveLength(3);
+  });
+});
+```
+
+## Usage Examples
+
+### Example 1: Security Rule for SQL Injection
+
+```typescript
+const sqlInjectionRule = await client.cleanCodePolicy
+  .createRule()
+  .withKey('custom:sql-injection-risk')
+  .withName('Potential SQL Injection')
+  .withDescription('Detects string concatenation in SQL queries')
+  .forLanguage('java')
+  .withSeverity('BLOCKER')
+  .withType('VULNERABILITY')
+  .withRegexPattern(
+    'executeQuery\\s*\\([^)]*\\+[^)]*\\)',
+    'gm'
+  )
+  .withTag('security')
+  .withTag('owasp-top10')
+  .withRemediationFunction({
+    type: 'LINEAR',
+    gapMultiplier: '30min'
+  })
   .execute();
+```
 
-// Integration with Issues API
-const eligibleIssues = await FixSuggestionIntegration.findEligibleIssues(
-  client,
-  'my-project',
-  { severity: ['MAJOR', 'CRITICAL'] }
+### Example 2: Performance Rule for React
+
+```typescript
+const reactPerformanceRule = await client.cleanCodePolicy
+  .createRule()
+  .withKey('custom:react-inline-functions')
+  .withName('Avoid inline functions in JSX')
+  .withDescription('Inline functions cause unnecessary re-renders')
+  .forLanguage('typescript')
+  .withSeverity('MINOR')
+  .withType('CODE_SMELL')
+  .withAstPattern('JSXAttribute', `
+    value.type === 'ArrowFunctionExpression' ||
+    value.type === 'FunctionExpression'
+  `)
+  .withParameter({
+    key: 'allowedComponents',
+    name: 'Components to exclude',
+    type: 'STRING',
+    defaultValue: 'Button,Link'
+  })
+  .execute();
+```
+
+### Example 3: Policy Composition
+
+```typescript
+// Create multiple rules
+const rules = await Promise.all([
+  client.cleanCodePolicy.createRule()
+    .withKey('custom:no-console')
+    .withName('No console statements')
+    .forLanguage('javascript')
+    .withAstPattern('MemberExpression', 'object.name === "console"')
+    .execute(),
+    
+  client.cleanCodePolicy.createRule()
+    .withKey('custom:no-debugger')
+    .withName('No debugger statements')
+    .forLanguage('javascript')
+    .withAstPattern('DebuggerStatement', 'true')
+    .execute()
+]);
+
+// Compose into a policy
+const policy = RuleComposer.composePolicy(rules);
+```
+
+## Migration from v1 Custom Rules
+
+```typescript
+// Migrate existing v1 custom rules
+const v1Rules = await getV1CustomRules();
+
+const v2Rules = await Promise.all(
+  v1Rules.map(async (v1Rule) => {
+    const v2Request = RuleMigrator.migrateV1Rule(v1Rule);
+    return client.cleanCodePolicy.createCustomRuleV2(v2Request);
+  })
 );
 
-console.log(`Found ${eligibleIssues.length} issues eligible for AI fixes`);
+// Export rules for backup
+const exportData = RuleMigrator.exportRules(v2Rules);
+await fs.writeFile('custom-rules-backup.json', exportData);
+```
+
+## Integration with Quality Profiles
+
+```typescript
+// Create rule and add to quality profile
+const customRule = await client.cleanCodePolicy
+  .createRule()
+  .withKey('custom:team-standard-001')
+  .withName('Team Coding Standard #001')
+  .execute();
+
+// Activate in quality profile
+await client.qualityProfiles
+  .activateRule()
+  .withRule(customRule.key)
+  .inProfile('team-javascript-profile')
+  .withSeverity('MAJOR')
+  .execute();
 ```
 
 ## Performance Considerations
 
-### AI Service Optimization
-
-1. **Request Batching**: Group multiple availability checks
-2. **Caching**: Cache availability responses for a short period
-3. **Retry Logic**: Implement exponential backoff for AI service errors
-4. **Timeout Management**: Handle long AI processing times gracefully
-
-### Memory Management
-
-1. **Large Response Handling**: Stream large suggestion responses
-2. **Garbage Collection**: Properly dispose of large AI responses
-3. **Connection Pooling**: Reuse connections for AI service calls
+1. **Pattern Complexity**: AST patterns are more efficient than regex for complex rules
+2. **Caching**: Cache validated patterns to avoid repeated validation
+3. **Batch Operations**: Create multiple rules in parallel when possible
+4. **Testing**: Test patterns on sample code before applying to large codebases
 
 ## Security Considerations
 
-### Data Privacy
-
-1. **Code Context**: Ensure code snippets sent to AI are properly anonymized
-2. **Token Security**: Protect AI service authentication tokens
-3. **Rate Limiting**: Respect AI service quotas and limits
-4. **Audit Logging**: Log AI service interactions for security auditing
-
-### Validation
-
-1. **Input Sanitization**: Validate all AI responses before processing
-2. **Code Injection Prevention**: Sanitize generated code changes
-3. **Permission Checks**: Verify user permissions for AI service access
-
-## Success Metrics
-
-### Technical Metrics
-
-1. **API Coverage**: 100% of Fix Suggestions API endpoints implemented
-2. **Test Coverage**: >95% code coverage with comprehensive scenarios
-3. **Type Safety**: Full TypeScript support with strict types
-4. **Performance**: Sub-2s response times for availability checks
-5. **Reliability**: 99.9% uptime for client operations
-
-### User Experience Metrics
-
-1. **Ease of Use**: Intuitive API with builder patterns
-2. **Documentation Quality**: Comprehensive examples and guides
-3. **Error Handling**: Clear, actionable error messages
-4. **Integration**: Seamless integration with existing Issues API
-
-### Business Impact Metrics
-
-1. **Developer Productivity**: Reduced time-to-fix for code issues
-2. **Code Quality**: Improved fix success rates with AI assistance
-3. **Adoption**: Usage metrics and developer feedback
-4. **AI Service ROI**: Cost-benefit analysis of AI fix suggestions
-
-## Risk Mitigation
-
-### Technical Risks
-
-1. **AI Service Unavailability**: Implement proper fallback mechanisms
-2. **API Changes**: Monitor SonarQube API updates for breaking changes
-3. **Performance Degradation**: Implement circuit breakers and timeouts
-4. **Memory Issues**: Proper resource cleanup for large responses
-
-### Business Risks
-
-1. **AI Service Costs**: Monitor usage and implement quotas
-2. **Legal Concerns**: Ensure compliance with AI service terms
-3. **Code Quality**: Validate AI suggestions before application
-4. **User Adoption**: Provide comprehensive documentation and examples
+1. **Pattern Injection**: Validate and sanitize all pattern inputs
+2. **Resource Limits**: Implement timeouts for pattern execution
+3. **Access Control**: Respect SonarQube permissions for rule creation
+4. **Audit Trail**: Log all custom rule creation and modifications
 
 ## Future Enhancements
 
-### Phase 2 Features (Future Releases)
-
-1. **Batch Processing**: Submit multiple issues for AI analysis
-2. **Custom AI Models**: Support for organization-specific AI models
-3. **Fix Templates**: Pre-defined fix patterns for common issues
-4. **Integration Plugins**: IDE plugins for direct AI fix application
-
-### Advanced Capabilities
-
-1. **Machine Learning**: Learn from applied fixes to improve suggestions
-2. **Context Enhancement**: Include more project context for better fixes
-3. **Collaborative Filtering**: Share anonymous fix patterns across projects
-4. **Quality Metrics**: Track fix success rates and quality improvements
+1. **AI-Assisted Rule Creation**: Use AI to suggest rule patterns
+2. **Rule Marketplace**: Share custom rules across organizations
+3. **Visual Rule Builder**: GUI for creating complex patterns
+4. **Rule Analytics**: Track rule effectiveness and impact
 
 ## Conclusion
 
-The Fix Suggestions API v2 implementation will provide developers with powerful AI-assisted code fixing capabilities, significantly improving productivity and code quality. This comprehensive plan ensures a robust, well-tested, and user-friendly implementation that integrates seamlessly with the existing sonarqube-web-api-client library.
-
-The 3-day implementation timeline provides adequate time for thorough development, testing, and documentation while maintaining high quality standards. The focus on type safety, error handling, and integration with existing APIs ensures that the new functionality enhances rather than complicates the developer experience.
-
-By implementing this API, the sonarqube-web-api-client library will position itself as a leading solution for modern, AI-enhanced code quality management.
+The Clean Code Policy API v2 implementation will empower organizations to define and enforce custom coding standards, ensuring consistent code quality across all projects. This comprehensive implementation plan provides a solid foundation for building a robust, type-safe, and user-friendly API client that leverages the full power of SonarQube's clean code policy capabilities.
 
 ## Implementation Status
 
-### ✅ Day 1: COMPLETED (January 30, 2025)
+### Day 1: COMPLETED ✅
+- [x] Hour 1-2: Deep API Research (COMPLETED)
+  - ✅ Explored SonarQube v2 API documentation using Puppeteer
+  - ✅ Discovered POST /api/v2/clean-code-policy/rules endpoint
+  - ✅ Identified request parameters: key, templateKey, name, markdownDescription, status, parameters
+  - ✅ Identified response fields: id, repositoryKey, severity, type, impacts, softwareQuality, cleanCodeAttribute
+  - ✅ Confirmed permission requirement: 'Administer Quality Profiles'
+  - ✅ Discovered template-based rule creation pattern
+- [x] Hour 3-4: Type System Architecture (COMPLETED)
+  - ✅ Created comprehensive types.ts with all request/response interfaces
+  - ✅ Defined enums for RuleStatus, SoftwareQuality, ImpactSeverity, CleanCodeAttribute
+  - ✅ Implemented builder pattern with CreateCustomRuleV2Builder and AdvancedCustomRuleBuilder
+  - ✅ Created CleanCodePolicyClient with v2 API methods
+  - ✅ Added validation interfaces and error handling types
+  - ✅ Integrated client into main SonarQubeClient class
+- [x] Hour 5-6: Advanced Type Design (COMPLETED)
+  - ✅ Created comprehensive utility classes (RuleKeyUtils, TemplateUtils, ParameterUtils)
+  - ✅ Implemented PatternBuilder for regex, XPath, and method call patterns
+  - ✅ Added MessageTemplateUtils for consistent error messaging
+  - ✅ Created RuleMigrationUtils for v1 to v2 migration support
+  - ✅ Implemented CleanCodeAttributeUtils for legacy mapping
+  - ✅ Created comprehensive test suite for CleanCodePolicyClient
+- [x] Hour 7-8: Project Structure & Planning (COMPLETED)
+  - ✅ Created complete project structure for clean-code-policy module
+  - ✅ Added MSW handlers for Clean Code Policy API v2
+  - ✅ Created comprehensive test suite for builders and utilities
+  - ✅ Updated exports in index.ts to expose all functionality
+  - ✅ Integrated with main test infrastructure
+  - ✅ Documented all public APIs with JSDoc comments
 
-**Accomplished Tasks:**
-- ✅ **Hour 1-2**: API Research with Puppeteer - Analyzed SonarQube Fix Suggestions documentation
-- ✅ **Hour 3-4**: Complete type system design with 490+ lines of comprehensive TypeScript interfaces
-- ✅ **Hour 5-6**: Project structure setup with all modules, exports, and test infrastructure
-- ✅ **Hour 7-8**: Advanced type definitions with builders, utilities, and comprehensive test suite
+### Day 2: Pending
+- [ ] Hour 1-2: CleanCodePolicyClient Core
+- [ ] Hour 3-4: Builder Pattern Implementation
+- [ ] Hour 5-6: Advanced Features
+- [ ] Hour 7-8: Integration Features
 
-**Deliverables Completed:**
-- ✅ Complete type system (`types.ts`) - 495 lines with comprehensive interfaces
-- ✅ Module structure and exports (`index.ts` + integration)
-- ✅ Test infrastructure setup with MSW (3 test files, 55 tests)
-- ✅ Integration preparation and exports in main client
-- ✅ Full FixSuggestionsClient implementation with builder patterns
-- ✅ Comprehensive utility classes with 723+ lines of helper functions
-- ✅ All tests passing (55/55)
-
-**Key Technical Achievements:**
-- 2 API endpoints fully typed and implemented
-- Advanced builder pattern with fluent API design
-- Comprehensive error handling and validation
-- AI-specific types for confidence scoring and fix alternatives
-- Integration with existing Issues API for batch processing
-- Multi-language support with context awareness
-
-**Next Steps:**
-- Minor type fixes in utils.ts (remove unused imports, fix strict type checking)
-- Clean up linting issues for production readiness
-- Ready to proceed to Day 2 tasks (though core implementation is already complete)
+### Day 3: Pending
+- [ ] Hour 1-2: Comprehensive Testing
+- [ ] Hour 3-4: Utility Development
+- [ ] Hour 5-6: Error Handling & Edge Cases
+- [ ] Hour 7-8: Documentation & Examples

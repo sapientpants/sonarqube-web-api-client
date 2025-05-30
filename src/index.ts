@@ -3,6 +3,7 @@ import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { AnalysisClient } from './resources/analysis';
 import { ScaClient } from './resources/sca';
+import { FixSuggestionsClient } from './resources/fix-suggestions';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
@@ -63,6 +64,8 @@ export class SonarQubeClient {
   public readonly analysis: AnalysisClient;
   /** SCA API v2 - Software Composition Analysis and SBOM generation - **Note**: Only available in SonarQube 10.6+ */
   public readonly sca: ScaClient;
+  /** Fix Suggestions API v2 - AI-powered code fix suggestions - **Note**: Only available in SonarQube 10.7+ */
+  public readonly fixSuggestions: FixSuggestionsClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
   /** Authentication API */
@@ -150,6 +153,7 @@ export class SonarQubeClient {
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.options);
     this.analysis = new AnalysisClient(this.baseUrl, this.token, this.options);
     this.sca = new ScaClient(this.baseUrl, this.token, this.options);
+    this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.token, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
     this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);
@@ -895,6 +899,53 @@ export type {
 
 // Re-export SCA utilities
 export { SbomFormatConverter, SbomAnalyzer } from './resources/sca/utils';
+
+// Re-export types from Fix Suggestions v2 API
+export type {
+  // Request types
+  GetIssueAvailabilityV2Request,
+  RequestAiSuggestionsV2Request,
+
+  // Response types
+  FixSuggestionAvailabilityV2Response,
+  AiSuggestionResponseV2,
+  AiFixSuggestionV2,
+  AiCodeChangeV2,
+
+  // Builder types
+  GetIssueAvailabilityV2Builder,
+  RequestAiSuggestionsV2Builder,
+
+  // Utility types
+  FixApplicationOptions,
+  FixValidationResult,
+  FixRankingCriteria,
+  AiModelCapabilities,
+  FixSuggestionStats,
+
+  // Error types
+  AiServiceError,
+  FixGenerationFailure,
+
+  // Integration types
+  IssueIntegrationOptions,
+  BatchProcessingOptions,
+  BatchFixResult,
+
+  // Convenience unions
+  FixSuggestionUnavailableReason,
+  FixStyle,
+  FixComplexity,
+  FixEffort,
+  ChangeType,
+  ValidationMode,
+  ConflictResolution,
+  Priority,
+  RiskLevel,
+} from './resources/fix-suggestions/types';
+
+// Re-export Fix Suggestions utilities
+export { FixSuggestionUtils, FixSuggestionIntegration } from './resources/fix-suggestions/utils';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

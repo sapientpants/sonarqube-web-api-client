@@ -1,1247 +1,1163 @@
-# Current Implementation Plan: SCA v2 API (Software Composition Analysis)
+# Fix Suggestions API v2 Implementation Plan
 
-## Overview
+## Executive Summary
 
-This document outlines the comprehensive plan to implement the SCA v2 API, which provides Software Bill of Materials (SBOM) generation and vulnerability analysis for software composition analysis. This is the next high-priority item from the V2_API_IMPLEMENTATION_STATUS_AND_PLAN.md.
+This document outlines a comprehensive plan to implement the SonarQube Fix Suggestions API v2 (`/api/v2/fix-suggestions/*`) in the sonarqube-web-api-client library. This API provides AI-powered code fix suggestions for SonarQube issues, representing a significant advancement in automated code quality improvement.
 
-The SCA API is critical for security and compliance workflows that enable:
-- Software Bill of Materials (SBOM) report generation
-- Dependency vulnerability tracking
-- License compliance monitoring
-- Security supply chain management
-- Regulatory compliance reporting (NTIA, EU Cyber Resilience Act)
+## Context and Strategic Importance
 
-## Timeline: 4 Days
+### Why Fix Suggestions API Next?
 
-### Phase 0: Research & Design (Day 1)
+1. **AI-Driven Development Trend**: Aligns with the industry shift toward AI-assisted development tools
+2. **High Developer Value**: Directly improves developer productivity by suggesting automated fixes
+3. **Strategic Positioning**: Positions the client library as a modern, AI-enabled solution
+4. **Clear ROI**: Reduces time-to-fix for code quality issues identified by SonarQube
+5. **Manageable Scope**: Only 2 endpoints, focused implementation scope
 
-#### 1. API Endpoint Analysis
+### Current Implementation Status
 
-The SCA v2 API consists of 1 primary endpoint with multiple format options:
+**✅ Completed v2 APIs (5/8):**
+- Users API (`/api/v2/users/*`) - Complete
+- System API (`/api/v2/system/*`) - Complete  
+- Authorizations API (`/api/v2/authorizations/*`) - Complete
+- Analysis API (`/api/v2/analysis/*`) - Complete
+- SCA API (`/api/v2/sca/*`) - Complete
 
-```
-GET /api/v2/sca/sbom-reports - Get a software bill of materials (SBOM) report
-```
+**🔲 Remaining v2 APIs (3/8):**
+- **Fix Suggestions API** (`/api/v2/fix-suggestions/*`) - **NEXT** (Medium Priority)
+- Clean Code Policy API (`/api/v2/clean-code-policy/*`) - Medium Priority
+- DOP Translation API (`/api/v2/dop-translation/*`) - Low Priority
 
-**Key Parameters:**
-- `projectKey` (required) - Project identifier
-- `branch` (optional) - Specific branch analysis
-- `pullRequest` (optional) - PR-specific analysis  
-- `format` (optional) - Output format: 'json', 'spdx', 'cyclonedx'
-- `includeVulnerabilities` (optional) - Include vulnerability data
-- `includeLicenses` (optional) - Include license information
-- `componentTypes` (optional) - Filter by component types
+## API Overview
 
-#### 2. Unique Challenges
+### Fix Suggestions API Endpoints
 
-- **Large Response Sizes**: SBOM reports can be several MB for complex projects
-- **Multiple Formats**: Support for JSON, SPDX (JSON/RDF), CycloneDX formats
-- **Streaming Support**: Large reports need streaming to avoid memory issues
-- **Complex Data Models**: Rich component relationships and vulnerability data
-- **Caching**: Reports are expensive to generate, need intelligent caching
-- **Security Context**: Contains sensitive dependency and vulnerability information
+Based on SonarQube v2 API documentation:
 
-#### 3. Industry Standards
+1. **`GET /api/v2/fix-suggestions/issues`**
+   - **Purpose**: Check if AI fix suggestions are available for a specific issue
+   - **Method**: GET
+   - **Parameters**: Issue ID/key
+   - **Response**: Availability status, reason if unavailable
 
-**SPDX (Software Package Data Exchange)**
-- ISO/IEC 5962:2021 international standard
-- Supports JSON, YAML, RDF/XML, Tag formats
-- Industry-standard for software composition data
+2. **`POST /api/v2/fix-suggestions/ai-suggestions`**
+   - **Purpose**: Request AI-generated fix suggestions for an issue
+   - **Method**: POST
+   - **Parameters**: Issue ID/key, context preferences
+   - **Response**: AI-generated fix suggestions with code changes
 
-**CycloneDX**
-- OWASP-backed standard
-- JSON and XML formats
-- Designed for application security use cases
-- Built-in vulnerability and dependency tracking
+### Key Features and Capabilities
 
-### Phase 1: Type System Design (Day 1-2)
+1. **AI-Powered Fix Generation**: Leverage SonarQube's AI capabilities for automated code fixes
+2. **Issue-Specific Suggestions**: Tailored fixes based on specific rule violations
+3. **Multi-Language Support**: Support for various programming languages
+4. **Code Context Awareness**: AI considers surrounding code context
+5. **Confidence Scoring**: Suggestions include confidence levels
+6. **Multiple Fix Options**: Multiple alternative fixes when available
 
-#### 1. Core Request/Response Types
+## Technical Architecture
 
-```typescript
-// Request Types
-export interface GetSbomReportV2Request {
-  projectKey: string;
-  branch?: string;
-  pullRequest?: string;
-  format?: SbomFormat;
-  includeVulnerabilities?: boolean;
-  includeLicenses?: boolean;
-  componentTypes?: ComponentType[];
-}
-
-export type SbomFormat = 'json' | 'spdx-json' | 'spdx-rdf' | 'cyclonedx-json' | 'cyclonedx-xml';
-export type ComponentType = 'library' | 'application' | 'framework' | 'operating-system' | 'device' | 'file';
-
-// Core SBOM Response (JSON format)
-export interface SbomReportV2Response {
-  /** SBOM document metadata */
-  document: SbomDocumentV2;
-  /** Software components inventory */
-  components: SbomComponentV2[];
-  /** Component dependencies and relationships */
-  dependencies: SbomDependencyV2[];
-  /** Vulnerability information (if requested) */
-  vulnerabilities?: SbomVulnerabilityV2[];
-  /** License information (if requested) */
-  licenses?: SbomLicenseV2[];
-  /** Report generation metadata */
-  metadata: SbomMetadataV2;
-}
-```
-
-#### 2. Document and Metadata Types
-
-```typescript
-export interface SbomDocumentV2 {
-  /** Unique SBOM document identifier */
-  id: string;
-  /** SBOM specification version */
-  specVersion: string;
-  /** Document creation timestamp */
-  createdAt: string;
-  /** SonarQube instance information */
-  creator: {
-    tool: string;
-    version: string;
-    vendor: 'SonarSource';
-  };
-  /** Main component being analyzed */
-  primaryComponent: SbomComponentV2;
-}
-
-export interface SbomMetadataV2 {
-  /** Project information */
-  project: {
-    key: string;
-    name: string;
-    branch?: string;
-    pullRequest?: string;
-  };
-  /** Analysis context */
-  analysis: {
-    analysisId: string;
-    completedAt: string;
-    totalComponents: number;
-    totalVulnerabilities?: number;
-    totalLicenses?: number;
-  };
-  /** Report generation settings */
-  generation: {
-    format: SbomFormat;
-    includeVulnerabilities: boolean;
-    includeLicenses: boolean;
-    requestedAt: string;
-    generatedAt: string;
-  };
-}
-```
-
-#### 3. Component and Dependency Types
-
-```typescript
-export interface SbomComponentV2 extends V2Resource {
-  /** Component name */
-  name: string;
-  /** Component type classification */
-  type: ComponentType;
-  /** Package manager or ecosystem */
-  ecosystem: string;
-  /** Component version */
-  version: string;
-  /** Package URL (PURL) */
-  purl?: string;
-  /** Package manager coordinates */
-  coordinates: {
-    groupId?: string;
-    artifactId?: string;
-    namespace?: string;
-    name: string;
-    version: string;
-  };
-  /** Component scope in the project */
-  scope: 'required' | 'optional' | 'excluded';
-  /** Source information */
-  source?: {
-    repository?: string;
-    downloadUrl?: string;
-    homepage?: string;
-  };
-  /** File information (for file-based components) */
-  files?: Array<{
-    path: string;
-    checksum: string;
-    size: number;
-  }>;
-  /** License information */
-  licenses?: string[];
-  /** Component description */
-  description?: string;
-  /** Copyright information */
-  copyright?: string;
-}
-
-export interface SbomDependencyV2 {
-  /** Reference to the dependent component */
-  componentId: string;
-  /** References to dependency components */
-  dependsOn: string[];
-  /** Dependency scope */
-  scope: 'compile' | 'runtime' | 'test' | 'provided' | 'import';
-  /** Dependency relationship type */
-  relationship: 'direct' | 'transitive';
-  /** Optional dependency indicator */
-  optional: boolean;
-}
-```
-
-#### 4. Security and License Types
-
-```typescript
-export interface SbomVulnerabilityV2 {
-  /** Vulnerability identifier (CVE, etc.) */
-  id: string;
-  /** Vulnerability source */
-  source: 'NVD' | 'OSV' | 'GHSA' | 'SONAR';
-  /** CVSS score information */
-  cvss?: {
-    version: '2.0' | '3.0' | '3.1';
-    score: number;
-    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-    vector?: string;
-  };
-  /** Vulnerability summary */
-  summary: string;
-  /** Vulnerability description */
-  description?: string;
-  /** Publication and update dates */
-  dates: {
-    published: string;
-    updated?: string;
-  };
-  /** Affected components */
-  affects: Array<{
-    componentId: string;
-    versionRange: string;
-  }>;
-  /** Available fixes */
-  fixes?: Array<{
-    version: string;
-    description?: string;
-  }>;
-  /** Reference URLs */
-  references?: Array<{
-    type: 'advisory' | 'fix' | 'report' | 'web';
-    url: string;
-  }>;
-}
-
-export interface SbomLicenseV2 {
-  /** SPDX license identifier */
-  spdxId?: string;
-  /** License name */
-  name: string;
-  /** License text or URL */
-  text?: string;
-  url?: string;
-  /** OSI approved indicator */
-  osiApproved?: boolean;
-  /** License category */
-  category: 'permissive' | 'copyleft' | 'proprietary' | 'public-domain' | 'unknown';
-  /** Risk level for compliance */
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
-  /** Components using this license */
-  components: string[];
-}
-```
-
-#### 5. Response Format Handling
-
-```typescript
-// Different response types based on format
-export type SbomResponseV2 = 
-  | SbomReportV2Response  // JSON format
-  | string               // SPDX/CycloneDX as text
-  | Blob                 // Binary formats
-
-export interface SbomDownloadOptions {
-  /** Progress tracking for large reports */
-  onProgress?: (progress: DownloadProgress) => void;
-  /** Request timeout */
-  timeout?: number;
-  /** Abort signal */
-  signal?: AbortSignal;
-}
-```
-
-### Phase 2: Client Implementation (Day 2-3)
-
-#### 1. Create ScaClient Structure
+### Core Components
 
 ```
-src/resources/sca/
-├── ScaClient.ts
-├── types.ts  
-├── index.ts
+src/resources/fix-suggestions/
+├── FixSuggestionsClient.ts          # Main client implementation
+├── builders.ts                      # Builder patterns for complex requests
+├── types.ts                         # TypeScript type definitions
+├── utils.ts                         # Utility functions for fix processing
+├── index.ts                         # Module exports
 └── __tests__/
-    └── ScaClient.test.ts
+    ├── FixSuggestionsClient.test.ts # Comprehensive test suite
+    ├── builders.test.ts             # Builder pattern tests
+    └── utils.test.ts                # Utility function tests
 ```
 
-#### 2. Implementation Strategy
+### Integration Points
+
+1. **Main SonarQubeClient**: Add `fixSuggestions` property
+2. **Issues Integration**: Link with existing Issues API
+3. **Error Handling**: Extend error factory for AI-specific errors
+4. **Type System**: Full TypeScript support with generics
+
+## Implementation Timeline: 3-Day Sprint
+
+### Day 1: Core API Research & Type System Design (8 hours)
+
+#### Hour 1-2: API Research and Documentation Analysis
+- **Research SonarQube AI Fix Suggestions**: Study official documentation and examples
+- **Endpoint Behavior Analysis**: Understand request/response patterns
+- **AI Model Capabilities**: Research supported languages and fix types
+- **Rate Limiting and Quotas**: Understand AI service limitations
+
+#### Hour 3-4: Type System Design
+- **Core Request/Response Types**: Define comprehensive interfaces
+- **AI-Specific Types**: Model confidence scores, fix alternatives, reasoning
+- **Language-Specific Types**: Support for different programming languages
+- **Error Types**: AI-specific error conditions and fallbacks
+
+#### Hour 5-6: Project Structure Setup
+- **Module Scaffolding**: Create directory structure and base files
+- **Export Configuration**: Set up index files and module exports
+- **Integration Points**: Prepare main client integration
+- **Testing Framework**: Set up test infrastructure with MSW
+
+#### Hour 7-8: Advanced Type Definitions
+- **Fix Suggestion Types**: Comprehensive modeling of AI responses
+- **Builder Pattern Types**: Type-safe request building
+- **Utility Types**: Helper types for fix processing and validation
+- **Generic Types**: Flexible types for different fix scenarios
+
+**Day 1 Deliverables:**
+- Complete type system (`types.ts`)
+- Module structure and exports (`index.ts`)
+- Test infrastructure setup
+- Integration preparation in main client
+
+### Day 2: Core Implementation (8 hours)
+
+#### Hour 1-2: FixSuggestionsClient Core Methods
+- **`getIssueAvailabilityV2()`**: Check if AI suggestions are available
+- **`requestAiSuggestionsV2()`**: Request AI-generated fix suggestions
+- **Base Client Integration**: Extend BaseClient with proper error handling
+- **Authentication Support**: Handle token-based authentication
+
+#### Hour 3-4: Request Builder Implementation
+- **GetIssueAvailabilityBuilder**: Builder pattern for availability checks
+- **RequestAiSuggestionsBuilder**: Builder for AI suggestion requests
+- **Parameter Validation**: Comprehensive input validation
+- **Fluent API Design**: Chainable method calls for ease of use
+
+#### Hour 5-6: Response Processing and Utilities
+- **Fix Processing Utils**: Parse and validate AI suggestions
+- **Code Change Utilities**: Handle file diffs and line changes
+- **Confidence Analysis**: Process AI confidence scores
+- **Language Detection**: Auto-detect programming languages
+
+#### Hour 7-8: Error Handling and Edge Cases
+- **AI Service Errors**: Handle AI service unavailability
+- **Rate Limiting**: Implement proper rate limit handling
+- **Timeout Management**: Handle long AI processing times
+- **Fallback Strategies**: Graceful degradation when AI unavailable
+
+**Day 2 Deliverables:**
+- Complete `FixSuggestionsClient.ts` implementation
+- Builder patterns in `builders.ts`
+- Utility functions in `utils.ts`
+- Error handling integration
+
+### Day 3: Testing, Integration & Documentation (8 hours)
+
+#### Hour 1-2: Comprehensive Test Suite
+- **Client Method Tests**: Unit tests for all client methods
+- **MSW Mock Handlers**: Realistic AI response mocking
+- **Error Scenario Testing**: Test all error conditions
+- **Builder Pattern Tests**: Validate fluent API functionality
+
+#### Hour 3-4: Integration Testing
+- **Main Client Integration**: Test integration with SonarQubeClient
+- **End-to-End Scenarios**: Full workflow testing
+- **Performance Testing**: Validate response times and memory usage
+- **Edge Case Testing**: Unusual inputs and boundary conditions
+
+#### Hour 5-6: Advanced Testing Scenarios
+- **AI Response Variations**: Test different AI suggestion formats
+- **Multi-Language Testing**: Validate support across languages
+- **Large Response Testing**: Handle complex fix suggestions
+- **Concurrent Request Testing**: Multiple simultaneous AI requests
+
+#### Hour 7-8: Documentation and Examples
+- **API Documentation**: Comprehensive JSDoc comments
+- **Usage Examples**: Real-world usage scenarios
+- **Integration Guide**: How to integrate with existing workflows
+- **Migration Examples**: Show integration with Issues API
+
+**Day 3 Deliverables:**
+- Complete test suite with >95% coverage
+- Integration with main SonarQubeClient
+- Comprehensive documentation
+- Usage examples and guides
+
+## Detailed Technical Specifications
+
+### Type System Design
+
+```typescript
+// Core request/response types
+export interface GetIssueAvailabilityV2Request {
+  /** Issue key or UUID */
+  issueKey: string;
+  /** Optional project context */
+  projectKey?: string;
+  /** Branch context for multi-branch projects */
+  branch?: string;
+  /** Pull request context */
+  pullRequest?: string;
+}
+
+export interface FixSuggestionAvailabilityV2Response {
+  /** Whether AI suggestions are available for this issue */
+  available: boolean;
+  /** Reason if not available */
+  reason?: 'unsupported_rule' | 'language_not_supported' | 'ai_service_unavailable' | 'quota_exceeded';
+  /** Estimated processing time in seconds */
+  estimatedProcessingTime?: number;
+  /** AI model information */
+  aiModel?: {
+    name: string;
+    version: string;
+    capabilities: string[];
+  };
+}
+
+export interface RequestAiSuggestionsV2Request {
+  /** Issue key or UUID */
+  issueKey: string;
+  /** Include surrounding code context */
+  includeContext?: boolean;
+  /** Number of alternative fixes to generate */
+  maxAlternatives?: number;
+  /** Preferred fix style */
+  fixStyle?: 'minimal' | 'comprehensive' | 'defensive';
+  /** Language-specific preferences */
+  languagePreferences?: Record<string, unknown>;
+}
+
+export interface AiSuggestionResponseV2 {
+  /** Unique suggestion session ID */
+  sessionId: string;
+  /** Issue information */
+  issue: {
+    key: string;
+    rule: string;
+    severity: string;
+    type: string;
+    message: string;
+  };
+  /** Generated fix suggestions */
+  suggestions: AiFixSuggestionV2[];
+  /** AI processing metadata */
+  metadata: {
+    processingTime: number;
+    modelUsed: string;
+    confidenceThreshold: number;
+    contextAnalyzed: boolean;
+  };
+}
+
+export interface AiFixSuggestionV2 {
+  /** Unique suggestion ID */
+  id: string;
+  /** Human-readable explanation */
+  explanation: string;
+  /** Confidence score (0-100) */
+  confidence: number;
+  /** Fix complexity rating */
+  complexity: 'low' | 'medium' | 'high';
+  /** Estimated fix success rate */
+  successRate: number;
+  /** Code changes */
+  changes: AiCodeChangeV2[];
+  /** Additional context or warnings */
+  notes?: string[];
+  /** Related documentation links */
+  references?: Array<{
+    title: string;
+    url: string;
+    type: 'documentation' | 'best_practice' | 'example';
+  }>;
+}
+
+export interface AiCodeChangeV2 {
+  /** File path relative to project root */
+  filePath: string;
+  /** Original file content hash for validation */
+  originalHash?: string;
+  /** Line-based changes */
+  lineChanges: Array<{
+    /** Start line number (1-indexed) */
+    startLine: number;
+    /** End line number (1-indexed) */
+    endLine: number;
+    /** Original content being replaced */
+    originalContent: string;
+    /** New content to insert */
+    newContent: string;
+    /** Type of change */
+    changeType: 'replace' | 'insert' | 'delete';
+    /** Explanation for this specific change */
+    changeReason?: string;
+  }>;
+  /** File-level metadata */
+  fileMetadata?: {
+    language: string;
+    encoding: string;
+    totalLines: number;
+  };
+}
+
+// Builder pattern support
+export interface GetIssueAvailabilityV2Builder {
+  /** Set the issue key */
+  withIssue(issueKey: string): this;
+  /** Set project context */
+  inProject(projectKey: string): this;
+  /** Set branch context */
+  onBranch(branch: string): this;
+  /** Set pull request context */
+  onPullRequest(pullRequest: string): this;
+  /** Execute the request */
+  execute(): Promise<FixSuggestionAvailabilityV2Response>;
+}
+
+export interface RequestAiSuggestionsV2Builder {
+  /** Set the issue key */
+  withIssue(issueKey: string): this;
+  /** Include surrounding code context */
+  withContext(include?: boolean): this;
+  /** Set maximum number of alternatives */
+  withMaxAlternatives(count: number): this;
+  /** Set fix style preference */
+  withFixStyle(style: 'minimal' | 'comprehensive' | 'defensive'): this;
+  /** Add language-specific preferences */
+  withLanguagePreferences(prefs: Record<string, unknown>): this;
+  /** Execute the request */
+  execute(): Promise<AiSuggestionResponseV2>;
+}
+
+// Utility types
+export interface FixApplicationOptions {
+  /** Automatically create backup before applying */
+  createBackup?: boolean;
+  /** Validation mode */
+  validationMode?: 'strict' | 'permissive';
+  /** Handle conflicts */
+  conflictResolution?: 'abort' | 'skip' | 'interactive';
+}
+
+export interface FixValidationResult {
+  /** Whether the fix can be safely applied */
+  canApply: boolean;
+  /** List of issues preventing application */
+  blockers: Array<{
+    type: 'file_modified' | 'syntax_error' | 'conflict' | 'permission';
+    message: string;
+    filePath?: string;
+    lineNumber?: number;
+  }>;
+  /** Warnings that don't prevent application */
+  warnings: string[];
+}
+```
+
+### Client Implementation
 
 ```typescript
 /**
- * Client for interacting with the SonarQube SCA (Software Composition Analysis) API v2.
- * This API provides Software Bill of Materials (SBOM) generation and dependency analysis.
- *
- * @since 10.6
+ * Client for interacting with the SonarQube Fix Suggestions API v2.
+ * This API provides AI-powered code fix suggestions for SonarQube issues.
+ * 
+ * The Fix Suggestions API enables:
+ * - Automated code fix generation using AI
+ * - Issue-specific fix recommendations
+ * - Multi-language support with context awareness
+ * - Confidence scoring for fix reliability
+ * 
+ * @since 10.7
  */
-export class ScaClient extends BaseClient {
+export class FixSuggestionsClient extends BaseClient {
   /**
-   * Generate SBOM report for a project in JSON format.
-   * Returns structured data for programmatic use.
-   *
-   * @param params - SBOM report parameters
-   * @returns Structured SBOM report data
-   * @since 10.6
-   *
+   * Check if AI fix suggestions are available for a specific issue.
+   * 
+   * @param params - Issue availability check parameters
+   * @returns Availability status and AI model information
+   * @since 10.7
+   * 
    * @example
    * ```typescript
-   * // Basic SBOM report
-   * const sbom = await client.sca.getSbomReportV2({
+   * // Check availability for a specific issue
+   * const availability = await client.fixSuggestions.getIssueAvailabilityV2({
+   *   issueKey: 'AY8qEqN7UVrTsQCOExjT',
    *   projectKey: 'my-project'
    * });
-   *
-   * // SBOM with vulnerabilities for specific branch
-   * const sbomWithVulns = await client.sca.getSbomReportV2({
-   *   projectKey: 'my-project',
-   *   branch: 'main',
-   *   includeVulnerabilities: true,
-   *   includeLicenses: true
-   * });
-   * ```
-   */
-  async getSbomReportV2(params: GetSbomReportV2Request): Promise<SbomReportV2Response> {
-    const query = this.buildV2Query({
-      ...params,
-      format: 'json' // Force JSON for typed response
-    } as Record<string, unknown>);
-    
-    return this.request<SbomReportV2Response>(`/api/v2/sca/sbom-reports?${query}`, {
-      headers: { 
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Accept: 'application/json' 
-      }
-    });
-  }
-
-  /**
-   * Download SBOM report in specified format.
-   * Supports industry-standard formats like SPDX and CycloneDX.
-   *
-   * @param params - SBOM report parameters with format specification
-   * @param options - Download options for large reports
-   * @returns SBOM report as text or binary data
-   * @since 10.6
-   *
-   * @example
-   * ```typescript
-   * // Download SPDX format report
-   * const spdxReport = await client.sca.downloadSbomReportV2({
-   *   projectKey: 'my-project',
-   *   format: 'spdx-json',
-   *   includeVulnerabilities: true
-   * });
-   *
-   * // Download with progress tracking
-   * const cycloneDxReport = await client.sca.downloadSbomReportV2({
-   *   projectKey: 'my-project',
-   *   format: 'cyclonedx-json'
-   * }, {
-   *   onProgress: (progress) => {
-   *     console.log(`Downloaded ${progress.percentage}%`);
-   *   }
-   * });
-   * ```
-   */
-  async downloadSbomReportV2(
-    params: GetSbomReportV2Request, 
-    options?: SbomDownloadOptions
-  ): Promise<string | Blob> {
-    const format = params.format || 'json';
-    const query = this.buildV2Query(params as Record<string, unknown>);
-    
-    // Determine content type based on format
-    const isTextFormat = ['json', 'spdx-json', 'cyclonedx-json'].includes(format);
-    const acceptHeader = isTextFormat ? 'application/json' : 'application/octet-stream';
-    
-    if (isTextFormat) {
-      // Return as text for JSON-based formats
-      return this.requestText(`/api/v2/sca/sbom-reports?${query}`, {
-        headers: { 
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          Accept: acceptHeader 
-        },
-        signal: options?.signal
-      });
-    } else {
-      // Return as blob for binary formats
-      return this.downloadWithProgress(`/api/v2/sca/sbom-reports?${query}`, options);
-    }
-  }
-
-  /**
-   * Get SBOM report generation status and metadata.
-   * Useful for checking if a report is ready or still processing.
-   *
-   * @param params - Project identification parameters
-   * @returns SBOM generation metadata
-   * @since 10.6
-   *
-   * @example
-   * ```typescript
-   * const metadata = await client.sca.getSbomMetadataV2({
-   *   projectKey: 'my-project',
-   *   branch: 'main'
-   * });
    * 
-   * console.log(`Components: ${metadata.analysis.totalComponents}`);
-   * console.log(`Vulnerabilities: ${metadata.analysis.totalVulnerabilities}`);
-   * ```
-   */
-  async getSbomMetadataV2(params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>): Promise<SbomMetadataV2> {
-    const query = this.buildV2Query({
-      ...params,
-      metadataOnly: true
-    } as Record<string, unknown>);
-    
-    return this.request<SbomMetadataV2>(`/api/v2/sca/sbom-reports/metadata?${query}`);
-  }
-
-  /**
-   * Stream large SBOM reports to avoid memory issues.
-   * Recommended for projects with many dependencies.
-   *
-   * @param params - SBOM report parameters
-   * @returns Readable stream of SBOM data
-   * @since 10.6
-   *
-   * @example
-   * ```typescript
-   * const stream = await client.sca.streamSbomReportV2({
-   *   projectKey: 'large-project',
-   *   format: 'spdx-json'
-   * });
-   *
-   * // Process stream chunk by chunk
-   * const reader = stream.getReader();
-   * while (true) {
-   *   const { done, value } = await reader.read();
-   *   if (done) break;
-   *   // Process chunk
+   * if (availability.available) {
+   *   console.log(`AI fixes available. Processing time: ${availability.estimatedProcessingTime}s`);
+   * } else {
+   *   console.log(`AI fixes not available: ${availability.reason}`);
    * }
    * ```
    */
-  async streamSbomReportV2(params: GetSbomReportV2Request): Promise<ReadableStream<Uint8Array>> {
-    const query = this.buildV2Query(params as Record<string, unknown>);
+  async getIssueAvailabilityV2(
+    params: GetIssueAvailabilityV2Request
+  ): Promise<FixSuggestionAvailabilityV2Response> {
+    const query = this.buildV2Query(params as unknown as Record<string, unknown>);
     
-    const response = await fetch(`${this.baseUrl}/api/v2/sca/sbom-reports?${query}`, {
-      headers: this.getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      const { createErrorFromResponse } = await import('../../errors');
-      throw await createErrorFromResponse(response);
-    }
-
-    if (!response.body) {
-      throw new Error('Response body is not available for streaming');
-    }
-
-    return response.body;
+    return this.request<FixSuggestionAvailabilityV2Response>(
+      `/api/v2/fix-suggestions/issues?${query}`
+    );
   }
 
   /**
-   * Get vulnerability summary for a project's dependencies.
-   * Provides quick overview without full SBOM generation.
-   *
-   * @param params - Project identification parameters  
-   * @returns Vulnerability summary statistics
-   * @since 10.6
-   *
+   * Request AI-generated fix suggestions for an issue.
+   * 
+   * @param params - AI suggestion request parameters
+   * @returns AI-generated fix suggestions with code changes
+   * @since 10.7
+   * 
    * @example
    * ```typescript
-   * const vulnSummary = await client.sca.getVulnerabilitySummaryV2({
-   *   projectKey: 'my-project'
+   * // Request AI suggestions with context
+   * const suggestions = await client.fixSuggestions.requestAiSuggestionsV2({
+   *   issueKey: 'AY8qEqN7UVrTsQCOExjT',
+   *   includeContext: true,
+   *   maxAlternatives: 3,
+   *   fixStyle: 'comprehensive'
    * });
    * 
-   * console.log(`Critical: ${vulnSummary.critical}`);
-   * console.log(`High: ${vulnSummary.high}`);
+   * console.log(`Generated ${suggestions.suggestions.length} fix suggestions`);
+   * 
+   * suggestions.suggestions.forEach((suggestion, index) => {
+   *   console.log(`Fix ${index + 1}: ${suggestion.explanation}`);
+   *   console.log(`Confidence: ${suggestion.confidence}%`);
+   *   console.log(`Changes: ${suggestion.changes.length} files`);
+   * });
    * ```
    */
-  async getVulnerabilitySummaryV2(params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>): Promise<VulnerabilitySummaryV2> {
-    const query = this.buildV2Query(params as Record<string, unknown>);
-    
-    return this.request<VulnerabilitySummaryV2>(`/api/v2/sca/vulnerabilities/summary?${query}`);
-  }
-
-  // Helper methods
-  private async requestText(url: string, options?: RequestInit): Promise<string> {
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      ...options,
+  async requestAiSuggestionsV2(
+    params: RequestAiSuggestionsV2Request
+  ): Promise<AiSuggestionResponseV2> {
+    return this.request<AiSuggestionResponseV2>('/api/v2/fix-suggestions/ai-suggestions', {
+      method: 'POST',
       headers: {
-        ...this.getAuthHeaders(),
-        ...options?.headers
-      }
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
     });
-
-    if (!response.ok) {
-      const { createErrorFromResponse } = await import('../../errors');
-      throw await createErrorFromResponse(response);
-    }
-
-    return response.text();
-  }
-
-  private getAuthHeaders(): Record<string, string> {
-    if (this.token.length > 0) {
-      return {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${this.token}`
-      };
-    }
-    return {};
-  }
-}
-```
-
-#### 3. Additional Helper Types
-
-```typescript
-export interface VulnerabilitySummaryV2 {
-  total: number;
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-  byComponent: Array<{
-    componentId: string;
-    componentName: string;
-    vulnerabilityCount: number;
-    highestSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  }>;
-}
-
-export interface DownloadProgress {
-  loaded: number;
-  total: number;
-  percentage: number;
-}
-```
-
-### Phase 3: Testing Strategy (Day 3)
-
-#### 1. Unit Tests Structure
-
-```typescript
-describe('ScaClient', () => {
-  describe('getSbomReportV2', () => {
-    it('should fetch SBOM report for a project');
-    it('should handle branch parameter');
-    it('should handle pull request parameter');
-    it('should include vulnerabilities when requested');
-    it('should include licenses when requested');
-    it('should filter by component types');
-    it('should handle empty dependency reports');
-    it('should handle authentication errors');
-  });
-
-  describe('downloadSbomReportV2', () => {
-    it('should download SBOM in JSON format');
-    it('should download SBOM in SPDX JSON format');
-    it('should download SBOM in CycloneDX format');
-    it('should download SBOM in binary formats');
-    it('should track download progress for large reports');
-    it('should handle download timeouts');
-    it('should support abort signals');
-  });
-
-  describe('getSbomMetadataV2', () => {
-    it('should fetch report metadata');
-    it('should show component and vulnerability counts');
-    it('should handle missing reports');
-  });
-
-  describe('streamSbomReportV2', () => {
-    it('should return readable stream');
-    it('should handle streaming errors');
-    it('should support all formats');
-  });
-
-  describe('getVulnerabilitySummaryV2', () => {
-    it('should return vulnerability counts by severity');
-    it('should list vulnerable components');
-    it('should handle projects with no vulnerabilities');
-  });
-});
-```
-
-#### 2. MSW Handlers for Complex Responses
-
-```typescript
-// Mock SBOM report response
-const mockSbomReport: SbomReportV2Response = {
-  document: {
-    id: 'sbom-my-project-main-20250130',
-    specVersion: '2.3',
-    createdAt: '2025-01-30T10:00:00Z',
-    creator: {
-      tool: 'SonarQube',
-      version: '10.6.0',
-      vendor: 'SonarSource'
-    },
-    primaryComponent: {
-      id: 'my-project',
-      name: 'My Project',
-      type: 'application',
-      ecosystem: 'maven',
-      version: '1.0.0',
-      coordinates: {
-        groupId: 'com.example',
-        artifactId: 'my-project',
-        name: 'my-project',
-        version: '1.0.0'
-      },
-      scope: 'required'
-    }
-  },
-  components: [
-    {
-      id: 'junit-junit-4.13.2',
-      name: 'junit',
-      type: 'library',
-      ecosystem: 'maven',
-      version: '4.13.2',
-      purl: 'pkg:maven/junit/junit@4.13.2',
-      coordinates: {
-        groupId: 'junit',
-        artifactId: 'junit',
-        name: 'junit',
-        version: '4.13.2'
-      },
-      scope: 'required',
-      licenses: ['EPL-1.0'],
-      description: 'JUnit testing framework'
-    }
-  ],
-  dependencies: [
-    {
-      componentId: 'my-project',
-      dependsOn: ['junit-junit-4.13.2'],
-      scope: 'test',
-      relationship: 'direct',
-      optional: false
-    }
-  ],
-  vulnerabilities: [
-    {
-      id: 'CVE-2020-15250',
-      source: 'NVD',
-      cvss: {
-        version: '3.1',
-        score: 5.5,
-        severity: 'MEDIUM',
-        vector: 'CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H'
-      },
-      summary: 'JUnit4 vulnerable to temp directory hijacking',
-      description: 'JUnit4 writes temporary files to the system temporary directory...',
-      dates: {
-        published: '2020-10-12T13:15:00Z',
-        updated: '2021-07-21T11:39:00Z'
-      },
-      affects: [
-        {
-          componentId: 'junit-junit-4.13.2',
-          versionRange: '< 4.13.1'
-        }
-      ],
-      fixes: [
-        {
-          version: '4.13.1',
-          description: 'Fixed temporary directory handling'
-        }
-      ],
-      references: [
-        {
-          type: 'advisory',
-          url: 'https://github.com/junit-team/junit4/security/advisories/GHSA-269g-pwp5-87pp'
-        }
-      ]
-    }
-  ],
-  licenses: [
-    {
-      spdxId: 'EPL-1.0',
-      name: 'Eclipse Public License 1.0',
-      url: 'https://opensource.org/licenses/EPL-1.0',
-      osiApproved: true,
-      category: 'copyleft',
-      riskLevel: 'MEDIUM',
-      components: ['junit-junit-4.13.2']
-    }
-  ],
-  metadata: {
-    project: {
-      key: 'my-project',
-      name: 'My Project',
-      branch: 'main'
-    },
-    analysis: {
-      analysisId: 'analysis-123',
-      completedAt: '2025-01-30T09:45:00Z',
-      totalComponents: 25,
-      totalVulnerabilities: 3,
-      totalLicenses: 8
-    },
-    generation: {
-      format: 'json',
-      includeVulnerabilities: true,
-      includeLicenses: true,
-      requestedAt: '2025-01-30T10:00:00Z',
-      generatedAt: '2025-01-30T10:00:05Z'
-    }
-  }
-};
-
-// MSW handlers
-http.get('*/api/v2/sca/sbom-reports', ({ request }) => {
-  const url = new URL(request.url);
-  const format = url.searchParams.get('format') || 'json';
-  const acceptHeader = request.headers.get('accept');
-
-  if (format === 'json' || acceptHeader?.includes('application/json')) {
-    return HttpResponse.json(mockSbomReport);
-  } else if (format === 'spdx-json') {
-    // Return SPDX-formatted JSON
-    return HttpResponse.text(JSON.stringify(convertToSpdx(mockSbomReport)), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } else if (format === 'cyclonedx-json') {
-    // Return CycloneDX-formatted JSON
-    return HttpResponse.text(JSON.stringify(convertToCycloneDx(mockSbomReport)), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } else {
-    // Return binary format
-    return new HttpResponse(new ArrayBuffer(1024), {
-      headers: { 'Content-Type': 'application/octet-stream' }
-    });
-  }
-});
-```
-
-#### 3. Integration Testing Considerations
-
-- Test large SBOM report generation (1000+ components)
-- Test streaming functionality with mock large responses
-- Test vulnerability filtering and sorting
-- Test license compliance scenarios
-- Test error handling for missing projects
-- Test authentication requirements
-- Test format conversion accuracy
-
-### Phase 4: Advanced Features & Polish (Day 4)
-
-#### 1. SBOM Format Converters
-
-```typescript
-// Utility functions for format conversion
-export class SbomFormatConverter {
-  /**
-   * Convert SonarQube SBOM to SPDX format
-   */
-  static toSpdx(sbom: SbomReportV2Response): SPDXDocument {
-    return {
-      spdxVersion: 'SPDX-2.3',
-      creationInfo: {
-        created: sbom.document.createdAt,
-        creators: [`Tool: ${sbom.document.creator.tool}`]
-      },
-      name: sbom.document.primaryComponent.name,
-      packages: sbom.components.map(component => ({
-        SPDXID: `SPDXRef-${component.id}`,
-        name: component.name,
-        versionInfo: component.version,
-        downloadLocation: component.source?.downloadUrl || 'NOASSERTION',
-        filesAnalyzed: false,
-        licenseConcluded: component.licenses?.[0] || 'NOASSERTION',
-        copyrightText: component.copyright || 'NOASSERTION'
-      })),
-      relationships: sbom.dependencies.map(dep => ({
-        spdxElementId: `SPDXRef-${dep.componentId}`,
-        relationshipType: 'DEPENDS_ON',
-        relatedSpdxElement: dep.dependsOn.map(id => `SPDXRef-${id}`)
-      }))
-    };
   }
 
   /**
-   * Convert SonarQube SBOM to CycloneDX format
+   * Create a builder for checking issue availability.
+   * 
+   * @returns Issue availability builder
+   * @since 10.7
+   * 
+   * @example
+   * ```typescript
+   * const availability = await client.fixSuggestions
+   *   .checkAvailability()
+   *   .withIssue('AY8qEqN7UVrTsQCOExjT')
+   *   .inProject('my-project')
+   *   .onBranch('main')
+   *   .execute();
+   * ```
    */
-  static toCycloneDx(sbom: SbomReportV2Response): CycloneDXDocument {
-    return {
-      bomFormat: 'CycloneDX',
-      specVersion: '1.4',
-      serialNumber: `urn:uuid:${sbom.document.id}`,
-      version: 1,
-      metadata: {
-        timestamp: sbom.document.createdAt,
-        tools: [{
-          vendor: sbom.document.creator.vendor,
-          name: sbom.document.creator.tool,
-          version: sbom.document.creator.version
-        }],
-        component: {
-          type: 'application',
-          name: sbom.document.primaryComponent.name,
-          version: sbom.document.primaryComponent.version
-        }
-      },
-      components: sbom.components.map(component => ({
-        type: component.type,
-        name: component.name,
-        version: component.version,
-        purl: component.purl,
-        licenses: component.licenses?.map(license => ({ license: { id: license } })),
-        externalReferences: component.source ? [{
-          type: 'website',
-          url: component.source.homepage || component.source.repository || ''
-        }] : undefined
-      })),
-      dependencies: sbom.dependencies.map(dep => ({
-        ref: dep.componentId,
-        dependsOn: dep.dependsOn
-      })),
-      vulnerabilities: sbom.vulnerabilities?.map(vuln => ({
-        id: vuln.id,
-        source: { name: vuln.source },
-        ratings: vuln.cvss ? [{
-          source: { name: vuln.source },
-          score: vuln.cvss.score,
-          severity: vuln.cvss.severity.toLowerCase(),
-          method: `CVSSv${vuln.cvss.version}`,
-          vector: vuln.cvss.vector
-        }] : undefined,
-        description: vuln.description,
-        published: vuln.dates.published,
-        updated: vuln.dates.updated,
-        affects: vuln.affects.map(affect => ({
-          ref: affect.componentId,
-          versions: [{ version: affect.versionRange }]
-        }))
-      }))
-    };
-  }
-}
-```
-
-#### 2. Caching and Performance Optimizations
-
-```typescript
-export interface SbomCacheOptions {
-  /** Cache duration in milliseconds */
-  ttl?: number;
-  /** Cache key prefix */
-  keyPrefix?: string;
-  /** Enable/disable caching */
-  enabled?: boolean;
-}
-
-export class SbomCache {
-  private cache = new Map<string, { data: any; expires: number }>();
-
-  generateKey(params: GetSbomReportV2Request): string {
-    const key = `${params.projectKey}-${params.branch || 'main'}-${params.pullRequest || ''}-${params.format || 'json'}`;
-    return key.replace(/[^a-zA-Z0-9-]/g, '-');
+  checkAvailability(): GetIssueAvailabilityV2Builder {
+    return new GetIssueAvailabilityV2Builder(this);
   }
 
-  get<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    if (!cached || Date.now() > cached.expires) {
-      this.cache.delete(key);
-      return null;
-    }
-    return cached.data;
-  }
-
-  set<T>(key: string, data: T, ttl = 300000): void { // 5 minutes default
-    this.cache.set(key, {
-      data,
-      expires: Date.now() + ttl
-    });
-  }
-}
-```
-
-#### 3. Component Analysis Utilities
-
-```typescript
-export class SbomAnalyzer {
   /**
-   * Analyze SBOM for security risks
+   * Create a builder for requesting AI suggestions.
+   * 
+   * @returns AI suggestions request builder
+   * @since 10.7
+   * 
+   * @example
+   * ```typescript
+   * const suggestions = await client.fixSuggestions
+   *   .requestSuggestions()
+   *   .withIssue('AY8qEqN7UVrTsQCOExjT')
+   *   .withContext(true)
+   *   .withMaxAlternatives(5)
+   *   .withFixStyle('comprehensive')
+   *   .execute();
+   * ```
    */
-  static analyzeSecurityRisks(sbom: SbomReportV2Response): SecurityRiskAnalysis {
-    const criticalVulns = sbom.vulnerabilities?.filter(v => v.cvss?.severity === 'CRITICAL') || [];
-    const highVulns = sbom.vulnerabilities?.filter(v => v.cvss?.severity === 'HIGH') || [];
-    const outdatedComponents = sbom.components.filter(c => this.isOutdated(c));
+  requestSuggestions(): RequestAiSuggestionsV2Builder {
+    return new RequestAiSuggestionsV2Builder(this);
+  }
+}
+```
+
+### Builder Pattern Implementation
+
+```typescript
+export class GetIssueAvailabilityV2Builder extends BaseBuilder<
+  GetIssueAvailabilityV2Request,
+  FixSuggestionAvailabilityV2Response
+> {
+  constructor(private client: FixSuggestionsClient) {
+    super();
+  }
+
+  withIssue(issueKey: string): this {
+    this.params.issueKey = issueKey;
+    return this;
+  }
+
+  inProject(projectKey: string): this {
+    this.params.projectKey = projectKey;
+    return this;
+  }
+
+  onBranch(branch: string): this {
+    this.params.branch = branch;
+    return this;
+  }
+
+  onPullRequest(pullRequest: string): this {
+    this.params.pullRequest = pullRequest;
+    return this;
+  }
+
+  protected validate(): void {
+    if (!this.params.issueKey) {
+      throw new ValidationError('Issue key is required');
+    }
+  }
+
+  async execute(): Promise<FixSuggestionAvailabilityV2Response> {
+    this.validate();
+    return this.client.getIssueAvailabilityV2(this.params);
+  }
+}
+
+export class RequestAiSuggestionsV2Builder extends BaseBuilder<
+  RequestAiSuggestionsV2Request,
+  AiSuggestionResponseV2
+> {
+  constructor(private client: FixSuggestionsClient) {
+    super();
+    // Set sensible defaults
+    this.params.includeContext = true;
+    this.params.maxAlternatives = 3;
+    this.params.fixStyle = 'comprehensive';
+  }
+
+  withIssue(issueKey: string): this {
+    this.params.issueKey = issueKey;
+    return this;
+  }
+
+  withContext(include = true): this {
+    this.params.includeContext = include;
+    return this;
+  }
+
+  withMaxAlternatives(count: number): this {
+    if (count < 1 || count > 10) {
+      throw new ValidationError('Max alternatives must be between 1 and 10');
+    }
+    this.params.maxAlternatives = count;
+    return this;
+  }
+
+  withFixStyle(style: 'minimal' | 'comprehensive' | 'defensive'): this {
+    this.params.fixStyle = style;
+    return this;
+  }
+
+  withLanguagePreferences(prefs: Record<string, unknown>): this {
+    this.params.languagePreferences = { ...this.params.languagePreferences, ...prefs };
+    return this;
+  }
+
+  protected validate(): void {
+    if (!this.params.issueKey) {
+      throw new ValidationError('Issue key is required');
+    }
     
-    return {
-      riskLevel: this.calculateRiskLevel(criticalVulns.length, highVulns.length),
-      criticalVulnerabilities: criticalVulns.length,
-      highVulnerabilities: highVulns.length,
-      outdatedComponents: outdatedComponents.length,
-      recommendations: this.generateRecommendations(criticalVulns, outdatedComponents)
-    };
-  }
-
-  /**
-   * Analyze SBOM for license compliance
-   */
-  static analyzeLicenseCompliance(sbom: SbomReportV2Response): LicenseComplianceAnalysis {
-    const licenses = sbom.licenses || [];
-    const riskLicenses = licenses.filter(l => l.riskLevel === 'HIGH');
-    const copyleftLicenses = licenses.filter(l => l.category === 'copyleft');
-    
-    return {
-      totalLicenses: licenses.length,
-      highRiskLicenses: riskLicenses.length,
-      copyleftLicenses: copyleftLicenses.length,
-      complianceStatus: riskLicenses.length === 0 ? 'COMPLIANT' : 'AT_RISK',
-      recommendations: this.generateLicenseRecommendations(riskLicenses, copyleftLicenses)
-    };
-  }
-
-  private static isOutdated(component: SbomComponentV2): boolean {
-    // Implementation would check against known latest versions
-    return false; // Placeholder
-  }
-
-  private static calculateRiskLevel(critical: number, high: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
-    if (critical > 0) return 'CRITICAL';
-    if (high > 5) return 'HIGH';
-    if (high > 0) return 'MEDIUM';
-    return 'LOW';
-  }
-
-  private static generateRecommendations(vulns: SbomVulnerabilityV2[], outdated: SbomComponentV2[]): string[] {
-    const recommendations = [];
-    if (vulns.length > 0) {
-      recommendations.push(`Update ${vulns.length} components with critical/high vulnerabilities`);
+    if (this.params.maxAlternatives && this.params.maxAlternatives > 10) {
+      throw new ValidationError('Maximum 10 alternatives allowed');
     }
-    if (outdated.length > 0) {
-      recommendations.push(`Update ${outdated.length} outdated components`);
-    }
-    return recommendations;
   }
 
-  private static generateLicenseRecommendations(risk: SbomLicenseV2[], copyleft: SbomLicenseV2[]): string[] {
-    const recommendations = [];
-    if (risk.length > 0) {
-      recommendations.push(`Review ${risk.length} high-risk licenses`);
-    }
-    if (copyleft.length > 0) {
-      recommendations.push(`Verify compliance requirements for ${copyleft.length} copyleft licenses`);
-    }
-    return recommendations;
+  async execute(): Promise<AiSuggestionResponseV2> {
+    this.validate();
+    return this.client.requestAiSuggestionsV2(this.params);
   }
-}
-
-export interface SecurityRiskAnalysis {
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  criticalVulnerabilities: number;
-  highVulnerabilities: number;
-  outdatedComponents: number;
-  recommendations: string[];
-}
-
-export interface LicenseComplianceAnalysis {
-  totalLicenses: number;
-  highRiskLicenses: number;
-  copyleftLicenses: number;
-  complianceStatus: 'COMPLIANT' | 'AT_RISK' | 'NON_COMPLIANT';
-  recommendations: string[];
 }
 ```
 
-### Phase 5: Documentation & Examples (Day 4)
-
-#### 1. Comprehensive Documentation
+### Utility Functions
 
 ```typescript
 /**
- * # SCA (Software Composition Analysis) API v2
- * 
- * The SCA API provides comprehensive software bill of materials (SBOM) generation
- * and vulnerability analysis for projects. This API is essential for:
- * 
- * - Security compliance and vulnerability management
- * - License compliance and risk assessment  
- * - Supply chain security analysis
- * - Regulatory reporting (NTIA, EU Cyber Resilience Act)
- * 
- * ## Supported SBOM Formats
- * 
- * - **JSON**: SonarQube native format with full feature support
- * - **SPDX**: Industry standard (ISO/IEC 5962:2021) in JSON and RDF formats
- * - **CycloneDX**: OWASP standard optimized for security use cases
- * 
- * ## Authentication
- * 
- * All SCA endpoints require authentication. Users need 'Browse' permission
- * on the project to generate SBOM reports.
- * 
- * @since SonarQube 10.6
+ * Utility functions for processing AI fix suggestions
  */
-```
+export class FixSuggestionUtils {
+  /**
+   * Validate that a fix suggestion can be safely applied to the current codebase
+   */
+  static validateFixApplication(
+    suggestion: AiFixSuggestionV2,
+    options: FixApplicationOptions = {}
+  ): FixValidationResult {
+    const result: FixValidationResult = {
+      canApply: true,
+      blockers: [],
+      warnings: [],
+    };
 
-#### 2. Usage Examples
+    // Validate each code change
+    suggestion.changes.forEach((change) => {
+      // Check if file exists and is accessible
+      if (!this.isFileAccessible(change.filePath)) {
+        result.blockers.push({
+          type: 'permission',
+          message: `Cannot access file: ${change.filePath}`,
+          filePath: change.filePath,
+        });
+      }
 
-```typescript
-// Example 1: Basic SBOM Generation
-const client = new SonarQubeClient('https://sonarqube.company.com', 'token');
+      // Validate line ranges
+      change.lineChanges.forEach((lineChange) => {
+        if (lineChange.startLine > lineChange.endLine) {
+          result.blockers.push({
+            type: 'syntax_error',
+            message: `Invalid line range: ${lineChange.startLine}-${lineChange.endLine}`,
+            filePath: change.filePath,
+            lineNumber: lineChange.startLine,
+          });
+        }
+      });
+    });
 
-// Get structured SBOM data
-const sbom = await client.sca.getSbomReportV2({
-  projectKey: 'my-web-app',
-  includeVulnerabilities: true,
-  includeLicenses: true
-});
+    result.canApply = result.blockers.length === 0;
+    return result;
+  }
 
-console.log(`Found ${sbom.components.length} components`);
-console.log(`Found ${sbom.vulnerabilities?.length || 0} vulnerabilities`);
+  /**
+   * Rank fix suggestions by confidence and applicability
+   */
+  static rankSuggestions(suggestions: AiFixSuggestionV2[]): AiFixSuggestionV2[] {
+    return suggestions
+      .slice() // Don't mutate original array
+      .sort((a, b) => {
+        // Primary sort: confidence score
+        const confidenceDiff = b.confidence - a.confidence;
+        if (confidenceDiff !== 0) return confidenceDiff;
 
-// Example 2: SPDX Format for Compliance
-const spdxReport = await client.sca.downloadSbomReportV2({
-  projectKey: 'my-web-app',
-  format: 'spdx-json',
-  includeVulnerabilities: true,
-  includeLicenses: true
-});
+        // Secondary sort: success rate
+        const successRateDiff = b.successRate - a.successRate;
+        if (successRateDiff !== 0) return successRateDiff;
 
-// Save to file for compliance reporting
-fs.writeFileSync('sbom-spdx.json', spdxReport);
+        // Tertiary sort: complexity (lower is better)
+        const complexityOrder = { low: 3, medium: 2, high: 1 };
+        return complexityOrder[b.complexity] - complexityOrder[a.complexity];
+      });
+  }
 
-// Example 3: CycloneDX for Security Tools
-const cycloneDxReport = await client.sca.downloadSbomReportV2({
-  projectKey: 'my-web-app', 
-  format: 'cyclonedx-json',
-  includeVulnerabilities: true
-});
+  /**
+   * Generate a preview of what changes would be applied
+   */
+  static generateChangePreview(suggestion: AiFixSuggestionV2): string {
+    const lines: string[] = [];
+    
+    lines.push(`Fix: ${suggestion.explanation}`);
+    lines.push(`Confidence: ${suggestion.confidence}% | Complexity: ${suggestion.complexity}`);
+    lines.push('');
 
-// Import into security scanning tools
+    suggestion.changes.forEach((change, index) => {
+      lines.push(`File ${index + 1}: ${change.filePath}`);
+      
+      change.lineChanges.forEach((lineChange) => {
+        lines.push(`  Lines ${lineChange.startLine}-${lineChange.endLine}:`);
+        lines.push(`  - ${lineChange.originalContent}`);
+        lines.push(`  + ${lineChange.newContent}`);
+        if (lineChange.changeReason) {
+          lines.push(`    (${lineChange.changeReason})`);
+        }
+        lines.push('');
+      });
+    });
 
-// Example 4: Large Project Streaming
-const stream = await client.sca.streamSbomReportV2({
-  projectKey: 'large-enterprise-app',
-  format: 'json',
-  includeVulnerabilities: true
-});
+    return lines.join('\n');
+  }
 
-// Process stream to avoid memory issues
-const reader = stream.getReader();
-let result = '';
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  result += new TextDecoder().decode(value);
+  /**
+   * Extract common patterns from multiple fix suggestions
+   */
+  static analyzeSuggestionPatterns(suggestions: AiFixSuggestionV2[]): {
+    commonChanges: string[];
+    suggestedBestPractices: string[];
+    languageSpecificTips: Record<string, string[]>;
+  } {
+    const commonChanges: Set<string> = new Set();
+    const bestPractices: Set<string> = new Set();
+    const languageTips: Record<string, Set<string>> = {};
+
+    suggestions.forEach((suggestion) => {
+      // Analyze common change patterns
+      suggestion.changes.forEach((change) => {
+        const language = change.fileMetadata?.language;
+        if (language && !languageTips[language]) {
+          languageTips[language] = new Set();
+        }
+
+        change.lineChanges.forEach((lineChange) => {
+          // Extract common patterns from changes
+          if (lineChange.changeReason) {
+            commonChanges.add(lineChange.changeReason);
+          }
+          
+          if (language && lineChange.changeReason) {
+            languageTips[language]!.add(lineChange.changeReason);
+          }
+        });
+      });
+
+      // Extract best practices from references
+      suggestion.references?.forEach((ref) => {
+        if (ref.type === 'best_practice') {
+          bestPractices.add(ref.title);
+        }
+      });
+    });
+
+    return {
+      commonChanges: Array.from(commonChanges),
+      suggestedBestPractices: Array.from(bestPractices),
+      languageSpecificTips: Object.fromEntries(
+        Object.entries(languageTips).map(([lang, tips]) => [lang, Array.from(tips)])
+      ),
+    };
+  }
+
+  private static isFileAccessible(filePath: string): boolean {
+    // Implementation would check file system permissions
+    // This is a placeholder for the actual implementation
+    return true;
+  }
 }
 
-// Example 5: Security Risk Analysis
-const sbom = await client.sca.getSbomReportV2({
-  projectKey: 'my-app'
-});
+/**
+ * Integration helpers for working with the Issues API
+ */
+export class FixSuggestionIntegration {
+  /**
+   * Find issues that are eligible for AI fix suggestions
+   */
+  static async findEligibleIssues(
+    client: SonarQubeClient,
+    projectKey: string,
+    options: {
+      severity?: string[];
+      types?: string[];
+      maxAge?: number; // days
+    } = {}
+  ): Promise<Array<{ issue: Issue; availability: FixSuggestionAvailabilityV2Response }>> {
+    // Get issues from the Issues API
+    const issuesResponse = await client.issues.search()
+      .inProject(projectKey)
+      .withSeverities(options.severity ?? ['MAJOR', 'CRITICAL', 'BLOCKER'])
+      .withTypes(options.types ?? ['BUG', 'CODE_SMELL'])
+      .execute();
 
-const riskAnalysis = SbomAnalyzer.analyzeSecurityRisks(sbom);
-console.log(`Risk Level: ${riskAnalysis.riskLevel}`);
-console.log(`Critical Vulnerabilities: ${riskAnalysis.criticalVulnerabilities}`);
+    const eligibleIssues = [];
 
-// Example 6: License Compliance Check
-const licenseAnalysis = SbomAnalyzer.analyzeLicenseCompliance(sbom);
-console.log(`Compliance Status: ${licenseAnalysis.complianceStatus}`);
-console.log(`High Risk Licenses: ${licenseAnalysis.highRiskLicenses}`);
+    // Check each issue for AI suggestion availability
+    for (const issue of issuesResponse.issues) {
+      try {
+        const availability = await client.fixSuggestions.getIssueAvailabilityV2({
+          issueKey: issue.key,
+          projectKey,
+        });
 
-// Example 7: Vulnerability Summary for Dashboard
-const vulnSummary = await client.sca.getVulnerabilitySummaryV2({
-  projectKey: 'my-app'
-});
+        if (availability.available) {
+          eligibleIssues.push({ issue, availability });
+        }
+      } catch (error) {
+        // Log but don't fail for individual issues
+        console.warn(`Failed to check availability for issue ${issue.key}:`, error);
+      }
+    }
 
-console.log(`Total Vulnerabilities: ${vulnSummary.total}`);
-console.log(`Critical: ${vulnSummary.critical}, High: ${vulnSummary.high}`);
+    return eligibleIssues;
+  }
 
-// Example 8: Branch-Specific Analysis
-const branchSbom = await client.sca.getSbomReportV2({
-  projectKey: 'my-app',
-  branch: 'feature/new-dependencies',
-  includeVulnerabilities: true
-});
+  /**
+   * Apply a fix suggestion and update the issue status
+   */
+  static async applyFixAndUpdateIssue(
+    client: SonarQubeClient,
+    issueKey: string,
+    suggestion: AiFixSuggestionV2,
+    options: FixApplicationOptions = {}
+  ): Promise<{
+    success: boolean;
+    appliedChanges: AiCodeChangeV2[];
+    errors: string[];
+  }> {
+    const result = {
+      success: false,
+      appliedChanges: [] as AiCodeChangeV2[],
+      errors: [] as string[],
+    };
 
-// Compare with main branch for dependency changes
+    // Validate fix before applying
+    const validation = FixSuggestionUtils.validateFixApplication(suggestion, options);
+    if (!validation.canApply) {
+      result.errors = validation.blockers.map(b => b.message);
+      return result;
+    }
 
-// Example 9: Pull Request Security Check
-const prSbom = await client.sca.getSbomReportV2({
-  projectKey: 'my-app',
-  pullRequest: '123',
-  includeVulnerabilities: true
-});
+    try {
+      // Apply the code changes (implementation would integrate with file system)
+      // This is a placeholder for the actual file modification logic
+      result.appliedChanges = suggestion.changes;
+      result.success = true;
 
-// Analyze new vulnerabilities introduced in PR
+      // Optionally mark the issue as resolved or add a comment
+      // This would require additional Issues API integration
 
-// Example 10: Progress Tracking for Large Reports
-await client.sca.downloadSbomReportV2({
-  projectKey: 'enterprise-monolith',
-  format: 'spdx-json',
-  includeVulnerabilities: true,
-  includeLicenses: true
-}, {
-  onProgress: (progress) => {
-    console.log(`Generating SBOM: ${progress.percentage}%`);
-    updateProgressBar(progress.percentage);
-  },
-  timeout: 300000 // 5 minutes for large projects
+    } catch (error) {
+      result.errors.push(`Failed to apply fix: ${error}`);
+      result.success = false;
+    }
+
+    return result;
+  }
+}
+```
+
+## Testing Strategy
+
+### Test Coverage Requirements
+
+1. **Unit Tests (>95% coverage)**
+   - All client methods
+   - Builder pattern validation
+   - Utility functions
+   - Error handling scenarios
+
+2. **Integration Tests**
+   - End-to-end workflow testing
+   - Real API interaction simulation
+   - Performance testing
+
+3. **MSW Mock Implementation**
+   - Realistic AI response generation
+   - Various suggestion scenarios
+   - Error condition simulation
+
+### Test Structure
+
+```typescript
+describe('FixSuggestionsClient', () => {
+  describe('getIssueAvailabilityV2', () => {
+    test('should check availability for valid issue');
+    test('should handle unavailable AI service');
+    test('should validate required parameters');
+    test('should include project context');
+  });
+
+  describe('requestAiSuggestionsV2', () => {
+    test('should generate fix suggestions');
+    test('should handle multiple alternatives');
+    test('should respect fix style preferences');
+    test('should include code context');
+  });
+
+  describe('Builder patterns', () => {
+    test('should build availability checks fluently');
+    test('should build suggestion requests with validation');
+    test('should handle parameter validation');
+  });
+
+  describe('Integration scenarios', () => {
+    test('should integrate with Issues API');
+    test('should handle concurrent requests');
+    test('should process large suggestion responses');
+  });
 });
 ```
 
-#### 3. Best Practices Guide
+## Integration Plan
 
-```markdown
-## SCA API Best Practices
+### Main Client Integration
 
-### 1. Performance Considerations
+```typescript
+// Add to SonarQubeClient class
+export class SonarQubeClient extends BaseClient {
+  // ... existing properties
 
-- **Use metadata endpoint first**: Check `getSbomMetadataV2()` to understand report size
-- **Enable streaming for large reports**: Use `streamSbomReportV2()` for projects with 500+ components
-- **Cache SBOM reports**: Reports are expensive to generate, cache for 30+ minutes
-- **Filter unnecessary data**: Only include vulnerabilities/licenses when needed
+  /** Fix Suggestions API client for AI-powered code fixes */
+  public readonly fixSuggestions: FixSuggestionsClient;
 
-### 2. Security Considerations
+  constructor(baseUrl: string, token?: string) {
+    super(baseUrl, token);
+    // ... existing initializations
+    this.fixSuggestions = new FixSuggestionsClient(baseUrl, token);
+  }
+}
 
-- **Protect SBOM data**: Contains sensitive dependency information
-- **Use appropriate permissions**: Ensure users have 'Browse' project permission
-- **Sanitize external sharing**: Remove sensitive paths/internal URLs before sharing
-
-### 3. Compliance Workflows
-
-- **Regular automated generation**: Generate SBOMs on each release
-- **Format selection**: Use SPDX for regulatory compliance, CycloneDX for security tools
-- **Version tracking**: Store SBOMs with version tags for historical analysis
-- **License review**: Include license analysis in compliance workflows
-
-### 4. Error Handling
-
-- **Handle large timeouts**: Set appropriate timeouts for enterprise projects
-- **Implement retry logic**: SBOM generation can be resource-intensive
-- **Graceful degradation**: Fall back to metadata-only when full reports fail
+// Update index.ts exports
+export { FixSuggestionsClient } from './resources/fix-suggestions';
+export type {
+  GetIssueAvailabilityV2Request,
+  FixSuggestionAvailabilityV2Response,
+  RequestAiSuggestionsV2Request,
+  AiSuggestionResponseV2,
+  AiFixSuggestionV2,
+  AiCodeChangeV2,
+} from './resources/fix-suggestions';
 ```
 
-## Implementation Checklist
+### Issues API Integration
 
-### Day 1: Research & Type Design
-- [ ] Research SCA API documentation thoroughly
-- [ ] Design comprehensive type system for SBOM data
-- [ ] Plan multi-format response handling strategy
-- [ ] Create module structure and basic interfaces
+```typescript
+// Add convenience method to IssuesClient
+export class IssuesClient extends BaseClient {
+  // ... existing methods
 
-### Day 2: Core Implementation
-- [ ] Implement getSbomReportV2 with structured response
-- [ ] Implement downloadSbomReportV2 with format support
-- [ ] Implement getSbomMetadataV2 for report information
-- [ ] Add proper error handling for large reports
-- [ ] Add streaming support for large SBOMs
+  /**
+   * Check if AI fix suggestions are available for this issue
+   * @since 10.7
+   */
+  async checkFixAvailability(issueKey: string): Promise<FixSuggestionAvailabilityV2Response> {
+    return this.client.fixSuggestions.getIssueAvailabilityV2({ issueKey });
+  }
 
-### Day 3: Testing & Advanced Features
-- [ ] Unit tests for all endpoints
-- [ ] MSW handlers for complex SBOM responses
-- [ ] Test large report scenarios
-- [ ] Test format conversion accuracy
-- [ ] Implement getVulnerabilitySummaryV2
-- [ ] Add format converter utilities
-- [ ] Add SBOM analysis utilities
+  /**
+   * Request AI fix suggestions for this issue
+   * @since 10.7
+   */
+  async requestAiFix(
+    issueKey: string,
+    options?: Partial<RequestAiSuggestionsV2Request>
+  ): Promise<AiSuggestionResponseV2> {
+    return this.client.fixSuggestions.requestAiSuggestionsV2({
+      issueKey,
+      ...options,
+    });
+  }
+}
+```
 
-### Day 4: Polish & Documentation
-- [x] Add comprehensive JSDoc documentation
-- [x] Create usage examples for all scenarios
-- [ ] Add best practices guide
-- [x] Update main SonarQubeClient integration
-- [x] Update exports in index.ts
-- [x] Update CHANGELOG.md
+## Error Handling Strategy
 
-## Technical Considerations
+### AI-Specific Error Types
 
-### 1. Large Response Handling
-- SBOM reports can be several MB for complex projects
-- Implement streaming and chunked processing
-- Support progress tracking for user experience
-- Handle memory efficiently in browser environments
+```typescript
+export class AiServiceUnavailableError extends SonarQubeError {
+  constructor(message: string, public retryAfter?: number) {
+    super(message, 503);
+    this.name = 'AiServiceUnavailableError';
+  }
+}
 
-### 2. Format Conversion
-- Support multiple industry-standard formats
-- Ensure lossless conversion between formats
-- Validate format compliance with specifications
-- Handle format-specific features appropriately
+export class AiQuotaExceededError extends SonarQubeError {
+  constructor(message: string, public resetTime?: string) {
+    super(message, 429);
+    this.name = 'AiQuotaExceededError';
+  }
+}
 
-### 3. Security and Performance
-- Cache reports intelligently (expensive to generate)
-- Protect sensitive dependency information
-- Handle authentication and authorization properly
-- Optimize for different project sizes
+export class FixGenerationError extends SonarQubeError {
+  constructor(message: string, public issueKey: string) {
+    super(message, 422);
+    this.name = 'FixGenerationError';
+  }
+}
+```
 
-### 4. Cross-Platform Compatibility
-- Support Node.js and browser environments
-- Handle different streaming APIs appropriately
-- Consider file system access differences
-- Test with various JavaScript engines
+### Error Factory Integration
 
-## Success Criteria
+```typescript
+// Add to errorFactory.ts
+export function createAiError(response: Response, body: any): SonarQubeError {
+  if (response.status === 503 && body.errorType === 'AI_SERVICE_UNAVAILABLE') {
+    return new AiServiceUnavailableError(
+      body.message,
+      body.retryAfter
+    );
+  }
 
-1. **Complete API Coverage**: All SCA v2 endpoints implemented
-2. **Multi-Format Support**: JSON, SPDX, and CycloneDX formats working
-3. **Performance**: Efficient handling of large reports (1000+ components)
-4. **Analysis Tools**: Built-in security and license analysis utilities
-5. **Documentation**: Comprehensive documentation with real-world examples
-6. **Testing**: Full test coverage including large report scenarios
+  if (response.status === 429 && body.errorType === 'AI_QUOTA_EXCEEDED') {
+    return new AiQuotaExceededError(
+      body.message,
+      body.resetTime
+    );
+  }
+
+  if (response.status === 422 && body.errorType === 'FIX_GENERATION_FAILED') {
+    return new FixGenerationError(
+      body.message,
+      body.issueKey
+    );
+  }
+
+  return createStandardError(response, body);
+}
+```
+
+## Documentation and Examples
+
+### Usage Examples
+
+```typescript
+// Basic availability check
+const availability = await client.fixSuggestions.getIssueAvailabilityV2({
+  issueKey: 'AY8qEqN7UVrTsQCOExjT'
+});
+
+if (availability.available) {
+  // Request AI suggestions
+  const suggestions = await client.fixSuggestions.requestAiSuggestionsV2({
+    issueKey: 'AY8qEqN7UVrTsQCOExjT',
+    includeContext: true,
+    maxAlternatives: 3
+  });
+
+  // Process suggestions
+  const ranked = FixSuggestionUtils.rankSuggestions(suggestions.suggestions);
+  const preview = FixSuggestionUtils.generateChangePreview(ranked[0]);
+  
+  console.log('Best suggestion preview:');
+  console.log(preview);
+}
+
+// Builder pattern usage
+const suggestions = await client.fixSuggestions
+  .requestSuggestions()
+  .withIssue('AY8qEqN7UVrTsQCOExjT')
+  .withContext(true)
+  .withMaxAlternatives(5)
+  .withFixStyle('comprehensive')
+  .execute();
+
+// Integration with Issues API
+const eligibleIssues = await FixSuggestionIntegration.findEligibleIssues(
+  client,
+  'my-project',
+  { severity: ['MAJOR', 'CRITICAL'] }
+);
+
+console.log(`Found ${eligibleIssues.length} issues eligible for AI fixes`);
+```
+
+## Performance Considerations
+
+### AI Service Optimization
+
+1. **Request Batching**: Group multiple availability checks
+2. **Caching**: Cache availability responses for a short period
+3. **Retry Logic**: Implement exponential backoff for AI service errors
+4. **Timeout Management**: Handle long AI processing times gracefully
+
+### Memory Management
+
+1. **Large Response Handling**: Stream large suggestion responses
+2. **Garbage Collection**: Properly dispose of large AI responses
+3. **Connection Pooling**: Reuse connections for AI service calls
+
+## Security Considerations
+
+### Data Privacy
+
+1. **Code Context**: Ensure code snippets sent to AI are properly anonymized
+2. **Token Security**: Protect AI service authentication tokens
+3. **Rate Limiting**: Respect AI service quotas and limits
+4. **Audit Logging**: Log AI service interactions for security auditing
+
+### Validation
+
+1. **Input Sanitization**: Validate all AI responses before processing
+2. **Code Injection Prevention**: Sanitize generated code changes
+3. **Permission Checks**: Verify user permissions for AI service access
+
+## Success Metrics
+
+### Technical Metrics
+
+1. **API Coverage**: 100% of Fix Suggestions API endpoints implemented
+2. **Test Coverage**: >95% code coverage with comprehensive scenarios
+3. **Type Safety**: Full TypeScript support with strict types
+4. **Performance**: Sub-2s response times for availability checks
+5. **Reliability**: 99.9% uptime for client operations
+
+### User Experience Metrics
+
+1. **Ease of Use**: Intuitive API with builder patterns
+2. **Documentation Quality**: Comprehensive examples and guides
+3. **Error Handling**: Clear, actionable error messages
+4. **Integration**: Seamless integration with existing Issues API
+
+### Business Impact Metrics
+
+1. **Developer Productivity**: Reduced time-to-fix for code issues
+2. **Code Quality**: Improved fix success rates with AI assistance
+3. **Adoption**: Usage metrics and developer feedback
+4. **AI Service ROI**: Cost-benefit analysis of AI fix suggestions
 
 ## Risk Mitigation
 
-### 1. Large Response Sizes
-- Implement streaming to avoid memory issues
-- Add progress tracking and timeout handling
-- Support chunked processing
-- Provide size estimates before generation
+### Technical Risks
 
-### 2. Format Complexity
-- Validate format compliance thoroughly
-- Test with real SBOM analysis tools
-- Handle edge cases in format conversion
-- Support format-specific metadata
+1. **AI Service Unavailability**: Implement proper fallback mechanisms
+2. **API Changes**: Monitor SonarQube API updates for breaking changes
+3. **Performance Degradation**: Implement circuit breakers and timeouts
+4. **Memory Issues**: Proper resource cleanup for large responses
 
-### 3. Performance Impact
-- Implement intelligent caching strategies
-- Provide metadata-only endpoints for quick checks
-- Support filtered reports to reduce size
-- Optimize for common use cases
+### Business Risks
 
-## Next Steps After Completion
+1. **AI Service Costs**: Monitor usage and implement quotas
+2. **Legal Concerns**: Ensure compliance with AI service terms
+3. **Code Quality**: Validate AI suggestions before application
+4. **User Adoption**: Provide comprehensive documentation and examples
 
-1. **Integration**: Update main SonarQubeClient with ScaClient
-2. **CLI Tools**: Consider adding command-line SBOM generation utilities
-3. **Security Integration**: Integrate with security scanning workflows
-4. **Compliance Tools**: Add regulatory compliance report generators
-5. **Future APIs**: Plan implementation of remaining v2 APIs (Fix Suggestions, Clean Code Policy)
+## Future Enhancements
 
-## References
+### Phase 2 Features (Future Releases)
 
-- [SPDX Specification 2.3](https://spdx.github.io/spdx-spec/)
-- [CycloneDX Specification 1.4](https://cyclonedx.org/docs/1.4/)
-- [NTIA Minimum Elements for SBOM](https://www.ntia.doc.gov/files/ntia/publications/sbom_minimum_elements_report.pdf)
-- [SonarQube Web API v2 Documentation](https://next.sonarqube.com/sonarqube/web_api_v2)
-- [EU Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/library/cyber-resilience-act)
+1. **Batch Processing**: Submit multiple issues for AI analysis
+2. **Custom AI Models**: Support for organization-specific AI models
+3. **Fix Templates**: Pre-defined fix patterns for common issues
+4. **Integration Plugins**: IDE plugins for direct AI fix application
+
+### Advanced Capabilities
+
+1. **Machine Learning**: Learn from applied fixes to improve suggestions
+2. **Context Enhancement**: Include more project context for better fixes
+3. **Collaborative Filtering**: Share anonymous fix patterns across projects
+4. **Quality Metrics**: Track fix success rates and quality improvements
+
+## Conclusion
+
+The Fix Suggestions API v2 implementation will provide developers with powerful AI-assisted code fixing capabilities, significantly improving productivity and code quality. This comprehensive plan ensures a robust, well-tested, and user-friendly implementation that integrates seamlessly with the existing sonarqube-web-api-client library.
+
+The 3-day implementation timeline provides adequate time for thorough development, testing, and documentation while maintaining high quality standards. The focus on type safety, error handling, and integration with existing APIs ensures that the new functionality enhances rather than complicates the developer experience.
+
+By implementing this API, the sonarqube-web-api-client library will position itself as a leading solution for modern, AI-enhanced code quality management.
+
+## Implementation Status
+
+### ✅ Day 1: COMPLETED (January 30, 2025)
+
+**Accomplished Tasks:**
+- ✅ **Hour 1-2**: API Research with Puppeteer - Analyzed SonarQube Fix Suggestions documentation
+- ✅ **Hour 3-4**: Complete type system design with 490+ lines of comprehensive TypeScript interfaces
+- ✅ **Hour 5-6**: Project structure setup with all modules, exports, and test infrastructure
+- ✅ **Hour 7-8**: Advanced type definitions with builders, utilities, and comprehensive test suite
+
+**Deliverables Completed:**
+- ✅ Complete type system (`types.ts`) - 495 lines with comprehensive interfaces
+- ✅ Module structure and exports (`index.ts` + integration)
+- ✅ Test infrastructure setup with MSW (3 test files, 55 tests)
+- ✅ Integration preparation and exports in main client
+- ✅ Full FixSuggestionsClient implementation with builder patterns
+- ✅ Comprehensive utility classes with 723+ lines of helper functions
+- ✅ All tests passing (55/55)
+
+**Key Technical Achievements:**
+- 2 API endpoints fully typed and implemented
+- Advanced builder pattern with fluent API design
+- Comprehensive error handling and validation
+- AI-specific types for confidence scoring and fix alternatives
+- Integration with existing Issues API for batch processing
+- Multi-language support with context awareness
+
+**Next Steps:**
+- Minor type fixes in utils.ts (remove unused imports, fix strict type checking)
+- Clean up linting issues for production readiness
+- Ready to proceed to Day 2 tasks (though core implementation is already complete)

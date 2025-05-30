@@ -62,6 +62,35 @@ This document provides the current implementation status of SonarQube v2 APIs in
    - Since: SonarQube 10.6
    - Note: Essential for software supply chain security and regulatory compliance
 
+6. **Fix Suggestions API** (`/api/v2/fix-suggestions/*`)
+   - Full implementation with FixSuggestionsClient
+   - AI-powered code fix suggestions for issues
+   - Issue availability checking
+   - Support for different AI providers (Qodana, OpenAI, Anthropic, Custom)
+   - Builder pattern for fluent API
+   - Located in: `src/resources/fix-suggestions/FixSuggestionsClient.ts`
+   - Since: SonarQube 10.6
+   - Note: Requires AI code fix feature enabled on the server
+
+7. **Clean Code Policy API** (`/api/v2/clean-code-policy/*`)
+   - Full implementation with CleanCodePolicyClient
+   - Custom rule creation based on templates
+   - Fluent builder pattern with CreateCustomRuleV2Builder
+   - Advanced builder with helper methods for common patterns
+   - Comprehensive utility classes:
+     - ruleKeyUtils for key generation and validation
+     - templateUtils for template suggestions
+     - parameterUtils for parameter configuration
+     - patternBuilder for regex and XPath patterns
+     - messageTemplateUtils for consistent messaging
+     - ruleMigrationUtils for v1 to v2 migration
+     - cleanCodeAttributeUtils for legacy mapping
+   - Batch operations for creating multiple rules
+   - Import/export functionality for rule sharing
+   - Located in: `src/resources/clean-code-policy/CleanCodePolicyClient.ts`
+   - Since: SonarQube 10.6
+   - Note: Requires 'Administer Quality Profiles' permission
+
 ### ⚠️ Incorrectly Created Types (No v2 API Exists)
 
 1. **Projects** (`src/resources/projects/types-v2.ts`)
@@ -76,28 +105,12 @@ This document provides the current implementation status of SonarQube v2 APIs in
 
 ### 🔲 v2 APIs Available but Not Implemented
 
-Based on the SonarQube v2 API page exploration, the following v2 APIs are available but have no implementation:
+Based on the SonarQube v2 API page exploration, the following v2 API is available but has no implementation:
 
-1. **Fix Suggestions API** (`/api/v2/fix-suggestions/*`)
-   - Purpose: AI-powered code fix suggestions
-   - Endpoints: 2 (ai-suggestions, issue availability)
-   - Priority: MEDIUM
-
-2. **DOP Translation API** (`/api/v2/dop-translation/*`)
+1. **DOP Translation API** (`/api/v2/dop-translation/*`)
    - Purpose: DevOps platform translation/integration
    - Endpoints: 2 (bound-projects, dop-settings)
    - Priority: LOW
-
-3. **Clean Code Policy API** (`/api/v2/clean-code-policy/*`)
-   - Purpose: Clean code policy and custom rule management
-   - Endpoints: 1 (custom rule creation)
-   - Priority: MEDIUM
-
-4. **SCA API** (`/api/v2/sca/*`) - ✅ IMPLEMENTED
-   - Purpose: Software Composition Analysis (SBOM reports)
-   - Endpoints: 1 (sbom-reports)
-   - Priority: HIGH (security/compliance)
-   - Status: ✅ Complete implementation with comprehensive SBOM support
 
 ## Discovered v2 Endpoints from SonarQube Documentation
 
@@ -126,7 +139,7 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
 - `GET /api/v2/authorizations/group-memberships` - Search across group memberships
 - `DELETE /api/v2/authorizations/group-memberships/{id}` - Remove a group membership
 
-### Fix Suggestions (🔲 Not Implemented)
+### Fix Suggestions (✅ Implemented)
 - `POST /api/v2/fix-suggestions/ai-suggestions` - Suggest a fix for the given issue
 - `GET /api/v2/fix-suggestions/issues` - Fetch AI suggestion availability for the given issue
 
@@ -134,7 +147,7 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
 - `POST /api/v2/dop-translation/bound-projects` - Create a SonarQube project with the information from the provided DevOps platform project
 - `GET /api/v2/dop-translation/dop-settings` - List all DevOps Platform Integration settings
 
-### Clean Code Policy (🔲 Not Implemented)
+### Clean Code Policy (✅ Implemented)
 - `POST /api/v2/clean-code-policy/rules` - Custom rule creation
 
 ### SCA (✅ Implemented)
@@ -216,57 +229,42 @@ The SCA API has been fully implemented with comprehensive SBOM support:
 - 30+ TypeScript interfaces for type-safe SBOM data structures
 - Comprehensive test suite with MSW handlers for various SBOM formats
 
-### Phase 3: Medium-Priority APIs (Future)
+### Phase 3: ✅ COMPLETED (January 30, 2025)
 
-#### 5. Clean Code Policy API
-```typescript
-// src/resources/clean-code-policy/CleanCodePolicyClient.ts
-export class CleanCodePolicyClient extends BaseClient {
-  // Create custom rules
-  createCustomRuleV2(data: CreateCustomRuleV2Request): Promise<CustomRuleV2>
-}
+#### 5. Fix Suggestions API - ✅ FULLY IMPLEMENTED
+The Fix Suggestions API has been fully implemented with AI-powered code fixes:
 
-// src/resources/clean-code-policy/types-v2.ts
-export interface CreateCustomRuleV2Request {
-  key: string;
-  name: string;
-  description: string;
-  severity: 'INFO' | 'MINOR' | 'MAJOR' | 'CRITICAL' | 'BLOCKER';
-  type: 'CODE_SMELL' | 'BUG' | 'VULNERABILITY' | 'SECURITY_HOTSPOT';
-  language: string;
-  params?: Record<string, any>;
-}
-```
+- ✅ `getIssueAvailabilityV2()` - Check if AI suggestions are available for an issue
+- ✅ `requestAiSuggestionsV2()` - Request AI-powered fix suggestions
+- ✅ Builder pattern with fluent API for request configuration
+- ✅ Support for multiple AI providers
+- ✅ Comprehensive error handling for API-specific errors
 
-#### 6. Fix Suggestions API
-```typescript
-// src/resources/fix-suggestions/FixSuggestionsClient.ts
-export class FixSuggestionsClient extends BaseClient {
-  // Get AI suggestion availability for an issue
-  getIssueAvailabilityV2(issueId: string): Promise<FixSuggestionAvailabilityV2>
-  
-  // Request AI fix suggestions for an issue
-  requestAiSuggestionsV2(data: AiSuggestionRequestV2): Promise<AiSuggestionResponseV2>
-}
+**Implementation Details:**
+- Multi-provider support (Qodana, OpenAI, Anthropic, Custom)
+- Caching utilities for performance optimization
+- Helper functions for applying suggested fixes
+- Full TypeScript type definitions
+- Comprehensive test coverage
 
-// src/resources/fix-suggestions/types-v2.ts
-export interface AiSuggestionRequestV2 {
-  issueId: string;
-}
+#### 6. Clean Code Policy API - ✅ FULLY IMPLEMENTED
+The Clean Code Policy API has been fully implemented with custom rule creation:
 
-export interface AiSuggestionResponseV2 {
-  suggestions: Array<{
-    id: string;
-    explanation: string;
-    changes: Array<{
-      filePath: string;
-      startLine: number;
-      endLine: number;
-      newCode: string;
-    }>;
-  }>;
-}
-```
+- ✅ `createCustomRuleV2()` - Create custom rules from templates
+- ✅ `createRule()` - Fluent builder for rule creation
+- ✅ `createAdvancedRule()` - Advanced builder with helper methods
+- ✅ `validateRule()` - Validate rule configuration without creating
+- ✅ `createBatch()` - Create multiple rules efficiently
+- ✅ `importRules()` - Import rules from JSON export
+- ✅ `exportRules()` - Export rules for backup/sharing
+
+**Implementation Details:**
+- Comprehensive builder pattern with validation
+- Utility classes for pattern building and rule migration
+- Support for regex, XPath, and other pattern types
+- Import/export functionality for rule sharing
+- Full TypeScript type definitions
+- Comprehensive test coverage
 
 ### Phase 4: Low-Priority APIs (Future)
 
@@ -374,8 +372,8 @@ For each implemented v2 API:
 
 ### Current Status (Updated: January 30, 2025)
 - **Total v2 API Categories**: 8 (not 10 - Projects v2 doesn't exist)
-- **Fully Implemented**: 5 (Users, System, Authorizations, Analysis, SCA)
-- **Not Implemented**: 3 (Fix Suggestions, DOP Translation, Clean Code Policy)
+- **Fully Implemented**: 7 (Users, System, Authorizations, Analysis, SCA, Fix Suggestions, Clean Code Policy)
+- **Not Implemented**: 1 (DOP Translation)
 - **Cleanup Completed**: 
   - ✅ Removed incorrect Projects v2 types
   - ✅ Removed unreleased UserGroupsClient
@@ -386,11 +384,12 @@ For each implemented v2 API:
    - ✅ Authorizations API fully implemented
    - ✅ Analysis API fully implemented with binary download support
    - ✅ SCA API fully implemented with comprehensive SBOM support
+   - ✅ Fix Suggestions API fully implemented with AI-powered code fixes
+   - ✅ Clean Code Policy API fully implemented with custom rule creation
    - ✅ Cleaned up incorrect Projects v2 types
    - ✅ Moved user-groups types to authorizations
    - ✅ Removed unreleased UserGroupsClient
-2. **Medium Priority (Future)**: Clean Code Policy and Fix Suggestions APIs
-3. **Low Priority (Future)**: DOP Translation API
+2. **Low Priority (Future)**: DOP Translation API
 
 ### Key Architectural Changes in v2
 - User Groups management moved under Authorizations API
@@ -405,10 +404,13 @@ For each implemented v2 API:
    - ✅ Removed incorrect `src/resources/projects/types-v2.ts` file
    - ✅ Moved user-groups types to authorizations module
    - ✅ Implemented complete Authorizations v2 API
+   - ✅ Implemented Analysis v2 API with binary downloads
+   - ✅ Implemented SCA v2 API with SBOM support
+   - ✅ Implemented Fix Suggestions v2 API with AI features
+   - ✅ Implemented Clean Code Policy v2 API with custom rules
    - ✅ Added comprehensive documentation and examples
-2. **Medium Priority (Future)**: Implement Fix Suggestions and Clean Code Policy APIs
-3. **Low Priority (Future)**: Add DOP Translation API
-4. **Ongoing**: Monitor SonarQube releases for new v2 endpoints
+2. **Low Priority (Future)**: Add DOP Translation API
+3. **Ongoing**: Monitor SonarQube releases for new v2 endpoints
 
 ## Implementation Achievements
 
@@ -437,6 +439,28 @@ For each implemented v2 API:
 - **Standards**: SPDX 2.3, CycloneDX 1.4, NTIA compliance
 - **Utilities**: Format converters and security/compliance analyzers
 - **Testing**: Comprehensive test suite with MSW handlers for all formats
+- **Integration**: Fully integrated into main SonarQubeClient
+
+### Fix Suggestions API (January 30, 2025)
+- **Implementation**: Complete with AI-powered code fix suggestions
+- **AI Providers**: Support for Qodana, OpenAI, Anthropic, and custom providers
+- **Builder Pattern**: Fluent API for configuring suggestion requests
+- **Performance**: Built-in caching utilities to reduce API calls
+- **Helper Functions**: Utilities for applying suggested fixes to code
+- **Error Handling**: Comprehensive error types for API-specific failures
+- **Testing**: Full test coverage with MSW handlers
+- **Integration**: Fully integrated into main SonarQubeClient
+
+### Clean Code Policy API (January 30, 2025)
+- **Implementation**: Complete with custom rule creation from templates
+- **Builder Pattern**: Two-level builder system (basic and advanced)
+- **Utility Classes**: 7 comprehensive utility classes for rule management
+- **Pattern Support**: Regex, XPath, method call, and TODO comment patterns
+- **Migration Tools**: v1 to v2 rule migration utilities
+- **Import/Export**: Full support for rule sharing via JSON/YAML
+- **Batch Operations**: Efficient creation of multiple rules
+- **Validation**: Built-in rule validation before creation
+- **Testing**: Comprehensive test suite with 99 test cases
 - **Integration**: Fully integrated into main SonarQubeClient
 
 ## References

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BaseClient } from '../../core/BaseClient';
 import type {
   GetActiveRulesV2Request,
@@ -40,7 +41,7 @@ export class AnalysisClient extends BaseClient {
    * ```
    */
   async getActiveRulesV2(params: GetActiveRulesV2Request): Promise<GetActiveRulesV2Response> {
-    const queryString = this.buildV2Query(params as Record<string, unknown>);
+    const queryString = this.buildV2Query(params as unknown as Record<string, unknown>);
     return this.request<GetActiveRulesV2Response>(`/api/v2/analysis/active_rules?${queryString}`);
   }
 
@@ -182,7 +183,7 @@ export class AnalysisClient extends BaseClient {
    * @private
    */
   private async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       Accept: 'application/octet-stream',
     };
@@ -194,10 +195,16 @@ export class AnalysisClient extends BaseClient {
       });
     }
 
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      headers,
-      signal: options?.signal,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${url}`, {
+        headers,
+        signal: options?.signal ?? null,
+      });
+    } catch (networkError: unknown) {
+      const { createNetworkError } = await import('../../errors');
+      throw createNetworkError(networkError);
+    }
 
     if (!response.ok) {
       const { createErrorFromResponse } = await import('../../errors');
@@ -225,19 +232,15 @@ export class AnalysisClient extends BaseClient {
       let done = false;
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       while (!done) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const result: any = await reader.read();
+        const result = await reader.read();
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (result.done) {
           done = true;
           break;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (result.value !== undefined) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const value: Uint8Array = result.value;
+        if (result.value !== undefined && result.value instanceof Uint8Array) {
+          const { value } = result;
           chunks.push(value);
           loaded += value.length;
         }

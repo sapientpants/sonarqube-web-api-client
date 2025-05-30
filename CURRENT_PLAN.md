@@ -1,261 +1,740 @@
-# Current Implementation Plan: Analysis v2 API
+# Current Implementation Plan: SCA v2 API (Software Composition Analysis)
 
 ## Overview
 
-This document outlines the comprehensive plan to implement the Analysis v2 API, which provides scanner management and project analysis functionality. This is the next high-priority item from the V2_API_IMPLEMENTATION_STATUS_AND_PLAN.md.
+This document outlines the comprehensive plan to implement the SCA v2 API, which provides Software Bill of Materials (SBOM) generation and vulnerability analysis for software composition analysis. This is the next high-priority item from the V2_API_IMPLEMENTATION_STATUS_AND_PLAN.md.
 
-The Analysis API is critical infrastructure that enables:
-- Scanner engine management and downloads
-- JRE distribution for scanners
-- Active rule retrieval for project analysis
-- Server version information
+The SCA API is critical for security and compliance workflows that enable:
+- Software Bill of Materials (SBOM) report generation
+- Dependency vulnerability tracking
+- License compliance monitoring
+- Security supply chain management
+- Regulatory compliance reporting (NTIA, EU Cyber Resilience Act)
 
-## Timeline: 5 Days
+## Timeline: 4 Days
 
 ### Phase 0: Research & Design (Day 1)
 
 #### 1. API Endpoint Analysis
 
-The Analysis v2 API consists of 5 endpoints:
+The SCA v2 API consists of 1 primary endpoint with multiple format options:
 
 ```
-GET /api/v2/analysis/active_rules - Get all active rules for a specific project
-GET /api/v2/analysis/engine - Scanner engine download/metadata
-GET /api/v2/analysis/jres - All JREs metadata  
-GET /api/v2/analysis/jres/{id} - JRE download/metadata
-GET /api/v2/analysis/version - Server version
+GET /api/v2/sca/sbom-reports - Get a software bill of materials (SBOM) report
 ```
+
+**Key Parameters:**
+- `projectKey` (required) - Project identifier
+- `branch` (optional) - Specific branch analysis
+- `pullRequest` (optional) - PR-specific analysis  
+- `format` (optional) - Output format: 'json', 'spdx', 'cyclonedx'
+- `includeVulnerabilities` (optional) - Include vulnerability data
+- `includeLicenses` (optional) - Include license information
+- `componentTypes` (optional) - Filter by component types
 
 #### 2. Unique Challenges
 
-- **Binary Downloads**: Engine and JRE downloads return binary data (ZIP files)
-- **Conditional Responses**: Some endpoints return metadata OR binary based on headers
-- **Large Files**: JREs can be 100+ MB, need streaming support
-- **Caching**: Downloads should support HTTP caching headers
-- **Authentication**: Some endpoints may work without auth for public instances
+- **Large Response Sizes**: SBOM reports can be several MB for complex projects
+- **Multiple Formats**: Support for JSON, SPDX (JSON/RDF), CycloneDX formats
+- **Streaming Support**: Large reports need streaming to avoid memory issues
+- **Complex Data Models**: Rich component relationships and vulnerability data
+- **Caching**: Reports are expensive to generate, need intelligent caching
+- **Security Context**: Contains sensitive dependency and vulnerability information
+
+#### 3. Industry Standards
+
+**SPDX (Software Package Data Exchange)**
+- ISO/IEC 5962:2021 international standard
+- Supports JSON, YAML, RDF/XML, Tag formats
+- Industry-standard for software composition data
+
+**CycloneDX**
+- OWASP-backed standard
+- JSON and XML formats
+- Designed for application security use cases
+- Built-in vulnerability and dependency tracking
 
 ### Phase 1: Type System Design (Day 1-2)
 
-#### 1. Core Types
+#### 1. Core Request/Response Types
 
 ```typescript
-// Active Rules Types
-export interface GetActiveRulesV2Request {
+// Request Types
+export interface GetSbomReportV2Request {
   projectKey: string;
   branch?: string;
   pullRequest?: string;
+  format?: SbomFormat;
+  includeVulnerabilities?: boolean;
+  includeLicenses?: boolean;
+  componentTypes?: ComponentType[];
 }
 
-export interface ActiveRuleV2 {
-  ruleKey: string;
-  repository: string;
-  name: string;
-  language: string;
-  severity: 'INFO' | 'MINOR' | 'MAJOR' | 'CRITICAL' | 'BLOCKER';
-  type: 'CODE_SMELL' | 'BUG' | 'VULNERABILITY' | 'SECURITY_HOTSPOT';
-  params?: Record<string, string>;
-  templateKey?: string;
-}
+export type SbomFormat = 'json' | 'spdx-json' | 'spdx-rdf' | 'cyclonedx-json' | 'cyclonedx-xml';
+export type ComponentType = 'library' | 'application' | 'framework' | 'operating-system' | 'device' | 'file';
 
-export interface GetActiveRulesV2Response {
-  rules: ActiveRuleV2[];
-  total: number;
-}
-
-// Engine Types
-export interface EngineMetadataV2 {
-  filename: string;
-  sha256: string;
-  downloadUrl: string;
-  minimumSqVersion?: string;
-}
-
-// JRE Types
-export interface JreMetadataV2 extends V2Resource {
-  filename: string;
-  sha256: string;
-  javaPath: string;
-  os: 'windows' | 'linux' | 'macos' | 'alpine';
-  arch: 'x64' | 'aarch64';
-  minimumSqVersion?: string;
-}
-
-export interface GetJresV2Response {
-  jres: JreMetadataV2[];
-}
-
-// Version Types
-export interface VersionV2Response {
-  version: string;
-  buildNumber?: string;
-  commitId?: string;
+// Core SBOM Response (JSON format)
+export interface SbomReportV2Response {
+  /** SBOM document metadata */
+  document: SbomDocumentV2;
+  /** Software components inventory */
+  components: SbomComponentV2[];
+  /** Component dependencies and relationships */
+  dependencies: SbomDependencyV2[];
+  /** Vulnerability information (if requested) */
+  vulnerabilities?: SbomVulnerabilityV2[];
+  /** License information (if requested) */
+  licenses?: SbomLicenseV2[];
+  /** Report generation metadata */
+  metadata: SbomMetadataV2;
 }
 ```
 
-#### 2. Response Type Handling
+#### 2. Document and Metadata Types
 
-Need to handle different response types:
-- JSON metadata responses
-- Binary file downloads (application/octet-stream)
-- Conditional responses based on Accept headers
+```typescript
+export interface SbomDocumentV2 {
+  /** Unique SBOM document identifier */
+  id: string;
+  /** SBOM specification version */
+  specVersion: string;
+  /** Document creation timestamp */
+  createdAt: string;
+  /** SonarQube instance information */
+  creator: {
+    tool: string;
+    version: string;
+    vendor: 'SonarSource';
+  };
+  /** Main component being analyzed */
+  primaryComponent: SbomComponentV2;
+}
+
+export interface SbomMetadataV2 {
+  /** Project information */
+  project: {
+    key: string;
+    name: string;
+    branch?: string;
+    pullRequest?: string;
+  };
+  /** Analysis context */
+  analysis: {
+    analysisId: string;
+    completedAt: string;
+    totalComponents: number;
+    totalVulnerabilities?: number;
+    totalLicenses?: number;
+  };
+  /** Report generation settings */
+  generation: {
+    format: SbomFormat;
+    includeVulnerabilities: boolean;
+    includeLicenses: boolean;
+    requestedAt: string;
+    generatedAt: string;
+  };
+}
+```
+
+#### 3. Component and Dependency Types
+
+```typescript
+export interface SbomComponentV2 extends V2Resource {
+  /** Component name */
+  name: string;
+  /** Component type classification */
+  type: ComponentType;
+  /** Package manager or ecosystem */
+  ecosystem: string;
+  /** Component version */
+  version: string;
+  /** Package URL (PURL) */
+  purl?: string;
+  /** Package manager coordinates */
+  coordinates: {
+    groupId?: string;
+    artifactId?: string;
+    namespace?: string;
+    name: string;
+    version: string;
+  };
+  /** Component scope in the project */
+  scope: 'required' | 'optional' | 'excluded';
+  /** Source information */
+  source?: {
+    repository?: string;
+    downloadUrl?: string;
+    homepage?: string;
+  };
+  /** File information (for file-based components) */
+  files?: Array<{
+    path: string;
+    checksum: string;
+    size: number;
+  }>;
+  /** License information */
+  licenses?: string[];
+  /** Component description */
+  description?: string;
+  /** Copyright information */
+  copyright?: string;
+}
+
+export interface SbomDependencyV2 {
+  /** Reference to the dependent component */
+  componentId: string;
+  /** References to dependency components */
+  dependsOn: string[];
+  /** Dependency scope */
+  scope: 'compile' | 'runtime' | 'test' | 'provided' | 'import';
+  /** Dependency relationship type */
+  relationship: 'direct' | 'transitive';
+  /** Optional dependency indicator */
+  optional: boolean;
+}
+```
+
+#### 4. Security and License Types
+
+```typescript
+export interface SbomVulnerabilityV2 {
+  /** Vulnerability identifier (CVE, etc.) */
+  id: string;
+  /** Vulnerability source */
+  source: 'NVD' | 'OSV' | 'GHSA' | 'SONAR';
+  /** CVSS score information */
+  cvss?: {
+    version: '2.0' | '3.0' | '3.1';
+    score: number;
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    vector?: string;
+  };
+  /** Vulnerability summary */
+  summary: string;
+  /** Vulnerability description */
+  description?: string;
+  /** Publication and update dates */
+  dates: {
+    published: string;
+    updated?: string;
+  };
+  /** Affected components */
+  affects: Array<{
+    componentId: string;
+    versionRange: string;
+  }>;
+  /** Available fixes */
+  fixes?: Array<{
+    version: string;
+    description?: string;
+  }>;
+  /** Reference URLs */
+  references?: Array<{
+    type: 'advisory' | 'fix' | 'report' | 'web';
+    url: string;
+  }>;
+}
+
+export interface SbomLicenseV2 {
+  /** SPDX license identifier */
+  spdxId?: string;
+  /** License name */
+  name: string;
+  /** License text or URL */
+  text?: string;
+  url?: string;
+  /** OSI approved indicator */
+  osiApproved?: boolean;
+  /** License category */
+  category: 'permissive' | 'copyleft' | 'proprietary' | 'public-domain' | 'unknown';
+  /** Risk level for compliance */
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  /** Components using this license */
+  components: string[];
+}
+```
+
+#### 5. Response Format Handling
+
+```typescript
+// Different response types based on format
+export type SbomResponseV2 = 
+  | SbomReportV2Response  // JSON format
+  | string               // SPDX/CycloneDX as text
+  | Blob                 // Binary formats
+
+export interface SbomDownloadOptions {
+  /** Progress tracking for large reports */
+  onProgress?: (progress: DownloadProgress) => void;
+  /** Request timeout */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+```
 
 ### Phase 2: Client Implementation (Day 2-3)
 
-#### 1. Create AnalysisClient
+#### 1. Create ScaClient Structure
 
 ```
-src/resources/analysis/
-├── AnalysisClient.ts
-├── types.ts
+src/resources/sca/
+├── ScaClient.ts
+├── types.ts  
 ├── index.ts
 └── __tests__/
-    └── AnalysisClient.test.ts
+    └── ScaClient.test.ts
 ```
 
 #### 2. Implementation Strategy
 
 ```typescript
-export class AnalysisClient extends BaseClient {
+/**
+ * Client for interacting with the SonarQube SCA (Software Composition Analysis) API v2.
+ * This API provides Software Bill of Materials (SBOM) generation and dependency analysis.
+ *
+ * @since 10.6
+ */
+export class ScaClient extends BaseClient {
   /**
-   * Get all active rules for a specific project
-   * @since 10.3
+   * Generate SBOM report for a project in JSON format.
+   * Returns structured data for programmatic use.
+   *
+   * @param params - SBOM report parameters
+   * @returns Structured SBOM report data
+   * @since 10.6
+   *
+   * @example
+   * ```typescript
+   * // Basic SBOM report
+   * const sbom = await client.sca.getSbomReportV2({
+   *   projectKey: 'my-project'
+   * });
+   *
+   * // SBOM with vulnerabilities for specific branch
+   * const sbomWithVulns = await client.sca.getSbomReportV2({
+   *   projectKey: 'my-project',
+   *   branch: 'main',
+   *   includeVulnerabilities: true,
+   *   includeLicenses: true
+   * });
+   * ```
    */
-  async getActiveRulesV2(params: GetActiveRulesV2Request): Promise<GetActiveRulesV2Response> {
+  async getSbomReportV2(params: GetSbomReportV2Request): Promise<SbomReportV2Response> {
+    const query = this.buildV2Query({
+      ...params,
+      format: 'json' // Force JSON for typed response
+    } as Record<string, unknown>);
+    
+    return this.request<SbomReportV2Response>(`/api/v2/sca/sbom-reports?${query}`, {
+      headers: { 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        Accept: 'application/json' 
+      }
+    });
+  }
+
+  /**
+   * Download SBOM report in specified format.
+   * Supports industry-standard formats like SPDX and CycloneDX.
+   *
+   * @param params - SBOM report parameters with format specification
+   * @param options - Download options for large reports
+   * @returns SBOM report as text or binary data
+   * @since 10.6
+   *
+   * @example
+   * ```typescript
+   * // Download SPDX format report
+   * const spdxReport = await client.sca.downloadSbomReportV2({
+   *   projectKey: 'my-project',
+   *   format: 'spdx-json',
+   *   includeVulnerabilities: true
+   * });
+   *
+   * // Download with progress tracking
+   * const cycloneDxReport = await client.sca.downloadSbomReportV2({
+   *   projectKey: 'my-project',
+   *   format: 'cyclonedx-json'
+   * }, {
+   *   onProgress: (progress) => {
+   *     console.log(`Downloaded ${progress.percentage}%`);
+   *   }
+   * });
+   * ```
+   */
+  async downloadSbomReportV2(
+    params: GetSbomReportV2Request, 
+    options?: SbomDownloadOptions
+  ): Promise<string | Blob> {
+    const format = params.format || 'json';
     const query = this.buildV2Query(params as Record<string, unknown>);
-    return this.request(`/api/v2/analysis/active_rules?${query}`);
+    
+    // Determine content type based on format
+    const isTextFormat = ['json', 'spdx-json', 'cyclonedx-json'].includes(format);
+    const acceptHeader = isTextFormat ? 'application/json' : 'application/octet-stream';
+    
+    if (isTextFormat) {
+      // Return as text for JSON-based formats
+      return this.requestText(`/api/v2/sca/sbom-reports?${query}`, {
+        headers: { 
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          Accept: acceptHeader 
+        },
+        signal: options?.signal
+      });
+    } else {
+      // Return as blob for binary formats
+      return this.downloadWithProgress(`/api/v2/sca/sbom-reports?${query}`, options);
+    }
   }
 
   /**
-   * Get scanner engine metadata
-   * @since 10.3
+   * Get SBOM report generation status and metadata.
+   * Useful for checking if a report is ready or still processing.
+   *
+   * @param params - Project identification parameters
+   * @returns SBOM generation metadata
+   * @since 10.6
+   *
+   * @example
+   * ```typescript
+   * const metadata = await client.sca.getSbomMetadataV2({
+   *   projectKey: 'my-project',
+   *   branch: 'main'
+   * });
+   * 
+   * console.log(`Components: ${metadata.analysis.totalComponents}`);
+   * console.log(`Vulnerabilities: ${metadata.analysis.totalVulnerabilities}`);
+   * ```
    */
-  async getEngineMetadataV2(): Promise<EngineMetadataV2> {
-    return this.request('/api/v2/analysis/engine', {
-      headers: { Accept: 'application/json' }
+  async getSbomMetadataV2(params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>): Promise<SbomMetadataV2> {
+    const query = this.buildV2Query({
+      ...params,
+      metadataOnly: true
+    } as Record<string, unknown>);
+    
+    return this.request<SbomMetadataV2>(`/api/v2/sca/sbom-reports/metadata?${query}`);
+  }
+
+  /**
+   * Stream large SBOM reports to avoid memory issues.
+   * Recommended for projects with many dependencies.
+   *
+   * @param params - SBOM report parameters
+   * @returns Readable stream of SBOM data
+   * @since 10.6
+   *
+   * @example
+   * ```typescript
+   * const stream = await client.sca.streamSbomReportV2({
+   *   projectKey: 'large-project',
+   *   format: 'spdx-json'
+   * });
+   *
+   * // Process stream chunk by chunk
+   * const reader = stream.getReader();
+   * while (true) {
+   *   const { done, value } = await reader.read();
+   *   if (done) break;
+   *   // Process chunk
+   * }
+   * ```
+   */
+  async streamSbomReportV2(params: GetSbomReportV2Request): Promise<ReadableStream<Uint8Array>> {
+    const query = this.buildV2Query(params as Record<string, unknown>);
+    
+    const response = await fetch(`${this.baseUrl}/api/v2/sca/sbom-reports?${query}`, {
+      headers: this.getAuthHeaders(),
     });
+
+    if (!response.ok) {
+      const { createErrorFromResponse } = await import('../../errors');
+      throw await createErrorFromResponse(response);
+    }
+
+    if (!response.body) {
+      throw new Error('Response body is not available for streaming');
+    }
+
+    return response.body;
   }
 
   /**
-   * Download scanner engine
-   * @since 10.3
+   * Get vulnerability summary for a project's dependencies.
+   * Provides quick overview without full SBOM generation.
+   *
+   * @param params - Project identification parameters  
+   * @returns Vulnerability summary statistics
+   * @since 10.6
+   *
+   * @example
+   * ```typescript
+   * const vulnSummary = await client.sca.getVulnerabilitySummaryV2({
+   *   projectKey: 'my-project'
+   * });
+   * 
+   * console.log(`Critical: ${vulnSummary.critical}`);
+   * console.log(`High: ${vulnSummary.high}`);
+   * ```
    */
-  async downloadEngineV2(): Promise<Blob> {
-    return this.request('/api/v2/analysis/engine', {
-      responseType: 'blob',
-      headers: { Accept: 'application/octet-stream' }
+  async getVulnerabilitySummaryV2(params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>): Promise<VulnerabilitySummaryV2> {
+    const query = this.buildV2Query(params as Record<string, unknown>);
+    
+    return this.request<VulnerabilitySummaryV2>(`/api/v2/sca/vulnerabilities/summary?${query}`);
+  }
+
+  // Helper methods
+  private async requestText(url: string, options?: RequestInit): Promise<string> {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
+      headers: {
+        ...this.getAuthHeaders(),
+        ...options?.headers
+      }
     });
+
+    if (!response.ok) {
+      const { createErrorFromResponse } = await import('../../errors');
+      throw await createErrorFromResponse(response);
+    }
+
+    return response.text();
   }
 
-  /**
-   * Get all available JREs metadata
-   * @since 10.3
-   */
-  async getAllJresMetadataV2(): Promise<GetJresV2Response> {
-    return this.request('/api/v2/analysis/jres');
-  }
-
-  /**
-   * Get specific JRE metadata
-   * @since 10.3
-   */
-  async getJreMetadataV2(id: string): Promise<JreMetadataV2> {
-    return this.request(`/api/v2/analysis/jres/${id}`, {
-      headers: { Accept: 'application/json' }
-    });
-  }
-
-  /**
-   * Download specific JRE
-   * @since 10.3
-   */
-  async downloadJreV2(id: string): Promise<Blob> {
-    return this.request(`/api/v2/analysis/jres/${id}`, {
-      responseType: 'blob',
-      headers: { Accept: 'application/octet-stream' }
-    });
-  }
-
-  /**
-   * Get server version information
-   * @since 10.3
-   */
-  async getVersionV2(): Promise<VersionV2Response> {
-    return this.request('/api/v2/analysis/version');
+  private getAuthHeaders(): Record<string, string> {
+    if (this.token.length > 0) {
+      return {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        Authorization: `Bearer ${this.token}`
+      };
+    }
+    return {};
   }
 }
 ```
 
-#### 3. Binary Download Handling
-
-Update BaseClient to support different response types:
+#### 3. Additional Helper Types
 
 ```typescript
-// In BaseClient
-protected async request<T>(
-  url: string,
-  options?: RequestInit & { responseType?: ResponseType }
-): Promise<T> {
-  // Handle responseType: 'blob', 'arrayBuffer', 'text', 'json'
-  // Properly handle large file downloads
-  // Support streaming for better memory efficiency
+export interface VulnerabilitySummaryV2 {
+  total: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  byComponent: Array<{
+    componentId: string;
+    componentName: string;
+    vulnerabilityCount: number;
+    highestSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  }>;
+}
+
+export interface DownloadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
 }
 ```
 
-### Phase 3: Testing Strategy (Day 3-4)
+### Phase 3: Testing Strategy (Day 3)
 
-#### 1. Unit Tests
+#### 1. Unit Tests Structure
 
 ```typescript
-describe('AnalysisClient', () => {
-  describe('getActiveRulesV2', () => {
-    it('should fetch active rules for a project');
+describe('ScaClient', () => {
+  describe('getSbomReportV2', () => {
+    it('should fetch SBOM report for a project');
     it('should handle branch parameter');
     it('should handle pull request parameter');
-    it('should handle empty rules response');
+    it('should include vulnerabilities when requested');
+    it('should include licenses when requested');
+    it('should filter by component types');
+    it('should handle empty dependency reports');
+    it('should handle authentication errors');
   });
 
-  describe('engine endpoints', () => {
-    it('should fetch engine metadata with JSON accept header');
-    it('should download engine binary with octet-stream header');
-    it('should handle download errors');
+  describe('downloadSbomReportV2', () => {
+    it('should download SBOM in JSON format');
+    it('should download SBOM in SPDX JSON format');
+    it('should download SBOM in CycloneDX format');
+    it('should download SBOM in binary formats');
+    it('should track download progress for large reports');
+    it('should handle download timeouts');
+    it('should support abort signals');
   });
 
-  describe('JRE endpoints', () => {
-    it('should list all available JREs');
-    it('should filter JREs by OS and architecture');
-    it('should fetch specific JRE metadata');
-    it('should download JRE binary');
-    it('should handle large file downloads');
+  describe('getSbomMetadataV2', () => {
+    it('should fetch report metadata');
+    it('should show component and vulnerability counts');
+    it('should handle missing reports');
   });
 
-  describe('version endpoint', () => {
-    it('should fetch server version');
-    it('should work without authentication');
+  describe('streamSbomReportV2', () => {
+    it('should return readable stream');
+    it('should handle streaming errors');
+    it('should support all formats');
+  });
+
+  describe('getVulnerabilitySummaryV2', () => {
+    it('should return vulnerability counts by severity');
+    it('should list vulnerable components');
+    it('should handle projects with no vulnerabilities');
   });
 });
 ```
 
-#### 2. MSW Handlers for Binary Responses
+#### 2. MSW Handlers for Complex Responses
 
 ```typescript
-// Mock binary responses
-http.get('*/api/v2/analysis/engine', ({ request }) => {
+// Mock SBOM report response
+const mockSbomReport: SbomReportV2Response = {
+  document: {
+    id: 'sbom-my-project-main-20250130',
+    specVersion: '2.3',
+    createdAt: '2025-01-30T10:00:00Z',
+    creator: {
+      tool: 'SonarQube',
+      version: '10.6.0',
+      vendor: 'SonarSource'
+    },
+    primaryComponent: {
+      id: 'my-project',
+      name: 'My Project',
+      type: 'application',
+      ecosystem: 'maven',
+      version: '1.0.0',
+      coordinates: {
+        groupId: 'com.example',
+        artifactId: 'my-project',
+        name: 'my-project',
+        version: '1.0.0'
+      },
+      scope: 'required'
+    }
+  },
+  components: [
+    {
+      id: 'junit-junit-4.13.2',
+      name: 'junit',
+      type: 'library',
+      ecosystem: 'maven',
+      version: '4.13.2',
+      purl: 'pkg:maven/junit/junit@4.13.2',
+      coordinates: {
+        groupId: 'junit',
+        artifactId: 'junit',
+        name: 'junit',
+        version: '4.13.2'
+      },
+      scope: 'required',
+      licenses: ['EPL-1.0'],
+      description: 'JUnit testing framework'
+    }
+  ],
+  dependencies: [
+    {
+      componentId: 'my-project',
+      dependsOn: ['junit-junit-4.13.2'],
+      scope: 'test',
+      relationship: 'direct',
+      optional: false
+    }
+  ],
+  vulnerabilities: [
+    {
+      id: 'CVE-2020-15250',
+      source: 'NVD',
+      cvss: {
+        version: '3.1',
+        score: 5.5,
+        severity: 'MEDIUM',
+        vector: 'CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H'
+      },
+      summary: 'JUnit4 vulnerable to temp directory hijacking',
+      description: 'JUnit4 writes temporary files to the system temporary directory...',
+      dates: {
+        published: '2020-10-12T13:15:00Z',
+        updated: '2021-07-21T11:39:00Z'
+      },
+      affects: [
+        {
+          componentId: 'junit-junit-4.13.2',
+          versionRange: '< 4.13.1'
+        }
+      ],
+      fixes: [
+        {
+          version: '4.13.1',
+          description: 'Fixed temporary directory handling'
+        }
+      ],
+      references: [
+        {
+          type: 'advisory',
+          url: 'https://github.com/junit-team/junit4/security/advisories/GHSA-269g-pwp5-87pp'
+        }
+      ]
+    }
+  ],
+  licenses: [
+    {
+      spdxId: 'EPL-1.0',
+      name: 'Eclipse Public License 1.0',
+      url: 'https://opensource.org/licenses/EPL-1.0',
+      osiApproved: true,
+      category: 'copyleft',
+      riskLevel: 'MEDIUM',
+      components: ['junit-junit-4.13.2']
+    }
+  ],
+  metadata: {
+    project: {
+      key: 'my-project',
+      name: 'My Project',
+      branch: 'main'
+    },
+    analysis: {
+      analysisId: 'analysis-123',
+      completedAt: '2025-01-30T09:45:00Z',
+      totalComponents: 25,
+      totalVulnerabilities: 3,
+      totalLicenses: 8
+    },
+    generation: {
+      format: 'json',
+      includeVulnerabilities: true,
+      includeLicenses: true,
+      requestedAt: '2025-01-30T10:00:00Z',
+      generatedAt: '2025-01-30T10:00:05Z'
+    }
+  }
+};
+
+// MSW handlers
+http.get('*/api/v2/sca/sbom-reports', ({ request }) => {
+  const url = new URL(request.url);
+  const format = url.searchParams.get('format') || 'json';
   const acceptHeader = request.headers.get('accept');
-  
-  if (acceptHeader?.includes('application/json')) {
-    return HttpResponse.json({
-      filename: 'sonar-scanner-engine-10.3.0.1234.jar',
-      sha256: 'abc123...',
-      downloadUrl: '/api/v2/analysis/engine'
+
+  if (format === 'json' || acceptHeader?.includes('application/json')) {
+    return HttpResponse.json(mockSbomReport);
+  } else if (format === 'spdx-json') {
+    // Return SPDX-formatted JSON
+    return HttpResponse.text(JSON.stringify(convertToSpdx(mockSbomReport)), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } else if (format === 'cyclonedx-json') {
+    // Return CycloneDX-formatted JSON
+    return HttpResponse.text(JSON.stringify(convertToCycloneDx(mockSbomReport)), {
+      headers: { 'Content-Type': 'application/json' }
     });
   } else {
-    // Return mock binary data
-    const buffer = new ArrayBuffer(1024);
-    return new HttpResponse(buffer, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Content-Disposition': 'attachment; filename="sonar-scanner-engine.jar"'
-      }
+    // Return binary format
+    return new HttpResponse(new ArrayBuffer(1024), {
+      headers: { 'Content-Type': 'application/octet-stream' }
     });
   }
 });
@@ -263,226 +742,506 @@ http.get('*/api/v2/analysis/engine', ({ request }) => {
 
 #### 3. Integration Testing Considerations
 
-- Test timeout handling for large downloads
-- Test progress tracking capabilities
-- Test resume/retry for failed downloads
-- Test caching header handling
+- Test large SBOM report generation (1000+ components)
+- Test streaming functionality with mock large responses
+- Test vulnerability filtering and sorting
+- Test license compliance scenarios
+- Test error handling for missing projects
+- Test authentication requirements
+- Test format conversion accuracy
 
-### Phase 4: Advanced Features (Day 4-5)
+### Phase 4: Advanced Features & Polish (Day 4)
 
-#### 1. Download Progress Tracking
+#### 1. SBOM Format Converters
 
 ```typescript
-interface DownloadOptions {
-  onProgress?: (progress: DownloadProgress) => void;
-}
+// Utility functions for format conversion
+export class SbomFormatConverter {
+  /**
+   * Convert SonarQube SBOM to SPDX format
+   */
+  static toSpdx(sbom: SbomReportV2Response): SPDXDocument {
+    return {
+      spdxVersion: 'SPDX-2.3',
+      creationInfo: {
+        created: sbom.document.createdAt,
+        creators: [`Tool: ${sbom.document.creator.tool}`]
+      },
+      name: sbom.document.primaryComponent.name,
+      packages: sbom.components.map(component => ({
+        SPDXID: `SPDXRef-${component.id}`,
+        name: component.name,
+        versionInfo: component.version,
+        downloadLocation: component.source?.downloadUrl || 'NOASSERTION',
+        filesAnalyzed: false,
+        licenseConcluded: component.licenses?.[0] || 'NOASSERTION',
+        copyrightText: component.copyright || 'NOASSERTION'
+      })),
+      relationships: sbom.dependencies.map(dep => ({
+        spdxElementId: `SPDXRef-${dep.componentId}`,
+        relationshipType: 'DEPENDS_ON',
+        relatedSpdxElement: dep.dependsOn.map(id => `SPDXRef-${id}`)
+      }))
+    };
+  }
 
-interface DownloadProgress {
-  loaded: number;
-  total: number;
-  percentage: number;
-}
-
-async downloadEngineV2(options?: DownloadOptions): Promise<Blob> {
-  // Implement progress tracking using fetch API
+  /**
+   * Convert SonarQube SBOM to CycloneDX format
+   */
+  static toCycloneDx(sbom: SbomReportV2Response): CycloneDXDocument {
+    return {
+      bomFormat: 'CycloneDX',
+      specVersion: '1.4',
+      serialNumber: `urn:uuid:${sbom.document.id}`,
+      version: 1,
+      metadata: {
+        timestamp: sbom.document.createdAt,
+        tools: [{
+          vendor: sbom.document.creator.vendor,
+          name: sbom.document.creator.tool,
+          version: sbom.document.creator.version
+        }],
+        component: {
+          type: 'application',
+          name: sbom.document.primaryComponent.name,
+          version: sbom.document.primaryComponent.version
+        }
+      },
+      components: sbom.components.map(component => ({
+        type: component.type,
+        name: component.name,
+        version: component.version,
+        purl: component.purl,
+        licenses: component.licenses?.map(license => ({ license: { id: license } })),
+        externalReferences: component.source ? [{
+          type: 'website',
+          url: component.source.homepage || component.source.repository || ''
+        }] : undefined
+      })),
+      dependencies: sbom.dependencies.map(dep => ({
+        ref: dep.componentId,
+        dependsOn: dep.dependsOn
+      })),
+      vulnerabilities: sbom.vulnerabilities?.map(vuln => ({
+        id: vuln.id,
+        source: { name: vuln.source },
+        ratings: vuln.cvss ? [{
+          source: { name: vuln.source },
+          score: vuln.cvss.score,
+          severity: vuln.cvss.severity.toLowerCase(),
+          method: `CVSSv${vuln.cvss.version}`,
+          vector: vuln.cvss.vector
+        }] : undefined,
+        description: vuln.description,
+        published: vuln.dates.published,
+        updated: vuln.dates.updated,
+        affects: vuln.affects.map(affect => ({
+          ref: affect.componentId,
+          versions: [{ version: affect.versionRange }]
+        }))
+      }))
+    };
+  }
 }
 ```
 
-#### 2. Caching Support
+#### 2. Caching and Performance Optimizations
 
 ```typescript
-interface CacheOptions {
-  checkCache?: boolean;
-  cacheDir?: string;
+export interface SbomCacheOptions {
+  /** Cache duration in milliseconds */
+  ttl?: number;
+  /** Cache key prefix */
+  keyPrefix?: string;
+  /** Enable/disable caching */
+  enabled?: boolean;
 }
 
-// Check SHA256 before downloading
-// Support If-None-Match headers
-// Cache downloads locally
+export class SbomCache {
+  private cache = new Map<string, { data: any; expires: number }>();
+
+  generateKey(params: GetSbomReportV2Request): string {
+    const key = `${params.projectKey}-${params.branch || 'main'}-${params.pullRequest || ''}-${params.format || 'json'}`;
+    return key.replace(/[^a-zA-Z0-9-]/g, '-');
+  }
+
+  get<T>(key: string): T | null {
+    const cached = this.cache.get(key);
+    if (!cached || Date.now() > cached.expires) {
+      this.cache.delete(key);
+      return null;
+    }
+    return cached.data;
+  }
+
+  set<T>(key: string, data: T, ttl = 300000): void { // 5 minutes default
+    this.cache.set(key, {
+      data,
+      expires: Date.now() + ttl
+    });
+  }
+}
 ```
 
-#### 3. Streaming Support
-
-For very large JRE downloads:
+#### 3. Component Analysis Utilities
 
 ```typescript
-async downloadJreV2Stream(id: string): Promise<ReadableStream> {
-  // Return stream instead of loading entire file in memory
+export class SbomAnalyzer {
+  /**
+   * Analyze SBOM for security risks
+   */
+  static analyzeSecurityRisks(sbom: SbomReportV2Response): SecurityRiskAnalysis {
+    const criticalVulns = sbom.vulnerabilities?.filter(v => v.cvss?.severity === 'CRITICAL') || [];
+    const highVulns = sbom.vulnerabilities?.filter(v => v.cvss?.severity === 'HIGH') || [];
+    const outdatedComponents = sbom.components.filter(c => this.isOutdated(c));
+    
+    return {
+      riskLevel: this.calculateRiskLevel(criticalVulns.length, highVulns.length),
+      criticalVulnerabilities: criticalVulns.length,
+      highVulnerabilities: highVulns.length,
+      outdatedComponents: outdatedComponents.length,
+      recommendations: this.generateRecommendations(criticalVulns, outdatedComponents)
+    };
+  }
+
+  /**
+   * Analyze SBOM for license compliance
+   */
+  static analyzeLicenseCompliance(sbom: SbomReportV2Response): LicenseComplianceAnalysis {
+    const licenses = sbom.licenses || [];
+    const riskLicenses = licenses.filter(l => l.riskLevel === 'HIGH');
+    const copyleftLicenses = licenses.filter(l => l.category === 'copyleft');
+    
+    return {
+      totalLicenses: licenses.length,
+      highRiskLicenses: riskLicenses.length,
+      copyleftLicenses: copyleftLicenses.length,
+      complianceStatus: riskLicenses.length === 0 ? 'COMPLIANT' : 'AT_RISK',
+      recommendations: this.generateLicenseRecommendations(riskLicenses, copyleftLicenses)
+    };
+  }
+
+  private static isOutdated(component: SbomComponentV2): boolean {
+    // Implementation would check against known latest versions
+    return false; // Placeholder
+  }
+
+  private static calculateRiskLevel(critical: number, high: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
+    if (critical > 0) return 'CRITICAL';
+    if (high > 5) return 'HIGH';
+    if (high > 0) return 'MEDIUM';
+    return 'LOW';
+  }
+
+  private static generateRecommendations(vulns: SbomVulnerabilityV2[], outdated: SbomComponentV2[]): string[] {
+    const recommendations = [];
+    if (vulns.length > 0) {
+      recommendations.push(`Update ${vulns.length} components with critical/high vulnerabilities`);
+    }
+    if (outdated.length > 0) {
+      recommendations.push(`Update ${outdated.length} outdated components`);
+    }
+    return recommendations;
+  }
+
+  private static generateLicenseRecommendations(risk: SbomLicenseV2[], copyleft: SbomLicenseV2[]): string[] {
+    const recommendations = [];
+    if (risk.length > 0) {
+      recommendations.push(`Review ${risk.length} high-risk licenses`);
+    }
+    if (copyleft.length > 0) {
+      recommendations.push(`Verify compliance requirements for ${copyleft.length} copyleft licenses`);
+    }
+    return recommendations;
+  }
+}
+
+export interface SecurityRiskAnalysis {
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  criticalVulnerabilities: number;
+  highVulnerabilities: number;
+  outdatedComponents: number;
+  recommendations: string[];
+}
+
+export interface LicenseComplianceAnalysis {
+  totalLicenses: number;
+  highRiskLicenses: number;
+  copyleftLicenses: number;
+  complianceStatus: 'COMPLIANT' | 'AT_RISK' | 'NON_COMPLIANT';
+  recommendations: string[];
 }
 ```
 
-### Phase 5: Documentation & Polish (Day 5)
+### Phase 5: Documentation & Examples (Day 4)
 
-#### 1. API Documentation
+#### 1. Comprehensive Documentation
 
-- Document all public methods with JSDoc
-- Include examples for each endpoint
-- Document binary download best practices
-- Add troubleshooting guide for download issues
+```typescript
+/**
+ * # SCA (Software Composition Analysis) API v2
+ * 
+ * The SCA API provides comprehensive software bill of materials (SBOM) generation
+ * and vulnerability analysis for projects. This API is essential for:
+ * 
+ * - Security compliance and vulnerability management
+ * - License compliance and risk assessment  
+ * - Supply chain security analysis
+ * - Regulatory reporting (NTIA, EU Cyber Resilience Act)
+ * 
+ * ## Supported SBOM Formats
+ * 
+ * - **JSON**: SonarQube native format with full feature support
+ * - **SPDX**: Industry standard (ISO/IEC 5962:2021) in JSON and RDF formats
+ * - **CycloneDX**: OWASP standard optimized for security use cases
+ * 
+ * ## Authentication
+ * 
+ * All SCA endpoints require authentication. Users need 'Browse' permission
+ * on the project to generate SBOM reports.
+ * 
+ * @since SonarQube 10.6
+ */
+```
 
 #### 2. Usage Examples
 
 ```typescript
-// Example: Download scanner engine with progress
-const blob = await client.analysis.downloadEngineV2({
-  onProgress: (progress) => {
-    console.log(`Downloaded ${progress.percentage}%`);
-  }
+// Example 1: Basic SBOM Generation
+const client = new SonarQubeClient('https://sonarqube.company.com', 'token');
+
+// Get structured SBOM data
+const sbom = await client.sca.getSbomReportV2({
+  projectKey: 'my-web-app',
+  includeVulnerabilities: true,
+  includeLicenses: true
 });
 
-// Save to file (Node.js)
-const buffer = await blob.arrayBuffer();
-fs.writeFileSync('sonar-scanner-engine.jar', Buffer.from(buffer));
+console.log(`Found ${sbom.components.length} components`);
+console.log(`Found ${sbom.vulnerabilities?.length || 0} vulnerabilities`);
 
-// Example: Get JRE for current platform
-const jres = await client.analysis.getAllJresMetadataV2();
-const currentPlatformJre = jres.jres.find(jre => 
-  jre.os === process.platform && jre.arch === process.arch
-);
+// Example 2: SPDX Format for Compliance
+const spdxReport = await client.sca.downloadSbomReportV2({
+  projectKey: 'my-web-app',
+  format: 'spdx-json',
+  includeVulnerabilities: true,
+  includeLicenses: true
+});
+
+// Save to file for compliance reporting
+fs.writeFileSync('sbom-spdx.json', spdxReport);
+
+// Example 3: CycloneDX for Security Tools
+const cycloneDxReport = await client.sca.downloadSbomReportV2({
+  projectKey: 'my-web-app', 
+  format: 'cyclonedx-json',
+  includeVulnerabilities: true
+});
+
+// Import into security scanning tools
+
+// Example 4: Large Project Streaming
+const stream = await client.sca.streamSbomReportV2({
+  projectKey: 'large-enterprise-app',
+  format: 'json',
+  includeVulnerabilities: true
+});
+
+// Process stream to avoid memory issues
+const reader = stream.getReader();
+let result = '';
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  result += new TextDecoder().decode(value);
+}
+
+// Example 5: Security Risk Analysis
+const sbom = await client.sca.getSbomReportV2({
+  projectKey: 'my-app'
+});
+
+const riskAnalysis = SbomAnalyzer.analyzeSecurityRisks(sbom);
+console.log(`Risk Level: ${riskAnalysis.riskLevel}`);
+console.log(`Critical Vulnerabilities: ${riskAnalysis.criticalVulnerabilities}`);
+
+// Example 6: License Compliance Check
+const licenseAnalysis = SbomAnalyzer.analyzeLicenseCompliance(sbom);
+console.log(`Compliance Status: ${licenseAnalysis.complianceStatus}`);
+console.log(`High Risk Licenses: ${licenseAnalysis.highRiskLicenses}`);
+
+// Example 7: Vulnerability Summary for Dashboard
+const vulnSummary = await client.sca.getVulnerabilitySummaryV2({
+  projectKey: 'my-app'
+});
+
+console.log(`Total Vulnerabilities: ${vulnSummary.total}`);
+console.log(`Critical: ${vulnSummary.critical}, High: ${vulnSummary.high}`);
+
+// Example 8: Branch-Specific Analysis
+const branchSbom = await client.sca.getSbomReportV2({
+  projectKey: 'my-app',
+  branch: 'feature/new-dependencies',
+  includeVulnerabilities: true
+});
+
+// Compare with main branch for dependency changes
+
+// Example 9: Pull Request Security Check
+const prSbom = await client.sca.getSbomReportV2({
+  projectKey: 'my-app',
+  pullRequest: '123',
+  includeVulnerabilities: true
+});
+
+// Analyze new vulnerabilities introduced in PR
+
+// Example 10: Progress Tracking for Large Reports
+await client.sca.downloadSbomReportV2({
+  projectKey: 'enterprise-monolith',
+  format: 'spdx-json',
+  includeVulnerabilities: true,
+  includeLicenses: true
+}, {
+  onProgress: (progress) => {
+    console.log(`Generating SBOM: ${progress.percentage}%`);
+    updateProgressBar(progress.percentage);
+  },
+  timeout: 300000 // 5 minutes for large projects
+});
+```
+
+#### 3. Best Practices Guide
+
+```markdown
+## SCA API Best Practices
+
+### 1. Performance Considerations
+
+- **Use metadata endpoint first**: Check `getSbomMetadataV2()` to understand report size
+- **Enable streaming for large reports**: Use `streamSbomReportV2()` for projects with 500+ components
+- **Cache SBOM reports**: Reports are expensive to generate, cache for 30+ minutes
+- **Filter unnecessary data**: Only include vulnerabilities/licenses when needed
+
+### 2. Security Considerations
+
+- **Protect SBOM data**: Contains sensitive dependency information
+- **Use appropriate permissions**: Ensure users have 'Browse' project permission
+- **Sanitize external sharing**: Remove sensitive paths/internal URLs before sharing
+
+### 3. Compliance Workflows
+
+- **Regular automated generation**: Generate SBOMs on each release
+- **Format selection**: Use SPDX for regulatory compliance, CycloneDX for security tools
+- **Version tracking**: Store SBOMs with version tags for historical analysis
+- **License review**: Include license analysis in compliance workflows
+
+### 4. Error Handling
+
+- **Handle large timeouts**: Set appropriate timeouts for enterprise projects
+- **Implement retry logic**: SBOM generation can be resource-intensive
+- **Graceful degradation**: Fall back to metadata-only when full reports fail
 ```
 
 ## Implementation Checklist
 
 ### Day 1: Research & Type Design
-- [x] Research Analysis API documentation thoroughly
-- [x] Design comprehensive type system
-- [x] Plan binary download strategy
-- [x] Create module structure
+- [ ] Research SCA API documentation thoroughly
+- [ ] Design comprehensive type system for SBOM data
+- [ ] Plan multi-format response handling strategy
+- [ ] Create module structure and basic interfaces
 
-### Days 2-3: Core Implementation
-- [x] Implement getActiveRulesV2 with query parameters
-- [x] Implement engine metadata/download endpoints
-- [x] Implement JRE listing and metadata endpoints
-- [x] Implement JRE download with streaming support
-- [x] Implement version endpoint
-- [x] Add proper error handling for downloads
-- [x] Add download progress tracking (implemented in downloadWithProgress)
-- [x] Add streaming support for large files
+### Day 2: Core Implementation
+- [ ] Implement getSbomReportV2 with structured response
+- [ ] Implement downloadSbomReportV2 with format support
+- [ ] Implement getSbomMetadataV2 for report information
+- [ ] Add proper error handling for large reports
+- [ ] Add streaming support for large SBOMs
 
-### Days 3-4: Testing
-- [x] Unit tests for all endpoints
-- [x] MSW handlers for JSON responses
-- [x] MSW handlers for binary responses
-- [x] Test large file download scenarios
-- [x] Test error scenarios (network, timeout, etc.)
-- [x] Test authentication requirements
-- [x] Update main SonarQubeClient to include AnalysisClient
+### Day 3: Testing & Advanced Features
+- [ ] Unit tests for all endpoints
+- [ ] MSW handlers for complex SBOM responses
+- [ ] Test large report scenarios
+- [ ] Test format conversion accuracy
+- [ ] Implement getVulnerabilitySummaryV2
+- [ ] Add format converter utilities
+- [ ] Add SBOM analysis utilities
+
+### Day 4: Polish & Documentation
+- [x] Add comprehensive JSDoc documentation
+- [x] Create usage examples for all scenarios
+- [ ] Add best practices guide
+- [x] Update main SonarQubeClient integration
 - [x] Update exports in index.ts
-
-### Days 4-5: Advanced Features & Documentation
-- [ ] Add caching support (optional - skipped for initial implementation)
-- [ ] Create comprehensive documentation
-- [ ] Add usage examples to README
-- [ ] Update CHANGELOG.md
+- [x] Update CHANGELOG.md
 
 ## Technical Considerations
 
-### 1. Binary Download Handling
+### 1. Large Response Handling
+- SBOM reports can be several MB for complex projects
+- Implement streaming and chunked processing
+- Support progress tracking for user experience
+- Handle memory efficiently in browser environments
 
-- Need to update BaseClient to support different response types
-- Consider memory efficiency for large downloads
-- Handle network interruptions gracefully
-- Support progress tracking for UX
+### 2. Format Conversion
+- Support multiple industry-standard formats
+- Ensure lossless conversion between formats
+- Validate format compliance with specifications
+- Handle format-specific features appropriately
 
-### 2. Authentication
+### 3. Security and Performance
+- Cache reports intelligently (expensive to generate)
+- Protect sensitive dependency information
+- Handle authentication and authorization properly
+- Optimize for different project sizes
 
-- Some endpoints may work without auth (version)
-- Others require authentication (active rules)
-- Document authentication requirements clearly
-
-### 3. Cross-Platform Considerations
-
-- JRE selection based on OS/architecture
-- Path handling differences between platforms
-- Binary file handling in browser vs Node.js
-
-### 4. Performance
-
-- Implement streaming for large downloads
-- Support HTTP caching headers
-- Consider connection pooling for multiple downloads
+### 4. Cross-Platform Compatibility
+- Support Node.js and browser environments
+- Handle different streaming APIs appropriately
+- Consider file system access differences
+- Test with various JavaScript engines
 
 ## Success Criteria
 
-1. All 5 Analysis v2 endpoints implemented
-2. Binary downloads working reliably
-3. Comprehensive test coverage including download scenarios
-4. Clear documentation with examples
-5. Progress tracking for better UX
-6. Proper error handling and recovery
-
-## API Endpoints Summary
-
-### Active Rules
-- `GET /api/v2/analysis/active_rules?projectKey={key}` - Get all active rules for analysis
-
-### Scanner Engine
-- `GET /api/v2/analysis/engine` - Get metadata (JSON) or download (binary)
-
-### JREs
-- `GET /api/v2/analysis/jres` - List all available JREs
-- `GET /api/v2/analysis/jres/{id}` - Get metadata (JSON) or download (binary)
-
-### Version
-- `GET /api/v2/analysis/version` - Get server version info
+1. **Complete API Coverage**: All SCA v2 endpoints implemented
+2. **Multi-Format Support**: JSON, SPDX, and CycloneDX formats working
+3. **Performance**: Efficient handling of large reports (1000+ components)
+4. **Analysis Tools**: Built-in security and license analysis utilities
+5. **Documentation**: Comprehensive documentation with real-world examples
+6. **Testing**: Full test coverage including large report scenarios
 
 ## Risk Mitigation
 
-### 1. Large File Downloads
+### 1. Large Response Sizes
 - Implement streaming to avoid memory issues
-- Add timeout configuration
-- Support resume on failure
+- Add progress tracking and timeout handling
+- Support chunked processing
+- Provide size estimates before generation
 
-### 2. Network Reliability
-- Implement retry logic
-- Provide clear error messages
-- Support offline caching
+### 2. Format Complexity
+- Validate format compliance thoroughly
+- Test with real SBOM analysis tools
+- Handle edge cases in format conversion
+- Support format-specific metadata
 
-### 3. Platform Compatibility
-- Test on multiple platforms
-- Handle path separators correctly
-- Consider browser limitations
+### 3. Performance Impact
+- Implement intelligent caching strategies
+- Provide metadata-only endpoints for quick checks
+- Support filtered reports to reduce size
+- Optimize for common use cases
 
 ## Next Steps After Completion
 
-1. Update main client to include AnalysisClient
-2. Add integration tests with real file downloads
-3. Create examples for common scanner scenarios
-4. Consider adding CLI tool for downloads
-5. Plan SCA API implementation (next high priority)
+1. **Integration**: Update main SonarQubeClient with ScaClient
+2. **CLI Tools**: Consider adding command-line SBOM generation utilities
+3. **Security Integration**: Integrate with security scanning workflows
+4. **Compliance Tools**: Add regulatory compliance report generators
+5. **Future APIs**: Plan implementation of remaining v2 APIs (Fix Suggestions, Clean Code Policy)
 
 ## References
 
-- SonarQube Scanner Documentation
-- SonarQube Web API v2 Documentation
-- HTTP Range Requests (for resume support)
-- Streaming API Documentation
-
-## Implementation Status
-
-### ✅ Completed (January 30, 2025)
-
-The Analysis v2 API has been fully implemented with all features:
-
-1. **Types and Interfaces** - Complete type definitions for all endpoints
-2. **AnalysisClient** - Full implementation with:
-   - Active rules retrieval with branch/PR support
-   - Engine metadata and binary download
-   - JRE listing, metadata, and downloads
-   - Server version endpoint
-   - Progress tracking for downloads
-   - Streaming support for large files
-3. **Testing** - Comprehensive test coverage including:
-   - All endpoint functionality
-   - Binary download handling
-   - Progress tracking
-   - Error scenarios
-   - MSW v2 handlers for both JSON and binary responses
-4. **Integration** - AnalysisClient integrated into main SonarQubeClient
-5. **Exports** - All types properly exported in index.ts
-
-### 🔲 Remaining Tasks
-
-- Add usage examples to README
-- Update CHANGELOG.md
-- Consider adding caching support in future release
+- [SPDX Specification 2.3](https://spdx.github.io/spdx-spec/)
+- [CycloneDX Specification 1.4](https://cyclonedx.org/docs/1.4/)
+- [NTIA Minimum Elements for SBOM](https://www.ntia.doc.gov/files/ntia/publications/sbom_minimum_elements_report.pdf)
+- [SonarQube Web API v2 Documentation](https://next.sonarqube.com/sonarqube/web_api_v2)
+- [EU Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/library/cyber-resilience-act)

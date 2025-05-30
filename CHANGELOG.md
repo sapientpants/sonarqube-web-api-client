@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **SCA (Software Composition Analysis) API v2**: Complete implementation of the SonarQube SCA API v2 (`api/v2/sca`)
+  - Software Bill of Materials (SBOM) generation with comprehensive dependency analysis
+  - Support for industry-standard formats: JSON, SPDX (JSON/RDF), CycloneDX (JSON/XML)
+  - Vulnerability tracking with CVE/CVSS scoring and security risk analysis
+  - License compliance analysis with automated risk assessment
+  - Streaming support for large SBOM reports (1000+ components)
+  - Progress tracking for binary downloads with abort signal support
+  - Format conversion utilities (`SbomFormatConverter`) for SPDX and CycloneDX
+  - SBOM analysis utilities (`SbomAnalyzer`) for security and compliance insights
+  - Available in SonarQube 10.6+
+
 - **Authorizations API v2**: Complete implementation of the SonarQube Authorizations API v2 (`api/v2/authorizations`)
   - Modern REST API for group management (replaces legacy user_groups API)
   - Search for groups with advanced filtering and pagination

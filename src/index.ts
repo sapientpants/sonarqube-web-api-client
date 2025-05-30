@@ -2,6 +2,7 @@ import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
 import { AnalysisClient } from './resources/analysis';
+import { ScaClient } from './resources/sca';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
@@ -60,6 +61,8 @@ export class SonarQubeClient {
   public readonly analysisCache: AnalysisCacheClient;
   /** Analysis API v2 - Scanner management and project analysis - **Note**: Only available in SonarQube 10.3+ */
   public readonly analysis: AnalysisClient;
+  /** SCA API v2 - Software Composition Analysis and SBOM generation - **Note**: Only available in SonarQube 10.6+ */
+  public readonly sca: ScaClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
   /** Authentication API */
@@ -146,6 +149,7 @@ export class SonarQubeClient {
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.options);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.options);
     this.analysis = new AnalysisClient(this.baseUrl, this.token, this.options);
+    this.sca = new ScaClient(this.baseUrl, this.token, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
     this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);
@@ -312,7 +316,7 @@ export type {
   // Data types
   ActiveRuleV2,
   JreMetadataV2,
-  DownloadProgress,
+  DownloadProgress as AnalysisDownloadProgress,
 } from './resources/analysis/types';
 
 // Re-export types from authentication
@@ -852,6 +856,45 @@ export {
   TimeoutError,
   ServerError,
 } from './errors';
+
+// Re-export types from SCA (Software Composition Analysis) v2 API
+export type {
+  // Request types
+  GetSbomReportV2Request,
+  SbomDownloadOptions,
+
+  // Response types
+  SbomReportV2Response,
+  SbomResponseV2,
+  SbomMetadataV2,
+  VulnerabilitySummaryV2,
+
+  // Document and component types
+  SbomDocumentV2,
+  SbomComponentV2,
+  SbomDependencyV2,
+
+  // Security and vulnerability types
+  SbomVulnerabilityV2,
+  SecurityRiskAnalysis,
+
+  // License and compliance types
+  SbomLicenseV2,
+  LicenseComplianceAnalysis,
+
+  // Format and conversion types
+  SbomFormat,
+  ComponentType,
+  SPDXDocument,
+  CycloneDXDocument,
+
+  // Progress and cache types
+  DownloadProgress,
+  SbomCacheOptions,
+} from './resources/sca/types';
+
+// Re-export SCA utilities
+export { SbomFormatConverter, SbomAnalyzer } from './resources/sca/utils';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

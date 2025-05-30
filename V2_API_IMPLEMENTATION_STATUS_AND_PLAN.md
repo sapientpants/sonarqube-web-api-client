@@ -48,6 +48,20 @@ This document provides the current implementation status of SonarQube v2 APIs in
    - Since: SonarQube 10.3
    - Note: Handles both JSON metadata and binary file downloads
 
+5. **SCA API** (`/api/v2/sca/*`)
+   - Full implementation with ScaClient
+   - Software Bill of Materials (SBOM) generation and analysis
+   - Multi-format support: JSON, SPDX (JSON/RDF), CycloneDX (JSON/XML)
+   - Vulnerability tracking with CVE/CVSS scoring
+   - License compliance analysis and risk assessment
+   - Streaming support for large SBOM reports (1000+ components)
+   - Progress tracking for binary downloads with abort signal support
+   - Format conversion utilities (SbomFormatConverter) for industry standards
+   - SBOM analysis utilities (SbomAnalyzer) for security and compliance insights
+   - Located in: `src/resources/sca/ScaClient.ts`
+   - Since: SonarQube 10.6
+   - Note: Essential for software supply chain security and regulatory compliance
+
 ### ⚠️ Incorrectly Created Types (No v2 API Exists)
 
 1. **Projects** (`src/resources/projects/types-v2.ts`)
@@ -79,10 +93,11 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
    - Endpoints: 1 (custom rule creation)
    - Priority: MEDIUM
 
-4. **SCA API** (`/api/v2/sca/*`)
+4. **SCA API** (`/api/v2/sca/*`) - ✅ IMPLEMENTED
    - Purpose: Software Composition Analysis (SBOM reports)
    - Endpoints: 1 (sbom-reports)
    - Priority: HIGH (security/compliance)
+   - Status: ✅ Complete implementation with comprehensive SBOM support
 
 ## Discovered v2 Endpoints from SonarQube Documentation
 
@@ -122,7 +137,7 @@ Based on the SonarQube v2 API page exploration, the following v2 APIs are availa
 ### Clean Code Policy (🔲 Not Implemented)
 - `POST /api/v2/clean-code-policy/rules` - Custom rule creation
 
-### SCA (🔲 Not Implemented)
+### SCA (✅ Implemented)
 - `GET /api/v2/sca/sbom-reports` - Get a software bill of materials (SBOM) report
 
 ### Analysis (✅ Implemented)
@@ -161,58 +176,47 @@ The Authorizations API has been fully implemented with all group management oper
 - ✅ Deleted entire `user-groups` directory (never released)
 - ✅ Updated all imports and exports
 
-### Phase 2: High-Priority New APIs (Week 2)
+### Phase 2: ✅ COMPLETED (January 30, 2025)
 
-#### 3. Analysis API
-Create new resource for scanner and project analysis management:
+#### 3. Analysis API - ✅ FULLY IMPLEMENTED
+The Analysis API has been fully implemented with all scanner and project analysis operations:
 
-```typescript
-// src/resources/analysis/AnalysisClient.ts
-export class AnalysisClient extends BaseClient {
-  // Get all active rules for a specific project
-  getActiveRulesV2(projectKey: string): Promise<ActiveRulesV2Response>
-  
-  // Scanner engine management
-  getEngineMetadataV2(): Promise<EngineMetadataV2>
-  downloadEngineV2(): Promise<Blob>
-  
-  // JRE management for scanners
-  getAllJresMetadataV2(): Promise<JreMetadataV2[]>
-  getJreMetadataV2(id: string): Promise<JreMetadataV2>
-  downloadJreV2(id: string): Promise<Blob>
-  
-  // Get server version
-  getVersionV2(): Promise<VersionV2Response>
-}
-```
+- ✅ `getActiveRulesV2()` - Get active rules for project analysis with branch/PR support
+- ✅ `getEngineMetadataV2()` - Get scanner engine metadata
+- ✅ `downloadEngineV2()` - Download scanner engine ZIP file with progress tracking
+- ✅ `getAllJresV2()` - Get all available JRE metadata
+- ✅ `getJreMetadataV2()` - Get specific JRE metadata
+- ✅ `downloadJreV2()` - Download JRE binary with streaming support
+- ✅ `getVersionV2()` - Get SonarQube server version
 
-#### 4. SCA (Software Composition Analysis) API
-Create new resource for SBOM (Software Bill of Materials) management:
+**Implementation Details:**
+- Binary download support with progress tracking
+- Streaming for large file downloads (JREs 100+ MB)
+- Conditional responses based on Accept headers
+- Comprehensive error handling and timeout support
+- Full TypeScript type definitions
 
-```typescript
-// src/resources/sca/ScaClient.ts
-export class ScaClient extends BaseClient {
-  // Get SBOM report for a project
-  getSbomReportV2(params: SbomReportV2Request): Promise<SbomReportV2Response>
-}
+#### 4. SCA (Software Composition Analysis) API - ✅ FULLY IMPLEMENTED
+The SCA API has been fully implemented with comprehensive SBOM support:
 
-// src/resources/sca/types-v2.ts
-export interface SbomReportV2Request {
-  projectKey: string;
-  branch?: string;
-  pullRequest?: string;
-  format?: 'json' | 'spdx' | 'cyclonedx';
-}
+- ✅ `getSbomReportV2()` - Get structured SBOM data with full component analysis
+- ✅ `downloadSbomReportV2()` - Download in industry-standard formats (JSON, SPDX, CycloneDX)
+- ✅ `getSbomMetadataV2()` - Get report metadata and generation status
+- ✅ `streamSbomReportV2()` - Stream large reports to avoid memory issues
+- ✅ `getVulnerabilitySummaryV2()` - Get vulnerability summary without full SBOM
 
-export interface SbomReportV2Response {
-  format: string;
-  components: SbomComponentV2[];
-  dependencies: SbomDependencyV2[];
-  vulnerabilities?: SbomVulnerabilityV2[];
-}
-```
+**Implementation Details:**
+- Multi-format support: JSON, SPDX (JSON/RDF), CycloneDX (JSON/XML)
+- Vulnerability tracking with CVE/CVSS scoring and detailed analysis
+- License compliance analysis with automated risk assessment
+- Streaming support for large SBOM reports (1000+ components)
+- Progress tracking for binary downloads with abort signal support
+- Format conversion utilities (`SbomFormatConverter`) for SPDX and CycloneDX
+- SBOM analysis utilities (`SbomAnalyzer`) for security and compliance insights
+- 30+ TypeScript interfaces for type-safe SBOM data structures
+- Comprehensive test suite with MSW handlers for various SBOM formats
 
-### Phase 3: Medium-Priority APIs (Week 3)
+### Phase 3: Medium-Priority APIs (Future)
 
 #### 5. Clean Code Policy API
 ```typescript
@@ -264,7 +268,7 @@ export interface AiSuggestionResponseV2 {
 }
 ```
 
-### Phase 4: Low-Priority APIs (Week 4)
+### Phase 4: Low-Priority APIs (Future)
 
 #### 7. DOP Translation API
 ```typescript
@@ -370,8 +374,8 @@ For each implemented v2 API:
 
 ### Current Status (Updated: January 30, 2025)
 - **Total v2 API Categories**: 8 (not 10 - Projects v2 doesn't exist)
-- **Fully Implemented**: 4 (Users, System, Authorizations, Analysis)
-- **Not Implemented**: 4 (Fix Suggestions, DOP Translation, Clean Code Policy, SCA)
+- **Fully Implemented**: 5 (Users, System, Authorizations, Analysis, SCA)
+- **Not Implemented**: 3 (Fix Suggestions, DOP Translation, Clean Code Policy)
 - **Cleanup Completed**: 
   - ✅ Removed incorrect Projects v2 types
   - ✅ Removed unreleased UserGroupsClient
@@ -381,12 +385,12 @@ For each implemented v2 API:
 1. **✅ Completed (January 30, 2025)**: 
    - ✅ Authorizations API fully implemented
    - ✅ Analysis API fully implemented with binary download support
+   - ✅ SCA API fully implemented with comprehensive SBOM support
    - ✅ Cleaned up incorrect Projects v2 types
    - ✅ Moved user-groups types to authorizations
    - ✅ Removed unreleased UserGroupsClient
-2. **High Priority (Next)**: SCA API (security/compliance)
-3. **Medium Priority**: Clean Code Policy and Fix Suggestions APIs
-4. **Low Priority**: DOP Translation API
+2. **Medium Priority (Future)**: Clean Code Policy and Fix Suggestions APIs
+3. **Low Priority (Future)**: DOP Translation API
 
 ### Key Architectural Changes in v2
 - User Groups management moved under Authorizations API
@@ -402,10 +406,9 @@ For each implemented v2 API:
    - ✅ Moved user-groups types to authorizations module
    - ✅ Implemented complete Authorizations v2 API
    - ✅ Added comprehensive documentation and examples
-2. **Next Priority**: Add Analysis and SCA APIs for core functionality
-3. **Medium Priority**: Implement Fix Suggestions and Clean Code Policy APIs
-4. **Low Priority**: Add DOP Translation API
-5. **Ongoing**: Monitor SonarQube releases for new v2 endpoints
+2. **Medium Priority (Future)**: Implement Fix Suggestions and Clean Code Policy APIs
+3. **Low Priority (Future)**: Add DOP Translation API
+4. **Ongoing**: Monitor SonarQube releases for new v2 endpoints
 
 ## Implementation Achievements
 
@@ -423,6 +426,17 @@ For each implemented v2 API:
 - **Progress Tracking**: Added download progress callbacks
 - **Special Features**: Conditional responses based on Accept headers
 - **Testing**: Comprehensive tests including binary download scenarios
+- **Integration**: Fully integrated into main SonarQubeClient
+
+### SCA API (January 30, 2025)
+- **Implementation**: Complete with comprehensive SBOM support (5 methods)
+- **Multi-Format Support**: JSON, SPDX (JSON/RDF), CycloneDX (JSON/XML)
+- **Security Features**: Vulnerability tracking with CVE/CVSS scoring
+- **Compliance Tools**: License analysis and risk assessment utilities
+- **Performance**: Streaming support for large reports (1000+ components)
+- **Standards**: SPDX 2.3, CycloneDX 1.4, NTIA compliance
+- **Utilities**: Format converters and security/compliance analyzers
+- **Testing**: Comprehensive test suite with MSW handlers for all formats
 - **Integration**: Fully integrated into main SonarQubeClient
 
 ## References

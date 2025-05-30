@@ -44,7 +44,6 @@ describe('ActivityBuilder', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       await builder.withComponentId('project-123').execute();
     });
 
@@ -225,7 +224,6 @@ describe('ActivityBuilder', () => {
 
   describe('parameter validation', () => {
     it('should throw error when setting query after componentId', () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       builder.withComponentId('project-123');
 
       expect(() => builder.withQuery('search-term')).toThrow(
@@ -236,7 +234,6 @@ describe('ActivityBuilder', () => {
     it('should throw error when setting componentId after query', () => {
       builder.withQuery('search-term');
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       expect(() => builder.withComponentId('project-123')).toThrow(
         'Cannot set componentId when query is already set. These parameters are mutually exclusive.'
       );

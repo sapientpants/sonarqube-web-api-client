@@ -312,7 +312,6 @@ describe('MetricsClient', () => {
 
   describe('domains', () => {
     it('should return metric domains', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const mockResponse: MetricDomainsResponse = {
         domains: ['Issues', 'Maintainability', 'Reliability', 'Security', 'Coverage'],
       };
@@ -323,7 +322,6 @@ describe('MetricsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.domains();
 
       expect(result).toEqual(mockResponse);
@@ -341,7 +339,6 @@ describe('MetricsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       await expect(client.domains()).rejects.toThrow(AuthenticationError);
     });
   });

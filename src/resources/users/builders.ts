@@ -36,9 +36,7 @@ import type {
  * ```
  */
 export class SearchUsersBuilder extends PaginatedBuilder<
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   SearchUsersRequest,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   SearchUsersResponse,
   UserWithDetails
 > {
@@ -54,9 +52,7 @@ export class SearchUsersBuilder extends PaginatedBuilder<
    */
   query = ParameterHelpers.createStringMethod<typeof this>('q');
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   async execute(): Promise<SearchUsersResponse> {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const finalParams = this.params as SearchUsersRequest;
 
     // Validate ids
@@ -78,7 +74,6 @@ export class SearchUsersBuilder extends PaginatedBuilder<
     return this.executor(finalParams);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   protected getItems(response: SearchUsersResponse): UserWithDetails[] {
     return response.users;
   }

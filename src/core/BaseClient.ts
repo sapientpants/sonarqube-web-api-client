@@ -1,5 +1,6 @@
 import { createErrorFromResponse, createNetworkError } from '../errors';
 import type { DeprecationOptions } from './deprecation';
+import { buildV2Query } from './utils/v2-query-builder';
 
 /**
  * Response type options for BaseClient requests
@@ -98,5 +99,14 @@ export abstract class BaseClient {
         return JSON.parse(text) as T;
       }
     }
+  }
+
+  /**
+   * Build a query string for v2 APIs
+   * @param params - Query parameters
+   * @returns URL-encoded query string
+   */
+  protected buildV2Query(params: Record<string, unknown>): string {
+    return buildV2Query(params);
   }
 }

@@ -123,7 +123,6 @@ describe('ComponentsClient', () => {
 
   describe('search', () => {
     it('should search for components in an organization', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const mockResponse: ComponentSearchResponse = {
         components: [
           {
@@ -154,13 +153,11 @@ describe('ComponentsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.search('my-org');
       expect(result).toEqual(mockResponse);
     });
 
     it('should support search query parameter', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const mockResponse: ComponentSearchResponse = {
         components: [
           {
@@ -188,7 +185,6 @@ describe('ComponentsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.search('my-org', {
         q: 'sonar',
         ps: 50,
@@ -197,7 +193,6 @@ describe('ComponentsClient', () => {
     });
 
     it('should support pagination parameters', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const mockResponse: ComponentSearchResponse = {
         components: [],
         paging: {
@@ -219,7 +214,6 @@ describe('ComponentsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.search('my-org', {
         p: 2,
         ps: 25,

@@ -307,7 +307,6 @@ describe('UsersClient V2 API', () => {
 
   describe('deprecated methods', () => {
     it('should show deprecation warning for search()', () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       client.search();
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('users.search()'));
@@ -316,7 +315,6 @@ describe('UsersClient V2 API', () => {
     });
 
     it('should show deprecation warning for searchAll()', () => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       client.searchAll();
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('users.searchAll()'));

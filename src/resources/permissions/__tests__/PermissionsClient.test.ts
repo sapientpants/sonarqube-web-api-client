@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { PermissionsClient } from '../PermissionsClient';
 import {
   SearchProjectPermissionsBuilder,

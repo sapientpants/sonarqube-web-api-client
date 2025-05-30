@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-deprecated, @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { SearchUsersBuilder, GetUserGroupsBuilder } from '../builders';
 import { ValidationError } from '../../../errors';
 

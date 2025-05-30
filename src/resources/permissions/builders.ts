@@ -35,9 +35,7 @@ import type {
  * ```
  */
 export class SearchProjectPermissionsBuilder extends PaginatedBuilder<
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   SearchProjectPermissionsRequest,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   SearchProjectPermissionsResponse,
   UserPermission
 > {
@@ -64,16 +62,15 @@ export class SearchProjectPermissionsBuilder extends PaginatedBuilder<
   /**
    * Execute the search request and return the response
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
+
   async execute(): Promise<SearchProjectPermissionsResponse> {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return await this.executor(this.params as SearchProjectPermissionsRequest);
   }
 
   /**
    * Get the items from the response for pagination
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
+
   protected getItems(response: SearchProjectPermissionsResponse): UserPermission[] {
     return Array.isArray(response.users) ? response.users : [];
   }

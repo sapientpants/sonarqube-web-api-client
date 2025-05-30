@@ -601,9 +601,7 @@ export class PermissionsClient extends BaseClient {
    * ```
    */
   async searchGlobalPermissions(
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     params: SearchGlobalPermissionsRequest
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
   ): Promise<SearchGlobalPermissionsResponse> {
     DeprecationManager.warn({
       api: 'permissions.searchGlobalPermissions()',
@@ -613,7 +611,6 @@ export class PermissionsClient extends BaseClient {
     const query = new URLSearchParams();
     query.append('organization', params.organization);
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return await this.request<SearchGlobalPermissionsResponse>(
       `/api/permissions/search_global_permissions?${query.toString()}`,
       {
@@ -652,14 +649,14 @@ export class PermissionsClient extends BaseClient {
    * }
    * ```
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
+
   searchProjectPermissions(): SearchProjectPermissionsBuilder {
     DeprecationManager.warn({
       api: 'permissions.searchProjectPermissions()',
       removeVersion: '6.5',
       reason: 'This endpoint has been deprecated and will be removed.',
     });
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+
     return new SearchProjectPermissionsBuilder(async (params) => {
       const query = new URLSearchParams();
 

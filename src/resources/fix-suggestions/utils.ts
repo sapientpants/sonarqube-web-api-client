@@ -371,85 +371,142 @@ export class FixSuggestionUtils {
     const successRates: number[] = [];
     const patternCounts = new Map<string, number>();
 
-    suggestions.forEach((suggestion) => {
-      // Categorize by confidence
-      if (suggestion.confidence >= 80) {
-        confidenceBuckets.high++;
-      } else if (suggestion.confidence >= 50) {
-        confidenceBuckets.medium++;
-      } else {
-        confidenceBuckets.low++;
-      }
+    this.processSuggestions(
+      suggestions,
+      confidenceBuckets,
+      complexityBuckets,
+      successRates,
+      patternCounts
+    );
 
-      // Categorize by complexity
-      complexityBuckets[suggestion.complexity]++;
-
-      // Collect success rates
-      successRates.push(suggestion.successRate);
-
-      // Count common patterns
-      suggestion.changes.forEach((change) => {
-        change.lineChanges.forEach((lineChange) => {
-          if (lineChange.changeReason) {
-            const current = patternCounts.get(lineChange.changeReason) ?? 0;
-            patternCounts.set(lineChange.changeReason, current + 1);
-          }
-        });
-      });
-    });
-
-    // Calculate success rate statistics
-    const average =
-      successRates.length > 0
-        ? successRates.reduce((sum, rate) => sum + rate, 0) / successRates.length
-        : 0;
-    const sorted = successRates.sort((a, b) => a - b);
-    let median = 0;
-    if (sorted.length > 0) {
-      if (sorted.length % 2 === 1) {
-        median = sorted[Math.floor(sorted.length / 2)] ?? 0;
-      } else {
-        const a = sorted[Math.floor(sorted.length / 2) - 1] ?? 0;
-        const b = sorted[Math.floor(sorted.length / 2)] ?? 0;
-        median = (a + b) / 2;
-      }
-    }
-    const variance =
-      successRates.length > 0
-        ? successRates.reduce((sum, rate) => sum + Math.pow(rate - average, 2), 0) /
-          successRates.length
-        : 0;
-    const standardDeviation = Math.sqrt(variance);
-
-    // Get most common patterns
-    const commonPatterns = Array.from(patternCounts.entries())
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([pattern, frequency]) => ({
-        pattern,
-        frequency,
-        averageConfidence:
-          suggestions
-            .filter((s) =>
-              s.changes.some((c) => c.lineChanges.some((lc) => lc.changeReason === pattern))
-            )
-            .reduce((sum, s) => sum + s.confidence, 0) /
-            suggestions.filter((s) =>
-              s.changes.some((c) => c.lineChanges.some((lc) => lc.changeReason === pattern))
-            ).length || 0,
-      }));
+    const successRateStats = this.calculateSuccessRateStats(successRates);
+    const commonPatterns = this.calculateCommonPatterns(suggestions, patternCounts);
 
     return {
       totalSuggestions: suggestions.length,
       byConfidence: confidenceBuckets,
       byComplexity: complexityBuckets,
-      successRates: {
-        average: Math.round(average * 100) / 100,
-        median: Math.round(median * 100) / 100,
-        standardDeviation: Math.round(standardDeviation * 100) / 100,
-      },
+      successRates: successRateStats,
       commonPatterns,
     };
+  }
+
+  private static processSuggestions(
+    suggestions: AiFixSuggestionV2[],
+    confidenceBuckets: { high: number; medium: number; low: number },
+    complexityBuckets: { low: number; medium: number; high: number },
+    successRates: number[],
+    patternCounts: Map<string, number>
+  ): void {
+    suggestions.forEach((suggestion) => {
+      this.categorizeByConfidence(suggestion, confidenceBuckets);
+      complexityBuckets[suggestion.complexity]++;
+      successRates.push(suggestion.successRate);
+      this.countPatterns(suggestion, patternCounts);
+    });
+  }
+
+  private static categorizeByConfidence(
+    suggestion: AiFixSuggestionV2,
+    confidenceBuckets: { high: number; medium: number; low: number }
+  ): void {
+    if (suggestion.confidence >= 80) {
+      confidenceBuckets.high++;
+    } else if (suggestion.confidence >= 50) {
+      confidenceBuckets.medium++;
+    } else {
+      confidenceBuckets.low++;
+    }
+  }
+
+  private static countPatterns(
+    suggestion: AiFixSuggestionV2,
+    patternCounts: Map<string, number>
+  ): void {
+    suggestion.changes.forEach((change) => {
+      change.lineChanges.forEach((lineChange) => {
+        if (lineChange.changeReason) {
+          const current = patternCounts.get(lineChange.changeReason) ?? 0;
+          patternCounts.set(lineChange.changeReason, current + 1);
+        }
+      });
+    });
+  }
+
+  private static calculateSuccessRateStats(successRates: number[]): {
+    average: number;
+    median: number;
+    standardDeviation: number;
+  } {
+    if (successRates.length === 0) {
+      return { average: 0, median: 0, standardDeviation: 0 };
+    }
+
+    const average = successRates.reduce((sum, rate) => sum + rate, 0) / successRates.length;
+    const median = this.calculateMedian(successRates);
+    const variance =
+      successRates.reduce((sum, rate) => sum + Math.pow(rate - average, 2), 0) /
+      successRates.length;
+    const standardDeviation = Math.sqrt(variance);
+
+    return {
+      average: Math.round(average * 100) / 100,
+      median: Math.round(median * 100) / 100,
+      standardDeviation: Math.round(standardDeviation * 100) / 100,
+    };
+  }
+
+  private static calculateMedian(values: number[]): number {
+    const sorted = [...values].sort((a, b) => a - b);
+    const { length } = sorted;
+
+    if (length % 2 === 1) {
+      return sorted[Math.floor(length / 2)] ?? 0;
+    }
+
+    const midIndex = Math.floor(length / 2);
+    const a = sorted[midIndex - 1] ?? 0;
+    const b = sorted[midIndex] ?? 0;
+    return (a + b) / 2;
+  }
+
+  private static calculateCommonPatterns(
+    suggestions: AiFixSuggestionV2[],
+    patternCounts: Map<string, number>
+  ): Array<{ pattern: string; frequency: number; averageConfidence: number }> {
+    return Array.from(patternCounts.entries())
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([pattern, frequency]) => ({
+        pattern,
+        frequency,
+        averageConfidence: this.calculatePatternAverageConfidence(suggestions, pattern),
+      }));
+  }
+
+  private static calculatePatternAverageConfidence(
+    suggestions: AiFixSuggestionV2[],
+    pattern: string
+  ): number {
+    const matchingSuggestions = this.filterSuggestionsByPattern(suggestions, pattern);
+
+    if (matchingSuggestions.length === 0) {
+      return 0;
+    }
+
+    const totalConfidence = matchingSuggestions.reduce((sum, s) => sum + s.confidence, 0);
+    return totalConfidence / matchingSuggestions.length;
+  }
+
+  private static filterSuggestionsByPattern(
+    suggestions: AiFixSuggestionV2[],
+    pattern: string
+  ): AiFixSuggestionV2[] {
+    return suggestions.filter((suggestion) =>
+      suggestion.changes.some((change) =>
+        change.lineChanges.some((lineChange) => lineChange.changeReason === pattern)
+      )
+    );
   }
 
   // ===== Private Helper Methods =====

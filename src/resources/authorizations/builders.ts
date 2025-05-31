@@ -9,12 +9,56 @@ import type {
 } from './types';
 
 /**
+ * Base class for paginated builders with async iteration
+ */
+abstract class BasePaginatedBuilder<TRequest, TResponse, TItem> extends BaseBuilder<
+  TRequest,
+  TResponse
+> {
+  /**
+   * Execute and return all items using async iteration
+   */
+  async *all(): AsyncGenerator<TItem> {
+    let currentPage = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.page(currentPage).execute();
+      const items = this.getItems(response);
+
+      for (const item of items) {
+        yield item;
+      }
+
+      hasMore = this.hasMorePages(response, currentPage);
+      currentPage++;
+    }
+  }
+
+  /**
+   * Set the page number (1-based)
+   */
+  abstract page(page: number): this;
+
+  /**
+   * Extract items from the response
+   */
+  protected abstract getItems(response: TResponse): TItem[];
+
+  /**
+   * Check if there are more pages available
+   */
+  protected abstract hasMorePages(response: TResponse, currentPage: number): boolean;
+}
+
+/**
  * Builder for searching groups with the v2 API
  * @since 10.5
  */
-export class SearchGroupsV2Builder extends BaseBuilder<
+export class SearchGroupsV2Builder extends BasePaginatedBuilder<
   SearchGroupsV2Request,
-  SearchGroupsV2Response
+  SearchGroupsV2Response,
+  GroupV2
 > {
   /**
    * Search query (searches in name and description)
@@ -89,26 +133,6 @@ export class SearchGroupsV2Builder extends BaseBuilder<
   }
 
   /**
-   * Execute and return all items using async iteration
-   */
-  async *all(): AsyncGenerator<GroupV2> {
-    let currentPage = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.page(currentPage).execute();
-      const items = this.getItems(response);
-
-      for (const item of items) {
-        yield item;
-      }
-
-      hasMore = this.hasMorePages(response, currentPage);
-      currentPage++;
-    }
-  }
-
-  /**
    * Get the items from the response
    */
   protected getItems(response: SearchGroupsV2Response): GroupV2[] {
@@ -128,9 +152,10 @@ export class SearchGroupsV2Builder extends BaseBuilder<
  * Builder for searching group memberships with the v2 API
  * @since 10.5
  */
-export class SearchGroupMembershipsV2Builder extends BaseBuilder<
+export class SearchGroupMembershipsV2Builder extends BasePaginatedBuilder<
   SearchGroupMembershipsV2Request,
-  SearchGroupMembershipsV2Response
+  SearchGroupMembershipsV2Response,
+  GroupMembershipV2
 > {
   /**
    * Filter by group IDs
@@ -188,26 +213,6 @@ export class SearchGroupMembershipsV2Builder extends BaseBuilder<
    */
   async execute(): Promise<SearchGroupMembershipsV2Response> {
     return this.executor(this.params as SearchGroupMembershipsV2Request);
-  }
-
-  /**
-   * Execute and return all items using async iteration
-   */
-  async *all(): AsyncGenerator<GroupMembershipV2> {
-    let currentPage = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.page(currentPage).execute();
-      const items = this.getItems(response);
-
-      for (const item of items) {
-        yield item;
-      }
-
-      hasMore = this.hasMorePages(response, currentPage);
-      currentPage++;
-    }
   }
 
   /**

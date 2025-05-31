@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { BaseClient } from '../../core/BaseClient';
+import { V2BaseClient } from '../../core/V2BaseClient';
 import type {
   GetActiveRulesV2Request,
   GetActiveRulesV2Response,
@@ -7,8 +6,6 @@ import type {
   GetJresV2Response,
   JreMetadataV2,
   VersionV2Response,
-  DownloadOptions,
-  DownloadProgress,
 } from './types';
 
 /**
@@ -17,7 +14,7 @@ import type {
  *
  * @since 10.3
  */
-export class AnalysisClient extends BaseClient {
+export class AnalysisClient extends V2BaseClient {
   /**
    * Get all active rules for a specific project.
    * These are the rules that will be applied during analysis.
@@ -89,7 +86,9 @@ export class AnalysisClient extends BaseClient {
    * fs.writeFileSync('sonar-scanner-engine.jar', Buffer.from(buffer));
    * ```
    */
-  async downloadEngineV2(options?: DownloadOptions): Promise<Blob> {
+  async downloadEngineV2(
+    options?: Parameters<V2BaseClient['downloadWithProgress']>[1]
+  ): Promise<Blob> {
     return this.downloadWithProgress('/api/v2/analysis/engine', options);
   }
 
@@ -152,7 +151,10 @@ export class AnalysisClient extends BaseClient {
    * });
    * ```
    */
-  async downloadJreV2(id: string, options?: DownloadOptions): Promise<Blob> {
+  async downloadJreV2(
+    id: string,
+    options?: Parameters<V2BaseClient['downloadWithProgress']>[1]
+  ): Promise<Blob> {
     return this.downloadWithProgress(`/api/v2/analysis/jres/${id}`, options);
   }
 
@@ -172,92 +174,5 @@ export class AnalysisClient extends BaseClient {
    */
   async getVersionV2(): Promise<VersionV2Response> {
     return this.request<VersionV2Response>('/api/v2/analysis/version');
-  }
-
-  /**
-   * Download a file with progress tracking support.
-   *
-   * @param url - URL to download from
-   * @param options - Download options
-   * @returns Downloaded content as Blob
-   * @private
-   */
-  private async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-    const headers: Record<string, string> = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      Accept: 'application/octet-stream',
-    };
-
-    if (this.token.length > 0) {
-      Object.assign(headers, {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${this.token}`,
-      });
-    }
-
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}${url}`, {
-        headers,
-        signal: options?.signal ?? null,
-      });
-    } catch (networkError: unknown) {
-      const { createNetworkError } = await import('../../errors');
-      throw createNetworkError(networkError);
-    }
-
-    if (!response.ok) {
-      const { createErrorFromResponse } = await import('../../errors');
-      throw await createErrorFromResponse(response);
-    }
-
-    // If no progress callback or no content length, just return blob
-    const contentLengthHeader = response.headers.get('content-length');
-    if (!options?.onProgress || contentLengthHeader === null || contentLengthHeader === '') {
-      return response.blob();
-    }
-
-    // Stream the response for progress tracking
-    const contentLength = parseInt(contentLengthHeader, 10);
-    const reader = response.body?.getReader();
-
-    if (!reader) {
-      return response.blob();
-    }
-
-    const chunks: Uint8Array[] = [];
-    let loaded = 0;
-
-    try {
-      let done = false;
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      while (!done) {
-        const result = await reader.read();
-
-        if (result.done) {
-          done = true;
-          break;
-        }
-
-        if (result.value !== undefined && result.value instanceof Uint8Array) {
-          const { value } = result;
-          chunks.push(value);
-          loaded += value.length;
-        }
-
-        const progress: DownloadProgress = {
-          loaded,
-          total: contentLength,
-          percentage: contentLength > 0 ? Math.round((loaded / contentLength) * 100) : 0,
-        };
-
-        options.onProgress(progress);
-      }
-    } finally {
-      reader.releaseLock();
-    }
-
-    // Combine chunks into a single blob
-    return new Blob(chunks);
   }
 }

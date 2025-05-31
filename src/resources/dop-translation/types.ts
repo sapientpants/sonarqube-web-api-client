@@ -5,13 +5,9 @@
 
 /**
  * Supported DevOps platforms for integration
+ * Re-exported from PlatformValidationService for consistency
  */
-export enum DevOpsPlatform {
-  GITHUB = 'github',
-  GITLAB = 'gitlab',
-  BITBUCKET = 'bitbucket',
-  AzureDevops = 'azure-devops',
-}
+export { DevOpsPlatform } from '../../core/services/PlatformValidationService';
 
 /**
  * Project binding status after creation
@@ -160,79 +156,20 @@ export type PlatformSpecificConfig =
   | BitbucketConfig
   | AzureDevOpsConfig;
 
-/**
- * GitHub-specific configuration
- */
-export interface GitHubConfig {
-  type: 'github';
-  /** Repository owner (user or organization) */
-  owner: string;
-  /** Repository name */
-  repository: string;
-  /** GitHub App installation ID (for GitHub Apps) */
-  installationId?: string;
-  /** GitHub App ID */
-  appId?: string;
-  /** Webhook secret for signature verification */
-  webhookSecret?: string;
-  /** Default branch name */
-  defaultBranch?: string;
-}
+// Re-export platform-specific configs from validation service
+export type {
+  GitHubConfig,
+  GitLabConfig,
+  BitbucketConfig,
+  AzureDevOpsConfig,
+} from '../../core/services/PlatformValidationService';
 
-/**
- * GitLab-specific configuration
- */
-export interface GitLabConfig {
-  type: 'gitlab';
-  /** Namespace (user or group) */
-  namespace: string;
-  /** Project name/path */
-  project: string;
-  /** GitLab project ID */
-  projectId?: number;
-  /** GitLab group ID (for group projects) */
-  groupId?: number;
-  /** Webhook token for verification */
-  webhookToken?: string;
-  /** Default branch name */
-  defaultBranch?: string;
-}
-
-/**
- * Bitbucket-specific configuration
- */
-export interface BitbucketConfig {
-  type: 'bitbucket';
-  /** Workspace name */
-  workspace: string;
-  /** Repository name */
-  repository: string;
-  /** Repository UUID */
-  uuid?: string;
-  /** Webhook secret for verification */
-  webhookSecret?: string;
-  /** Default branch name */
-  defaultBranch?: string;
-}
-
-/**
- * Azure DevOps-specific configuration
- */
-export interface AzureDevOpsConfig {
-  type: 'azure-devops';
-  /** Organization name */
-  organization: string;
-  /** Project name */
-  project: string;
-  /** Repository name */
-  repository: string;
-  /** Project UUID */
-  projectId?: string;
-  /** Repository UUID */
-  repositoryId?: string;
-  /** Default branch name */
-  defaultBranch?: string;
-}
+// Re-export validation types for convenience
+export type {
+  ValidationResult,
+  ValidationError,
+  ValidationWarning,
+} from '../../core/services/PlatformValidationService';
 
 // ============================================================================
 // Authentication Types
@@ -536,22 +473,8 @@ export interface CreateBoundProjectV2Builder {
 }
 
 // ============================================================================
-// Validation Types
+// Extended Validation Types
 // ============================================================================
-
-/**
- * Validation result for project configurations
- */
-export interface ValidationResult {
-  /** Whether the configuration is valid */
-  valid: boolean;
-  /** Validation errors */
-  errors: ValidationError[];
-  /** Validation warnings */
-  warnings: ValidationWarning[];
-  /** Platform-specific validation results */
-  platformSpecific?: PlatformValidationResult;
-}
 
 /**
  * Platform-specific validation result
@@ -567,34 +490,6 @@ export interface PlatformValidationResult {
   permissionsValid: boolean;
   /** Whether webhook is configured (optional) */
   webhookConfigured?: boolean;
-}
-
-/**
- * Validation error
- */
-export interface ValidationError {
-  /** Field that failed validation */
-  field: string;
-  /** Error message */
-  message: string;
-  /** Error code for programmatic handling */
-  code: string;
-  /** Platform context (if applicable) */
-  platform?: DevOpsPlatform;
-}
-
-/**
- * Validation warning
- */
-export interface ValidationWarning {
-  /** Field with potential issue */
-  field: string;
-  /** Warning message */
-  message: string;
-  /** Suggested fix */
-  suggestion?: string;
-  /** Platform context (if applicable) */
-  platform?: DevOpsPlatform;
 }
 
 // ============================================================================

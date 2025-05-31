@@ -204,38 +204,3 @@ export interface VersionV2Response {
    */
   implementationVersion?: string;
 }
-
-/**
- * Options for downloading files
- */
-export interface DownloadOptions {
-  /**
-   * Progress callback
-   */
-  onProgress?: (progress: DownloadProgress) => void;
-
-  /**
-   * Abort signal for cancelling downloads
-   */
-  signal?: AbortSignal;
-}
-
-/**
- * Download progress information
- */
-export interface DownloadProgress {
-  /**
-   * Bytes downloaded
-   */
-  loaded: number;
-
-  /**
-   * Total bytes (if known)
-   */
-  total: number;
-
-  /**
-   * Download percentage (0-100)
-   */
-  percentage: number;
-}

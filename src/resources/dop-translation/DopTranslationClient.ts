@@ -3,9 +3,10 @@
  * Handles DevOps platform integration and project binding
  */
 
-import { BaseClient } from '../../core/BaseClient';
+import { V2BaseClient } from '../../core/V2BaseClient';
+import type { DevOpsPlatform } from '../../core/services/PlatformValidationService';
+import { PlatformValidationService } from '../../core/services/PlatformValidationService';
 import {
-  DevOpsPlatform,
   type CreateBoundProjectV2Request,
   type CreateBoundProjectV2Response,
   type DopSettingsV2Response,
@@ -13,13 +14,6 @@ import {
   type BatchCreateRequest,
   type BatchCreateResponse,
   type BatchProjectResult,
-  type ValidationResult,
-  type ValidationError as DopValidationError,
-  type ValidationWarning,
-  type GitHubConfig,
-  type GitLabConfig,
-  type BitbucketConfig,
-  type AzureDevOpsConfig,
 } from './types';
 import { CreateBoundProjectV2BuilderImpl } from './builders';
 
@@ -27,7 +21,7 @@ import { CreateBoundProjectV2BuilderImpl } from './builders';
  * Client for DOP Translation API v2 operations
  * Enables integration with DevOps platforms for automated project creation and binding
  */
-export class DopTranslationClient extends BaseClient {
+export class DopTranslationClient extends V2BaseClient {
   /**
    * Create a SonarQube project bound to a DevOps platform project
    * @param request - Project creation and binding request
@@ -141,253 +135,37 @@ export class DopTranslationClient extends BaseClient {
   private validateProjectRequest(
     request: CreateBoundProjectV2Request
   ): CreateBoundProjectV2Request {
-    const validation = this.validatePlatformConfig(request);
+    // Basic validation
+    if (!request.projectIdentifier) {
+      throw new Error('Project identifier is required');
+    }
+
+    // Use PlatformValidationService for platform-specific validation
+    const validation = PlatformValidationService.validate(
+      {
+        platform: request.dopPlatform as DevOpsPlatform,
+        identifier: request.projectIdentifier,
+      },
+      request.platformSpecific
+    );
 
     if (!validation.valid) {
       throw new Error(`Invalid request: ${validation.errors.map((e) => e.message).join(', ')}`);
     }
 
-    return request;
-  }
-
-  /**
-   * Validate platform-specific configuration
-   * @param request - Request to validate
-   * @returns Validation result
-   */
-  private validatePlatformConfig(request: CreateBoundProjectV2Request): ValidationResult {
-    const errors: DopValidationError[] = [];
-    const warnings: ValidationWarning[] = [];
-
-    // Basic validation is handled by TypeScript types
-
-    if (!request.projectIdentifier) {
-      errors.push({
-        field: 'projectIdentifier',
-        message: 'Project identifier is required',
-        code: 'MISSING_PROJECT_ID',
+    // Log warnings if any (in development only)
+    // eslint-disable-next-line no-console
+    if (validation.warnings.length > 0 && process.env.NODE_ENV !== 'production') {
+      validation.warnings.forEach((warning) => {
+        // eslint-disable-next-line no-console
+        console.warn(`[DOP Translation] ${warning.field}: ${warning.message}`);
+        if (warning.suggestion !== undefined && warning.suggestion !== '') {
+          // eslint-disable-next-line no-console
+          console.warn(`  Suggestion: ${warning.suggestion}`);
+        }
       });
     }
 
-    // Platform-specific validation
-    switch (request.dopPlatform) {
-      case DevOpsPlatform.GITHUB:
-        return this.validateGitHubConfig(request, errors, warnings);
-      case DevOpsPlatform.GITLAB:
-        return this.validateGitLabConfig(request, errors, warnings);
-      case DevOpsPlatform.BITBUCKET:
-        return this.validateBitbucketConfig(request, errors, warnings);
-      case DevOpsPlatform.AzureDevops:
-        return this.validateAzureDevOpsConfig(request, errors, warnings);
-      default:
-        errors.push({
-          field: 'dopPlatform',
-          message: 'Unsupported DevOps platform',
-          code: 'UNSUPPORTED_PLATFORM',
-        });
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
-  }
-
-  /**
-   * Validate GitHub-specific configuration
-   */
-  private validateGitHubConfig(
-    request: CreateBoundProjectV2Request,
-    errors: DopValidationError[],
-    warnings: ValidationWarning[]
-  ): ValidationResult {
-    const config = request.platformSpecific as GitHubConfig | undefined;
-
-    if (config) {
-      if (!config.owner) {
-        errors.push({
-          field: 'platformSpecific.owner',
-          message: 'GitHub owner/organization is required',
-          code: 'MISSING_GITHUB_OWNER',
-          platform: DevOpsPlatform.GITHUB,
-        });
-      }
-
-      if (!config.repository) {
-        errors.push({
-          field: 'platformSpecific.repository',
-          message: 'GitHub repository name is required',
-          code: 'MISSING_GITHUB_REPO',
-          platform: DevOpsPlatform.GITHUB,
-        });
-      }
-
-      // Validate project identifier format
-      if (request.projectIdentifier && !request.projectIdentifier.includes('/')) {
-        warnings.push({
-          field: 'projectIdentifier',
-          message: 'GitHub project identifier should be in format "owner/repository"',
-          suggestion: `${config.owner}/${config.repository}`,
-          platform: DevOpsPlatform.GITHUB,
-        });
-      }
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
-  }
-
-  /**
-   * Validate GitLab-specific configuration
-   */
-  private validateGitLabConfig(
-    request: CreateBoundProjectV2Request,
-    errors: DopValidationError[],
-    warnings: ValidationWarning[]
-  ): ValidationResult {
-    const config = request.platformSpecific as GitLabConfig | undefined;
-
-    if (config) {
-      if (!config.namespace) {
-        errors.push({
-          field: 'platformSpecific.namespace',
-          message: 'GitLab namespace is required',
-          code: 'MISSING_GITLAB_NAMESPACE',
-          platform: DevOpsPlatform.GITLAB,
-        });
-      }
-
-      if (!config.project) {
-        errors.push({
-          field: 'platformSpecific.project',
-          message: 'GitLab project name is required',
-          code: 'MISSING_GITLAB_PROJECT',
-          platform: DevOpsPlatform.GITLAB,
-        });
-      }
-
-      // Validate project identifier format
-      if (request.projectIdentifier && !request.projectIdentifier.includes('/')) {
-        warnings.push({
-          field: 'projectIdentifier',
-          message: 'GitLab project identifier should be in format "namespace/project"',
-          suggestion: `${config.namespace}/${config.project}`,
-          platform: DevOpsPlatform.GITLAB,
-        });
-      }
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
-  }
-
-  /**
-   * Validate Bitbucket-specific configuration
-   */
-  private validateBitbucketConfig(
-    request: CreateBoundProjectV2Request,
-    errors: DopValidationError[],
-    warnings: ValidationWarning[]
-  ): ValidationResult {
-    const config = request.platformSpecific as BitbucketConfig | undefined;
-
-    if (config) {
-      if (!config.workspace) {
-        errors.push({
-          field: 'platformSpecific.workspace',
-          message: 'Bitbucket workspace is required',
-          code: 'MISSING_BITBUCKET_WORKSPACE',
-          platform: DevOpsPlatform.BITBUCKET,
-        });
-      }
-
-      if (!config.repository) {
-        errors.push({
-          field: 'platformSpecific.repository',
-          message: 'Bitbucket repository name is required',
-          code: 'MISSING_BITBUCKET_REPO',
-          platform: DevOpsPlatform.BITBUCKET,
-        });
-      }
-
-      // Validate project identifier format
-      if (request.projectIdentifier && !request.projectIdentifier.includes('/')) {
-        warnings.push({
-          field: 'projectIdentifier',
-          message: 'Bitbucket project identifier should be in format "workspace/repository"',
-          suggestion: `${config.workspace}/${config.repository}`,
-          platform: DevOpsPlatform.BITBUCKET,
-        });
-      }
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
-  }
-
-  /**
-   * Validate Azure DevOps-specific configuration
-   */
-  private validateAzureDevOpsConfig(
-    request: CreateBoundProjectV2Request,
-    errors: DopValidationError[],
-    warnings: ValidationWarning[]
-  ): ValidationResult {
-    const config = request.platformSpecific as AzureDevOpsConfig | undefined;
-
-    if (config) {
-      if (!config.organization) {
-        errors.push({
-          field: 'platformSpecific.organization',
-          message: 'Azure DevOps organization is required',
-          code: 'MISSING_AZURE_ORG',
-          platform: DevOpsPlatform.AzureDevops,
-        });
-      }
-
-      if (!config.project) {
-        errors.push({
-          field: 'platformSpecific.project',
-          message: 'Azure DevOps project is required',
-          code: 'MISSING_AZURE_PROJECT',
-          platform: DevOpsPlatform.AzureDevops,
-        });
-      }
-
-      if (!config.repository) {
-        errors.push({
-          field: 'platformSpecific.repository',
-          message: 'Azure DevOps repository is required',
-          code: 'MISSING_AZURE_REPO',
-          platform: DevOpsPlatform.AzureDevops,
-        });
-      }
-
-      // Validate project identifier format
-      if (request.projectIdentifier && !request.projectIdentifier.includes('/')) {
-        warnings.push({
-          field: 'projectIdentifier',
-          message: 'Azure DevOps project identifier should be in format "organization/project"',
-          suggestion: `${config.organization}/${config.project}`,
-          platform: DevOpsPlatform.AzureDevops,
-        });
-      }
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
+    return request;
   }
 }

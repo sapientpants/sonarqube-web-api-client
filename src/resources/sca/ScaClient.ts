@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { BaseClient } from '../../core/BaseClient';
+import { V2BaseClient } from '../../core/V2BaseClient';
 import type {
   GetSbomReportV2Request,
   SbomReportV2Response,
   SbomMetadataV2,
   VulnerabilitySummaryV2,
   SbomDownloadOptions,
-  DownloadProgress,
 } from './types';
 
 /**
@@ -21,7 +19,7 @@ import type {
  *
  * @since 10.6
  */
-export class ScaClient extends BaseClient {
+export class ScaClient extends V2BaseClient {
   /**
    * Generate SBOM report for a project in JSON format.
    * Returns structured data for programmatic use.
@@ -227,122 +225,5 @@ export class ScaClient extends BaseClient {
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
 
     return this.request<VulnerabilitySummaryV2>(`/api/v2/sca/vulnerabilities/summary?${query}`);
-  }
-
-  // ===== Helper Methods =====
-
-  /**
-   * Request text content (for JSON-based formats)
-   * @private
-   */
-  private async requestText(url: string, options?: RequestInit): Promise<string> {
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      ...options,
-      headers: Object.assign({}, this.getAuthHeaders(), options?.headers ?? {}),
-    });
-
-    if (!response.ok) {
-      const { createErrorFromResponse } = await import('../../errors');
-      throw await createErrorFromResponse(response);
-    }
-
-    return response.text();
-  }
-
-  /**
-   * Get authentication headers
-   * @private
-   */
-  private getAuthHeaders(): Record<string, string> {
-    if (this.token.length > 0) {
-      return {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${this.token}`,
-      };
-    }
-    return {};
-  }
-
-  /**
-   * Download with progress tracking (inherited from BaseClient via Analysis implementation)
-   * @private
-   */
-  private async downloadWithProgress(url: string, options?: SbomDownloadOptions): Promise<Blob> {
-    const headers: Record<string, string> = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      Accept: 'application/octet-stream',
-    };
-
-    if (this.token.length > 0) {
-      Object.assign(headers, {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Authorization: `Bearer ${this.token}`,
-      });
-    }
-
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}${url}`, {
-        headers,
-        signal: options?.signal ?? null,
-      });
-    } catch (networkError: unknown) {
-      const { createNetworkError } = await import('../../errors');
-      throw createNetworkError(networkError);
-    }
-
-    if (!response.ok) {
-      const { createErrorFromResponse } = await import('../../errors');
-      throw await createErrorFromResponse(response);
-    }
-
-    // If no progress callback or no content length, just return blob
-    const contentLengthHeader = response.headers.get('content-length');
-    if (!options?.onProgress || contentLengthHeader === null || contentLengthHeader === '') {
-      return response.blob();
-    }
-
-    // Stream the response for progress tracking
-    const contentLength = parseInt(contentLengthHeader, 10);
-    const reader = response.body?.getReader();
-
-    if (!reader) {
-      return response.blob();
-    }
-
-    const chunks: Uint8Array[] = [];
-    let loaded = 0;
-
-    try {
-      let done = false;
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      while (!done) {
-        const result = await reader.read();
-
-        if (result.done) {
-          done = true;
-          break;
-        }
-
-        if (result.value !== undefined && result.value instanceof Uint8Array) {
-          const { value } = result;
-          chunks.push(value);
-          loaded += value.length;
-        }
-
-        const progress: DownloadProgress = {
-          loaded,
-          total: contentLength,
-          percentage: contentLength > 0 ? Math.round((loaded / contentLength) * 100) : 0,
-        };
-
-        options.onProgress(progress);
-      }
-    } finally {
-      reader.releaseLock();
-    }
-
-    // Combine chunks into a single blob
-    return new Blob(chunks);
   }
 }

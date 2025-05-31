@@ -328,6 +328,9 @@ export interface SbomLicenseV2 {
 /**
  * Options for downloading SBOM reports
  */
+// Re-import DownloadProgress from V2BaseClient
+import type { DownloadProgress } from '../../core/V2BaseClient';
+
 export interface SbomDownloadOptions {
   /** Progress tracking callback for large reports */
   onProgress?: (progress: DownloadProgress) => void;
@@ -335,18 +338,6 @@ export interface SbomDownloadOptions {
   timeout?: number;
   /** Abort signal for cancelling downloads */
   signal?: AbortSignal;
-}
-
-/**
- * Download progress information
- */
-export interface DownloadProgress {
-  /** Bytes downloaded so far */
-  loaded: number;
-  /** Total bytes (if known from Content-Length) */
-  total: number;
-  /** Download percentage (0-100) */
-  percentage: number;
 }
 
 // ===== Analysis and Risk Assessment Types =====

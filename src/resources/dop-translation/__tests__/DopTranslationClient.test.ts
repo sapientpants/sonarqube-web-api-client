@@ -730,7 +730,7 @@ describe('DopTranslationClient', () => {
       });
 
       await client.createBoundProjectV2(request);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       expect(mockRequest).toHaveBeenCalled();
     });
   });

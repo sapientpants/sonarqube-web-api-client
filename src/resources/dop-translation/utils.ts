@@ -3,20 +3,21 @@
  * Provides platform detection, validation, project mapping, and authentication helpers
  */
 
-import type {
-  PlatformDetectionResult,
-  ExtractedPlatformInfo,
-  ValidationResult,
-  ValidationError,
-  ValidationWarning,
-  GitHubConfig,
-  GitLabConfig,
-  BitbucketConfig,
-  AzureDevOpsConfig,
-  SonarQubeProjectConfig,
-  AuthenticationCredentials,
+import {
+  DevOpsPlatform,
+  ProjectVisibility,
+  type PlatformDetectionResult,
+  type ExtractedPlatformInfo,
+  type ValidationResult,
+  type ValidationError,
+  type ValidationWarning,
+  type GitHubConfig,
+  type GitLabConfig,
+  type BitbucketConfig,
+  type AzureDevOpsConfig,
+  type SonarQubeProjectConfig,
+  type AuthenticationCredentials,
 } from './types';
-import { DevOpsPlatform, ProjectVisibility } from './types';
 
 // ============================================================================
 // Platform Detection Utility
@@ -25,6 +26,7 @@ import { DevOpsPlatform, ProjectVisibility } from './types';
 /**
  * Utility class for detecting DevOps platforms from URLs and extracting project information
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class PlatformDetector {
   /**
    * Detect DevOps platform from a repository URL
@@ -35,49 +37,50 @@ export class PlatformDetector {
     const patterns = [
       {
         platform: DevOpsPlatform.GITHUB,
-        pattern: /(?:https?:\/\/)?(?:www\.)?github\.com\/([^\/]+)\/([^\/\s?#]+)/,
+        pattern: /(?:https?:\/\/)?(?:www\.)?github\.com\/([^/]+)\/([^/\s?#]+)/,
         confidence: 1.0,
         isEnterprise: false,
       },
       {
         platform: DevOpsPlatform.GITHUB,
-        pattern: /(?:https?:\/\/)?([^\/]+)\/([^\/]+)\/([^\/\s?#]+)/,
+        pattern: /(?:https?:\/\/)?([^/]+)\/([^/]+)\/([^/\s?#]+)/,
         confidence: 0.6,
         isEnterprise: true,
-        enterpriseCheck: (hostname: string) =>
+        enterpriseCheck: (hostname: string): boolean =>
           !hostname.includes('gitlab') &&
           !hostname.includes('bitbucket') &&
           !hostname.includes('azure') &&
-          !hostname.includes('github.com'),
+          hostname !== 'github.com' &&
+          hostname !== 'www.github.com',
       },
       {
         platform: DevOpsPlatform.GITLAB,
-        pattern: /(?:https?:\/\/)?(?:www\.)?gitlab\.com\/([^\/]+)\/([^\/\s?#]+)/,
+        pattern: /(?:https?:\/\/)?(?:www\.)?gitlab\.com\/([^/]+)\/([^/\s?#]+)/,
         confidence: 1.0,
         isEnterprise: false,
       },
       {
         platform: DevOpsPlatform.GITLAB,
-        pattern: /(?:https?:\/\/)?([^\/]+)\/([^\/]+)\/([^\/\s?#]+)/,
+        pattern: /(?:https?:\/\/)?([^/]+)\/([^/]+)\/([^/\s?#]+)/,
         confidence: 0.7,
         isEnterprise: true,
-        enterpriseCheck: (hostname: string) => hostname.includes('gitlab'),
+        enterpriseCheck: (hostname: string): boolean => hostname.includes('gitlab'),
       },
       {
         platform: DevOpsPlatform.BITBUCKET,
-        pattern: /(?:https?:\/\/)?(?:www\.)?bitbucket\.org\/([^\/]+)\/([^\/\s?#]+)/,
+        pattern: /(?:https?:\/\/)?(?:www\.)?bitbucket\.org\/([^/]+)\/([^/\s?#]+)/,
         confidence: 1.0,
         isEnterprise: false,
       },
       {
-        platform: DevOpsPlatform.AZURE_DEVOPS,
-        pattern: /(?:https?:\/\/)?dev\.azure\.com\/([^\/]+)\/([^\/]+)/,
+        platform: DevOpsPlatform.AzureDevops,
+        pattern: /(?:https?:\/\/)?dev\.azure\.com\/([^/]+)\/([^/]+)/,
         confidence: 1.0,
         isEnterprise: false,
       },
       {
-        platform: DevOpsPlatform.AZURE_DEVOPS,
-        pattern: /(?:https?:\/\/)?([^\/]+)\.visualstudio\.com\/([^\/]+)/,
+        platform: DevOpsPlatform.AzureDevops,
+        pattern: /(?:https?:\/\/)?([^/]+)\.visualstudio\.com\/([^/]+)/,
         confidence: 0.9,
         isEnterprise: true,
       },
@@ -92,19 +95,19 @@ export class PlatformDetector {
         let apiUrl: string | undefined;
 
         if (isEnterprise && match.length >= 4) {
-          hostname = match[1] || '';
-          organization = match[2] || '';
-          repository = match[3] || '';
+          hostname = match[1] ?? '';
+          organization = match[2] ?? '';
+          repository = match[3] ?? '';
 
           // Apply enterprise check if provided
-          if (enterpriseCheck && !enterpriseCheck(hostname)) {
+          if (enterpriseCheck !== undefined && !enterpriseCheck(hostname)) {
             continue;
           }
 
           apiUrl = this.generateApiUrl(platform, hostname);
         } else {
-          organization = match[1] || '';
-          repository = match[2] || '';
+          organization = match[1] ?? '';
+          repository = match[2] ?? '';
           apiUrl = undefined;
         }
 
@@ -123,7 +126,7 @@ export class PlatformDetector {
           isEnterprise,
         };
 
-        if (apiUrl) {
+        if (apiUrl !== undefined) {
           extractedInfo.apiUrl = apiUrl;
         }
 
@@ -174,7 +177,7 @@ export class PlatformDetector {
         return `https://${hostname}/api/v4`;
       case DevOpsPlatform.BITBUCKET:
         return `https://${hostname}/rest/api/1.0`;
-      case DevOpsPlatform.AZURE_DEVOPS:
+      case DevOpsPlatform.AzureDevops:
         return `https://${hostname}/_apis`;
       default:
         return '';
@@ -189,6 +192,7 @@ export class PlatformDetector {
 /**
  * Utility class for validating platform-specific configurations
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigurationValidator {
   /**
    * Validate GitHub configuration
@@ -218,7 +222,7 @@ export class ConfigurationValidator {
     }
 
     // Validate naming conventions
-    if (config.owner && !/^[a-zA-Z0-9]([a-zA-Z0-9\-])*[a-zA-Z0-9]$/.test(config.owner)) {
+    if (config.owner && !/^[a-zA-Z0-9]([a-zA-Z0-9-])*[a-zA-Z0-9]$/.test(config.owner)) {
       warnings.push({
         field: 'owner',
         message: 'GitHub owner name should follow naming conventions',
@@ -351,7 +355,7 @@ export class ConfigurationValidator {
         field: 'organization',
         message: 'Azure DevOps organization is required',
         code: 'MISSING_AZURE_ORG',
-        platform: DevOpsPlatform.AZURE_DEVOPS,
+        platform: DevOpsPlatform.AzureDevops,
       });
     }
 
@@ -360,7 +364,7 @@ export class ConfigurationValidator {
         field: 'project',
         message: 'Azure DevOps project is required',
         code: 'MISSING_AZURE_PROJECT',
-        platform: DevOpsPlatform.AZURE_DEVOPS,
+        platform: DevOpsPlatform.AzureDevops,
       });
     }
 
@@ -369,7 +373,7 @@ export class ConfigurationValidator {
         field: 'repository',
         message: 'Azure DevOps repository is required',
         code: 'MISSING_AZURE_REPO',
-        platform: DevOpsPlatform.AZURE_DEVOPS,
+        platform: DevOpsPlatform.AzureDevops,
       });
     }
 
@@ -379,7 +383,7 @@ export class ConfigurationValidator {
         field: 'organization',
         message: 'Azure DevOps organization should follow naming conventions',
         suggestion: 'Use alphanumeric characters and hyphens only',
-        platform: DevOpsPlatform.AZURE_DEVOPS,
+        platform: DevOpsPlatform.AzureDevops,
       });
     }
 
@@ -394,6 +398,7 @@ export class ConfigurationValidator {
 /**
  * Utility class for mapping external project structures to SonarQube format
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ProjectMapper {
   /**
    * Map GitHub project to SonarQube project configuration
@@ -401,20 +406,29 @@ export class ProjectMapper {
    * @returns Partial SonarQube project configuration
    */
   static mapGitHubProject(githubProject: Record<string, unknown>): Partial<SonarQubeProjectConfig> {
-    const owner = githubProject.owner as Record<string, unknown> | undefined;
-    const ownerLogin = owner?.login as string | undefined;
-    const name = githubProject.name as string | undefined;
-    const description = githubProject.description as string | undefined;
-    const isPrivate = githubProject.private as boolean | undefined;
-    const topics = githubProject.topics as string[] | undefined;
+    const owner = githubProject['owner'] as Record<string, unknown> | undefined;
+    const ownerLogin = owner?.['login'] as string | undefined;
+    const name = githubProject['name'] as string | undefined;
+    const description = githubProject['description'] as string | null | undefined;
+    const isPrivate = githubProject['private'] as boolean | undefined;
+    const topics = githubProject['topics'] as string[] | undefined;
 
-    return {
-      key: ownerLogin && name ? `${ownerLogin}_${name}` : undefined,
-      name,
-      description: description || undefined,
-      visibility: isPrivate ? ProjectVisibility.PRIVATE : ProjectVisibility.PUBLIC,
-      tags: topics || [],
+    const result: Partial<SonarQubeProjectConfig> = {
+      visibility: isPrivate === true ? ProjectVisibility.PRIVATE : ProjectVisibility.PUBLIC,
+      tags: topics ?? [],
     };
+
+    if (ownerLogin !== undefined && name !== undefined) {
+      result.key = `${ownerLogin}_${name}`;
+    }
+    if (name !== undefined) {
+      result.name = name;
+    }
+    if (description !== undefined && description !== null) {
+      result.description = description;
+    }
+
+    return result;
   }
 
   /**
@@ -423,19 +437,28 @@ export class ProjectMapper {
    * @returns Partial SonarQube project configuration
    */
   static mapGitLabProject(gitlabProject: Record<string, unknown>): Partial<SonarQubeProjectConfig> {
-    const pathWithNamespace = gitlabProject.path_with_namespace as string | undefined;
-    const name = gitlabProject.name as string | undefined;
-    const description = gitlabProject.description as string | undefined;
-    const visibility = gitlabProject.visibility as string | undefined;
-    const tagList = gitlabProject.tag_list as string[] | undefined;
+    const pathWithNamespace = gitlabProject['path_with_namespace'] as string | undefined;
+    const name = gitlabProject['name'] as string | undefined;
+    const description = gitlabProject['description'] as string | null | undefined;
+    const visibility = gitlabProject['visibility'] as string | undefined;
+    const tagList = gitlabProject['tag_list'] as string[] | undefined;
 
-    return {
-      key: pathWithNamespace ? pathWithNamespace.replace(/\//g, '_') : undefined,
-      name,
-      description: description || undefined,
+    const result: Partial<SonarQubeProjectConfig> = {
       visibility: visibility === 'private' ? ProjectVisibility.PRIVATE : ProjectVisibility.PUBLIC,
-      tags: tagList || [],
+      tags: tagList ?? [],
     };
+
+    if (pathWithNamespace !== undefined) {
+      result.key = pathWithNamespace.replace(/\//g, '_');
+    }
+    if (name !== undefined) {
+      result.name = name;
+    }
+    if (description !== undefined && description !== null) {
+      result.description = description;
+    }
+
+    return result;
   }
 
   /**
@@ -446,20 +469,29 @@ export class ProjectMapper {
   static mapBitbucketProject(
     bitbucketProject: Record<string, unknown>
   ): Partial<SonarQubeProjectConfig> {
-    const workspace = bitbucketProject.workspace as Record<string, unknown> | undefined;
-    const workspaceSlug = workspace?.slug as string | undefined;
-    const slug = bitbucketProject.slug as string | undefined;
-    const name = bitbucketProject.name as string | undefined;
-    const description = bitbucketProject.description as string | undefined;
-    const isPrivate = bitbucketProject.is_private as boolean | undefined;
+    const workspace = bitbucketProject['workspace'] as Record<string, unknown> | undefined;
+    const workspaceSlug = workspace?.['slug'] as string | undefined;
+    const slug = bitbucketProject['slug'] as string | undefined;
+    const name = bitbucketProject['name'] as string | undefined;
+    const description = bitbucketProject['description'] as string | null | undefined;
+    const isPrivate = bitbucketProject['is_private'] as boolean | undefined;
 
-    return {
-      key: workspaceSlug && slug ? `${workspaceSlug}_${slug}` : undefined,
-      name,
-      description: description || undefined,
-      visibility: isPrivate ? ProjectVisibility.PRIVATE : ProjectVisibility.PUBLIC,
+    const result: Partial<SonarQubeProjectConfig> = {
+      visibility: isPrivate === true ? ProjectVisibility.PRIVATE : ProjectVisibility.PUBLIC,
       tags: [],
     };
+
+    if (workspaceSlug !== undefined && slug !== undefined) {
+      result.key = `${workspaceSlug}_${slug}`;
+    }
+    if (name !== undefined) {
+      result.name = name;
+    }
+    if (description !== undefined && description !== null) {
+      result.description = description;
+    }
+
+    return result;
   }
 
   /**
@@ -470,18 +502,27 @@ export class ProjectMapper {
   static mapAzureDevOpsProject(
     azureProject: Record<string, unknown>
   ): Partial<SonarQubeProjectConfig> {
-    const organization = azureProject.organization as string | undefined;
-    const name = azureProject.name as string | undefined;
-    const description = azureProject.description as string | undefined;
-    const visibility = azureProject.visibility as string | undefined;
+    const organization = azureProject['organization'] as string | undefined;
+    const name = azureProject['name'] as string | undefined;
+    const description = azureProject['description'] as string | null | undefined;
+    const visibility = azureProject['visibility'] as string | undefined;
 
-    return {
-      key: organization && name ? `${organization}_${name}` : undefined,
-      name,
-      description: description || undefined,
+    const result: Partial<SonarQubeProjectConfig> = {
       visibility: visibility === 'private' ? ProjectVisibility.PRIVATE : ProjectVisibility.PUBLIC,
       tags: [],
     };
+
+    if (organization !== undefined && name !== undefined) {
+      result.key = `${organization}_${name}`;
+    }
+    if (name !== undefined) {
+      result.name = name;
+    }
+    if (description !== undefined && description !== null) {
+      result.description = description;
+    }
+
+    return result;
   }
 
   /**
@@ -510,6 +551,7 @@ export class ProjectMapper {
 /**
  * Utility class for managing platform-specific authentication
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class AuthenticationHelper {
   /**
    * Validate GitHub authentication credentials
@@ -517,22 +559,23 @@ export class AuthenticationHelper {
    * @param credentials - Authentication credentials
    * @returns Promise resolving to validation status
    */
-  static async validateGitHubAuth(
+  static validateGitHubAuth(
     _config: GitHubConfig,
     credentials: AuthenticationCredentials
-  ): Promise<boolean> {
+  ): boolean {
     // This would typically make an API call to validate credentials
     // For now, we'll do basic validation
     // Note: config parameter is available for future platform-specific validation
 
     switch (credentials.type) {
       case 'personal_access_token':
-        return !!(credentials.token && credentials.token.startsWith('ghp_'));
+        return credentials.token.startsWith('ghp_');
       case 'oauth':
-        return !!(credentials.clientId && credentials.clientSecret);
+        return Boolean(credentials.clientId && credentials.clientSecret);
       case 'installation_token':
-        return !!(credentials.installationId && credentials.appId && credentials.privateKey);
-      default:
+        return Boolean(credentials.installationId && credentials.appId && credentials.privateKey);
+      case 'app_password':
+        // GitHub doesn't use app passwords
         return false;
     }
   }
@@ -543,18 +586,22 @@ export class AuthenticationHelper {
    * @param credentials - Authentication credentials
    * @returns Promise resolving to validation status
    */
-  static async validateGitLabAuth(
+  static validateGitLabAuth(
     _config: GitLabConfig,
     credentials: AuthenticationCredentials
-  ): Promise<boolean> {
+  ): boolean {
     // Note: config parameter is available for future platform-specific validation
 
     switch (credentials.type) {
       case 'personal_access_token':
-        return !!(credentials.token && credentials.token.length >= 20);
+        return Boolean(credentials.token && credentials.token.length >= 20);
       case 'oauth':
-        return !!(credentials.clientId && credentials.clientSecret);
-      default:
+        return Boolean(credentials.clientId && credentials.clientSecret);
+      case 'app_password':
+        // GitLab doesn't use app passwords
+        return false;
+      case 'installation_token':
+        // GitLab doesn't use installation tokens
         return false;
     }
   }
@@ -565,18 +612,22 @@ export class AuthenticationHelper {
    * @param credentials - Authentication credentials
    * @returns Promise resolving to validation status
    */
-  static async validateBitbucketAuth(
+  static validateBitbucketAuth(
     _config: BitbucketConfig,
     credentials: AuthenticationCredentials
-  ): Promise<boolean> {
+  ): boolean {
     // Note: config parameter is available for future platform-specific validation
 
     switch (credentials.type) {
       case 'app_password':
-        return !!(credentials.username && credentials.password);
+        return Boolean(credentials.username && credentials.password);
       case 'oauth':
-        return !!(credentials.clientId && credentials.clientSecret);
-      default:
+        return Boolean(credentials.clientId && credentials.clientSecret);
+      case 'personal_access_token':
+        // Bitbucket doesn't use personal access tokens in the same way
+        return false;
+      case 'installation_token':
+        // Bitbucket doesn't use installation tokens
         return false;
     }
   }
@@ -587,16 +638,23 @@ export class AuthenticationHelper {
    * @param credentials - Authentication credentials
    * @returns Promise resolving to validation status
    */
-  static async validateAzureDevOpsAuth(
+  static validateAzureDevOpsAuth(
     _config: AzureDevOpsConfig,
     credentials: AuthenticationCredentials
-  ): Promise<boolean> {
+  ): boolean {
     // Note: config parameter is available for future platform-specific validation
 
     switch (credentials.type) {
       case 'personal_access_token':
-        return !!(credentials.token && credentials.token.length >= 52);
-      default:
+        return Boolean(credentials.token && credentials.token.length >= 52);
+      case 'oauth':
+        // Azure DevOps supports OAuth but typically uses PATs
+        return Boolean(credentials.clientId && credentials.clientSecret);
+      case 'app_password':
+        // Azure DevOps doesn't use app passwords
+        return false;
+      case 'installation_token':
+        // Azure DevOps doesn't use installation tokens
         return false;
     }
   }
@@ -624,7 +682,7 @@ export class AuthenticationHelper {
         write: ['repositories:write'],
         admin: ['repositories:admin'],
       },
-      [DevOpsPlatform.AZURE_DEVOPS]: {
+      [DevOpsPlatform.AzureDevops]: {
         read: ['vso.code'],
         write: ['vso.code_write'],
         admin: ['vso.code_manage'],
@@ -632,14 +690,11 @@ export class AuthenticationHelper {
     };
 
     const platformScopes = scopeMap[platform];
-    if (!platformScopes) {
-      return [];
-    }
 
     const requiredScopes: string[] = [];
     for (const operation of operations) {
       const scopes = platformScopes[operation];
-      if (scopes) {
+      if (scopes !== undefined) {
         requiredScopes.push(...scopes);
       }
     }
@@ -655,6 +710,7 @@ export class AuthenticationHelper {
 /**
  * Utility class for managing configuration templates
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigurationTemplates {
   /**
    * Get default configuration for a platform
@@ -693,7 +749,7 @@ export class ConfigurationTemplates {
           defaultBranch: 'main',
         };
 
-      case DevOpsPlatform.AZURE_DEVOPS:
+      case DevOpsPlatform.AzureDevops:
         return {
           type: 'azure-devops',
           organization,
@@ -702,8 +758,11 @@ export class ConfigurationTemplates {
           defaultBranch: 'main',
         };
 
-      default:
-        throw new Error(`Unsupported platform: ${platform}`);
+      default: {
+        // This should never happen due to exhaustive switch, but TypeScript needs it
+        const _exhaustiveCheck: never = platform;
+        throw new Error(`Unsupported platform: ${_exhaustiveCheck as string}`);
+      }
     }
   }
 
@@ -729,7 +788,9 @@ export class ConfigurationTemplates {
         qualityGate: 'Enterprise Quality Gate',
         tags: ['automated', 'enterprise'],
         settings: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'sonar.exclusions': '**/vendor/**,**/node_modules/**',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'sonar.coverage.exclusions': '**/*test*/**,**/*spec*/**',
         },
       },

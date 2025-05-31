@@ -5,8 +5,13 @@
 
 import { CreateBoundProjectV2BuilderImpl } from '../builders';
 import { DopTranslationClient } from '../DopTranslationClient';
-import type { CreateBoundProjectV2Response } from '../types';
-import { DevOpsPlatform, ProjectVisibility, ProjectBindingStatus, SyncStatus } from '../types';
+import {
+  DevOpsPlatform,
+  ProjectVisibility,
+  ProjectBindingStatus,
+  SyncStatus,
+  type CreateBoundProjectV2Response,
+} from '../types';
 
 // Mock DopTranslationClient
 jest.mock('../DopTranslationClient');
@@ -78,7 +83,8 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
 
       // Assert
       expect(result).toEqual(expectedResponse);
-      expect(jest.mocked(client.createBoundProjectV2)).toHaveBeenCalledWith({
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(client.createBoundProjectV2).toHaveBeenCalledWith({
         dopPlatform: DevOpsPlatform.GITHUB,
         projectIdentifier: 'acme-corp/api-service',
         organizationName: 'acme-corp',
@@ -108,6 +114,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       const validation = await builder.validate();
       expect(validation).toMatchObject({
         valid: false, // Still invalid because platform not set
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         errors: expect.arrayContaining([
           expect.objectContaining({
             field: 'dopPlatform',
@@ -124,10 +131,13 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       });
 
       // Get internal request object for verification
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       const internalRequest = (builder as any).request;
 
       // Assert
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.dopPlatform).toBe(DevOpsPlatform.GITHUB);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.platformSpecific).toEqual({
         type: 'github',
         owner: 'test-org',
@@ -210,10 +220,13 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       });
 
       // Get internal request object for verification
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       const internalRequest = (builder as any).request;
 
       // Assert
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.dopPlatform).toBe(DevOpsPlatform.GITLAB);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.platformSpecific).toEqual({
         type: 'gitlab',
         namespace: 'test-group',
@@ -291,9 +304,11 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       });
 
       // Get internal request object for verification
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       const internalRequest = (builder as any).request;
 
       // Assert
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.dopPlatform).toBe(DevOpsPlatform.BITBUCKET);
     });
   });
@@ -308,7 +323,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
         url: 'https://sonarqube.example.com/dashboard?id=enterprise-org_core-services',
         dopBinding: {
           id: 'binding-126',
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
           externalProjectId: 'enterprise-org/core-services',
           externalUrl: 'https://dev.azure.com/enterprise-org/Core%20Services/_git/core-services',
           lastSync: '2025-01-30T10:00:00Z',
@@ -338,7 +353,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
 
       // Act
       const result = await builder
-        .forPlatform(DevOpsPlatform.AZURE_DEVOPS)
+        .forPlatform(DevOpsPlatform.AzureDevops)
         .withProjectIdentifier('enterprise-org/core-services')
         .withAzureDevOpsConfig({
           organization: 'enterprise-org',
@@ -390,11 +405,15 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       builder.withOrganization('my-org').withRepository('my-repo');
 
       // Get internal request object for verification
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       const internalRequest = (builder as any).request;
 
       // Assert
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.projectIdentifier).toBe('my-org/my-repo');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.organizationName).toBe('my-org');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.repositoryName).toBe('my-repo');
     });
   });
@@ -614,7 +633,8 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
 
       // Assert
       expect(result).toEqual(expectedResponse);
-      expect(jest.mocked(client.createBoundProjectV2)).toHaveBeenCalled();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(client.createBoundProjectV2).toHaveBeenCalled();
     });
   });
 });

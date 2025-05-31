@@ -10,7 +10,7 @@ export enum DevOpsPlatform {
   GITHUB = 'github',
   GITLAB = 'gitlab',
   BITBUCKET = 'bitbucket',
-  AZURE_DEVOPS = 'azure-devops',
+  AzureDevops = 'azure-devops',
 }
 
 /**
@@ -40,7 +40,7 @@ export enum SyncStatus {
   SUCCESS = 'SUCCESS',
   PENDING = 'PENDING',
   FAILED = 'FAILED',
-  NEVER_SYNCED = 'NEVER_SYNCED',
+  NeverSynced = 'NEVER_SYNCED',
 }
 
 /**
@@ -56,9 +56,9 @@ export enum ProjectVisibility {
  */
 export enum AuthenticationType {
   OAUTH = 'oauth',
-  PERSONAL_ACCESS_TOKEN = 'personal_access_token',
-  APP_PASSWORD = 'app_password',
-  INSTALLATION_TOKEN = 'installation_token',
+  PersonalAccessToken = 'personal_access_token',
+  AppPassword = 'app_password',
+  InstallationToken = 'installation_token',
 }
 
 // ============================================================================
@@ -440,7 +440,7 @@ export interface BranchInfo {
  */
 export interface PlatformConfiguration {
   /** Platform-specific settings */
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   /** API endpoints configuration */
   endpoints?: PlatformEndpoints;
   /** Rate limiting configuration */
@@ -704,7 +704,7 @@ export interface DopTranslationError extends Error {
   /** Platform context */
   platform?: DevOpsPlatform;
   /** Platform-specific error details */
-  platformError?: any;
+  platformError?: unknown;
 }
 
 /**

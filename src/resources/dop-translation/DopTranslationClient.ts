@@ -4,23 +4,23 @@
  */
 
 import { BaseClient } from '../../core/BaseClient';
-import type {
-  CreateBoundProjectV2Request,
-  CreateBoundProjectV2Response,
-  DopSettingsV2Response,
-  CreateBoundProjectV2Builder,
-  BatchCreateRequest,
-  BatchCreateResponse,
-  BatchProjectResult,
-  ValidationResult,
-  ValidationError as DopValidationError,
-  ValidationWarning,
-  GitHubConfig,
-  GitLabConfig,
-  BitbucketConfig,
-  AzureDevOpsConfig,
+import {
+  DevOpsPlatform,
+  type CreateBoundProjectV2Request,
+  type CreateBoundProjectV2Response,
+  type DopSettingsV2Response,
+  type CreateBoundProjectV2Builder,
+  type BatchCreateRequest,
+  type BatchCreateResponse,
+  type BatchProjectResult,
+  type ValidationResult,
+  type ValidationError as DopValidationError,
+  type ValidationWarning,
+  type GitHubConfig,
+  type GitLabConfig,
+  type BitbucketConfig,
+  type AzureDevOpsConfig,
 } from './types';
-import { DevOpsPlatform } from './types';
 import { CreateBoundProjectV2BuilderImpl } from './builders';
 
 /**
@@ -36,11 +36,11 @@ export class DopTranslationClient extends BaseClient {
   async createBoundProjectV2(
     request: CreateBoundProjectV2Request
   ): Promise<CreateBoundProjectV2Response> {
-    const validated = await this.validateProjectRequest(request);
+    const validated = this.validateProjectRequest(request);
 
     return this.request<CreateBoundProjectV2Response>('/api/v2/dop-translation/bound-projects', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ['Content-Type']: 'application/json' },
       body: JSON.stringify(validated),
     });
   }
@@ -114,7 +114,7 @@ export class DopTranslationClient extends BaseClient {
               error: error as Error,
             });
           }
-          break;
+          throw error; // Re-throw the error when continueOnError is false
         }
       }
     }
@@ -138,10 +138,10 @@ export class DopTranslationClient extends BaseClient {
    * @param request - Request to validate
    * @returns Validated request (throws if invalid)
    */
-  private async validateProjectRequest(
+  private validateProjectRequest(
     request: CreateBoundProjectV2Request
-  ): Promise<CreateBoundProjectV2Request> {
-    const validation = await this.validatePlatformConfig(request);
+  ): CreateBoundProjectV2Request {
+    const validation = this.validatePlatformConfig(request);
 
     if (!validation.valid) {
       throw new Error(`Invalid request: ${validation.errors.map((e) => e.message).join(', ')}`);
@@ -155,20 +155,11 @@ export class DopTranslationClient extends BaseClient {
    * @param request - Request to validate
    * @returns Validation result
    */
-  private async validatePlatformConfig(
-    request: CreateBoundProjectV2Request
-  ): Promise<ValidationResult> {
+  private validatePlatformConfig(request: CreateBoundProjectV2Request): ValidationResult {
     const errors: DopValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
-    // Basic validation
-    if (!request.dopPlatform) {
-      errors.push({
-        field: 'dopPlatform',
-        message: 'DevOps platform is required',
-        code: 'MISSING_PLATFORM',
-      });
-    }
+    // Basic validation is handled by TypeScript types
 
     if (!request.projectIdentifier) {
       errors.push({
@@ -186,7 +177,7 @@ export class DopTranslationClient extends BaseClient {
         return this.validateGitLabConfig(request, errors, warnings);
       case DevOpsPlatform.BITBUCKET:
         return this.validateBitbucketConfig(request, errors, warnings);
-      case DevOpsPlatform.AZURE_DEVOPS:
+      case DevOpsPlatform.AzureDevops:
         return this.validateAzureDevOpsConfig(request, errors, warnings);
       default:
         errors.push({
@@ -206,12 +197,12 @@ export class DopTranslationClient extends BaseClient {
   /**
    * Validate GitHub-specific configuration
    */
-  private async validateGitHubConfig(
+  private validateGitHubConfig(
     request: CreateBoundProjectV2Request,
     errors: DopValidationError[],
     warnings: ValidationWarning[]
-  ): Promise<ValidationResult> {
-    const config = request.platformSpecific as GitHubConfig;
+  ): ValidationResult {
+    const config = request.platformSpecific as GitHubConfig | undefined;
 
     if (config) {
       if (!config.owner) {
@@ -253,12 +244,12 @@ export class DopTranslationClient extends BaseClient {
   /**
    * Validate GitLab-specific configuration
    */
-  private async validateGitLabConfig(
+  private validateGitLabConfig(
     request: CreateBoundProjectV2Request,
     errors: DopValidationError[],
     warnings: ValidationWarning[]
-  ): Promise<ValidationResult> {
-    const config = request.platformSpecific as GitLabConfig;
+  ): ValidationResult {
+    const config = request.platformSpecific as GitLabConfig | undefined;
 
     if (config) {
       if (!config.namespace) {
@@ -300,12 +291,12 @@ export class DopTranslationClient extends BaseClient {
   /**
    * Validate Bitbucket-specific configuration
    */
-  private async validateBitbucketConfig(
+  private validateBitbucketConfig(
     request: CreateBoundProjectV2Request,
     errors: DopValidationError[],
     warnings: ValidationWarning[]
-  ): Promise<ValidationResult> {
-    const config = request.platformSpecific as BitbucketConfig;
+  ): ValidationResult {
+    const config = request.platformSpecific as BitbucketConfig | undefined;
 
     if (config) {
       if (!config.workspace) {
@@ -347,12 +338,12 @@ export class DopTranslationClient extends BaseClient {
   /**
    * Validate Azure DevOps-specific configuration
    */
-  private async validateAzureDevOpsConfig(
+  private validateAzureDevOpsConfig(
     request: CreateBoundProjectV2Request,
     errors: DopValidationError[],
     warnings: ValidationWarning[]
-  ): Promise<ValidationResult> {
-    const config = request.platformSpecific as AzureDevOpsConfig;
+  ): ValidationResult {
+    const config = request.platformSpecific as AzureDevOpsConfig | undefined;
 
     if (config) {
       if (!config.organization) {
@@ -360,7 +351,7 @@ export class DopTranslationClient extends BaseClient {
           field: 'platformSpecific.organization',
           message: 'Azure DevOps organization is required',
           code: 'MISSING_AZURE_ORG',
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
         });
       }
 
@@ -369,7 +360,7 @@ export class DopTranslationClient extends BaseClient {
           field: 'platformSpecific.project',
           message: 'Azure DevOps project is required',
           code: 'MISSING_AZURE_PROJECT',
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
         });
       }
 
@@ -378,7 +369,7 @@ export class DopTranslationClient extends BaseClient {
           field: 'platformSpecific.repository',
           message: 'Azure DevOps repository is required',
           code: 'MISSING_AZURE_REPO',
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
         });
       }
 
@@ -388,7 +379,7 @@ export class DopTranslationClient extends BaseClient {
           field: 'projectIdentifier',
           message: 'Azure DevOps project identifier should be in format "organization/project"',
           suggestion: `${config.organization}/${config.project}`,
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
         });
       }
     }

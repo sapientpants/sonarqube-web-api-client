@@ -3,21 +3,21 @@
  * Provides fluent interfaces for creating bound projects
  */
 
-import type {
-  CreateBoundProjectV2Request,
-  CreateBoundProjectV2Response,
-  CreateBoundProjectV2Builder,
-  GitHubConfig,
-  GitLabConfig,
-  BitbucketConfig,
-  AzureDevOpsConfig,
-  SonarQubeProjectConfig,
-  ProjectVisibility,
-  ValidationResult,
-  ValidationError as DopValidationError,
-  ValidationWarning,
+import {
+  DevOpsPlatform,
+  type CreateBoundProjectV2Request,
+  type CreateBoundProjectV2Response,
+  type CreateBoundProjectV2Builder,
+  type GitHubConfig,
+  type GitLabConfig,
+  type BitbucketConfig,
+  type AzureDevOpsConfig,
+  type SonarQubeProjectConfig,
+  type ProjectVisibility,
+  type ValidationResult,
+  type ValidationError as DopValidationError,
+  type ValidationWarning,
 } from './types';
-import { DevOpsPlatform } from './types';
 import type { DopTranslationClient } from './DopTranslationClient';
 
 /**
@@ -46,11 +46,11 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     // Auto-extract organization and repository if not set
     if (
       identifier.includes('/') &&
-      !this.request.organizationName &&
-      !this.request.repositoryName
+      this.request.organizationName === undefined &&
+      this.request.repositoryName === undefined
     ) {
       const [org, repo] = identifier.split('/', 2);
-      if (org && repo) {
+      if (org !== undefined && org !== '' && repo !== undefined && repo !== '') {
         this.request.organizationName = org;
         this.request.repositoryName = repo;
       }
@@ -99,9 +99,9 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
   withGitHubConfig(config: Partial<GitHubConfig>): this {
     const baseConfig: GitHubConfig = {
       type: 'github',
-      owner: config.owner || this.request.organizationName || '',
-      repository: config.repository || this.request.repositoryName || '',
-      defaultBranch: config.defaultBranch || this.request.mainBranchName || 'main',
+      owner: config.owner ?? this.request.organizationName ?? '',
+      repository: config.repository ?? this.request.repositoryName ?? '',
+      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
     };
 
     this.request.platformSpecific = {
@@ -110,9 +110,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     } as GitHubConfig;
 
     // Update the platform if not set
-    if (!this.request.dopPlatform) {
-      this.request.dopPlatform = DevOpsPlatform.GITHUB;
-    }
+    this.request.dopPlatform ??= DevOpsPlatform.GITHUB;
 
     return this;
   }
@@ -123,9 +121,9 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
   withGitLabConfig(config: Partial<GitLabConfig>): this {
     const baseConfig: GitLabConfig = {
       type: 'gitlab',
-      namespace: config.namespace || this.request.organizationName || '',
-      project: config.project || this.request.repositoryName || '',
-      defaultBranch: config.defaultBranch || this.request.mainBranchName || 'main',
+      namespace: config.namespace ?? this.request.organizationName ?? '',
+      project: config.project ?? this.request.repositoryName ?? '',
+      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
     };
 
     this.request.platformSpecific = {
@@ -134,9 +132,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     } as GitLabConfig;
 
     // Update the platform if not set
-    if (!this.request.dopPlatform) {
-      this.request.dopPlatform = DevOpsPlatform.GITLAB;
-    }
+    this.request.dopPlatform ??= DevOpsPlatform.GITLAB;
 
     return this;
   }
@@ -147,9 +143,9 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
   withBitbucketConfig(config: Partial<BitbucketConfig>): this {
     const baseConfig: BitbucketConfig = {
       type: 'bitbucket',
-      workspace: config.workspace || this.request.organizationName || '',
-      repository: config.repository || this.request.repositoryName || '',
-      defaultBranch: config.defaultBranch || this.request.mainBranchName || 'main',
+      workspace: config.workspace ?? this.request.organizationName ?? '',
+      repository: config.repository ?? this.request.repositoryName ?? '',
+      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
     };
 
     this.request.platformSpecific = {
@@ -158,9 +154,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     } as BitbucketConfig;
 
     // Update the platform if not set
-    if (!this.request.dopPlatform) {
-      this.request.dopPlatform = DevOpsPlatform.BITBUCKET;
-    }
+    this.request.dopPlatform ??= DevOpsPlatform.BITBUCKET;
 
     return this;
   }
@@ -171,10 +165,10 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
   withAzureDevOpsConfig(config: Partial<AzureDevOpsConfig>): this {
     const baseConfig: AzureDevOpsConfig = {
       type: 'azure-devops',
-      organization: config.organization || this.request.organizationName || '',
-      project: config.project || this.request.repositoryName || '',
-      repository: config.repository || this.request.repositoryName || '',
-      defaultBranch: config.defaultBranch || this.request.mainBranchName || 'main',
+      organization: config.organization ?? this.request.organizationName ?? '',
+      project: config.project ?? this.request.repositoryName ?? '',
+      repository: config.repository ?? this.request.repositoryName ?? '',
+      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
     };
 
     this.request.platformSpecific = {
@@ -183,9 +177,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     } as AzureDevOpsConfig;
 
     // Update the platform if not set
-    if (!this.request.dopPlatform) {
-      this.request.dopPlatform = DevOpsPlatform.AZURE_DEVOPS;
-    }
+    this.request.dopPlatform ??= DevOpsPlatform.AzureDevops;
 
     return this;
   }
@@ -205,9 +197,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Set SonarQube project key
    */
   withProjectKey(key: string): this {
-    if (!this.request.sonarQubeProjectConfig) {
-      this.request.sonarQubeProjectConfig = {};
-    }
+    this.request.sonarQubeProjectConfig ??= {};
     this.request.sonarQubeProjectConfig.key = key;
     return this;
   }
@@ -216,9 +206,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Set SonarQube project name
    */
   withProjectName(name: string): this {
-    if (!this.request.sonarQubeProjectConfig) {
-      this.request.sonarQubeProjectConfig = {};
-    }
+    this.request.sonarQubeProjectConfig ??= {};
     this.request.sonarQubeProjectConfig.name = name;
     return this;
   }
@@ -227,9 +215,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Set SonarQube project description
    */
   withProjectDescription(description: string): this {
-    if (!this.request.sonarQubeProjectConfig) {
-      this.request.sonarQubeProjectConfig = {};
-    }
+    this.request.sonarQubeProjectConfig ??= {};
     this.request.sonarQubeProjectConfig.description = description;
     return this;
   }
@@ -238,9 +224,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Set project visibility
    */
   withVisibility(visibility: ProjectVisibility): this {
-    if (!this.request.sonarQubeProjectConfig) {
-      this.request.sonarQubeProjectConfig = {};
-    }
+    this.request.sonarQubeProjectConfig ??= {};
     this.request.sonarQubeProjectConfig.visibility = visibility;
     return this;
   }
@@ -249,9 +233,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Set quality gate
    */
   withQualityGate(qualityGate: string): this {
-    if (!this.request.sonarQubeProjectConfig) {
-      this.request.sonarQubeProjectConfig = {};
-    }
+    this.request.sonarQubeProjectConfig ??= {};
     this.request.sonarQubeProjectConfig.qualityGate = qualityGate;
     return this;
   }
@@ -260,9 +242,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Set project tags
    */
   withTags(tags: string[]): this {
-    if (!this.request.sonarQubeProjectConfig) {
-      this.request.sonarQubeProjectConfig = {};
-    }
+    this.request.sonarQubeProjectConfig ??= {};
     this.request.sonarQubeProjectConfig.tags = tags;
     return this;
   }
@@ -270,12 +250,13 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
   /**
    * Validate the current configuration
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async validate(): Promise<ValidationResult> {
     const errors: DopValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
     // Required field validation
-    if (!this.request.dopPlatform) {
+    if (this.request.dopPlatform === undefined) {
       errors.push({
         field: 'dopPlatform',
         message: 'DevOps platform is required',
@@ -283,7 +264,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
       });
     }
 
-    if (!this.request.projectIdentifier) {
+    if (this.request.projectIdentifier === undefined || this.request.projectIdentifier === '') {
       errors.push({
         field: 'projectIdentifier',
         message: 'Project identifier is required',
@@ -292,7 +273,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     }
 
     // Platform-specific validation
-    if (this.request.dopPlatform && this.request.platformSpecific) {
+    if (this.request.dopPlatform !== undefined && this.request.platformSpecific) {
       const platformValidation = this.validatePlatformSpecific();
       errors.push(...platformValidation.errors);
       warnings.push(...platformValidation.warnings);
@@ -332,9 +313,11 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    */
   private updateProjectIdentifier(): void {
     if (
-      this.request.organizationName &&
-      this.request.repositoryName &&
-      !this.request.projectIdentifier
+      this.request.organizationName !== undefined &&
+      this.request.organizationName !== '' &&
+      this.request.repositoryName !== undefined &&
+      this.request.repositoryName !== '' &&
+      (this.request.projectIdentifier === undefined || this.request.projectIdentifier === '')
     ) {
       this.request.projectIdentifier = `${this.request.organizationName}/${this.request.repositoryName}`;
     }
@@ -350,7 +333,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     const errors: DopValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
-    if (!this.request.platformSpecific || !this.request.dopPlatform) {
+    if (!this.request.platformSpecific || this.request.dopPlatform === undefined) {
       return { errors, warnings };
     }
 
@@ -361,7 +344,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
         return this.validateGitLabSpecific();
       case DevOpsPlatform.BITBUCKET:
         return this.validateBitbucketSpecific();
-      case DevOpsPlatform.AZURE_DEVOPS:
+      case DevOpsPlatform.AzureDevops:
         return this.validateAzureDevOpsSpecific();
       default:
         errors.push({
@@ -402,7 +385,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     }
 
     // Check for valid GitHub naming conventions
-    if (config.owner && !/^[a-zA-Z0-9]([a-zA-Z0-9\-])*[a-zA-Z0-9]$/.test(config.owner)) {
+    if (config.owner && !/^[a-zA-Z0-9]([a-zA-Z0-9-])*[a-zA-Z0-9]$/.test(config.owner)) {
       warnings.push({
         field: 'platformSpecific.owner',
         message: 'GitHub owner name may not follow naming conventions',
@@ -528,10 +511,10 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
   } {
     const errors: DopValidationError[] = [];
     const warnings: ValidationWarning[] = [];
-    const config = this.request.sonarQubeProjectConfig!;
+    const config = this.request.sonarQubeProjectConfig ?? {};
 
     // Validate project key format if provided
-    if (config.key) {
+    if (config.key !== undefined && config.key !== '') {
       if (!/^[a-zA-Z0-9:_.-]+$/.test(config.key)) {
         errors.push({
           field: 'sonarQubeProjectConfig.key',
@@ -550,7 +533,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     }
 
     // Validate project name if provided
-    if (config.name && config.name.length > 2000) {
+    if (config.name !== undefined && config.name.length > 2000) {
       errors.push({
         field: 'sonarQubeProjectConfig.name',
         message: 'SonarQube project name too long (max 2000 characters)',
@@ -559,7 +542,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     }
 
     // Validate description if provided
-    if (config.description && config.description.length > 2000) {
+    if (config.description !== undefined && config.description.length > 2000) {
       warnings.push({
         field: 'sonarQubeProjectConfig.description',
         message: 'SonarQube project description is very long',

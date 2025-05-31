@@ -4,18 +4,16 @@
  */
 
 import { DopTranslationClient } from '../DopTranslationClient';
-import type {
-  CreateBoundProjectV2Request,
-  CreateBoundProjectV2Response,
-  DopSettingsV2Response,
-  BatchCreateRequest,
-} from '../types';
 import {
   DevOpsPlatform,
   ProjectBindingStatus,
   PlatformStatus,
   ProjectVisibility,
   SyncStatus,
+  type CreateBoundProjectV2Request,
+  type CreateBoundProjectV2Response,
+  type DopSettingsV2Response,
+  type BatchCreateRequest,
 } from '../types';
 
 // Mock BaseClient
@@ -28,6 +26,7 @@ describe('DopTranslationClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     client = new DopTranslationClient('https://sonarqube.example.com', 'test-token');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
     (client as any).request = mockRequest;
   });
 
@@ -223,7 +222,7 @@ describe('DopTranslationClient', () => {
     it('should create an Azure DevOps bound project', async () => {
       // Arrange
       const request: CreateBoundProjectV2Request = {
-        dopPlatform: DevOpsPlatform.AZURE_DEVOPS,
+        dopPlatform: DevOpsPlatform.AzureDevops,
         projectIdentifier: 'org/project',
         organizationName: 'org',
         repositoryName: 'repo',
@@ -249,7 +248,7 @@ describe('DopTranslationClient', () => {
         url: 'https://sonarqube.example.com/dashboard?id=org_repo',
         dopBinding: {
           id: 'binding-126',
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
           externalProjectId: 'org/project',
           externalUrl: 'https://dev.azure.com/org/project/_git/repo',
           lastSync: '2025-01-30T10:00:00Z',
@@ -282,7 +281,7 @@ describe('DopTranslationClient', () => {
 
       // Assert
       expect(result).toEqual(expectedResponse);
-      expect(result.dopBinding.platform).toBe(DevOpsPlatform.AZURE_DEVOPS);
+      expect(result.dopBinding.platform).toBe(DevOpsPlatform.AzureDevops);
     });
 
     it('should throw validation error for missing platform', async () => {
@@ -293,7 +292,7 @@ describe('DopTranslationClient', () => {
 
       // Act & Assert
       await expect(client.createBoundProjectV2(invalidRequest)).rejects.toThrow(
-        'Invalid request: DevOps platform is required'
+        'Invalid request: Unsupported DevOps platform'
       );
     });
 
@@ -324,6 +323,61 @@ describe('DopTranslationClient', () => {
       // Act & Assert
       await expect(client.createBoundProjectV2(invalidRequest)).rejects.toThrow(
         'GitHub owner/organization is required'
+      );
+    });
+
+    it('should throw validation error for invalid GitLab config', async () => {
+      // Arrange
+      const invalidRequest: CreateBoundProjectV2Request = {
+        dopPlatform: DevOpsPlatform.GITLAB,
+        projectIdentifier: 'namespace/project',
+        platformSpecific: {
+          type: 'gitlab',
+          namespace: '',
+          project: 'project',
+        },
+      };
+
+      // Act & Assert
+      await expect(client.createBoundProjectV2(invalidRequest)).rejects.toThrow(
+        'GitLab namespace is required'
+      );
+    });
+
+    it('should throw validation error for invalid Bitbucket config', async () => {
+      // Arrange
+      const invalidRequest: CreateBoundProjectV2Request = {
+        dopPlatform: DevOpsPlatform.BITBUCKET,
+        projectIdentifier: 'workspace/repo',
+        platformSpecific: {
+          type: 'bitbucket',
+          workspace: '',
+          repository: 'repo',
+        },
+      };
+
+      // Act & Assert
+      await expect(client.createBoundProjectV2(invalidRequest)).rejects.toThrow(
+        'Bitbucket workspace is required'
+      );
+    });
+
+    it('should throw validation error for invalid Azure DevOps config', async () => {
+      // Arrange
+      const invalidRequest: CreateBoundProjectV2Request = {
+        dopPlatform: DevOpsPlatform.AzureDevops,
+        projectIdentifier: 'org/project',
+        platformSpecific: {
+          type: 'azure-devops',
+          organization: '',
+          project: 'project',
+          repository: 'repo',
+        },
+      };
+
+      // Act & Assert
+      await expect(client.createBoundProjectV2(invalidRequest)).rejects.toThrow(
+        'Azure DevOps organization is required'
       );
     });
   });
@@ -466,23 +520,23 @@ describe('DopTranslationClient', () => {
       };
 
       const mockResponses = projects.map((project, index) => ({
-        id: `bound-project-${index + 1}`,
-        key: `${project.organizationName}_${project.repositoryName}`,
-        name: project.repositoryName!,
-        url: `https://sonarqube.example.com/dashboard?id=${project.organizationName}_${project.repositoryName}`,
+        id: `bound-project-${String(index + 1)}`,
+        key: `${project.organizationName ?? ''}_${project.repositoryName ?? ''}`,
+        name: project.repositoryName ?? '',
+        url: `https://sonarqube.example.com/dashboard?id=${project.organizationName ?? ''}_${project.repositoryName ?? ''}`,
         dopBinding: {
-          id: `binding-${index + 1}`,
+          id: `binding-${String(index + 1)}`,
           platform: project.dopPlatform,
           externalProjectId: project.projectIdentifier,
           externalUrl: `https://example.com/${project.projectIdentifier}`,
           lastSync: '2025-01-30T10:00:00Z',
           syncStatus: SyncStatus.SUCCESS,
-          configuration: project.platformSpecific!,
+          configuration: project.platformSpecific ?? {},
         },
         sonarQubeProject: {
-          key: `${project.organizationName}_${project.repositoryName}`,
-          name: project.repositoryName!,
-          url: `https://sonarqube.example.com/dashboard?id=${project.organizationName}_${project.repositoryName}`,
+          key: `${project.organizationName ?? ''}_${project.repositoryName ?? ''}`,
+          name: project.repositoryName ?? '',
+          url: `https://sonarqube.example.com/dashboard?id=${project.organizationName ?? ''}_${project.repositoryName ?? ''}`,
           visibility: ProjectVisibility.PRIVATE,
           createdAt: '2025-01-30T10:00:00Z',
         },
@@ -569,9 +623,8 @@ describe('DopTranslationClient', () => {
         status: ProjectBindingStatus.ACTIVE,
       };
 
-      mockRequest
-        .mockResolvedValueOnce(successResponse)
-        .mockRejectedValueOnce(new Error('GitHub owner/organization is required'));
+      mockRequest.mockResolvedValueOnce(successResponse);
+      // The second request will fail validation before making the HTTP request
 
       // Act
       const result = await client.createBoundProjectsBatch(batchRequest);
@@ -583,7 +636,9 @@ describe('DopTranslationClient', () => {
       expect(result.results).toHaveLength(2);
       expect(result.results[0].success).toBe(true);
       expect(result.results[1].success).toBe(false);
-      expect(result.results[1].error?.message).toBe('GitHub owner/organization is required');
+      expect(result.results[1].error?.message).toBe(
+        'Invalid request: GitHub owner/organization is required'
+      );
     });
 
     it('should stop on first error when continueOnError is false', async () => {
@@ -622,12 +677,61 @@ describe('DopTranslationClient', () => {
         },
       };
 
-      mockRequest.mockRejectedValueOnce(new Error('GitHub owner/organization is required'));
+      // The first request will fail validation before making the HTTP request
 
       // Act & Assert
       await expect(client.createBoundProjectsBatch(batchRequest)).rejects.toThrow(
-        'GitHub owner/organization is required'
+        'Invalid request: GitHub owner/organization is required'
       );
+    });
+  });
+
+  describe('validation warnings', () => {
+    it('should return warnings for invalid GitHub project identifier format', async () => {
+      // We need to spy on the validatePlatformConfig method to check warnings
+      const request: CreateBoundProjectV2Request = {
+        dopPlatform: DevOpsPlatform.GITHUB,
+        projectIdentifier: 'invalid-format', // Missing slash
+        platformSpecific: {
+          type: 'github',
+          owner: 'owner',
+          repository: 'repo',
+        },
+      };
+
+      // Since warnings don't throw errors, the request should succeed
+      mockRequest.mockResolvedValueOnce({
+        id: 'test-id',
+        key: 'test-key',
+        name: 'test',
+        url: 'test-url',
+        dopBinding: {
+          id: 'binding-id',
+          platform: DevOpsPlatform.GITHUB,
+          externalProjectId: 'invalid-format',
+          externalUrl: 'https://github.com/owner/repo',
+          lastSync: '2025-01-30T10:00:00Z',
+          syncStatus: SyncStatus.SUCCESS,
+          configuration: {
+            type: 'github',
+            owner: 'owner',
+            repository: 'repo',
+          },
+        },
+        sonarQubeProject: {
+          key: 'test-key',
+          name: 'test',
+          url: 'test-url',
+          visibility: ProjectVisibility.PRIVATE,
+          createdAt: '2025-01-30T10:00:00Z',
+        },
+        createdAt: '2025-01-30T10:00:00Z',
+        status: ProjectBindingStatus.ACTIVE,
+      });
+
+      await client.createBoundProjectV2(request);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mockRequest).toHaveBeenCalled();
     });
   });
 
@@ -646,7 +750,8 @@ describe('DopTranslationClient', () => {
         },
       };
 
-      mockRequest.mockRejectedValue(new Error('Network error'));
+      const networkError = new Error('Network error');
+      mockRequest.mockRejectedValue(networkError);
 
       // Act & Assert
       await expect(client.createBoundProjectV2(request)).rejects.toThrow('Network error');

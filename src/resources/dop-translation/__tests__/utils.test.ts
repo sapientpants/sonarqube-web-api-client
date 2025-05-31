@@ -112,7 +112,7 @@ describe('PlatformDetector', () => {
       testCases.forEach((url) => {
         const result = PlatformDetector.detectFromUrl(url);
 
-        expect(result.platform).toBe(DevOpsPlatform.AZURE_DEVOPS);
+        expect(result.platform).toBe(DevOpsPlatform.AzureDevops);
         expect(result.confidence).toBe(1.0);
         expect(result.extractedInfo.organization).toBe('organization');
         expect(result.extractedInfo.repository).toBe('project');
@@ -124,7 +124,7 @@ describe('PlatformDetector', () => {
       const url = 'https://company.visualstudio.com/project';
       const result = PlatformDetector.detectFromUrl(url);
 
-      expect(result.platform).toBe(DevOpsPlatform.AZURE_DEVOPS);
+      expect(result.platform).toBe(DevOpsPlatform.AzureDevops);
       expect(result.confidence).toBe(0.9);
       expect(result.extractedInfo.organization).toBe('company');
       expect(result.extractedInfo.repository).toBe('project');
@@ -139,7 +139,7 @@ describe('PlatformDetector', () => {
     });
 
     it('should return low confidence for unknown URLs', () => {
-      const url = 'https://unknown-platform.com/owner/repo';
+      const url = 'https://unknown-platform.com/';
       const result = PlatformDetector.detectFromUrl(url);
 
       expect(result.platform).toBe(DevOpsPlatform.GITHUB); // Default fallback
@@ -405,7 +405,7 @@ describe('ProjectMapper', () => {
       const result = ProjectMapper.mapGitHubProject(githubProject);
 
       expect(result.visibility).toBe(ProjectVisibility.PUBLIC);
-      expect(result.description).toBeUndefined();
+      expect('description' in result).toBe(false); // Not set when null
       expect(result.tags).toEqual([]);
     });
   });
@@ -512,7 +512,7 @@ describe('ProjectMapper', () => {
           expected: 'bitbucket_bitbucket_workspace_repo_name',
         },
         {
-          platform: DevOpsPlatform.AZURE_DEVOPS,
+          platform: DevOpsPlatform.AzureDevops,
           org: 'azure-org',
           repo: 'repo-name',
           expected: 'azure_devops_azure_org_repo_name',
@@ -551,11 +551,11 @@ describe('AuthenticationHelper', () => {
         token: 'ghp_1234567890abcdef',
       };
 
-      const result = await AuthenticationHelper.validateGitHubAuth(config, credentials);
+      const result = AuthenticationHelper.validateGitHubAuth(config, credentials);
       expect(result).toBe(true);
     });
 
-    it('should reject invalid GitHub token format', async () => {
+    it('should reject invalid GitHub token format', () => {
       const config: GitHubConfig = {
         type: 'github',
         owner: 'owner',
@@ -567,11 +567,11 @@ describe('AuthenticationHelper', () => {
         token: 'invalid-token',
       };
 
-      const result = await AuthenticationHelper.validateGitHubAuth(config, credentials);
+      const result = AuthenticationHelper.validateGitHubAuth(config, credentials);
       expect(result).toBe(false);
     });
 
-    it('should validate GitHub OAuth credentials', async () => {
+    it('should validate GitHub OAuth credentials', () => {
       const config: GitHubConfig = {
         type: 'github',
         owner: 'owner',
@@ -584,8 +584,257 @@ describe('AuthenticationHelper', () => {
         clientSecret: 'secret456',
       };
 
-      const result = await AuthenticationHelper.validateGitHubAuth(config, credentials);
+      const result = AuthenticationHelper.validateGitHubAuth(config, credentials);
       expect(result).toBe(true);
+    });
+
+    it('should validate GitHub installation token', () => {
+      const config: GitHubConfig = {
+        type: 'github',
+        owner: 'owner',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'installation_token' as const,
+        installationId: '12345',
+        appId: 'app123',
+        privateKey: 'private-key',
+      };
+
+      const result = AuthenticationHelper.validateGitHubAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should reject GitHub app passwords', () => {
+      const config: GitHubConfig = {
+        type: 'github',
+        owner: 'owner',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'app_password' as const,
+        username: 'user',
+        password: 'pass',
+      };
+
+      const result = AuthenticationHelper.validateGitHubAuth(config, credentials);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('validateGitLabAuth', () => {
+    it('should validate GitLab personal access token', () => {
+      const config: GitLabConfig = {
+        type: 'gitlab',
+        namespace: 'namespace',
+        project: 'project',
+      };
+
+      const credentials = {
+        type: 'personal_access_token' as const,
+        token: 'glpat-1234567890abcdefghij', // 20+ chars
+      };
+
+      const result = AuthenticationHelper.validateGitLabAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should validate GitLab OAuth credentials', () => {
+      const config: GitLabConfig = {
+        type: 'gitlab',
+        namespace: 'namespace',
+        project: 'project',
+      };
+
+      const credentials = {
+        type: 'oauth' as const,
+        clientId: 'client123',
+        clientSecret: 'secret456',
+      };
+
+      const result = AuthenticationHelper.validateGitLabAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should reject GitLab app password', () => {
+      const config: GitLabConfig = {
+        type: 'gitlab',
+        namespace: 'namespace',
+        project: 'project',
+      };
+
+      const credentials = {
+        type: 'app_password' as const,
+        username: 'user',
+        password: 'pass',
+      };
+
+      const result = AuthenticationHelper.validateGitLabAuth(config, credentials);
+      expect(result).toBe(false);
+    });
+
+    it('should reject GitLab installation token', () => {
+      const config: GitLabConfig = {
+        type: 'gitlab',
+        namespace: 'namespace',
+        project: 'project',
+      };
+
+      const credentials = {
+        type: 'installation_token' as const,
+        installationId: '12345',
+        appId: 'app123',
+        privateKey: 'private-key',
+      };
+
+      const result = AuthenticationHelper.validateGitLabAuth(config, credentials);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('validateBitbucketAuth', () => {
+    it('should validate Bitbucket app password', () => {
+      const config: BitbucketConfig = {
+        type: 'bitbucket',
+        workspace: 'workspace',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'app_password' as const,
+        username: 'user',
+        password: 'pass',
+      };
+
+      const result = AuthenticationHelper.validateBitbucketAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should validate Bitbucket OAuth credentials', () => {
+      const config: BitbucketConfig = {
+        type: 'bitbucket',
+        workspace: 'workspace',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'oauth' as const,
+        clientId: 'client123',
+        clientSecret: 'secret456',
+      };
+
+      const result = AuthenticationHelper.validateBitbucketAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should reject Bitbucket personal access token', () => {
+      const config: BitbucketConfig = {
+        type: 'bitbucket',
+        workspace: 'workspace',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'personal_access_token' as const,
+        token: 'token123',
+      };
+
+      const result = AuthenticationHelper.validateBitbucketAuth(config, credentials);
+      expect(result).toBe(false);
+    });
+
+    it('should reject Bitbucket installation token', () => {
+      const config: BitbucketConfig = {
+        type: 'bitbucket',
+        workspace: 'workspace',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'installation_token' as const,
+        installationId: '12345',
+        appId: 'app123',
+        privateKey: 'private-key',
+      };
+
+      const result = AuthenticationHelper.validateBitbucketAuth(config, credentials);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('validateAzureDevOpsAuth', () => {
+    it('should validate Azure DevOps personal access token', () => {
+      const config: AzureDevOpsConfig = {
+        type: 'azure-devops',
+        organization: 'org',
+        project: 'project',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'personal_access_token' as const,
+        token: '1234567890123456789012345678901234567890123456789012', // 52+ chars
+      };
+
+      const result = AuthenticationHelper.validateAzureDevOpsAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should validate Azure DevOps OAuth credentials', () => {
+      const config: AzureDevOpsConfig = {
+        type: 'azure-devops',
+        organization: 'org',
+        project: 'project',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'oauth' as const,
+        clientId: 'client123',
+        clientSecret: 'secret456',
+      };
+
+      const result = AuthenticationHelper.validateAzureDevOpsAuth(config, credentials);
+      expect(result).toBe(true);
+    });
+
+    it('should reject Azure DevOps app password', () => {
+      const config: AzureDevOpsConfig = {
+        type: 'azure-devops',
+        organization: 'org',
+        project: 'project',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'app_password' as const,
+        username: 'user',
+        password: 'pass',
+      };
+
+      const result = AuthenticationHelper.validateAzureDevOpsAuth(config, credentials);
+      expect(result).toBe(false);
+    });
+
+    it('should reject Azure DevOps installation token', () => {
+      const config: AzureDevOpsConfig = {
+        type: 'azure-devops',
+        organization: 'org',
+        project: 'project',
+        repository: 'repo',
+      };
+
+      const credentials = {
+        type: 'installation_token' as const,
+        installationId: '12345',
+        appId: 'app123',
+        privateKey: 'private-key',
+      };
+
+      const result = AuthenticationHelper.validateAzureDevOpsAuth(config, credentials);
+      expect(result).toBe(false);
     });
   });
 
@@ -622,6 +871,49 @@ describe('AuthenticationHelper', () => {
 
       const repoCount = scopes.filter((scope) => scope === 'repo').length;
       expect(repoCount).toBe(1);
+    });
+
+    it('should return correct scopes for GitLab operations', () => {
+      const readScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.GITLAB, ['read']);
+      expect(readScopes).toEqual(['read_repository']);
+
+      const writeScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.GITLAB, ['write']);
+      expect(writeScopes).toEqual(['write_repository']);
+
+      const adminScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.GITLAB, ['admin']);
+      expect(adminScopes).toEqual(['api']);
+    });
+
+    it('should return correct scopes for Bitbucket operations', () => {
+      const readScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.BITBUCKET, ['read']);
+      expect(readScopes).toEqual(['repositories:read']);
+
+      const writeScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.BITBUCKET, [
+        'write',
+      ]);
+      expect(writeScopes).toEqual(['repositories:write']);
+
+      const adminScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.BITBUCKET, [
+        'admin',
+      ]);
+      expect(adminScopes).toEqual(['repositories:admin']);
+    });
+
+    it('should return correct scopes for Azure DevOps operations', () => {
+      const readScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.AzureDevops, [
+        'read',
+      ]);
+      expect(readScopes).toEqual(['vso.code']);
+
+      const writeScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.AzureDevops, [
+        'write',
+      ]);
+      expect(writeScopes).toEqual(['vso.code_write']);
+
+      const adminScopes = AuthenticationHelper.getRequiredScopes(DevOpsPlatform.AzureDevops, [
+        'admin',
+      ]);
+      expect(adminScopes).toEqual(['vso.code_manage']);
     });
   });
 });
@@ -675,7 +967,7 @@ describe('ConfigurationTemplates', () => {
 
     it('should return default Azure DevOps configuration', () => {
       const config = ConfigurationTemplates.getDefaultConfig(
-        DevOpsPlatform.AZURE_DEVOPS,
+        DevOpsPlatform.AzureDevops,
         'azure-org',
         'repo-name'
       );

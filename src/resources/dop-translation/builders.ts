@@ -18,7 +18,15 @@ import {
   type ValidationError as DopValidationError,
   type ValidationWarning,
 } from './types';
-import type { DopTranslationClient } from './DopTranslationClient';
+
+/**
+ * Interface for clients that can create bound projects
+ */
+interface BoundProjectCreator {
+  createBoundProjectV2: (
+    request: CreateBoundProjectV2Request
+  ) => Promise<CreateBoundProjectV2Response>;
+}
 
 /**
  * Implementation of the CreateBoundProjectV2Builder interface
@@ -27,7 +35,7 @@ import type { DopTranslationClient } from './DopTranslationClient';
 export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Builder {
   private readonly request: Partial<CreateBoundProjectV2Request> = {};
 
-  constructor(private readonly client: DopTranslationClient) {}
+  constructor(private readonly client: BoundProjectCreator) {}
 
   /**
    * Set the DevOps platform for the project

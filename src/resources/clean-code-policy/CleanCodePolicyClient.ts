@@ -316,60 +316,14 @@ export class CleanCodePolicyClient extends BaseClient {
     skipped: string[];
     failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>;
   }> {
-    let rules: CreateCustomRuleV2Request[];
+    const rules = this.parseRulesFromJson(jsonData);
+    const processedRules = this.addKeyPrefixToRules(rules, options?.keyPrefix);
 
-    try {
-      rules = JSON.parse(jsonData) as CreateCustomRuleV2Request[];
-      if (!Array.isArray(rules)) {
-        throw new Error('Expected an array of rules');
-      }
-    } catch (error) {
-      throw new Error(`Invalid JSON data: ${(error as Error).message}`);
-    }
-
-    // Add key prefix if specified
-    const keyPrefix = options?.keyPrefix;
-    if (keyPrefix !== undefined && keyPrefix !== '') {
-      rules = rules.map((rule) => ({
-        ...rule,
-        key: `${keyPrefix}${rule.key}`,
-      }));
-    }
-
-    // Validate rules if requested
     if (options?.validateBeforeImport === true) {
-      for (const rule of rules) {
-        const validation = await this.validateRule(rule);
-        if (!validation.valid && validation.errors) {
-          throw new Error(
-            `Validation failed for rule ${rule.key}: ${validation.errors.map((e) => e.message).join(', ')}`
-          );
-        }
-      }
+      await this.validateRulesBeforeImport(processedRules);
     }
 
-    const imported: CreateCustomRuleV2Response[] = [];
-    const skipped: string[] = [];
-    const failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }> = [];
-
-    for (const rule of rules) {
-      try {
-        const result = await this.createCustomRuleV2(rule);
-        imported.push(result);
-      } catch (error) {
-        const err = error as Error & { code?: string };
-        if (
-          options?.skipExisting === true &&
-          err.code === (CleanCodePolicyErrorCode.RuleKeyExists as string)
-        ) {
-          skipped.push(rule.key);
-        } else {
-          failed.push({ rule, error: err });
-        }
-      }
-    }
-
-    return { imported, skipped, failed };
+    return this.processRulesImport(processedRules, options?.skipExisting);
   }
 
   /**
@@ -403,6 +357,85 @@ export class CleanCodePolicyClient extends BaseClient {
     return JSON.stringify(exportData, null, 2);
   }
 
+  private parseRulesFromJson(jsonData: string): CreateCustomRuleV2Request[] {
+    try {
+      const rules = JSON.parse(jsonData) as CreateCustomRuleV2Request[];
+      if (!Array.isArray(rules)) {
+        throw new Error('Expected an array of rules');
+      }
+      return rules;
+    } catch (error) {
+      throw new Error(`Invalid JSON data: ${(error as Error).message}`);
+    }
+  }
+
+  private addKeyPrefixToRules(
+    rules: CreateCustomRuleV2Request[],
+    keyPrefix?: string
+  ): CreateCustomRuleV2Request[] {
+    if (keyPrefix === undefined || keyPrefix === '') {
+      return rules;
+    }
+
+    return rules.map((rule) => ({
+      ...rule,
+      key: `${keyPrefix}${rule.key}`,
+    }));
+  }
+
+  private async validateRulesBeforeImport(rules: CreateCustomRuleV2Request[]): Promise<void> {
+    for (const rule of rules) {
+      const validation = await this.validateRule(rule);
+      if (!validation.valid && validation.errors) {
+        throw new Error(
+          `Validation failed for rule ${rule.key}: ${validation.errors.map((e) => e.message).join(', ')}`
+        );
+      }
+    }
+  }
+
+  private async processRulesImport(
+    rules: CreateCustomRuleV2Request[],
+    skipExisting?: boolean
+  ): Promise<{
+    imported: CreateCustomRuleV2Response[];
+    skipped: string[];
+    failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>;
+  }> {
+    const imported: CreateCustomRuleV2Response[] = [];
+    const skipped: string[] = [];
+    const failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }> = [];
+
+    for (const rule of rules) {
+      try {
+        const result = await this.createCustomRuleV2(rule);
+        imported.push(result);
+      } catch (error) {
+        this.handleRuleImportError(error, rule, skipExisting, skipped, failed);
+      }
+    }
+
+    return { imported, skipped, failed };
+  }
+
+  private handleRuleImportError(
+    error: unknown,
+    rule: CreateCustomRuleV2Request,
+    skipExisting: boolean | undefined,
+    skipped: string[],
+    failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>
+  ): void {
+    const err = error as Error & { code?: string };
+    const shouldSkipExisting =
+      skipExisting === true && err.code === (CleanCodePolicyErrorCode.RuleKeyExists as string);
+
+    if (shouldSkipExisting) {
+      skipped.push(rule.key);
+    } else {
+      failed.push({ rule, error: err });
+    }
+  }
+
   /**
    * Handle Clean Code Policy API specific errors
    *
@@ -411,68 +444,97 @@ export class CleanCodePolicyClient extends BaseClient {
    * @private
    */
   private handleCleanCodePolicyError(error: unknown): Error {
-    if (error instanceof Error) {
-      // Check if it's a known API error
-      const message = error.message.toLowerCase();
-      const errorStr = error.toString().toLowerCase();
-
-      if (message.includes('already exists') || errorStr.includes('already exists')) {
-        return this.createError(
-          CleanCodePolicyErrorCode.RuleKeyExists,
-          'A rule with this key already exists',
-          error
-        );
-      }
-
-      if (
-        (message.includes('template') && message.includes('not found')) ||
-        (errorStr.includes('template') && errorStr.includes('not found'))
-      ) {
-        return this.createError(
-          CleanCodePolicyErrorCode.TemplateNotFound,
-          'The specified template was not found',
-          error
-        );
-      }
-
-      if (message.includes('parameter') || errorStr.includes('parameter')) {
-        if (message.includes('invalid') || errorStr.includes('invalid')) {
-          return this.createError(
-            CleanCodePolicyErrorCode.InvalidParameter,
-            'Invalid parameter value provided',
-            error
-          );
-        }
-        if (
-          message.includes('missing') ||
-          message.includes('required') ||
-          errorStr.includes('missing') ||
-          errorStr.includes('required')
-        ) {
-          return this.createError(
-            CleanCodePolicyErrorCode.MissingParameter,
-            'Required parameter is missing',
-            error
-          );
-        }
-      }
-
-      if (
-        message.includes('permission') ||
-        message.includes('unauthorized') ||
-        message.includes('forbidden') ||
-        errorStr.includes('permission') ||
-        errorStr.includes('forbidden')
-      ) {
-        return this.createError(
-          CleanCodePolicyErrorCode.InsufficientPermissions,
-          'Insufficient permissions to create custom rules. Requires "Administer Quality Profiles" permission.',
-          error
-        );
-      }
+    if (!(error instanceof Error)) {
+      return error as Error;
     }
 
-    return error as Error;
+    const message = error.message.toLowerCase();
+    const errorStr = error.toString().toLowerCase();
+
+    if (this.isRuleKeyExistsError(message, errorStr)) {
+      return this.createError(
+        CleanCodePolicyErrorCode.RuleKeyExists,
+        'A rule with this key already exists',
+        error
+      );
+    }
+
+    if (this.isTemplateNotFoundError(message, errorStr)) {
+      return this.createError(
+        CleanCodePolicyErrorCode.TemplateNotFound,
+        'The specified template was not found',
+        error
+      );
+    }
+
+    const parameterError = this.checkParameterErrors(message, errorStr, error);
+    if (parameterError) {
+      return parameterError;
+    }
+
+    if (this.isPermissionError(message, errorStr)) {
+      return this.createError(
+        CleanCodePolicyErrorCode.InsufficientPermissions,
+        'Insufficient permissions to create custom rules. Requires "Administer Quality Profiles" permission.',
+        error
+      );
+    }
+
+    return error;
+  }
+
+  private isRuleKeyExistsError(message: string, errorStr: string): boolean {
+    return message.includes('already exists') || errorStr.includes('already exists');
+  }
+
+  private isTemplateNotFoundError(message: string, errorStr: string): boolean {
+    return (
+      (message.includes('template') && message.includes('not found')) ||
+      (errorStr.includes('template') && errorStr.includes('not found'))
+    );
+  }
+
+  private checkParameterErrors(message: string, errorStr: string, error: Error): Error | null {
+    if (!message.includes('parameter') && !errorStr.includes('parameter')) {
+      return null;
+    }
+
+    if (message.includes('invalid') || errorStr.includes('invalid')) {
+      return this.createError(
+        CleanCodePolicyErrorCode.InvalidParameter,
+        'Invalid parameter value provided',
+        error
+      );
+    }
+
+    if (this.isMissingParameterError(message, errorStr)) {
+      return this.createError(
+        CleanCodePolicyErrorCode.MissingParameter,
+        'Required parameter is missing',
+        error
+      );
+    }
+
+    return null;
+  }
+
+  private isMissingParameterError(message: string, errorStr: string): boolean {
+    return (
+      message.includes('missing') ||
+      message.includes('required') ||
+      errorStr.includes('missing') ||
+      errorStr.includes('required')
+    );
+  }
+
+  private isPermissionError(message: string, errorStr: string): boolean {
+    return (
+      message.includes('permission') ||
+      message.includes('unauthorized') ||
+      message.includes('forbidden') ||
+      errorStr.includes('permission') ||
+      errorStr.includes('forbidden')
+    );
   }
 
   /**

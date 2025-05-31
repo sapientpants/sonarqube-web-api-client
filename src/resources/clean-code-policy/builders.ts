@@ -125,87 +125,16 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
     const errors: Array<{ field: string; message: string; code?: string }> = [];
     const warnings: Array<{ field: string; message: string; suggestion?: string }> = [];
 
-    // Required fields validation
-    if (this.params.key === undefined || this.params.key === '') {
-      errors.push({
-        field: 'key',
-        message: 'Rule key is required',
-        code: 'MISSING_KEY',
-      });
-    } else if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.params.key)) {
-      errors.push({
-        field: 'key',
-        message:
-          'Rule key must start with a letter and contain only letters, numbers, underscores, and hyphens',
-        code: 'INVALID_KEY_FORMAT',
-      });
+    this.validateKey(errors);
+    this.validateTemplateKey(errors);
+    this.validateName(errors);
+    this.validateDescription(errors, warnings);
+
+    if (options?.validateParameters !== false) {
+      this.validateParameters(errors, warnings);
     }
 
-    if (this.params.templateKey === undefined || this.params.templateKey === '') {
-      errors.push({
-        field: 'templateKey',
-        message: 'Template key is required',
-        code: 'MISSING_TEMPLATE',
-      });
-    }
-
-    if (this.params.name === undefined || this.params.name === '') {
-      errors.push({
-        field: 'name',
-        message: 'Rule name is required',
-        code: 'MISSING_NAME',
-      });
-    } else if (this.params.name.length > 200) {
-      errors.push({
-        field: 'name',
-        message: 'Rule name must not exceed 200 characters',
-        code: 'NAME_TOO_LONG',
-      });
-    }
-
-    if (this.params.markdownDescription === undefined || this.params.markdownDescription === '') {
-      errors.push({
-        field: 'markdownDescription',
-        message: 'Rule description is required',
-        code: 'MISSING_DESCRIPTION',
-      });
-    } else if (this.params.markdownDescription.length < 10) {
-      warnings.push({
-        field: 'markdownDescription',
-        message: 'Rule description is very short',
-        suggestion:
-          'Consider providing a more detailed description to help users understand the rule',
-      });
-    }
-
-    // Parameter validation
-    if (this.params.parameters && options?.validateParameters !== false) {
-      for (const param of this.params.parameters) {
-        if (param.key === '') {
-          errors.push({
-            field: 'parameters',
-            message: 'Parameter key is required',
-            code: 'MISSING_PARAMETER_KEY',
-          });
-        }
-        if (param.value === '') {
-          warnings.push({
-            field: `parameters.${param.key}`,
-            message: `Parameter '${param.key}' has no value`,
-            suggestion: 'Ensure this parameter has a valid value or remove it',
-          });
-        }
-      }
-    }
-
-    const result: RuleValidationResult = { valid: errors.length === 0 };
-    if (errors.length > 0) {
-      result.errors = errors;
-    }
-    if (warnings.length > 0) {
-      result.warnings = warnings;
-    }
-    return Promise.resolve(result);
+    return Promise.resolve(this.buildValidationResult(errors, warnings));
   }
 
   /**
@@ -239,6 +168,132 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
     }
 
     return this.executor(this.build());
+  }
+
+  private validateKey(errors: Array<{ field: string; message: string; code?: string }>): void {
+    if (this.params.key === undefined || this.params.key === '') {
+      errors.push({
+        field: 'key',
+        message: 'Rule key is required',
+        code: 'MISSING_KEY',
+      });
+      return;
+    }
+
+    if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.params.key)) {
+      errors.push({
+        field: 'key',
+        message:
+          'Rule key must start with a letter and contain only letters, numbers, underscores, and hyphens',
+        code: 'INVALID_KEY_FORMAT',
+      });
+    }
+  }
+
+  private validateTemplateKey(
+    errors: Array<{ field: string; message: string; code?: string }>
+  ): void {
+    if (this.params.templateKey === undefined || this.params.templateKey === '') {
+      errors.push({
+        field: 'templateKey',
+        message: 'Template key is required',
+        code: 'MISSING_TEMPLATE',
+      });
+    }
+  }
+
+  private validateName(errors: Array<{ field: string; message: string; code?: string }>): void {
+    if (this.params.name === undefined || this.params.name === '') {
+      errors.push({
+        field: 'name',
+        message: 'Rule name is required',
+        code: 'MISSING_NAME',
+      });
+      return;
+    }
+
+    if (this.params.name.length > 200) {
+      errors.push({
+        field: 'name',
+        message: 'Rule name must not exceed 200 characters',
+        code: 'NAME_TOO_LONG',
+      });
+    }
+  }
+
+  private validateDescription(
+    errors: Array<{ field: string; message: string; code?: string }>,
+    warnings: Array<{ field: string; message: string; suggestion?: string }>
+  ): void {
+    if (this.params.markdownDescription === undefined || this.params.markdownDescription === '') {
+      errors.push({
+        field: 'markdownDescription',
+        message: 'Rule description is required',
+        code: 'MISSING_DESCRIPTION',
+      });
+      return;
+    }
+
+    if (this.params.markdownDescription.length < 10) {
+      warnings.push({
+        field: 'markdownDescription',
+        message: 'Rule description is very short',
+        suggestion:
+          'Consider providing a more detailed description to help users understand the rule',
+      });
+    }
+  }
+
+  private validateParameters(
+    errors: Array<{ field: string; message: string; code?: string }>,
+    warnings: Array<{ field: string; message: string; suggestion?: string }>
+  ): void {
+    if (!this.params.parameters) {
+      return;
+    }
+
+    for (const param of this.params.parameters) {
+      this.validateSingleParameter(param, errors, warnings);
+    }
+  }
+
+  private validateSingleParameter(
+    param: { key: string; value: string },
+    errors: Array<{ field: string; message: string; code?: string }>,
+    warnings: Array<{ field: string; message: string; suggestion?: string }>
+  ): void {
+    if (param.key === '') {
+      errors.push({
+        field: 'parameters',
+        message: 'Parameter key is required',
+        code: 'MISSING_PARAMETER_KEY',
+      });
+    }
+
+    if (param.value === '') {
+      warnings.push({
+        field: `parameters.${param.key}`,
+        message: `Parameter '${param.key}' has no value`,
+        suggestion: 'Ensure this parameter has a valid value or remove it',
+      });
+    }
+  }
+
+  private buildValidationResult(
+    errors: Array<{ field: string; message: string; code?: string }>,
+    warnings: Array<{ field: string; message: string; suggestion?: string }>
+  ): RuleValidationResult {
+    const result: RuleValidationResult = { valid: errors.length === 0 };
+
+    if (errors.length > 0) {
+      result.errors = errors;
+    }
+
+    if (warnings.length > 0) {
+      result.warnings = warnings;
+    }
+
+    return result;
   }
 }
 

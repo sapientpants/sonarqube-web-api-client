@@ -44,7 +44,7 @@ export class UsersClient extends BaseClient {
    * }
    * ```
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
+
   search(): SearchUsersBuilder {
     DeprecationManager.warn({
       api: 'users.search()',
@@ -55,7 +55,6 @@ export class UsersClient extends BaseClient {
         'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api',
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return new SearchUsersBuilder(async (params) => {
       const query = new URLSearchParams();
       if (params.ids !== undefined) {
@@ -72,7 +71,7 @@ export class UsersClient extends BaseClient {
       }
       const queryString = query.toString();
       const url = queryString ? `/api/users/search?${queryString}` : '/api/users/search';
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
+
       return this.request<SearchUsersResponse>(url);
     });
   }
@@ -101,7 +100,6 @@ export class UsersClient extends BaseClient {
         'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api',
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return this.search().all();
   }
 

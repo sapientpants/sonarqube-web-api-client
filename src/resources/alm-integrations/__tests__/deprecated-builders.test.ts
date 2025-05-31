@@ -21,7 +21,6 @@ describe('ALM Integration Deprecated Builders', () => {
     it('should show deprecation warning for withRepositoryName()', async () => {
       const builder = new BitbucketCloudReposSearchBuilder(mockExecutor);
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       builder.withAlmSetting('alm-bitbucket-cloud').withRepositoryName('my-repo');
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -35,11 +34,11 @@ describe('ALM Integration Deprecated Builders', () => {
 
       builder
         .withAlmSetting('alm-bitbucket-cloud')
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
+
         .withRepositoryName('repo1')
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
+
         .withRepositoryName('repo2')
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
+
         .withRepositoryName('repo3');
 
       expect(consoleSpy).toHaveBeenCalledTimes(1);
@@ -50,7 +49,7 @@ describe('ALM Integration Deprecated Builders', () => {
 
       const response = await builder
         .withAlmSetting('alm-bitbucket-cloud')
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
+
         .withRepositoryName('my-repo')
         .execute();
 

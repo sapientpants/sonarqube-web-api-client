@@ -622,7 +622,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.exporters();
       expect(result).toEqual(mockResponse);
     });
@@ -644,7 +643,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.importers();
       expect(result).toEqual(mockResponse);
     });

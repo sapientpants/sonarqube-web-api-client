@@ -1,11 +1,17 @@
 import { AlmIntegrationsClient } from './resources/alm-integrations';
 import { AlmSettingsClient } from './resources/alm-settings';
 import { AnalysisCacheClient } from './resources/analysis-cache';
+import { AnalysisClient } from './resources/analysis';
+import { ScaClient } from './resources/sca';
+import { FixSuggestionsClient } from './resources/fix-suggestions';
+import { CleanCodePolicyClient } from './resources/clean-code-policy';
+import { DopTranslationClient } from './resources/dop-translation';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
 import { ApplicationsClient } from './resources/applications';
 import { AuthenticationClient } from './resources/authentication';
+import { AuthorizationsClient } from './resources/authorizations';
 import { CEClient } from './resources/ce';
 import { ComponentsClient } from './resources/components';
 import { DuplicationsClient } from './resources/duplications';
@@ -30,7 +36,6 @@ import { QualityProfilesClient } from './resources/quality-profiles';
 import { RulesClient } from './resources/rules';
 import { SettingsClient } from './resources/settings';
 import { UsersClient } from './resources/users';
-import { UserGroupsClient } from './resources/user-groups';
 import { UserTokensClient } from './resources/user-tokens';
 import { PermissionsClient } from './resources/permissions';
 import { WebhooksClient } from './resources/webhooks';
@@ -57,10 +62,22 @@ export class SonarQubeClient {
   public readonly almSettings: AlmSettingsClient;
   /** Analysis Cache API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly analysisCache: AnalysisCacheClient;
+  /** Analysis API v2 - Scanner management and project analysis - **Note**: Only available in SonarQube 10.3+ */
+  public readonly analysis: AnalysisClient;
+  /** SCA API v2 - Software Composition Analysis and SBOM generation - **Note**: Only available in SonarQube 10.6+ */
+  public readonly sca: ScaClient;
+  /** Fix Suggestions API v2 - AI-powered code fix suggestions - **Note**: Only available in SonarQube 10.7+ */
+  public readonly fixSuggestions: FixSuggestionsClient;
+  /** Clean Code Policy API v2 - Create custom code quality rules - **Note**: Only available in SonarQube 10.6+ */
+  public readonly cleanCodePolicy: CleanCodePolicyClient;
+  /** DOP Translation API v2 - DevOps platform integration and project binding - **Note**: Only available in SonarQube 10.6+ */
+  public readonly dopTranslation: DopTranslationClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly applications: ApplicationsClient;
   /** Authentication API */
   public readonly authentication: AuthenticationClient;
+  /** Authorizations API v2 - Groups and permissions management - **Note**: Only available in SonarQube 10.5+ */
+  public readonly authorizations: AuthorizationsClient;
   /** Compute Engine (CE) API */
   public readonly ce: CEClient;
   /** Components API */
@@ -111,8 +128,6 @@ export class SonarQubeClient {
   public readonly settings: SettingsClient;
   /** Users API */
   public readonly users: UsersClient;
-  /** User Groups API */
-  public readonly userGroups: UserGroupsClient;
   /** User Tokens API */
   public readonly userTokens: UserTokensClient;
   /** Webhooks API */
@@ -142,8 +157,14 @@ export class SonarQubeClient {
     this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token, this.options);
     this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.options);
     this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.options);
+    this.analysis = new AnalysisClient(this.baseUrl, this.token, this.options);
+    this.sca = new ScaClient(this.baseUrl, this.token, this.options);
+    this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.token, this.options);
+    this.cleanCodePolicy = new CleanCodePolicyClient(this.baseUrl, this.token, this.options);
+    this.dopTranslation = new DopTranslationClient(this.baseUrl, this.token, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
+    this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);
     this.ce = new CEClient(this.baseUrl, this.token, this.options);
     this.components = new ComponentsClient(this.baseUrl, this.token, this.options);
     this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.options);
@@ -173,7 +194,6 @@ export class SonarQubeClient {
     this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.options);
     this.settings = new SettingsClient(this.baseUrl, this.token, this.options);
     this.users = new UsersClient(this.baseUrl, this.token, this.options);
-    this.userGroups = new UserGroupsClient(this.baseUrl, this.token, this.options);
     this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
     this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
     this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
@@ -293,8 +313,61 @@ export type {
   GetAnalysisCacheResponse,
 } from './resources/analysis-cache/types';
 
+// Re-export types from analysis v2
+export type {
+  // Request types
+  GetActiveRulesV2Request,
+
+  // Response types
+  GetActiveRulesV2Response,
+  EngineMetadataV2,
+  GetJresV2Response,
+  VersionV2Response,
+
+  // Data types
+  ActiveRuleV2,
+  JreMetadataV2,
+} from './resources/analysis/types';
+
+// Re-export download types from analysis
+export type {
+  DownloadOptions,
+  DownloadProgress as AnalysisDownloadProgress,
+} from './resources/analysis';
+
 // Re-export types from authentication
 export type { ValidateResponse } from './resources/authentication/types';
+
+// Re-export types from authorizations
+export type {
+  // Core v2 types
+  GroupV2,
+  GroupMembershipV2,
+  GroupMemberV2,
+  PermissionV2,
+  PermissionTypeV2,
+  PermissionScope,
+  PermissionTemplateV2,
+  EffectivePermissionsV2,
+
+  // Request types
+  CreateGroupV2Request,
+  UpdateGroupV2Request,
+  SearchGroupsV2Request,
+  SearchGroupMembershipsV2Request,
+  AddGroupMembershipV2Request,
+  GetGroupPermissionsV2Request,
+  GetUserPermissionsV2Request,
+  GrantPermissionV2Request,
+  SearchPermissionTemplatesV2Request,
+
+  // Response types
+  SearchGroupsV2Response,
+  SearchGroupMembershipsV2Response,
+  GetGroupPermissionsV2Response,
+  GetUserPermissionsV2Response,
+  SearchPermissionTemplatesV2Response,
+} from './resources/authorizations/types';
 
 // Re-export types from duplications
 export type {
@@ -751,22 +824,6 @@ export type {
   SearchUsersV2Response,
 } from './resources/users/types';
 
-// Re-export types from user groups
-export type {
-  UserGroup,
-  UserWithMembership,
-  AddUserRequest,
-  CreateGroupRequest,
-  CreateGroupResponse,
-  DeleteGroupRequest,
-  RemoveUserRequest,
-  SearchGroupsRequest,
-  SearchGroupsResponse,
-  UpdateGroupRequest,
-  UsersRequest,
-  UsersResponse,
-} from './resources/user-groups/types';
-
 // Re-export types from user tokens
 export type {
   GenerateTokenRequest,
@@ -815,6 +872,177 @@ export {
   TimeoutError,
   ServerError,
 } from './errors';
+
+// Re-export types from SCA (Software Composition Analysis) v2 API
+export type {
+  // Request types
+  GetSbomReportV2Request,
+  SbomDownloadOptions,
+
+  // Response types
+  SbomReportV2Response,
+  SbomResponseV2,
+  SbomMetadataV2,
+  VulnerabilitySummaryV2,
+
+  // Document and component types
+  SbomDocumentV2,
+  SbomComponentV2,
+  SbomDependencyV2,
+
+  // Security and vulnerability types
+  SbomVulnerabilityV2,
+  SecurityRiskAnalysis,
+
+  // License and compliance types
+  SbomLicenseV2,
+  LicenseComplianceAnalysis,
+
+  // Format and conversion types
+  SbomFormat,
+  ComponentType,
+  SPDXDocument,
+  CycloneDXDocument,
+
+  // Cache types
+  SbomCacheOptions,
+} from './resources/sca/types';
+
+// Re-export DownloadProgress from sca
+export type { DownloadProgress } from './resources/sca';
+
+// Re-export SCA utilities
+export { SbomFormatConverter, SbomAnalyzer } from './resources/sca/utils';
+
+// Re-export types from Fix Suggestions v2 API
+export type {
+  // Request types
+  GetIssueAvailabilityV2Request,
+  RequestAiSuggestionsV2Request,
+
+  // Response types
+  FixSuggestionAvailabilityV2Response,
+  AiSuggestionResponseV2,
+  AiFixSuggestionV2,
+  AiCodeChangeV2,
+
+  // Builder types
+  GetIssueAvailabilityV2Builder,
+  RequestAiSuggestionsV2Builder,
+
+  // Utility types
+  FixApplicationOptions,
+  FixValidationResult,
+  FixRankingCriteria,
+  AiModelCapabilities,
+  FixSuggestionStats,
+
+  // Error types
+  AiServiceError,
+  FixGenerationFailure,
+
+  // Integration types
+  IssueIntegrationOptions,
+  BatchProcessingOptions,
+  BatchFixResult,
+
+  // Convenience unions
+  FixSuggestionUnavailableReason,
+  FixStyle,
+  FixComplexity,
+  FixEffort,
+  ChangeType,
+  ValidationMode,
+  ConflictResolution,
+  Priority,
+  RiskLevel,
+} from './resources/fix-suggestions/types';
+
+// Re-export Fix Suggestions utilities
+export { FixSuggestionUtils, FixSuggestionIntegration } from './resources/fix-suggestions/utils';
+
+// Re-export types from DOP Translation v2 API
+export type {
+  // Core request/response types
+  CreateBoundProjectV2Request,
+  CreateBoundProjectV2Response,
+  DopSettingsV2Response,
+  DopPlatformSetting,
+
+  // Platform configuration types
+  PlatformSpecificConfig,
+  GitHubConfig,
+  GitLabConfig,
+  BitbucketConfig,
+  AzureDevOpsConfig,
+
+  // Authentication types
+  AuthenticationConfig,
+  AuthenticationCredentials,
+  OAuthCredentials,
+  PersonalAccessTokenCredentials,
+  AppPasswordCredentials,
+  InstallationTokenCredentials,
+
+  // SonarQube project types
+  SonarQubeProjectConfig,
+  SonarQubeProjectDetails,
+  QualityGateStatus as DopQualityGateStatus,
+  QualityGateCondition as DopQualityGateCondition,
+  BranchInfo as DopBranchInfo,
+
+  // Binding and platform types
+  DopBinding,
+  PlatformConfiguration,
+  PlatformEndpoints,
+  RateLimitConfig,
+  WebhookConfig,
+
+  // Builder interfaces
+  CreateBoundProjectV2Builder,
+
+  // Validation types
+  ValidationResult as DopValidationResult,
+  ValidationError as DopValidationError,
+  ValidationWarning as DopValidationWarning,
+  PlatformValidationResult,
+
+  // Platform detection types
+  PlatformDetectionResult,
+  ExtractedPlatformInfo,
+
+  // Batch operation types
+  BatchCreateRequest,
+  BatchCreateResponse,
+  BatchProjectResult,
+  BatchSummary,
+  BatchSettings,
+
+  // Error types
+  DopTranslationError,
+  PlatformAuthenticationError,
+  RepositoryNotFoundError,
+  InsufficientPermissionsError,
+} from './resources/dop-translation/types';
+
+// Re-export DOP Translation enums
+export {
+  DevOpsPlatform,
+  ProjectBindingStatus,
+  PlatformStatus,
+  SyncStatus,
+  ProjectVisibility as DopProjectVisibility,
+  AuthenticationType,
+} from './resources/dop-translation/types';
+
+// Re-export DOP Translation utilities
+export {
+  PlatformDetector,
+  ConfigurationValidator,
+  ProjectMapper,
+  AuthenticationHelper,
+  ConfigurationTemplates,
+} from './resources/dop-translation/utils';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

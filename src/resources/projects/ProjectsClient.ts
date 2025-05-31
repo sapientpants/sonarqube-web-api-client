@@ -79,7 +79,7 @@ export class ProjectsClient extends BaseClient {
    * });
    * ```
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
+
   async bulkUpdateKey(params: BulkUpdateProjectKeyRequest): Promise<BulkUpdateProjectKeyResponse> {
     DeprecationManager.warn({
       api: 'projects.bulkUpdateKey()',

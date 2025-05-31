@@ -1024,4 +1024,105 @@ export const handlers = [
 
     return HttpResponse.json({ rule });
   }),
+
+  // Clean Code Policy API v2 handlers
+  http.post('*/api/v2/clean-code-policy/rules', async ({ request }) => {
+    const body = (await request.json()) as {
+      key: string;
+      templateKey: string;
+      name: string;
+      markdownDescription: string;
+      status?: string;
+      parameters?: Array<{ key: string; value: string }>;
+    };
+
+    // Simulate different responses based on the rule key for testing
+    if (body.key === 'test-error-existing') {
+      return HttpResponse.json(
+        {
+          error: 'Rule key already exists',
+          message: `A rule with key "${body.key}" already exists`,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (body.templateKey === 'nonexistent:template') {
+      return HttpResponse.json(
+        {
+          error: 'Template not found',
+          message: `Template "${body.templateKey}" was not found`,
+        },
+        { status: 404 }
+      );
+    }
+
+    // Default successful response
+    const response = {
+      id: `AY${Math.random().toString(36).substring(2, 11)}`,
+      repositoryKey: body.templateKey.split(':')[0],
+      key: body.key,
+      ruleKey: `${body.templateKey.split(':')[0] ?? ''}:${body.key}`,
+      name: body.name,
+      htmlDescription: body.markdownDescription,
+      markdownDescription: body.markdownDescription,
+      severity: 'MAJOR',
+      type: 'CODE_SMELL',
+      status: body.status ?? 'READY',
+      impacts: [
+        {
+          softwareQuality: 'MAINTAINABILITY',
+          severity: 'MEDIUM',
+        },
+      ],
+      cleanCodeAttribute: 'CLEAR',
+      cleanCodeAttributeCategory: 'INTENTIONAL',
+      language: ((): string => {
+        if (body.templateKey.startsWith('javascript')) {
+          return 'js';
+        }
+        if (body.templateKey.startsWith('typescript')) {
+          return 'ts';
+        }
+        if (body.templateKey.startsWith('java')) {
+          return 'java';
+        }
+        if (body.templateKey.startsWith('python')) {
+          return 'py';
+        }
+        return 'unknown';
+      })(),
+      languageName: ((): string => {
+        if (body.templateKey.startsWith('javascript')) {
+          return 'JavaScript';
+        }
+        if (body.templateKey.startsWith('typescript')) {
+          return 'TypeScript';
+        }
+        if (body.templateKey.startsWith('java')) {
+          return 'Java';
+        }
+        if (body.templateKey.startsWith('python')) {
+          return 'Python';
+        }
+        return 'Unknown';
+      })(),
+      templateKey: body.templateKey,
+      parameters:
+        body.parameters?.map((p) => ({
+          key: p.key,
+          name: p.key.charAt(0).toUpperCase() + p.key.slice(1),
+          defaultValue: p.value,
+          type: 'STRING',
+        })) ?? [],
+      createdAt: new Date().toISOString(),
+      isTemplate: false,
+      isExternal: false,
+      tags: [],
+      systemTags: [],
+      scope: 'MAIN',
+    };
+
+    return HttpResponse.json(response);
+  }),
 ];

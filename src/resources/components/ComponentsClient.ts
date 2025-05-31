@@ -96,7 +96,6 @@ export class ComponentsClient extends BaseClient {
       p?: number;
       ps?: number;
     } = {}
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
   ): Promise<ComponentSearchResponse> {
     DeprecationManager.warn({
       api: 'components.search()',
@@ -119,7 +118,6 @@ export class ComponentsClient extends BaseClient {
       params.set('ps', options.ps.toString());
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return this.request<ComponentSearchResponse>(`/api/components/search?${params.toString()}`);
   }
 

@@ -141,7 +141,7 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Sources** | `api/sources` | ✅ Implemented | Both | Source code access |
 | **System** | `api/system` | ✅ Implemented | SonarQube only | System information and health |
 | **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Historical measures (deprecated) |
-| **User Groups** | `api/user_groups` | ✅ Implemented | Both | User group management |
+| **Authorizations v2** | `api/v2/authorizations` | ✅ Implemented | SonarQube 10.5+ | Modern group management API |
 | **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
 | **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
@@ -1452,6 +1452,73 @@ async function checkWebhookHealth(webhookKey: string): Promise<void> {
 - Update external dashboards or monitoring systems
 - Integrate with issue tracking systems
 - Archive quality gate results
+
+### 👥 Group Management with Authorizations v2 API
+
+The Authorizations v2 API provides modern, REST-compliant group management for SonarQube 10.5+:
+
+```typescript
+// Search for groups with advanced filtering
+const groups = await client.authorizations.searchGroupsV2()
+  .query('developers')
+  .managed(false)         // Filter non-managed groups
+  .includeDefault(true)   // Include default groups
+  .pageSize(50)
+  .execute();
+
+// Create a new group
+const newGroup = await client.authorizations.createGroupV2({
+  name: 'frontend-team',
+  description: 'Frontend development team',
+  default: false
+});
+
+// Update an existing group
+const updatedGroup = await client.authorizations.updateGroupV2(
+  'group-uuid',
+  {
+    name: 'senior-frontend-team',
+    description: 'Senior frontend developers'
+  }
+);
+
+// Manage group memberships
+const membership = await client.authorizations.addGroupMembershipV2({
+  groupId: 'group-uuid',
+  userId: 'user-uuid'
+});
+
+// Search group memberships
+const memberships = await client.authorizations.searchGroupMembershipsV2()
+  .groupId('group-uuid')  // Get all members of a group
+  .execute();
+
+// Get all groups for a specific user
+const userGroups = await client.authorizations.searchGroupMembershipsV2()
+  .userId('user-uuid')
+  .execute();
+
+// Remove a user from a group
+await client.authorizations.removeGroupMembershipV2('membership-uuid');
+
+// Delete a group (only non-managed, non-default groups)
+await client.authorizations.deleteGroupV2('group-uuid');
+
+// Iterate through all groups with external provider
+for await (const group of client.authorizations.searchGroupsV2()
+  .externalProvider('ldap')
+  .all()) {
+  console.log(`External group: ${group.name} (${group.externalId})`);
+}
+```
+
+**Key Features:**
+- 🆔 UUID-based identification for all resources
+- 🔄 Support for external provider integration (LDAP/SAML)
+- 📄 RESTful API design with proper HTTP verbs
+- 🔒 Built-in support for managed groups
+- 📊 Advanced filtering and pagination
+- 🎯 Dedicated membership management endpoints
 
 ## 🛡️ Error Handling
 

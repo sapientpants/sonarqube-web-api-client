@@ -113,14 +113,14 @@ export class MetricsClient extends BaseClient {
    * console.log(domains.domains); // ['Issues', 'Maintainability', ...]
    * ```
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
+
   async domains(): Promise<MetricDomainsResponse> {
     DeprecationManager.warn({
       api: 'metrics.domains()',
       removeVersion: '7.7',
       reason: 'This endpoint has been deprecated and will be removed.',
     });
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+
     return await this.request<MetricDomainsResponse>('/api/metrics/domains');
   }
 }

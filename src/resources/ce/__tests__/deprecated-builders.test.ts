@@ -21,7 +21,6 @@ describe('CE Deprecated Builders', () => {
     it('should show deprecation warning for withComponentId()', async () => {
       const builder = new ActivityBuilder(mockExecutor);
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       builder.withComponentId('component-123');
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -34,12 +33,11 @@ describe('CE Deprecated Builders', () => {
     it('should only show deprecation warning once', async () => {
       const builder = new ActivityBuilder(mockExecutor);
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       builder.withComponentId('component-1').withPageSize(50);
 
       // Create another builder instance
       const builder2 = new ActivityBuilder(mockExecutor);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
+
       builder2.withComponentId('component-2');
 
       expect(consoleSpy).toHaveBeenCalledTimes(1);
@@ -48,7 +46,6 @@ describe('CE Deprecated Builders', () => {
     it('should still function correctly despite deprecation', async () => {
       const builder = new ActivityBuilder(mockExecutor);
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const response = await builder.withComponentId('component-123').execute();
 
       expect(mockExecutor).toHaveBeenCalledWith({
@@ -61,7 +58,6 @@ describe('CE Deprecated Builders', () => {
       const builder = new ActivityBuilder(mockExecutor);
 
       expect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
         builder.withQuery('search').withComponentId('component-123');
       }).toThrow('Cannot set componentId when query is already set');
     });

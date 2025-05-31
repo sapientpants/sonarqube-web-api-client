@@ -56,7 +56,6 @@ describe('ProjectsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.bulkUpdateKey({
         project: 'my_old_project',
         from: 'my_old_',
@@ -84,7 +83,6 @@ describe('ProjectsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const result = await client.bulkUpdateKey({
         project: 'my_old_project',
         from: 'my_old_',

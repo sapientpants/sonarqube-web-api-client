@@ -7,7 +7,6 @@ describe('Permissions module exports', () => {
   });
 
   it('should export builder classes', () => {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     expect(permissionsModule.SearchProjectPermissionsBuilder).toBeDefined();
     expect(permissionsModule.SearchTemplatesBuilder).toBeDefined();
     expect(permissionsModule.BulkApplyTemplateBuilder).toBeDefined();
@@ -34,11 +33,10 @@ describe('Permissions module exports', () => {
   it('should have builder classes that can be instantiated', () => {
     const mockExecutor = jest.fn();
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const searchProjectBuilder = new permissionsModule.SearchProjectPermissionsBuilder(
       mockExecutor
     );
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+
     expect(searchProjectBuilder).toBeInstanceOf(permissionsModule.SearchProjectPermissionsBuilder);
 
     const searchTemplatesBuilder = new permissionsModule.SearchTemplatesBuilder(mockExecutor);

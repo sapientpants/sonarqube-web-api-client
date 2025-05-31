@@ -9,13 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **User Groups API**: Complete implementation of the SonarQube User Groups API (`api/user_groups`)
-  - Search for user groups with pagination and field selection
-  - Create, update, and delete user groups
-  - Add and remove users from groups
-  - Get users with membership information for a specific group
-  - Builder pattern support for complex search operations
+- **SCA (Software Composition Analysis) API v2**: Complete implementation of the SonarQube SCA API v2 (`api/v2/sca`)
+  - Software Bill of Materials (SBOM) generation with comprehensive dependency analysis
+  - Support for industry-standard formats: JSON, SPDX (JSON/RDF), CycloneDX (JSON/XML)
+  - Vulnerability tracking with CVE/CVSS scoring and security risk analysis
+  - License compliance analysis with automated risk assessment
+  - Streaming support for large SBOM reports (1000+ components)
+  - Progress tracking for binary downloads with abort signal support
+  - Format conversion utilities (`SbomFormatConverter`) for SPDX and CycloneDX
+  - SBOM analysis utilities (`SbomAnalyzer`) for security and compliance insights
+  - Available in SonarQube 10.6+
+
+- **Authorizations API v2**: Complete implementation of the SonarQube Authorizations API v2 (`api/v2/authorizations`)
+  - Modern REST API for group management (replaces legacy user_groups API)
+  - Search for groups with advanced filtering and pagination
+  - Create, update, and delete groups with UUID-based identification
+  - Manage group memberships with dedicated endpoints
+  - Support for external provider integration (LDAP/SAML)
+  - Builder pattern for complex search operations
   - Full async iteration support for paginated results
+  - Available in SonarQube 10.5+
+
+- **Analysis API v2**: Full implementation of the SonarQube Analysis API v2 (`api/v2/analysis`)
+  - Scanner management and project analysis functionality
+  - Get active rules for project analysis with branch/PR support
+  - Scanner engine metadata retrieval and binary downloads
+  - JRE listing, metadata, and binary downloads for different platforms
+  - Server version information endpoint
+  - Download progress tracking with streaming support for large files
+  - Conditional responses based on Accept headers (JSON metadata vs binary)
+  - Available in SonarQube 10.3+
 
 ## [0.2.2] - 2025-01-28
 

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-deprecated, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UsersClient } from '../UsersClient';
 import { SearchUsersBuilder, GetUserGroupsBuilder } from '../builders';
 import { server } from '../../../test-utils/msw/server';

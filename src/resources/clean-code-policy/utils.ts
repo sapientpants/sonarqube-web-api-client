@@ -36,7 +36,7 @@ export const ruleKeyUtils = {
     let key = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+      .replace(/(^-+|-+$)/g, ''); // Remove leading/trailing hyphens
 
     // Add prefix if provided
     if (prefix !== undefined && prefix !== '') {

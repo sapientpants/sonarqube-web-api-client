@@ -634,7 +634,7 @@ describe('AuthenticationHelper', () => {
 
       const credentials = {
         type: 'personal_access_token' as const,
-        token: 'glpat-1234567890abcdefghij', // 20+ chars
+        token: 'glpat-xxxxxxxxxxxxxxxxxxxx', // Example token format (20+ chars)
       };
 
       const result = AuthenticationHelper.validateGitLabAuth(config, credentials);

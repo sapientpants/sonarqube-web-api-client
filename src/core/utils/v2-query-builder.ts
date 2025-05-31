@@ -59,12 +59,15 @@ export function buildV2Query(params: Record<string, unknown>): string {
  * Parse a v2 API filter string
  *
  * @param filterString - Filter string in format "field:operator:value"
- * @returns Parsed filter object
+ * @returns Parsed filter object, or null if the input is invalid
  *
  * @example
  * ```typescript
  * const filter = parseV2Filter('status:eq:active');
  * // Returns: { field: 'status', operator: 'eq', value: 'active' }
+ *
+ * const invalid = parseV2Filter('invalid');
+ * // Returns: null
  * ```
  */
 export function parseV2Filter(filterString: string): {

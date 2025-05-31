@@ -37,14 +37,24 @@ async function checkV2Apis(baseUrl: string, token?: string) {
 
   for (const endpoint of v2Endpoints) {
     try {
-      // Try a simple HEAD or GET request
+      // Try a simple HEAD request first, fallback to GET if HEAD fails
       const testPath = endpoint.path.replace('{id}', 'test-id');
-      const response = await fetch(`${baseUrl}${testPath}`, {
+      let response = await fetch(`${baseUrl}${testPath}`, {
         method: 'HEAD',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
         },
       });
+
+      // If HEAD method is not allowed or causes an error, try GET
+      if (response.status === 405 || response.status === 501) {
+        response = await fetch(`${baseUrl}${testPath}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+          },
+        });
+      }
 
       const available = response.status !== 404;
       results.push({ endpoint, available });

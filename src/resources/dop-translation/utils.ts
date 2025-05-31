@@ -46,12 +46,29 @@ export class PlatformDetector {
         pattern: /(?:https?:\/\/)?([^/]+)\/([^/]+)\/([^/\s?#]+)/,
         confidence: 0.6,
         isEnterprise: true,
-        enterpriseCheck: (hostname: string): boolean =>
-          !hostname.includes('gitlab') &&
-          !hostname.includes('bitbucket') &&
-          !hostname.includes('azure') &&
-          hostname !== 'github.com' &&
-          hostname !== 'www.github.com',
+        enterpriseCheck: (hostname: string): boolean => {
+          // Parse hostname to ensure proper domain validation
+          const lowerHostname = hostname.toLowerCase();
+
+          // Check for exact domain matches or subdomains
+          const isGitLab =
+            lowerHostname === 'gitlab.com' ||
+            lowerHostname.endsWith('.gitlab.com') ||
+            lowerHostname.includes('gitlab');
+          const isBitbucket =
+            lowerHostname === 'bitbucket.org' ||
+            lowerHostname.endsWith('.bitbucket.org') ||
+            lowerHostname.includes('bitbucket');
+          const isAzure =
+            lowerHostname === 'dev.azure.com' ||
+            lowerHostname.endsWith('.azure.com') ||
+            lowerHostname.includes('azure');
+          const isPublicGitHub =
+            lowerHostname === 'github.com' || lowerHostname === 'www.github.com';
+
+          // This is GitHub Enterprise if it's not any other platform and not public GitHub
+          return !isGitLab && !isBitbucket && !isAzure && !isPublicGitHub;
+        },
       },
       {
         platform: DevOpsPlatform.GITLAB,

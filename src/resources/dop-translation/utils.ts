@@ -34,7 +34,43 @@ export class PlatformDetector {
    * @returns Detection result with platform, confidence, and extracted info
    */
   static detectFromUrl(url: string): PlatformDetectionResult {
-    const patterns = [
+    const patterns = this.getPlatformPatterns();
+
+    for (const pattern of patterns) {
+      const result = this.tryMatchPattern(url, pattern);
+      if (result) {
+        return result;
+      }
+    }
+
+    return this.getDefaultResult(url);
+  }
+
+  /**
+   * Extract project information from a platform-specific URL
+   * @param url - URL to parse
+   * @param platform - Known platform type
+   * @returns Extracted platform information
+   */
+  static extractProjectInfo(url: string, platform: DevOpsPlatform): ExtractedPlatformInfo {
+    const detection = this.detectFromUrl(url);
+
+    if (detection.platform === platform) {
+      return detection.extractedInfo;
+    }
+
+    // Fallback to basic URL parsing
+    return { url };
+  }
+
+  private static getPlatformPatterns(): Array<{
+    platform: DevOpsPlatform;
+    pattern: RegExp;
+    confidence: number;
+    isEnterprise: boolean;
+    enterpriseCheck?: (hostname: string) => boolean;
+  }> {
+    return [
       {
         platform: DevOpsPlatform.GITHUB,
         pattern: /(?:https?:\/\/)?(?:www\.)?github\.com\/([^/]+)\/([^/\s?#]+)/,
@@ -46,29 +82,7 @@ export class PlatformDetector {
         pattern: /(?:https?:\/\/)?([^/]+)\/([^/]+)\/([^/\s?#]+)/,
         confidence: 0.6,
         isEnterprise: true,
-        enterpriseCheck: (hostname: string): boolean => {
-          // Parse hostname to ensure proper domain validation
-          const lowerHostname = hostname.toLowerCase();
-
-          // Check for exact domain matches or subdomains
-          const isGitLab =
-            lowerHostname === 'gitlab.com' ||
-            lowerHostname.endsWith('.gitlab.com') ||
-            lowerHostname.includes('gitlab');
-          const isBitbucket =
-            lowerHostname === 'bitbucket.org' ||
-            lowerHostname.endsWith('.bitbucket.org') ||
-            lowerHostname.includes('bitbucket');
-          const isAzure =
-            lowerHostname === 'dev.azure.com' ||
-            lowerHostname.endsWith('.azure.com') ||
-            lowerHostname.includes('azure');
-          const isPublicGitHub =
-            lowerHostname === 'github.com' || lowerHostname === 'www.github.com';
-
-          // This is GitHub Enterprise if it's not any other platform and not public GitHub
-          return !isGitLab && !isBitbucket && !isAzure && !isPublicGitHub;
-        },
+        enterpriseCheck: (hostname: string): boolean => this.isGitHubEnterprise(hostname),
       },
       {
         platform: DevOpsPlatform.GITLAB,
@@ -102,82 +116,160 @@ export class PlatformDetector {
         isEnterprise: true,
       },
     ];
+  }
 
-    for (const { platform, pattern, confidence, isEnterprise, enterpriseCheck } of patterns) {
-      const match = url.match(pattern);
-      if (match && match.length >= 3) {
-        let organization: string;
-        let repository: string;
-        let hostname = '';
-        let apiUrl: string | undefined;
+  private static isGitHubEnterprise(hostname: string): boolean {
+    const lowerHostname = hostname.toLowerCase();
 
-        if (isEnterprise && match.length >= 4) {
-          hostname = match[1] ?? '';
-          organization = match[2] ?? '';
-          repository = match[3] ?? '';
+    const isGitLab = this.isGitLabHostname(lowerHostname);
+    const isBitbucket = this.isBitbucketHostname(lowerHostname);
+    const isAzure = this.isAzureHostname(lowerHostname);
+    const isPublicGitHub = this.isPublicGitHubHostname(lowerHostname);
 
-          // Apply enterprise check if provided
-          if (enterpriseCheck !== undefined && !enterpriseCheck(hostname)) {
-            continue;
-          }
+    return !isGitLab && !isBitbucket && !isAzure && !isPublicGitHub;
+  }
 
-          apiUrl = this.generateApiUrl(platform, hostname);
-        } else {
-          organization = match[1] ?? '';
-          repository = match[2] ?? '';
-          apiUrl = undefined;
-        }
+  private static isGitLabHostname(hostname: string): boolean {
+    return (
+      hostname === 'gitlab.com' || hostname.endsWith('.gitlab.com') || hostname.includes('gitlab')
+    );
+  }
 
-        // Skip if organization or repository is undefined
-        if (!organization || !repository) {
-          continue;
-        }
+  private static isBitbucketHostname(hostname: string): boolean {
+    return (
+      hostname === 'bitbucket.org' ||
+      hostname.endsWith('.bitbucket.org') ||
+      hostname.includes('bitbucket')
+    );
+  }
 
-        // Clean repository name (remove .git suffix if present)
-        repository = repository.replace(/\.git$/, '');
+  private static isAzureHostname(hostname: string): boolean {
+    return (
+      hostname === 'dev.azure.com' || hostname.endsWith('.azure.com') || hostname.includes('azure')
+    );
+  }
 
-        const extractedInfo: ExtractedPlatformInfo = {
-          organization,
-          repository,
-          url,
-          isEnterprise,
-        };
+  private static isPublicGitHubHostname(hostname: string): boolean {
+    return hostname === 'github.com' || hostname === 'www.github.com';
+  }
 
-        if (apiUrl !== undefined) {
-          extractedInfo.apiUrl = apiUrl;
-        }
+  private static tryMatchPattern(
+    url: string,
+    patternConfig: {
+      platform: DevOpsPlatform;
+      pattern: RegExp;
+      confidence: number;
+      isEnterprise: boolean;
+      enterpriseCheck?: (hostname: string) => boolean;
+    }
+  ): PlatformDetectionResult | null {
+    const { platform, pattern, confidence, isEnterprise, enterpriseCheck } = patternConfig;
+    const match = url.match(pattern);
 
-        return {
-          platform,
-          confidence,
-          extractedInfo,
-        };
-      }
+    if (!match || match.length < 3) {
+      return null;
     }
 
-    // Default fallback (assume GitHub if no clear match)
+    const matchInfo = this.extractMatchInfo(match, isEnterprise, enterpriseCheck, platform);
+    if (!matchInfo) {
+      return null;
+    }
+
+    const extractedInfo = this.buildExtractedInfo(
+      url,
+      matchInfo.organization,
+      matchInfo.repository,
+      isEnterprise,
+      matchInfo.apiUrl
+    );
+
+    return {
+      platform,
+      confidence,
+      extractedInfo,
+    };
+  }
+
+  private static extractMatchInfo(
+    match: RegExpMatchArray,
+    isEnterprise: boolean,
+    enterpriseCheck: ((hostname: string) => boolean) | undefined,
+    platform: DevOpsPlatform
+  ): { organization: string; repository: string; apiUrl?: string } | null {
+    if (isEnterprise && match.length >= 4) {
+      return this.extractEnterpriseInfo(match, enterpriseCheck, platform);
+    }
+
+    return this.extractStandardInfo(match);
+  }
+
+  private static extractEnterpriseInfo(
+    match: RegExpMatchArray,
+    enterpriseCheck: ((hostname: string) => boolean) | undefined,
+    platform: DevOpsPlatform
+  ): { organization: string; repository: string; apiUrl?: string } | null {
+    const hostname = match[1] ?? '';
+    const organization = match[2] ?? '';
+    const repository = match[3] ?? '';
+
+    if (enterpriseCheck && !enterpriseCheck(hostname)) {
+      return null;
+    }
+
+    if (!organization || !repository) {
+      return null;
+    }
+
+    return {
+      organization,
+      repository: repository.replace(/\.git$/, ''),
+      apiUrl: this.generateApiUrl(platform, hostname),
+    };
+  }
+
+  private static extractStandardInfo(
+    match: RegExpMatchArray
+  ): { organization: string; repository: string } | null {
+    const organization = match[1] ?? '';
+    const repository = match[2] ?? '';
+
+    if (!organization || !repository) {
+      return null;
+    }
+
+    return {
+      organization,
+      repository: repository.replace(/\.git$/, ''),
+    };
+  }
+
+  private static buildExtractedInfo(
+    url: string,
+    organization: string,
+    repository: string,
+    isEnterprise: boolean,
+    apiUrl?: string
+  ): ExtractedPlatformInfo {
+    const extractedInfo: ExtractedPlatformInfo = {
+      organization,
+      repository,
+      url,
+      isEnterprise,
+    };
+
+    if (apiUrl !== undefined) {
+      extractedInfo.apiUrl = apiUrl;
+    }
+
+    return extractedInfo;
+  }
+
+  private static getDefaultResult(url: string): PlatformDetectionResult {
     return {
       platform: DevOpsPlatform.GITHUB,
       confidence: 0.0,
       extractedInfo: { url },
     };
-  }
-
-  /**
-   * Extract project information from a platform-specific URL
-   * @param url - URL to parse
-   * @param platform - Known platform type
-   * @returns Extracted platform information
-   */
-  static extractProjectInfo(url: string, platform: DevOpsPlatform): ExtractedPlatformInfo {
-    const detection = this.detectFromUrl(url);
-
-    if (detection.platform === platform) {
-      return detection.extractedInfo;
-    }
-
-    // Fallback to basic URL parsing
-    return { url };
   }
 
   /**

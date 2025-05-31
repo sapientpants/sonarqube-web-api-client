@@ -1,6 +1,7 @@
 import { BaseClient } from '../../core/BaseClient';
 import { GetIssueAvailabilityV2BuilderImpl, RequestAiSuggestionsV2BuilderImpl } from './builders';
 import type {
+  IFixSuggestionsClient,
   GetIssueAvailabilityV2Request,
   FixSuggestionAvailabilityV2Response,
   RequestAiSuggestionsV2Request,
@@ -21,7 +22,7 @@ import type {
  *
  * @since 10.7
  */
-export class FixSuggestionsClient extends BaseClient {
+export class FixSuggestionsClient extends BaseClient implements IFixSuggestionsClient {
   /**
    * Check if AI fix suggestions are available for a specific issue.
    *

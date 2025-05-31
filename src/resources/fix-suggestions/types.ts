@@ -7,6 +7,23 @@
 
 export type FixStyle = 'minimal' | 'comprehensive' | 'defensive';
 
+// ===== Interface for breaking cyclic dependency =====
+
+/**
+ * Interface for the Fix Suggestions Client
+ * Used to break cyclic dependency between client and builders
+ * @since 10.7
+ */
+export interface IFixSuggestionsClient {
+  getIssueAvailabilityV2: (
+    params: GetIssueAvailabilityV2Request
+  ) => Promise<FixSuggestionAvailabilityV2Response>;
+
+  requestAiSuggestionsV2: (
+    params: RequestAiSuggestionsV2Request
+  ) => Promise<AiSuggestionResponseV2>;
+}
+
 // ===== Core Request/Response Types =====
 
 /**

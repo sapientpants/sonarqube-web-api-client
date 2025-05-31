@@ -3,8 +3,8 @@
 
 import { BaseBuilder } from '../../core/builders/BaseBuilder';
 import { ValidationError } from '../../errors';
-import type { FixSuggestionsClient } from './FixSuggestionsClient';
 import type {
+  IFixSuggestionsClient,
   GetIssueAvailabilityV2Request,
   FixSuggestionAvailabilityV2Response,
   RequestAiSuggestionsV2Request,
@@ -21,7 +21,7 @@ export class GetIssueAvailabilityV2BuilderImpl
   extends BaseBuilder<GetIssueAvailabilityV2Request, FixSuggestionAvailabilityV2Response>
   implements GetIssueAvailabilityV2Builder
 {
-  constructor(client: FixSuggestionsClient) {
+  constructor(client: IFixSuggestionsClient) {
     super(async (params: GetIssueAvailabilityV2Request) => client.getIssueAvailabilityV2(params));
   }
 
@@ -92,7 +92,7 @@ export class RequestAiSuggestionsV2BuilderImpl
   extends BaseBuilder<RequestAiSuggestionsV2Request, AiSuggestionResponseV2>
   implements RequestAiSuggestionsV2Builder
 {
-  constructor(client: FixSuggestionsClient) {
+  constructor(client: IFixSuggestionsClient) {
     super(async (params: RequestAiSuggestionsV2Request) => client.requestAiSuggestionsV2(params));
     // Set sensible defaults
     this.params.includeContext = true;

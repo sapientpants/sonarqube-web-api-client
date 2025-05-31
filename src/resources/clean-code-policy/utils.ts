@@ -36,7 +36,8 @@ export const ruleKeyUtils = {
     let key = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-+|-+$)/g, ''); // Remove leading/trailing hyphens
+      .replace(/^-+/, '') // Remove leading hyphens
+      .replace(/-+$/, ''); // Remove trailing hyphens
 
     // Add prefix if provided
     if (prefix !== undefined && prefix !== '') {
@@ -50,7 +51,11 @@ export const ruleKeyUtils = {
 
     // Truncate if too long (max 200 chars is a safe limit)
     if (key.length > 200) {
-      key = key.substring(0, 200).replace(/-+$/, '');
+      key = key.substring(0, 200);
+      // Remove trailing hyphens efficiently
+      while (key.endsWith('-')) {
+        key = key.slice(0, -1);
+      }
     }
 
     return key;

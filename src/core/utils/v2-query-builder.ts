@@ -3,6 +3,8 @@
  * @since 10.4
  */
 
+import type { PrimitiveValue } from '../types/primitive';
+
 /**
  * Build a query string from parameters for v2 APIs
  *
@@ -105,7 +107,7 @@ export function buildV2Filters(
   filters: Array<{
     field: string;
     operator: string;
-    value: string | number | boolean;
+    value: PrimitiveValue;
   }>
 ): string {
   return filters

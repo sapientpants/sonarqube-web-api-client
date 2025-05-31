@@ -122,13 +122,11 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
       let loaded = 0;
 
       try {
-        let done = false;
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        while (!done) {
+        while (true) {
           const result = await reader.read();
 
           if (result.done) {
-            done = true;
             break;
           }
 
@@ -169,7 +167,7 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
 
       const response = await fetch(`${this.baseUrl}${url}`, {
         ...options,
-        headers: Object.assign({}, headers, options?.headers ?? {}),
+        headers: Object.assign(headers, options?.headers ?? {}),
       });
 
       if (!response.ok) {

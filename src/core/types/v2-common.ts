@@ -4,6 +4,8 @@
  * @since 10.4
  */
 
+import type { PrimitiveValue } from './primitive';
+
 /**
  * Base interface for all v2 resources
  * Most v2 resources include these standard fields
@@ -259,7 +261,7 @@ export interface V2Filter {
   /**
    * Filter value(s)
    */
-  value: string | number | boolean | string[];
+  value: PrimitiveValue | string[];
 }
 
 /**

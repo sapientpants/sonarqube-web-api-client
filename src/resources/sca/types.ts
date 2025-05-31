@@ -5,6 +5,8 @@
 
 import type { V2Resource } from '../../core/types/v2-common';
 
+export type SeverityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
 // ===== Core Request Types =====
 
 /**
@@ -234,7 +236,7 @@ export interface SbomVulnerabilityV2 {
     /** CVSS base score (0-10) */
     score: number;
     /** Severity classification */
-    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    severity: SeverityLevel;
     /** CVSS vector string */
     vector?: string;
   };
@@ -295,7 +297,7 @@ export interface VulnerabilitySummaryV2 {
     /** Total vulnerabilities in this component */
     vulnerabilityCount: number;
     /** Highest severity level found */
-    highestSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    highestSeverity: SeverityLevel;
   }>;
 }
 
@@ -347,7 +349,7 @@ export interface SbomDownloadOptions {
  */
 export interface SecurityRiskAnalysis {
   /** Overall risk level assessment */
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  riskLevel: SeverityLevel;
   /** Number of critical vulnerabilities */
   criticalVulnerabilities: number;
   /** Number of high vulnerabilities */

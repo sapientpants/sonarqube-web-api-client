@@ -90,7 +90,6 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
         organizationName: 'acme-corp',
         repositoryName: 'api-service',
         platformSpecific: {
-          type: 'github',
           owner: 'acme-corp',
           repository: 'api-service',
           defaultBranch: 'main',
@@ -139,10 +138,8 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       expect(internalRequest.dopPlatform).toBe(DevOpsPlatform.GITHUB);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.platformSpecific).toEqual({
-        type: 'github',
         owner: 'test-org',
         repository: 'test-repo',
-        defaultBranch: 'main',
       });
     });
   });
@@ -228,10 +225,8 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       expect(internalRequest.dopPlatform).toBe(DevOpsPlatform.GITLAB);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(internalRequest.platformSpecific).toEqual({
-        type: 'gitlab',
         namespace: 'test-group',
         project: 'test-project',
-        defaultBranch: 'main',
       });
     });
   });

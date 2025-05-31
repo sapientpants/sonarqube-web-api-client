@@ -101,13 +101,11 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
       Object.assign(headers, options.headers);
     }
 
-    const response = await this.request<Response>(url, {
+    return this.request<string>(url, {
       ...options,
       headers,
-      responseType: 'response' as never,
+      responseType: 'text',
     });
-
-    return response.text();
   }
 
   /**

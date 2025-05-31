@@ -928,10 +928,9 @@ describe('ConfigurationTemplates', () => {
       );
 
       expect(config).toEqual({
-        type: 'github',
         owner: 'github-org',
         repository: 'repo-name',
-        defaultBranch: 'main',
+        branch: 'main',
       });
     });
 
@@ -943,10 +942,9 @@ describe('ConfigurationTemplates', () => {
       );
 
       expect(config).toEqual({
-        type: 'gitlab',
         namespace: 'gitlab-group',
         project: 'project-name',
-        defaultBranch: 'main',
+        branch: 'main',
       });
     });
 
@@ -958,10 +956,9 @@ describe('ConfigurationTemplates', () => {
       );
 
       expect(config).toEqual({
-        type: 'bitbucket',
         workspace: 'workspace',
         repository: 'repo-name',
-        defaultBranch: 'main',
+        branch: 'main',
       });
     });
 
@@ -973,11 +970,10 @@ describe('ConfigurationTemplates', () => {
       );
 
       expect(config).toEqual({
-        type: 'azure-devops',
         organization: 'azure-org',
         project: 'azure-org',
         repository: 'repo-name',
-        defaultBranch: 'main',
+        branch: 'main',
       });
     });
 

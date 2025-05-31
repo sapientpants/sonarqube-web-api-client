@@ -5,14 +5,111 @@
  */
 
 import { BaseClient } from './BaseClient';
-import { DownloadMixin, type DownloadCapable } from './mixins/DownloadMixin';
+import { createErrorFromResponse } from '../errors';
+import type { DownloadCapable, DownloadOptions, DownloadProgress } from './mixins/DownloadMixin';
 import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './types/v2-common';
 
 /**
  * Base class for all v2 API clients
  * Extends BaseClient with v2-specific functionality and download capabilities
  */
-export class V2BaseClient extends DownloadMixin(BaseClient) implements DownloadCapable {
+export class V2BaseClient extends BaseClient implements DownloadCapable {
+  /**
+   * Download a file with progress tracking support.
+   *
+   * @param url - URL to download from
+   * @param options - Download options
+   * @returns Downloaded content as Blob
+   */
+  async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
+    const headers: Record<string, string> = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      Accept: 'application/octet-stream',
+    };
+
+    if (this.token.length > 0) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      headers,
+      ...(options?.signal !== undefined ? { signal: options.signal } : {}),
+    });
+
+    if (!response.ok) {
+      throw await createErrorFromResponse(response);
+    }
+
+    const contentLength = response.headers.get('content-length');
+    const total = contentLength !== null ? parseInt(contentLength, 10) : 0;
+
+    if (!response.body) {
+      throw new Error('Response body is null');
+    }
+
+    // If no progress callback, just return the blob
+    if (!options?.onProgress) {
+      return response.blob();
+    }
+
+    // Stream the response with progress
+    const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let loaded = 0;
+
+    try {
+      let isDone = false;
+      while (!isDone) {
+        const result = await reader.read();
+        isDone = result.done;
+
+        if (!isDone && result.value !== undefined) {
+          chunks.push(result.value);
+          loaded += result.value.length;
+
+          const progress: DownloadProgress = {
+            loaded,
+            total,
+            percentage: total > 0 ? Math.round((loaded / total) * 100) : 0,
+          };
+
+          options.onProgress(progress);
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    // Combine chunks into a single blob
+    return new Blob(chunks);
+  }
+
+  /**
+   * Request text content from a URL.
+   *
+   * @param url - URL to fetch
+   * @param options - Request options
+   * @returns Text content
+   */
+  async requestText(url: string, options?: RequestInit): Promise<string> {
+    const headers: Record<string, string> = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      Accept: 'text/plain',
+    };
+
+    if (options?.headers) {
+      Object.assign(headers, options.headers);
+    }
+
+    const response = await this.request<Response>(url, {
+      ...options,
+      headers,
+      responseType: 'response' as never,
+    });
+
+    return response.text();
+  }
+
   /**
    * Build v2 query string with proper encoding and filtering
    * Overrides the base method to handle v2-specific parameters
@@ -25,19 +122,39 @@ export class V2BaseClient extends DownloadMixin(BaseClient) implements DownloadC
     const searchParams = new URLSearchParams();
 
     // Handle standard v2 pagination parameters
-    if ('page' in params && params.page !== undefined) {
-      searchParams.append('page', String(params.page));
+    if ('page' in params && params['page'] !== undefined) {
+      const pageValue = params['page'];
+      if (typeof pageValue === 'object' && pageValue !== null) {
+        searchParams.append('page', JSON.stringify(pageValue));
+      } else {
+        searchParams.append('page', String(pageValue as string | number | boolean));
+      }
     }
-    if ('pageSize' in params && params.pageSize !== undefined) {
-      searchParams.append('pageSize', String(params.pageSize));
+    if ('pageSize' in params && params['pageSize'] !== undefined) {
+      const pageSizeValue = params['pageSize'];
+      if (typeof pageSizeValue === 'object' && pageSizeValue !== null) {
+        searchParams.append('pageSize', JSON.stringify(pageSizeValue));
+      } else {
+        searchParams.append('pageSize', String(pageSizeValue as string | number | boolean));
+      }
     }
 
     // Handle sorting
-    if ('sort' in params && params.sort !== undefined) {
-      searchParams.append('sort', String(params.sort));
+    if ('sort' in params && params['sort'] !== undefined) {
+      const sortValue = params['sort'];
+      if (typeof sortValue === 'object' && sortValue !== null) {
+        searchParams.append('sort', JSON.stringify(sortValue));
+      } else {
+        searchParams.append('sort', String(sortValue as string | number | boolean));
+      }
     }
-    if ('order' in params && params.order !== undefined) {
-      searchParams.append('order', String(params.order));
+    if ('order' in params && params['order'] !== undefined) {
+      const orderValue = params['order'];
+      if (typeof orderValue === 'object' && orderValue !== null) {
+        searchParams.append('order', JSON.stringify(orderValue));
+      } else {
+        searchParams.append('order', String(orderValue as string | number | boolean));
+      }
     }
 
     // Handle other parameters
@@ -52,8 +169,10 @@ export class V2BaseClient extends DownloadMixin(BaseClient) implements DownloadC
           searchParams.append(key, value.join(','));
         } else if (typeof value === 'boolean') {
           searchParams.append(key, value ? 'true' : 'false');
+        } else if (typeof value === 'object') {
+          searchParams.append(key, JSON.stringify(value));
         } else {
-          searchParams.append(key, String(value));
+          searchParams.append(key, String(value as string | number | boolean));
         }
       }
     });
@@ -75,11 +194,11 @@ export class V2BaseClient extends DownloadMixin(BaseClient) implements DownloadC
       'Content-Type': 'application/json',
       // eslint-disable-next-line @typescript-eslint/naming-convention
       Accept: 'application/json',
-      ...((options?.headers as Record<string, string>) ?? {}),
+      ...(options?.headers as Record<string, string> | undefined),
     };
 
     if (this.token.length > 0) {
-      headers.Authorization = `Bearer ${this.token}`;
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
 
     try {
@@ -104,53 +223,6 @@ export class V2BaseClient extends DownloadMixin(BaseClient) implements DownloadC
       }
       throw error;
     }
-  }
-
-  /**
-   * Handle v2 API errors with proper error mapping
-   *
-   * @param response - Error response
-   * @throws Appropriate error based on response
-   * @private
-   */
-  private async handleV2Error(response: Response): Promise<never> {
-    let errorData: V2ErrorResponse | undefined;
-
-    try {
-      errorData = (await response.json()) as V2ErrorResponse;
-    } catch {
-      // If JSON parsing fails, use standard error handling
-    }
-
-    // Import error factory dynamically to avoid circular dependencies
-    const { createErrorFromResponse } = await import('../errors');
-
-    // If we have v2 error structure, enhance the error message
-    if (errorData?.error) {
-      const enhancedResponse = new Response(
-        JSON.stringify({
-          errors: [
-            {
-              msg: errorData.error.message,
-              // Include validation errors if present
-              ...(errorData.error.validations && {
-                validations: errorData.error.validations,
-              }),
-            },
-          ],
-        }),
-        {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-        }
-      );
-
-      throw await createErrorFromResponse(enhancedResponse);
-    }
-
-    // Fall back to standard error handling
-    throw await createErrorFromResponse(response);
   }
 
   /**
@@ -211,6 +283,53 @@ export class V2BaseClient extends DownloadMixin(BaseClient) implements DownloadC
     }
 
     return items;
+  }
+
+  /**
+   * Handle v2 API errors with proper error mapping
+   *
+   * @param response - Error response
+   * @throws Appropriate error based on response
+   * @private
+   */
+  private async handleV2Error(response: Response): Promise<never> {
+    let errorData: V2ErrorResponse | undefined;
+
+    try {
+      errorData = (await response.json()) as V2ErrorResponse;
+    } catch {
+      // If JSON parsing fails, use standard error handling
+    }
+
+    // Import error factory dynamically to avoid circular dependencies
+    const { createErrorFromResponse } = await import('../errors');
+
+    // If we have v2 error structure, enhance the error message
+    if (errorData?.error) {
+      const enhancedResponse = new Response(
+        JSON.stringify({
+          errors: [
+            {
+              msg: errorData.error.message,
+              // Include validation errors if present
+              ...(errorData.error.validations && {
+                validations: errorData.error.validations,
+              }),
+            },
+          ],
+        }),
+        {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        }
+      );
+
+      throw await createErrorFromResponse(enhancedResponse);
+    }
+
+    // Fall back to standard error handling
+    throw await createErrorFromResponse(response);
   }
 }
 

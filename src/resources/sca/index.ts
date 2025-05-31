@@ -30,7 +30,9 @@ export type {
   SPDXDocument,
   CycloneDXDocument,
 
-  // Progress and cache types
-  DownloadProgress,
+  // Cache types
   SbomCacheOptions,
 } from './types';
+
+// Re-export from V2BaseClient
+export type { DownloadProgress } from '../../core/V2BaseClient';

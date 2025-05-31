@@ -744,35 +744,31 @@ export class ConfigurationTemplates {
     switch (platform) {
       case DevOpsPlatform.GITHUB:
         return {
-          type: 'github',
           owner: organization,
           repository,
-          defaultBranch: 'main',
+          branch: 'main',
         };
 
       case DevOpsPlatform.GITLAB:
         return {
-          type: 'gitlab',
           namespace: organization,
           project: repository,
-          defaultBranch: 'main',
+          branch: 'main',
         };
 
       case DevOpsPlatform.BITBUCKET:
         return {
-          type: 'bitbucket',
           workspace: organization,
           repository,
-          defaultBranch: 'main',
+          branch: 'main',
         };
 
       case DevOpsPlatform.AzureDevops:
         return {
-          type: 'azure-devops',
           organization,
           project: organization,
           repository,
-          defaultBranch: 'main',
+          branch: 'main',
         };
 
       default: {

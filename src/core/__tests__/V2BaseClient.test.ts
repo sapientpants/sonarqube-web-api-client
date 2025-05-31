@@ -276,8 +276,8 @@ describe('V2BaseClient', () => {
   describe('getAllV2Items', () => {
     it('should get all items from paginated endpoint', async () => {
       const allItems = Array.from({ length: 25 }, (_, i) => ({
-        id: `${i + 1}`,
-        name: `Item ${i + 1}`,
+        id: String(i + 1),
+        name: `Item ${String(i + 1)}`,
       }));
 
       server.use(
@@ -309,7 +309,7 @@ describe('V2BaseClient', () => {
     });
 
     it('should respect maxItems limit', async () => {
-      const allItems = Array.from({ length: 50 }, (_, i) => ({ id: `${i + 1}` }));
+      const allItems = Array.from({ length: 50 }, (_, i) => ({ id: String(i + 1) }));
 
       server.use(
         http.get('http://localhost:9000/api/v2/items', ({ request }) => {

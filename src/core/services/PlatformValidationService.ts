@@ -101,8 +101,10 @@ interface PlatformValidationRule {
  * Service for validating platform-specific configurations
  * Provides unified validation logic across different v2 APIs
  */
-export class PlatformValidationService {
-  private static readonly VALIDATION_RULES: PlatformValidationRule[] = [
+// Using namespace instead of class to avoid ESLint no-extraneous-class error
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace PlatformValidationService {
+  const validationRules: PlatformValidationRule[] = [
     {
       platform: DevOpsPlatform.GITHUB,
       requiredFields: ['owner', 'repository'],
@@ -136,7 +138,7 @@ export class PlatformValidationService {
    * @param platformSpecific - Platform-specific configuration
    * @returns Validation result
    */
-  static validate(
+  export function validate(
     config: PlatformConfig,
     platformSpecific?: Record<string, unknown>
   ): ValidationResult {
@@ -144,7 +146,7 @@ export class PlatformValidationService {
     const warnings: ValidationWarning[] = [];
 
     // Check if platform is supported
-    const rule = this.VALIDATION_RULES.find((r) => r.platform === config.platform);
+    const rule = validationRules.find((r) => r.platform === config.platform);
     if (!rule) {
       errors.push({
         field: 'platform',
@@ -156,12 +158,12 @@ export class PlatformValidationService {
 
     // Validate platform-specific fields
     if (platformSpecific) {
-      this.validatePlatformSpecific(config.platform, platformSpecific, errors, warnings);
+      validatePlatformSpecific(config.platform, platformSpecific, errors, warnings);
     }
 
     // Validate identifier format if provided
-    if (config.identifier) {
-      this.validateIdentifier(config.platform, config.identifier, platformSpecific, warnings);
+    if (config.identifier !== undefined) {
+      validateIdentifier(config.platform, config.identifier, platformSpecific, warnings);
     }
 
     return {
@@ -177,9 +179,11 @@ export class PlatformValidationService {
    * @param config - GitHub configuration
    * @returns Validation result
    */
-  static validateGitHub(config: GitHubConfig, identifier?: string): ValidationResult {
-    return this.validate(
-      { platform: DevOpsPlatform.GITHUB, identifier },
+  export function validateGitHub(config: GitHubConfig, identifier?: string): ValidationResult {
+    return validate(
+      identifier !== undefined
+        ? { platform: DevOpsPlatform.GITHUB, identifier }
+        : { platform: DevOpsPlatform.GITHUB },
       config as unknown as Record<string, unknown>
     );
   }
@@ -190,9 +194,11 @@ export class PlatformValidationService {
    * @param config - GitLab configuration
    * @returns Validation result
    */
-  static validateGitLab(config: GitLabConfig, identifier?: string): ValidationResult {
-    return this.validate(
-      { platform: DevOpsPlatform.GITLAB, identifier },
+  export function validateGitLab(config: GitLabConfig, identifier?: string): ValidationResult {
+    return validate(
+      identifier !== undefined
+        ? { platform: DevOpsPlatform.GITLAB, identifier }
+        : { platform: DevOpsPlatform.GITLAB },
       config as unknown as Record<string, unknown>
     );
   }
@@ -203,9 +209,14 @@ export class PlatformValidationService {
    * @param config - Bitbucket configuration
    * @returns Validation result
    */
-  static validateBitbucket(config: BitbucketConfig, identifier?: string): ValidationResult {
-    return this.validate(
-      { platform: DevOpsPlatform.BITBUCKET, identifier },
+  export function validateBitbucket(
+    config: BitbucketConfig,
+    identifier?: string
+  ): ValidationResult {
+    return validate(
+      identifier !== undefined
+        ? { platform: DevOpsPlatform.BITBUCKET, identifier }
+        : { platform: DevOpsPlatform.BITBUCKET },
       config as unknown as Record<string, unknown>
     );
   }
@@ -216,9 +227,14 @@ export class PlatformValidationService {
    * @param config - Azure DevOps configuration
    * @returns Validation result
    */
-  static validateAzureDevOps(config: AzureDevOpsConfig, identifier?: string): ValidationResult {
-    return this.validate(
-      { platform: DevOpsPlatform.AzureDevops, identifier },
+  export function validateAzureDevOps(
+    config: AzureDevOpsConfig,
+    identifier?: string
+  ): ValidationResult {
+    return validate(
+      identifier !== undefined
+        ? { platform: DevOpsPlatform.AzureDevops, identifier }
+        : { platform: DevOpsPlatform.AzureDevops },
       config as unknown as Record<string, unknown>
     );
   }
@@ -230,41 +246,41 @@ export class PlatformValidationService {
    * @param config - Platform-specific configuration
    * @returns Suggested identifier
    */
-  static buildIdentifier(
+  export function buildIdentifier(
     platform: DevOpsPlatform,
     config: Record<string, unknown>
   ): string | undefined {
     switch (platform) {
       case DevOpsPlatform.GITHUB:
-        return config.owner !== undefined &&
-          config.owner !== null &&
-          config.repository !== undefined &&
-          config.repository !== null
-          ? `${String(config.owner)}/${String(config.repository)}`
+        return config['owner'] !== undefined &&
+          config['owner'] !== null &&
+          config['repository'] !== undefined &&
+          config['repository'] !== null
+          ? `${String(config['owner'] as string | number)}/${String(config['repository'] as string | number)}`
           : undefined;
 
       case DevOpsPlatform.GITLAB:
-        return config.namespace !== undefined &&
-          config.namespace !== null &&
-          config.project !== undefined &&
-          config.project !== null
-          ? `${String(config.namespace)}/${String(config.project)}`
+        return config['namespace'] !== undefined &&
+          config['namespace'] !== null &&
+          config['project'] !== undefined &&
+          config['project'] !== null
+          ? `${String(config['namespace'] as string | number)}/${String(config['project'] as string | number)}`
           : undefined;
 
       case DevOpsPlatform.BITBUCKET:
-        return config.workspace !== undefined &&
-          config.workspace !== null &&
-          config.repository !== undefined &&
-          config.repository !== null
-          ? `${String(config.workspace)}/${String(config.repository)}`
+        return config['workspace'] !== undefined &&
+          config['workspace'] !== null &&
+          config['repository'] !== undefined &&
+          config['repository'] !== null
+          ? `${String(config['workspace'] as string | number)}/${String(config['repository'] as string | number)}`
           : undefined;
 
       case DevOpsPlatform.AzureDevops:
-        return config.organization !== undefined &&
-          config.organization !== null &&
-          config.project !== undefined &&
-          config.project !== null
-          ? `${String(config.organization)}/${String(config.project)}`
+        return config['organization'] !== undefined &&
+          config['organization'] !== null &&
+          config['project'] !== undefined &&
+          config['project'] !== null
+          ? `${String(config['organization'] as string | number)}/${String(config['project'] as string | number)}`
           : undefined;
 
       default:
@@ -276,23 +292,29 @@ export class PlatformValidationService {
    * Validate platform-specific fields
    * @private
    */
-  private static validatePlatformSpecific(
+  function validatePlatformSpecific(
     platform: DevOpsPlatform,
     config: Record<string, unknown>,
     errors: ValidationError[],
     warnings: ValidationWarning[]
   ): void {
-    const rule = this.VALIDATION_RULES.find((r) => r.platform === platform);
+    const rule = validationRules.find((r) => r.platform === platform);
     if (!rule) {
       return;
     }
 
     // Check required fields
     for (const field of rule.requiredFields) {
-      if (!config[field] || String(config[field]).trim() === '') {
+      const fieldValue = config[field];
+      if (
+        fieldValue === undefined ||
+        fieldValue === null ||
+        fieldValue === '' ||
+        (typeof fieldValue === 'string' && fieldValue.trim() === '')
+      ) {
         errors.push({
           field: `platformSpecific.${field}`,
-          message: `${this.formatFieldName(field)} is required for ${platform}`,
+          message: `${formatFieldName(field)} is required for ${platform}`,
           code: `MISSING_${platform.toUpperCase()}_${field.toUpperCase()}`,
           platform,
         });
@@ -302,16 +324,16 @@ export class PlatformValidationService {
     // Platform-specific validations
     switch (platform) {
       case DevOpsPlatform.GITHUB:
-        this.validateGitHubSpecific(config, warnings);
+        validateGitHubSpecific(config, warnings);
         break;
       case DevOpsPlatform.GITLAB:
-        this.validateGitLabSpecific(config, warnings);
+        validateGitLabSpecific(config, warnings);
         break;
       case DevOpsPlatform.BITBUCKET:
-        this.validateBitbucketSpecific(config, warnings);
+        validateBitbucketSpecific(config, warnings);
         break;
       case DevOpsPlatform.AzureDevops:
-        this.validateAzureDevOpsSpecific(config, warnings);
+        validateAzureDevOpsSpecific(config, warnings);
         break;
     }
   }
@@ -320,23 +342,23 @@ export class PlatformValidationService {
    * Validate identifier format
    * @private
    */
-  private static validateIdentifier(
+  function validateIdentifier(
     platform: DevOpsPlatform,
     identifier: string,
     config: Record<string, unknown> | undefined,
     warnings: ValidationWarning[]
   ): void {
-    const rule = this.VALIDATION_RULES.find((r) => r.platform === platform);
+    const rule = validationRules.find((r) => r.platform === platform);
     if (!rule) {
       return;
     }
 
     if (!rule.identifierFormat.test(identifier)) {
-      const suggestion = config ? this.buildIdentifier(platform, config) : undefined;
+      const suggestion = config ? buildIdentifier(platform, config) : undefined;
       warnings.push({
         field: 'identifier',
         message: `${platform} identifier should be in format "${rule.identifierExample}"`,
-        suggestion,
+        ...(suggestion !== undefined ? { suggestion } : {}),
         platform,
       });
     }
@@ -346,25 +368,31 @@ export class PlatformValidationService {
    * GitHub-specific validations
    * @private
    */
-  private static validateGitHubSpecific(
+  function validateGitHubSpecific(
     config: Record<string, unknown>,
     warnings: ValidationWarning[]
   ): void {
     // Check for common GitHub naming issues
-    if (config.owner && String(config.owner).includes(' ')) {
-      warnings.push({
-        field: 'platformSpecific.owner',
-        message: 'GitHub owner should not contain spaces',
-        platform: DevOpsPlatform.GITHUB,
-      });
+    if (config['owner'] !== undefined && config['owner'] !== null) {
+      const ownerStr = String(config['owner'] as string | number);
+      if (ownerStr.includes(' ')) {
+        warnings.push({
+          field: 'platformSpecific.owner',
+          message: 'GitHub owner should not contain spaces',
+          platform: DevOpsPlatform.GITHUB,
+        });
+      }
     }
 
-    if (config.repository && String(config.repository).includes(' ')) {
-      warnings.push({
-        field: 'platformSpecific.repository',
-        message: 'GitHub repository name should not contain spaces',
-        platform: DevOpsPlatform.GITHUB,
-      });
+    if (config['repository'] !== undefined && config['repository'] !== null) {
+      const repoStr = String(config['repository'] as string | number);
+      if (repoStr.includes(' ')) {
+        warnings.push({
+          field: 'platformSpecific.repository',
+          message: 'GitHub repository name should not contain spaces',
+          platform: DevOpsPlatform.GITHUB,
+        });
+      }
     }
   }
 
@@ -372,17 +400,20 @@ export class PlatformValidationService {
    * GitLab-specific validations
    * @private
    */
-  private static validateGitLabSpecific(
+  function validateGitLabSpecific(
     config: Record<string, unknown>,
     warnings: ValidationWarning[]
   ): void {
     // Check for common GitLab naming issues
-    if (config.namespace && String(config.namespace).includes(' ')) {
-      warnings.push({
-        field: 'platformSpecific.namespace',
-        message: 'GitLab namespace should not contain spaces',
-        platform: DevOpsPlatform.GITLAB,
-      });
+    if (config['namespace'] !== undefined && config['namespace'] !== null) {
+      const namespaceStr = String(config['namespace'] as string | number);
+      if (namespaceStr.includes(' ')) {
+        warnings.push({
+          field: 'platformSpecific.namespace',
+          message: 'GitLab namespace should not contain spaces',
+          platform: DevOpsPlatform.GITLAB,
+        });
+      }
     }
   }
 
@@ -390,17 +421,20 @@ export class PlatformValidationService {
    * Bitbucket-specific validations
    * @private
    */
-  private static validateBitbucketSpecific(
+  function validateBitbucketSpecific(
     config: Record<string, unknown>,
     warnings: ValidationWarning[]
   ): void {
     // Check for common Bitbucket naming issues
-    if (config.workspace && String(config.workspace).includes(' ')) {
-      warnings.push({
-        field: 'platformSpecific.workspace',
-        message: 'Bitbucket workspace should not contain spaces',
-        platform: DevOpsPlatform.BITBUCKET,
-      });
+    if (config['workspace'] !== undefined && config['workspace'] !== null) {
+      const workspaceStr = String(config['workspace'] as string | number);
+      if (workspaceStr.includes(' ')) {
+        warnings.push({
+          field: 'platformSpecific.workspace',
+          message: 'Bitbucket workspace should not contain spaces',
+          platform: DevOpsPlatform.BITBUCKET,
+        });
+      }
     }
   }
 
@@ -408,17 +442,20 @@ export class PlatformValidationService {
    * Azure DevOps-specific validations
    * @private
    */
-  private static validateAzureDevOpsSpecific(
+  function validateAzureDevOpsSpecific(
     config: Record<string, unknown>,
     warnings: ValidationWarning[]
   ): void {
     // Check for common Azure DevOps naming issues
-    if (config.organization && String(config.organization).includes(' ')) {
-      warnings.push({
-        field: 'platformSpecific.organization',
-        message: 'Azure DevOps organization should not contain spaces',
-        platform: DevOpsPlatform.AzureDevops,
-      });
+    if (config['organization'] !== undefined && config['organization'] !== null) {
+      const orgStr = String(config['organization'] as string | number);
+      if (orgStr.includes(' ')) {
+        warnings.push({
+          field: 'platformSpecific.organization',
+          message: 'Azure DevOps organization should not contain spaces',
+          platform: DevOpsPlatform.AzureDevops,
+        });
+      }
     }
   }
 
@@ -426,7 +463,7 @@ export class PlatformValidationService {
    * Format field name for user-friendly messages
    * @private
    */
-  private static formatFieldName(field: string): string {
+  function formatFieldName(field: string): string {
     return field
       .split(/(?=[A-Z])/)
       .join(' ')

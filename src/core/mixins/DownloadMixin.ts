@@ -58,10 +58,16 @@ export interface DownloadCapable {
  * Mixin that adds download functionality to BaseClient
  * Provides methods for downloading binary content with progress tracking
  * and text content retrieval
+ *
+ * NOTE: This mixin is currently not used due to TypeScript issues with mixins
+ * and protected properties. The functionality is implemented directly in V2BaseClient.
+ * This export is kept for the test files that still use it.
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/naming-convention
-export function DownloadMixin<TBase extends Constructor<BaseClient>>(Base: TBase) {
-  return class extends Base implements DownloadCapable {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function DownloadMixin<TBase extends Constructor<BaseClient>>(
+  base: TBase
+): TBase & Constructor<DownloadCapable> {
+  return class extends base implements DownloadCapable {
     /**
      * Download a file with progress tracking support.
      *
@@ -127,9 +133,8 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(Base: TBase
           }
 
           if (result.value !== undefined && result.value instanceof Uint8Array) {
-            const { value } = result;
-            chunks.push(value);
-            loaded += value.length;
+            chunks.push(result.value);
+            loaded += result.value.length;
           }
 
           const progress: DownloadProgress = {
@@ -159,7 +164,7 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(Base: TBase
       const headers: Record<string, string> = {};
 
       if (this.token.length > 0) {
-        headers.Authorization = `Bearer ${this.token}`;
+        headers['Authorization'] = `Bearer ${this.token}`;
       }
 
       const response = await fetch(`${this.baseUrl}${url}`, {

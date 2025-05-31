@@ -3,11 +3,23 @@
  * Handles DevOps platform integration and project binding
  */
 
+// Import all types from PlatformValidationService together
+import {
+  DevOpsPlatform,
+  type GitHubConfig,
+  type GitLabConfig,
+  type BitbucketConfig,
+  type AzureDevOpsConfig,
+  type ValidationResult,
+  type ValidationError,
+  type ValidationWarning,
+} from '../../core/services/PlatformValidationService';
+
 /**
  * Supported DevOps platforms for integration
  * Re-exported from PlatformValidationService for consistency
  */
-export { DevOpsPlatform } from '../../core/services/PlatformValidationService';
+export { DevOpsPlatform };
 
 /**
  * Project binding status after creation
@@ -156,20 +168,11 @@ export type PlatformSpecificConfig =
   | BitbucketConfig
   | AzureDevOpsConfig;
 
-// Re-export platform-specific configs from validation service
-export type {
-  GitHubConfig,
-  GitLabConfig,
-  BitbucketConfig,
-  AzureDevOpsConfig,
-} from '../../core/services/PlatformValidationService';
+// Re-export for convenience
+export type { GitHubConfig, GitLabConfig, BitbucketConfig, AzureDevOpsConfig };
 
 // Re-export validation types for convenience
-export type {
-  ValidationResult,
-  ValidationError,
-  ValidationWarning,
-} from '../../core/services/PlatformValidationService';
+export type { ValidationResult, ValidationError, ValidationWarning };
 
 // ============================================================================
 // Authentication Types

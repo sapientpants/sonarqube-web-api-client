@@ -531,7 +531,10 @@ describe('DopTranslationClient', () => {
           externalUrl: `https://example.com/${project.projectIdentifier}`,
           lastSync: '2025-01-30T10:00:00Z',
           syncStatus: SyncStatus.SUCCESS,
-          configuration: project.platformSpecific ?? {},
+          configuration:
+            project.platformSpecific !== undefined
+              ? (project.platformSpecific as Record<string, unknown>)
+              : {},
         },
         sonarQubeProject: {
           key: `${project.organizationName ?? ''}_${project.repositoryName ?? ''}`,

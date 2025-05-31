@@ -61,7 +61,7 @@ describe('DownloadMixin', () => {
         http.get('http://localhost:9000/api/v2/test/download', () => {
           return new HttpResponse(
             new ReadableStream({
-              async start(controller) {
+              async start(controller): Promise<void> {
                 for (const chunk of chunks) {
                   controller.enqueue(chunk);
                   await new Promise((resolve) => setTimeout(resolve, 10));
@@ -234,21 +234,6 @@ describe('DownloadMixin', () => {
       );
 
       await expect(client.requestText('/api/v2/test/text')).rejects.toThrow('Unauthorized');
-    });
-  });
-
-  describe('getAuthHeaders', () => {
-    it('should return auth headers when token is present', () => {
-      const headers = client['getAuthHeaders']();
-      expect(headers).toEqual({
-        Authorization: 'Bearer test-token',
-      });
-    });
-
-    it('should return empty object when no token', () => {
-      const clientWithoutToken = new TestClient('http://localhost:9000');
-      const headers = clientWithoutToken['getAuthHeaders']();
-      expect(headers).toEqual({});
     });
   });
 });

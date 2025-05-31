@@ -317,7 +317,6 @@ export type {
 export type {
   // Request types
   GetActiveRulesV2Request,
-  DownloadOptions,
 
   // Response types
   GetActiveRulesV2Response,
@@ -328,8 +327,13 @@ export type {
   // Data types
   ActiveRuleV2,
   JreMetadataV2,
-  DownloadProgress as AnalysisDownloadProgress,
 } from './resources/analysis/types';
+
+// Re-export download types from analysis
+export type {
+  DownloadOptions,
+  DownloadProgress as AnalysisDownloadProgress,
+} from './resources/analysis';
 
 // Re-export types from authentication
 export type { ValidateResponse } from './resources/authentication/types';
@@ -900,10 +904,12 @@ export type {
   SPDXDocument,
   CycloneDXDocument,
 
-  // Progress and cache types
-  DownloadProgress,
+  // Cache types
   SbomCacheOptions,
 } from './resources/sca/types';
+
+// Re-export DownloadProgress from sca
+export type { DownloadProgress } from './resources/sca';
 
 // Re-export SCA utilities
 export { SbomFormatConverter, SbomAnalyzer } from './resources/sca/utils';

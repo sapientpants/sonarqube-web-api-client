@@ -1,4 +1,5 @@
 import { V2BaseClient } from '../../core/V2BaseClient';
+import { createErrorFromResponse } from '../../errors';
 import type {
   GetSbomReportV2Request,
   SbomReportV2Response,
@@ -110,7 +111,7 @@ export class ScaClient extends V2BaseClient {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           Accept: 'application/json',
         },
-        signal: options?.signal ?? null,
+        ...(options?.signal !== undefined ? { signal: options.signal } : {}),
       });
     } else {
       // Return as blob for binary formats (XML, RDF)
@@ -178,13 +179,21 @@ export class ScaClient extends V2BaseClient {
   ): Promise<ReadableStream<Uint8Array>> {
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
 
+    const headers: Record<string, string> = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      Accept: 'application/octet-stream',
+    };
+
+    if (this.token.length > 0) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
     const response = await fetch(`${this.baseUrl}/api/v2/sca/sbom-reports?${query}`, {
-      headers: this.getAuthHeaders(),
+      headers,
       signal: signal ?? null,
     });
 
     if (!response.ok) {
-      const { createErrorFromResponse } = await import('../../errors');
       throw await createErrorFromResponse(response);
     }
 

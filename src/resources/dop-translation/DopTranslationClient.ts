@@ -143,7 +143,7 @@ export class DopTranslationClient extends V2BaseClient {
     // Use PlatformValidationService for platform-specific validation
     const validation = PlatformValidationService.validate(
       {
-        platform: request.dopPlatform as DevOpsPlatform,
+        platform: request.dopPlatform,
         identifier: request.projectIdentifier,
       },
       request.platformSpecific as Record<string, unknown> | undefined
@@ -184,8 +184,7 @@ export class DopTranslationClient extends V2BaseClient {
     }
 
     // Log warnings if any (in development only)
-    // eslint-disable-next-line no-console
-    if (validation.warnings.length > 0 && process.env.NODE_ENV !== 'production') {
+    if (validation.warnings.length > 0 && process.env['NODE_ENV'] !== 'production') {
       validation.warnings.forEach((warning) => {
         // eslint-disable-next-line no-console
         console.warn(`[DOP Translation] ${warning.field}: ${warning.message}`);

@@ -97,17 +97,18 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Configure GitHub-specific settings
    */
   withGitHubConfig(config: Partial<GitHubConfig>): this {
-    const baseConfig: GitHubConfig = {
-      type: 'github',
+    const baseConfig = {
       owner: config.owner ?? this.request.organizationName ?? '',
       repository: config.repository ?? this.request.repositoryName ?? '',
-      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
+      ...(config.branch !== undefined || this.request.mainBranchName !== undefined
+        ? { branch: config.branch ?? this.request.mainBranchName }
+        : {}),
     };
 
     this.request.platformSpecific = {
       ...baseConfig,
       ...config,
-    } as GitHubConfig;
+    };
 
     // Update the platform if not set
     this.request.dopPlatform ??= DevOpsPlatform.GITHUB;
@@ -119,17 +120,18 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Configure GitLab-specific settings
    */
   withGitLabConfig(config: Partial<GitLabConfig>): this {
-    const baseConfig: GitLabConfig = {
-      type: 'gitlab',
+    const baseConfig = {
       namespace: config.namespace ?? this.request.organizationName ?? '',
       project: config.project ?? this.request.repositoryName ?? '',
-      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
+      ...(config.branch !== undefined || this.request.mainBranchName !== undefined
+        ? { branch: config.branch ?? this.request.mainBranchName }
+        : {}),
     };
 
     this.request.platformSpecific = {
       ...baseConfig,
       ...config,
-    } as GitLabConfig;
+    };
 
     // Update the platform if not set
     this.request.dopPlatform ??= DevOpsPlatform.GITLAB;
@@ -141,17 +143,18 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Configure Bitbucket-specific settings
    */
   withBitbucketConfig(config: Partial<BitbucketConfig>): this {
-    const baseConfig: BitbucketConfig = {
-      type: 'bitbucket',
+    const baseConfig = {
       workspace: config.workspace ?? this.request.organizationName ?? '',
       repository: config.repository ?? this.request.repositoryName ?? '',
-      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
+      ...(config.branch !== undefined || this.request.mainBranchName !== undefined
+        ? { branch: config.branch ?? this.request.mainBranchName }
+        : {}),
     };
 
     this.request.platformSpecific = {
       ...baseConfig,
       ...config,
-    } as BitbucketConfig;
+    };
 
     // Update the platform if not set
     this.request.dopPlatform ??= DevOpsPlatform.BITBUCKET;
@@ -163,18 +166,19 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Configure Azure DevOps-specific settings
    */
   withAzureDevOpsConfig(config: Partial<AzureDevOpsConfig>): this {
-    const baseConfig: AzureDevOpsConfig = {
-      type: 'azure-devops',
+    const baseConfig = {
       organization: config.organization ?? this.request.organizationName ?? '',
       project: config.project ?? this.request.repositoryName ?? '',
       repository: config.repository ?? this.request.repositoryName ?? '',
-      defaultBranch: config.defaultBranch ?? this.request.mainBranchName ?? 'main',
+      ...(config.branch !== undefined || this.request.mainBranchName !== undefined
+        ? { branch: config.branch ?? this.request.mainBranchName }
+        : {}),
     };
 
     this.request.platformSpecific = {
       ...baseConfig,
       ...config,
-    } as AzureDevOpsConfig;
+    };
 
     // Update the platform if not set
     this.request.dopPlatform ??= DevOpsPlatform.AzureDevops;
@@ -273,14 +277,14 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     }
 
     // Platform-specific validation
-    if (this.request.dopPlatform !== undefined && this.request.platformSpecific) {
+    if (this.request.dopPlatform !== undefined && this.request.platformSpecific !== undefined) {
       const platformValidation = this.validatePlatformSpecific();
       errors.push(...platformValidation.errors);
       warnings.push(...platformValidation.warnings);
     }
 
     // SonarQube project validation
-    if (this.request.sonarQubeProjectConfig) {
+    if (this.request.sonarQubeProjectConfig !== undefined) {
       const projectValidation = this.validateSonarQubeProject();
       errors.push(...projectValidation.errors);
       warnings.push(...projectValidation.warnings);

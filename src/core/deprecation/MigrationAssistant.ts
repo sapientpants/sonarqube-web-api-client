@@ -209,9 +209,7 @@ export class MigrationAssistant {
           if (api.examples && api.examples.length > 0) {
             guide += '**Examples:**\n\n';
             api.examples.forEach((ex, i) => {
-              guide += `Example ${i + 1}${ex.description ? `: ${ex.description}` : ''}\n\n`;
-              guide += `Before:\n\`\`\`typescript\n${ex.before}\n\`\`\`\n\n`;
-              guide += `After:\n\`\`\`typescript\n${ex.after}\n\`\`\`\n\n`;
+              guide += MigrationAssistant.formatExampleSection(ex, i + 1);
             });
           }
 
@@ -224,5 +222,34 @@ export class MigrationAssistant {
       });
 
     return guide;
+  }
+
+  /**
+   * Format an example section with title, description, and code blocks
+   * @private
+   */
+  private static formatExampleSection(ex: MigrationExample, exampleNumber: number): string {
+    const title = this.formatExampleTitle(exampleNumber, ex.description);
+    const beforeBlock = this.formatCodeBlock('Before', ex.before);
+    const afterBlock = this.formatCodeBlock('After', ex.after);
+
+    return `${title}\n\n${beforeBlock}\n\n${afterBlock}\n\n`;
+  }
+
+  /**
+   * Format example title with optional description
+   * @private
+   */
+  private static formatExampleTitle(exampleNumber: number, description?: string): string {
+    const baseTitle = `Example ${exampleNumber}`;
+    return description ? `${baseTitle}: ${description}` : baseTitle;
+  }
+
+  /**
+   * Format a code block with label
+   * @private
+   */
+  private static formatCodeBlock(label: string, code: string): string {
+    return `${label}:\n\`\`\`typescript\n${code}\n\`\`\``;
   }
 }

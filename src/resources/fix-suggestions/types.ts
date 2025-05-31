@@ -5,6 +5,8 @@
  * @since 10.7
  */
 
+export type FixStyle = 'minimal' | 'comprehensive' | 'defensive';
+
 // ===== Core Request/Response Types =====
 
 /**
@@ -65,7 +67,7 @@ export interface RequestAiSuggestionsV2Request {
   /** Number of alternative fixes to generate (1-10) */
   maxAlternatives?: number;
   /** Preferred fix style */
-  fixStyle?: 'minimal' | 'comprehensive' | 'defensive';
+  fixStyle?: FixStyle;
   /** Language-specific preferences */
   languagePreferences?: Record<string, unknown>;
   /** Custom context or instructions for AI */
@@ -229,7 +231,7 @@ export interface RequestAiSuggestionsV2Builder {
   /** Set maximum number of alternatives */
   withMaxAlternatives: (count: number) => this;
   /** Set fix style preference */
-  withFixStyle: (style: 'minimal' | 'comprehensive' | 'defensive') => this;
+  withFixStyle: (style: FixStyle) => this;
   /** Add language-specific preferences */
   withLanguagePreferences: (prefs: Record<string, unknown>) => this;
   /** Add custom context or instructions */
@@ -299,7 +301,7 @@ export interface FixRankingCriteria {
   /** Weight for effort estimate (0-1, lower effort preferred) */
   effortWeight?: number;
   /** Preferred fix styles (ordered by preference) */
-  preferredStyles?: Array<'minimal' | 'comprehensive' | 'defensive'>;
+  preferredStyles?: FixStyle[];
 }
 
 /**
@@ -476,8 +478,6 @@ export type FixSuggestionUnavailableReason =
   | 'ai_service_unavailable'
   | 'quota_exceeded'
   | 'issue_already_resolved';
-
-export type FixStyle = 'minimal' | 'comprehensive' | 'defensive';
 
 export type FixComplexity = 'low' | 'medium' | 'high';
 

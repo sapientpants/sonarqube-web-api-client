@@ -233,9 +233,9 @@ describe('patternBuilder', () => {
   describe('stringContainingPattern', () => {
     it('should build pattern for strings containing text', () => {
       const pattern = patternBuilder.stringContainingPattern('TODO');
-      expect(pattern).toContain('"[^"\\n]*TODO[^"\\n]*"');
-      expect(pattern).toContain("'[^'\\n]*TODO[^'\\n]*'");
-      expect(pattern).toContain('`[^`]*TODO[^`]*`');
+      expect(pattern).toContain('"[^"\\n]*?TODO[^"\\n]*?"');
+      expect(pattern).toContain("'[^'\\n]*?TODO[^'\\n]*?'");
+      expect(pattern).toContain('`[^`]*?TODO[^`]*?`');
     });
 
     it('should escape special characters in text', () => {
@@ -245,7 +245,7 @@ describe('patternBuilder', () => {
 
     it('should support specific quote types', () => {
       const pattern = patternBuilder.stringContainingPattern('test', ['"']);
-      expect(pattern).toBe('("[^"\\n]*test[^"\\n]*")');
+      expect(pattern).toBe('("[^"\\n]*?test[^"\\n]*?")');
     });
   });
 

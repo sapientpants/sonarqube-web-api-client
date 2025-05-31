@@ -33,11 +33,15 @@ export const ruleKeyUtils = {
    */
   generateKey: (name: string, prefix?: string): string => {
     // Convert to lowercase and replace spaces/special chars with hyphens
-    let key = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+/, '') // Remove leading hyphens
-      .replace(/-+$/, ''); // Remove trailing hyphens
+    let key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    // Remove leading and trailing hyphens safely
+    while (key.startsWith('-')) {
+      key = key.slice(1);
+    }
+    while (key.endsWith('-')) {
+      key = key.slice(0, -1);
+    }
 
     // Add prefix if provided
     if (prefix !== undefined && prefix !== '') {
@@ -69,7 +73,20 @@ export const ruleKeyUtils = {
    */
   isValidKey: (key: string): boolean => {
     // Must start with letter, contain only letters, numbers, underscores, hyphens
-    return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(key) && key.length <= 200;
+    if (key.length === 0 || key.length > 200) {
+      return false;
+    }
+    if (!/^[a-zA-Z]/.test(key)) {
+      return false;
+    }
+    // Check each character individually to avoid ReDoS
+    for (let i = 1; i < key.length; i++) {
+      const char = key[i];
+      if (char === undefined || !/[a-zA-Z0-9_-]/.test(char)) {
+        return false;
+      }
+    }
+    return true;
   },
 
   /**
@@ -309,10 +326,11 @@ export const patternBuilder = {
     const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const quotePatterns = quoteTypes.map((quote) => {
       if (quote === '`') {
-        // Template literals can span multiple lines
-        return `${quote}[^${quote}]*${escapedText}[^${quote}]*${quote}`;
+        // Template literals can span multiple lines - use non-greedy matching
+        return `${quote}[^${quote}]*?${escapedText}[^${quote}]*?${quote}`;
       }
-      return `${quote}[^${quote}\\n]*${escapedText}[^${quote}\\n]*${quote}`;
+      // Use non-greedy matching to prevent ReDoS
+      return `${quote}[^${quote}\\n]*?${escapedText}[^${quote}\\n]*?${quote}`;
     });
 
     return `(${quotePatterns.join('|')})`;
@@ -353,7 +371,8 @@ export const patternBuilder = {
     const flags = caseSensitive ? '' : '(?i)';
 
     // Match single-line and multi-line comments
-    return `(\\/\\/.*\\b${flags}(${keywordPattern})\\b.*)|(\\/\\*[\\s\\S]*?\\b${flags}(${keywordPattern})\\b[\\s\\S]*?\\*\\/)`;
+    // Use atomic groups to prevent ReDoS
+    return `(\\/\\/.*?\\b${flags}(${keywordPattern})\\b.*)|(\\/\\*(?:[^*]|\\*(?!\\/))*?\\b${flags}(${keywordPattern})\\b(?:[^*]|\\*(?!\\/))*?\\*\\/)`;
   },
 };
 

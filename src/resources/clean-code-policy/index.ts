@@ -68,7 +68,6 @@ export { CreateCustomRuleV2Builder, AdvancedCustomRuleBuilder } from './builders
 // Export utilities
 export {
   ruleKeyUtils,
-  templateUtils,
   parameterUtils,
   patternBuilder,
   messageTemplateUtils,

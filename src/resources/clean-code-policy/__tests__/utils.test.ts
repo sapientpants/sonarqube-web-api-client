@@ -1,6 +1,5 @@
 import {
   ruleKeyUtils,
-  templateUtils,
   parameterUtils,
   patternBuilder,
   messageTemplateUtils,
@@ -83,49 +82,6 @@ describe('ruleKeyUtils', () => {
     it('should return input if no repository prefix', () => {
       expect(ruleKeyUtils.extractRuleKey('S1234')).toBe('S1234');
       expect(ruleKeyUtils.extractRuleKey('custom-rule')).toBe('custom-rule');
-    });
-  });
-});
-
-describe('templateUtils', () => {
-  describe('getSuggestedTemplates', () => {
-    it('should return templates for known languages', () => {
-      const jsTemplates = templateUtils.getSuggestedTemplates('javascript');
-      expect(jsTemplates).toContain('javascript:CommentRegularExpression');
-      expect(jsTemplates).toContain('javascript:S124');
-      expect(jsTemplates).toContain('javascript:XPath');
-
-      const javaTemplates = templateUtils.getSuggestedTemplates('java');
-      expect(javaTemplates).toContain('java:S124');
-      expect(javaTemplates).toContain('java:XPath');
-    });
-
-    it('should handle case insensitive language names', () => {
-      expect(templateUtils.getSuggestedTemplates('JavaScript')).toEqual(
-        templateUtils.getSuggestedTemplates('javascript')
-      );
-      expect(templateUtils.getSuggestedTemplates('JAVA')).toEqual(
-        templateUtils.getSuggestedTemplates('java')
-      );
-    });
-
-    it('should return empty array for unknown languages', () => {
-      expect(templateUtils.getSuggestedTemplates('cobol')).toEqual([]);
-      expect(templateUtils.getSuggestedTemplates('unknown')).toEqual([]);
-    });
-  });
-
-  describe('isCustomizable', () => {
-    it('should identify customizable templates', () => {
-      expect(templateUtils.isCustomizable('javascript:CommentRegularExpression')).toBe(true);
-      expect(templateUtils.isCustomizable('java:S124')).toBe(true); // Comment pattern
-      expect(templateUtils.isCustomizable('python:XPath')).toBe(true);
-      expect(templateUtils.isCustomizable('typescript:RegexPattern')).toBe(true);
-    });
-
-    it('should identify non-customizable templates', () => {
-      expect(templateUtils.isCustomizable('javascript:S1234')).toBe(false);
-      expect(templateUtils.isCustomizable('java:S5678')).toBe(false);
     });
   });
 });

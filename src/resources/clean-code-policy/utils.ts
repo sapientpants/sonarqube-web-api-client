@@ -342,13 +342,13 @@ export const patternBuilder = {
    */
   todoCommentPattern(
     keywords: string[] = ['TODO', 'FIXME', 'HACK', 'XXX'],
-    _caseSensitive = false
+    caseSensitive = false
   ): string {
-    // Note: caseSensitive flag is not currently used in the pattern
     const keywordPattern = keywords.join('|');
+    const flags = caseSensitive ? '' : '(?i)';
 
     // Match single-line and multi-line comments
-    return `(\\/\\/.*\\b(${keywordPattern})\\b.*)|(\\/\\*[\\s\\S]*?\\b(${keywordPattern})\\b[\\s\\S]*?\\*\\/)`;
+    return `(\\/\\/.*\\b${flags}(${keywordPattern})\\b.*)|(\\/\\*[\\s\\S]*?\\b${flags}(${keywordPattern})\\b[\\s\\S]*?\\*\\/)`;
   },
 };
 

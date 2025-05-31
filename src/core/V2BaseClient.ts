@@ -8,8 +8,7 @@ import { BaseClient } from './BaseClient';
 import { createErrorFromResponse } from '../errors';
 import type { DownloadCapable, DownloadOptions, DownloadProgress } from './mixins/DownloadMixin';
 import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './types/v2-common';
-
-type PrimitiveValue = string | number | boolean;
+import type { PrimitiveValue } from './types/primitive';
 
 /**
  * Base class for all v2 API clients
@@ -121,61 +120,11 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
   protected override buildV2Query(params: Record<string, unknown>): string {
     const searchParams = new URLSearchParams();
 
-    // Handle standard v2 pagination parameters
-    if ('page' in params && params['page'] !== undefined) {
-      const pageValue = params['page'];
-      if (typeof pageValue === 'object' && pageValue !== null) {
-        searchParams.append('page', JSON.stringify(pageValue));
-      } else {
-        searchParams.append('page', String(pageValue as PrimitiveValue));
-      }
-    }
-    if ('pageSize' in params && params['pageSize'] !== undefined) {
-      const pageSizeValue = params['pageSize'];
-      if (typeof pageSizeValue === 'object' && pageSizeValue !== null) {
-        searchParams.append('pageSize', JSON.stringify(pageSizeValue));
-      } else {
-        searchParams.append('pageSize', String(pageSizeValue as PrimitiveValue));
-      }
-    }
-
-    // Handle sorting
-    if ('sort' in params && params['sort'] !== undefined) {
-      const sortValue = params['sort'];
-      if (typeof sortValue === 'object' && sortValue !== null) {
-        searchParams.append('sort', JSON.stringify(sortValue));
-      } else {
-        searchParams.append('sort', String(sortValue as PrimitiveValue));
-      }
-    }
-    if ('order' in params && params['order'] !== undefined) {
-      const orderValue = params['order'];
-      if (typeof orderValue === 'object' && orderValue !== null) {
-        searchParams.append('order', JSON.stringify(orderValue));
-      } else {
-        searchParams.append('order', String(orderValue as PrimitiveValue));
-      }
-    }
+    // Handle standard v2 pagination and sorting parameters
+    this.appendStandardV2Params(searchParams, params, ['page', 'pageSize', 'sort', 'order']);
 
     // Handle other parameters
-    Object.entries(params).forEach(([key, value]) => {
-      if (
-        value !== undefined &&
-        value !== null &&
-        !['page', 'pageSize', 'sort', 'order'].includes(key)
-      ) {
-        if (Array.isArray(value)) {
-          // v2 APIs typically use comma-separated values for arrays
-          searchParams.append(key, value.join(','));
-        } else if (typeof value === 'boolean') {
-          searchParams.append(key, value ? 'true' : 'false');
-        } else if (typeof value === 'object') {
-          searchParams.append(key, JSON.stringify(value));
-        } else {
-          searchParams.append(key, String(value as PrimitiveValue));
-        }
-      }
-    });
+    this.appendGenericParams(searchParams, params, ['page', 'pageSize', 'sort', 'order']);
 
     return searchParams.toString();
   }
@@ -286,6 +235,63 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
   }
 
   /**
+   * Append standard v2 parameters (pagination and sorting)
+   * @param searchParams - URLSearchParams to append to
+   * @param params - Source parameters
+   * @param standardKeys - Keys to process
+   * @private
+   */
+  private appendStandardV2Params(
+    searchParams: URLSearchParams,
+    params: Record<string, unknown>,
+    standardKeys: string[]
+  ): void {
+    for (const key of standardKeys) {
+      if (key in params && params[key] !== undefined) {
+        this.appendParameterValue(searchParams, key, params[key]);
+      }
+    }
+  }
+
+  /**
+   * Append generic parameters, excluding standard ones
+   * @param searchParams - URLSearchParams to append to
+   * @param params - Source parameters
+   * @param excludeKeys - Keys to exclude
+   * @private
+   */
+  private appendGenericParams(
+    searchParams: URLSearchParams,
+    params: Record<string, unknown>,
+    excludeKeys: string[]
+  ): void {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && !excludeKeys.includes(key)) {
+        this.appendParameterValue(searchParams, key, value);
+      }
+    });
+  }
+
+  /**
+   * Append a parameter value with proper type handling
+   * @param searchParams - URLSearchParams to append to
+   * @param key - Parameter key
+   * @param value - Parameter value
+   * @private
+   */
+  private appendParameterValue(searchParams: URLSearchParams, key: string, value: unknown): void {
+    if (Array.isArray(value)) {
+      searchParams.append(key, value.join(','));
+    } else if (typeof value === 'boolean') {
+      searchParams.append(key, value ? 'true' : 'false');
+    } else if (typeof value === 'object' && value !== null) {
+      searchParams.append(key, JSON.stringify(value));
+    } else {
+      searchParams.append(key, String(value as PrimitiveValue));
+    }
+  }
+
+  /**
    * Handle v2 API errors with proper error mapping
    *
    * @param response - Error response
@@ -335,3 +341,4 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
 
 // Re-export types for convenience
 export type { DownloadOptions, DownloadProgress } from './mixins/DownloadMixin';
+export type { PrimitiveValue } from './types/primitive';

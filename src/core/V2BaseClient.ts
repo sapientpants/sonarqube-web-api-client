@@ -9,6 +9,8 @@ import { createErrorFromResponse } from '../errors';
 import type { DownloadCapable, DownloadOptions, DownloadProgress } from './mixins/DownloadMixin';
 import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './types/v2-common';
 
+type PrimitiveValue = string | number | boolean;
+
 /**
  * Base class for all v2 API clients
  * Extends BaseClient with v2-specific functionality and download capabilities
@@ -125,7 +127,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
       if (typeof pageValue === 'object' && pageValue !== null) {
         searchParams.append('page', JSON.stringify(pageValue));
       } else {
-        searchParams.append('page', String(pageValue as string | number | boolean));
+        searchParams.append('page', String(pageValue as PrimitiveValue));
       }
     }
     if ('pageSize' in params && params['pageSize'] !== undefined) {
@@ -133,7 +135,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
       if (typeof pageSizeValue === 'object' && pageSizeValue !== null) {
         searchParams.append('pageSize', JSON.stringify(pageSizeValue));
       } else {
-        searchParams.append('pageSize', String(pageSizeValue as string | number | boolean));
+        searchParams.append('pageSize', String(pageSizeValue as PrimitiveValue));
       }
     }
 
@@ -143,7 +145,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
       if (typeof sortValue === 'object' && sortValue !== null) {
         searchParams.append('sort', JSON.stringify(sortValue));
       } else {
-        searchParams.append('sort', String(sortValue as string | number | boolean));
+        searchParams.append('sort', String(sortValue as PrimitiveValue));
       }
     }
     if ('order' in params && params['order'] !== undefined) {
@@ -151,7 +153,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
       if (typeof orderValue === 'object' && orderValue !== null) {
         searchParams.append('order', JSON.stringify(orderValue));
       } else {
-        searchParams.append('order', String(orderValue as string | number | boolean));
+        searchParams.append('order', String(orderValue as PrimitiveValue));
       }
     }
 
@@ -170,7 +172,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
         } else if (typeof value === 'object') {
           searchParams.append(key, JSON.stringify(value));
         } else {
-          searchParams.append(key, String(value as string | number | boolean));
+          searchParams.append(key, String(value as PrimitiveValue));
         }
       }
     });

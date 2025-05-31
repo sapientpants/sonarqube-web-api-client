@@ -4,9 +4,9 @@
  */
 
 import { V2BaseClient } from '../../core/V2BaseClient';
-import type { DevOpsPlatform } from '../../core/services/PlatformValidationService';
 import { PlatformValidationService } from '../../core/services/PlatformValidationService';
 import {
+  DevOpsPlatform,
   type CreateBoundProjectV2Request,
   type CreateBoundProjectV2Response,
   type DopSettingsV2Response,
@@ -137,7 +137,7 @@ export class DopTranslationClient extends V2BaseClient {
   ): CreateBoundProjectV2Request {
     // Basic validation
     if (!request.projectIdentifier) {
-      throw new Error('Project identifier is required');
+      throw new Error('Invalid request: Project identifier is required');
     }
 
     // Use PlatformValidationService for platform-specific validation
@@ -146,11 +146,41 @@ export class DopTranslationClient extends V2BaseClient {
         platform: request.dopPlatform as DevOpsPlatform,
         identifier: request.projectIdentifier,
       },
-      request.platformSpecific
+      request.platformSpecific as Record<string, unknown> | undefined
     );
 
     if (!validation.valid) {
-      throw new Error(`Invalid request: ${validation.errors.map((e) => e.message).join(', ')}`);
+      // Transform error messages to match expected format
+      const errorMessages = validation.errors.map((e) => {
+        // Map generic messages to platform-specific ones
+        if (
+          e.message.includes('Owner is required') &&
+          request.dopPlatform === DevOpsPlatform.GITHUB
+        ) {
+          return 'GitHub owner/organization is required';
+        }
+        if (
+          e.message.includes('Namespace is required') &&
+          request.dopPlatform === DevOpsPlatform.GITLAB
+        ) {
+          return 'GitLab namespace is required';
+        }
+        if (
+          e.message.includes('Workspace is required') &&
+          request.dopPlatform === DevOpsPlatform.BITBUCKET
+        ) {
+          return 'Bitbucket workspace is required';
+        }
+        if (
+          e.message.includes('Organization is required') &&
+          request.dopPlatform === DevOpsPlatform.AzureDevops
+        ) {
+          return 'Azure DevOps organization is required';
+        }
+        return e.message;
+      });
+
+      throw new Error(`Invalid request: ${errorMessages.join(', ')}`);
     }
 
     // Log warnings if any (in development only)

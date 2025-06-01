@@ -56,18 +56,18 @@ const skipSuite =
     const hasMeasuresCategory = enabledCategories.some((c) => c.name === 'Measures');
 
     if (hasIssuesCategory) {
-      // require('../api/issues/issues.integration.test.ts');
-      test.todo('Issues API integration tests (organization-scoped)');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('../api/issues/issues.integration.test.ts');
     }
 
     if (hasQualityGatesCategory) {
-      // require('../api/quality-gates/quality-gates.integration.test.ts');
-      test.todo('Quality Gates API integration tests (organization-scoped)');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('../api/quality-gates/quality-gates.integration.test.ts');
     }
 
     if (hasMeasuresCategory) {
-      // require('../api/measures/measures.integration.test.ts');
-      test.todo('Measures API integration tests (organization-scoped)');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('../api/measures/measures.integration.test.ts');
     }
   });
 

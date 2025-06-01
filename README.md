@@ -108,68 +108,95 @@ projects.components.forEach(project => {
 
 We're continuously adding support for more SonarQube/SonarCloud APIs. Here's what's available today:
 
-| API | Path | Status | Availability | Notes |
-|-----|------|--------|--------------|-------|
-| **ALM Integrations** | `api/alm_integrations` | ✅ Implemented | SonarQube only | Azure, Bitbucket, GitHub, GitLab integration |
-| **ALM Settings** | `api/alm_settings` | ✅ Implemented | SonarQube only | ALM configuration management |
-| **Analysis Cache** | `api/analysis_cache` | ✅ Implemented | SonarQube only | Scanner cache data |
-| **Applications** | `api/applications` | ✅ Implemented | SonarQube only | Application portfolio management |
-| **Authentication** | `api/authentication` | ✅ Implemented | Both | Validate credentials and logout |
-| **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | Background task management |
-| **Components** | `api/components` | ✅ Implemented | Both | Component navigation and search |
-| **Duplications** | `api/duplications` | ✅ Implemented | Both | Code duplication data |
-| **Favorites** | `api/favorites` | ✅ Implemented | Both | User favorites management |
-| **Hotspots** | `api/hotspots` | ✅ Implemented | Both | Security hotspot management |
-| **Issues** | `api/issues` | ✅ Implemented | Both | Issue search and management |
-| **Languages** | `api/languages` | ✅ Implemented | Both | Supported languages list |
-| **Measures** | `api/measures` | ✅ Implemented | Both | Component measures and history |
-| **Metrics** | `api/metrics` | ✅ Implemented | Both | Metric definitions |
-| **Notifications** | `api/notifications` | ✅ Implemented | Both | User notifications |
-| **Permissions** | `api/permissions` | ✅ Implemented | Both | Permission management |
-| **Project Analyses** | `api/project_analyses` | ✅ Implemented | Both | Analysis history and events |
-| **Project Badges** | `api/project_badges` | ✅ Implemented | Both | Project status badges |
-| **Project Branches** | `api/project_branches` | ✅ Implemented | Both | Branch management |
-| **Project Links** | `api/project_links` | ✅ Implemented | Both | Project external links |
-| **Project Pull Requests** | `api/project_pull_requests` | ✅ Implemented | Both | Pull request management (Branch plugin required) |
-| **Project Tags** | `api/project_tags` | ✅ Implemented | Both | Project tag management |
-| **Projects** | `api/projects` | ✅ Implemented | Both | Project management |
-| **Properties** | `api/properties` | ❌ Not implemented | Both | Property management (deprecated) |
-| **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Quality gate management |
-| **Quality Profiles** | `api/qualityprofiles` | ✅ Implemented | Both | Quality profile management |
-| **Rules** | `api/rules` | ✅ Implemented | Both | Coding rule management |
-| **Settings** | `api/settings` | ✅ Implemented | Both | Global and project settings |
-| **Sources** | `api/sources` | ✅ Implemented | Both | Source code access |
-| **System** | `api/system` | ✅ Implemented | SonarQube only | System information and health |
-| **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Historical measures (deprecated) |
-| **Authorizations v2** | `api/v2/authorizations` | ✅ Implemented | SonarQube 10.5+ | Modern group management API |
-| **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | User property management |
-| **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | User token management |
-| **Users** | `api/users` | ✅ Implemented | Both | User management (search deprecated) |
-| **Webhooks** | `api/webhooks` | ✅ Implemented | Both | Webhook management |
-| **Web Services** | `api/webservices` | ✅ Implemented | Both | API documentation and introspection |
+| API | Path | Status | Availability | Deprecation | Notes |
+|-----|------|--------|--------------|-------------|-------|
+| **ALM Integrations** | `api/alm_integrations` | ✅ Implemented | SonarQube only | None | Azure, Bitbucket, GitHub, GitLab integration |
+| **ALM Settings** | `api/alm_settings` | ✅ Implemented | SonarQube only | None | ALM configuration management |
+| **Analysis Cache** | `api/analysis_cache` | ✅ Implemented | SonarQube only | None | Scanner cache data |
+| **Applications** | `api/applications` | ✅ Implemented | SonarQube only | None | Application portfolio management |
+| **Audit Logs** | `api/audit_logs` | ❌ Not implemented | SonarQube only | None | System audit logging and compliance tracking |
+| **Authentication** | `api/authentication` | ✅ Implemented | Both | None | Validate credentials and logout |
+| **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | None | Background task management |
+| **Components** | `api/components` | ✅ Implemented | Both | None | Component navigation and search |
+| **Duplications** | `api/duplications` | ✅ Implemented | Both | None | Code duplication data |
+| **Editions** | `api/editions` | ❌ Not implemented | SonarQube only | None | SonarQube edition and license management |
+| **Favorites** | `api/favorites` | ✅ Implemented | Both | Legacy endpoint (`index` since 6.3) | User favorites management |
+| **Hotspots** | `api/hotspots` | ✅ Implemented | Both | None | Security hotspot management |
+| **Issues** | `api/issues` | ✅ Implemented | Both | Partial (`set_severity`, `set_type` since Aug 2023) | Issue search and management |
+| **Languages** | `api/languages` | ✅ Implemented | Both | None | Supported languages list |
+| **Measures** | `api/measures` | ✅ Implemented | Both | None | Component measures and history |
+| **Metrics** | `api/metrics` | ✅ Implemented | Both | Partial (`domains` since 7.7) | Metric definitions |
+| **Monitoring** | `api/monitoring` | ❌ Not implemented | SonarQube only | None | System monitoring and health metrics |
+| **New Code Periods** | `api/new_code_periods` | ❌ Not implemented | Both | None | New code period configuration |
+| **Notifications** | `api/notifications` | ✅ Implemented | Both | None | User notifications |
+| **Permissions** | `api/permissions` | ✅ Implemented | Both | Partial (search endpoints since 6.5) | Permission management |
+| **Plugins** | `api/plugins` | ❌ Not implemented | SonarQube only | None | Plugin installation and management |
+| **Project Analyses** | `api/project_analyses` | ✅ Implemented | Both | None | Analysis history and events |
+| **Project Badges** | `api/project_badges` | ✅ Implemented | Both | None | Project status badges |
+| **Project Branches** | `api/project_branches` | ✅ Implemented | Both | None | Branch management |
+| **Project Dump** | `api/project_dump` | ❌ Not implemented | SonarQube only | None | Project data export and import |
+| **Project Links** | `api/project_links` | ✅ Implemented | Both | None | Project external links |
+| **Project Pull Requests** | `api/project_pull_requests` | ✅ Implemented | Both | None | Pull request management (Branch plugin required) |
+| **Project Tags** | `api/project_tags` | ✅ Implemented | Both | None | Project tag management |
+| **Projects** | `api/projects` | ✅ Implemented | Both | Partial (`bulk_update_key` since 7.6) | Project management |
+| **Properties** | `api/properties` | ❌ Not implemented | Both | Entire API (since 6.3) | Deprecated property management |
+| **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Partial (`unset_default` since 7.0) | Quality gate management |
+| **Quality Profiles** | `api/qualityprofiles` | ✅ Implemented | Both | Partial (export/import Mar 2025, `restore_built_in` since 6.4) | Quality profile management |
+| **Rules** | `api/rules` | ✅ Implemented | Both | None | Coding rule management |
+| **Server** | `api/server` | ❌ Not implemented | SonarQube only | None | Server administration and configuration |
+| **Settings** | `api/settings` | ✅ Implemented | Both | None | Global and project settings |
+| **Sources** | `api/sources` | ✅ Implemented | Both | None | Source code access |
+| **System** | `api/system` | ✅ Implemented | SonarQube only | None | System information and health |
+| **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Entire API (since 6.3) | Use `api/measures/history` instead |
+| **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | Entire API (since 6.3) | Use `api/favorites` and `api/notifications` instead |
+| **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | None | User token management |
+| **Users** | `api/users` | ✅ Implemented | Both | Partial (`search` Feb 2025, removed Aug 2025) | User management |
+| **Views** | `api/views` | ❌ Not implemented | SonarQube Enterprise | None | Portfolio and application views management |
+| **Webhooks** | `api/webhooks` | ✅ Implemented | Both | None | Webhook management |
+| **Web Services** | `api/webservices` | ✅ Implemented | Both | None | API documentation and introspection |
+| **Analysis v2** | `api/v2/analysis` | ✅ Implemented | SonarQube 10.3+ | None | Modern scanner management and project analysis |
+| **Authorizations v2** | `api/v2/authorizations` | ✅ Implemented | SonarQube 10.5+ | None | Modern group management API |
+| **Clean Code Policy v2** | `api/v2/clean-code-policy` | ✅ Implemented | SonarQube 10.6+ | None | Custom clean code rules and policy management |
+| **DOP Translation v2** | `api/v2/dop-translation` | ✅ Implemented | SonarQube 10.4+ | None | DevOps platform translation and project mapping |
+| **Fix Suggestions v2** | `api/v2/fix-suggestions` | ✅ Implemented | SonarQube 10.2+ | None | AI-powered code fix suggestions |
+| **SCA v2** | `api/v2/sca` | ✅ Implemented | SonarQube 10.6+ | None | Software Composition Analysis with SBOM generation |
+| **System v2** | `api/v2/system` | ❌ Not implemented | SonarQube 10.3+ | None | Modern system management and configuration |
+| **Users Management v2** | `api/v2/users-management` | ❌ Not implemented | SonarQube 10.5+ | None | Modern user management with enhanced features |
 
-Want to help? Check out our [contributing guide](#🤝-contributing) - we'd love your help implementing more APIs!
+**Deprecation Notes:**
+- **Partial deprecation** means only specific actions/endpoints within the API are deprecated
+- **Entire API deprecation** means the complete API is deprecated and should be avoided
+- This library may still provide support for some deprecated APIs for backward compatibility, but we recommend migrating to newer alternatives where available
 
-### ⚠️ Deprecated APIs
+### 🔄 v1 vs v2 APIs
 
-The following APIs or actions are marked as deprecated in the SonarQube Web API:
+SonarQube provides two generations of Web APIs:
 
-| API | Deprecated Action(s) | Deprecated Since | Notes |
-|-----|---------------------|------------------|-------|
-| **api/favourites** | `index` | 6.3 | Legacy API endpoint |
-| **api/issues** | `set_severity`, `set_type` | 25 Aug, 2023 | Use newer issue management endpoints |
-| **api/metrics** | `domains` | 7.7 | Domain-based metric categorization removed |
-| **api/permissions** | `search_global_permissions`, `search_project_permissions` | 6.5 | Use newer permission search endpoints |
-| **api/projects** | `bulk_update_key` | 7.6 | Use individual project key updates |
-| **api/properties** | `index` | 6.3 | Entire API is deprecated |
-| **api/qualitygates** | `unset_default` | 7.0 | Use `set_as_default` with different gate |
-| **api/qualityprofiles** | `export`, `exporters`, `importers` | 18 March, 2025 | Profile export/import being redesigned |
-| **api/qualityprofiles** | `restore_built_in` | 6.4 | Built-in profiles restored automatically |
-| **api/timemachine** | `index` | 6.3 | Entire API is deprecated, use `api/measures/history` |
-| **api/user_properties** | `index` | 6.3 | Removed as of version 6.3, use `api/favorites` and `api/notifications` instead |
-| **api/users** | `search` | 10 February, 2025 | Use newer user search endpoints (will be dropped August 13, 2025) |
+**v1 APIs (Traditional)** - `api/*`
+- 🕰️ **Legacy design** - Older API endpoints following various patterns
+- 🔤 **String-based IDs** - Uses string keys for resource identification
+- 📊 **Wide adoption** - Most endpoints are v1, well-documented and stable
+- 🔧 **Mixed patterns** - Different endpoints may follow different conventions
+- ✅ **Broad compatibility** - Available across most SonarQube versions
 
-**Note**: This library may still provide support for some deprecated APIs for backward compatibility, but we recommend migrating to newer alternatives where available.
+**v2 APIs (Modern)** - `api/v2/*` 
+- 🚀 **RESTful design** - Follows modern REST API conventions
+- 🆔 **UUID-based IDs** - Uses UUID for resource identification  
+- 📱 **Better structure** - Consistent request/response patterns
+- 🔒 **Enhanced security** - Improved authentication and authorization
+- 🆕 **Latest features** - New functionality often debuts in v2 first
+- ⚡ **Better performance** - Optimized for modern use cases
+
+**When to use v2 APIs:**
+- ✨ When available for your SonarQube version (10.3+)
+- 🔄 For new integrations and applications
+- 🎯 When you need the latest features (like SBOM generation)
+- 🏗️ For better long-term compatibility
+
+**When to use v1 APIs:**
+- 🔄 For existing integrations that work well
+- 📊 When v2 equivalent is not yet available
+- 🕰️ For compatibility with older SonarQube versions
 
 ## 🔥 Examples
 
@@ -1519,6 +1546,131 @@ for await (const group of client.authorizations.searchGroupsV2()
 - 🔒 Built-in support for managed groups
 - 📊 Advanced filtering and pagination
 - 🎯 Dedicated membership management endpoints
+
+### 🔬 Software Composition Analysis with SCA v2 API
+
+The SCA v2 API provides comprehensive Software Bill of Materials (SBOM) generation and vulnerability tracking for SonarQube 10.6+:
+
+```typescript
+// Generate SBOM in different formats
+const sbomJson = await client.sca.generateSbom({
+  project: 'my-project',
+  format: 'JSON',
+  branch: 'main'
+});
+
+// Generate SPDX format SBOM
+const sbomSpdx = await client.sca.generateSbom({
+  project: 'my-project', 
+  format: 'SPDX_JSON',
+  includeVulnerabilities: true
+});
+
+// Generate CycloneDX format with detailed dependency info
+const sbomCyclone = await client.sca.generateSbom({
+  project: 'my-project',
+  format: 'CYCLONEDX_JSON',
+  includeLicenses: true,
+  includeMetrics: true
+});
+
+// Download large SBOM with progress tracking
+const sbomStream = await client.sca.downloadSbom({
+  project: 'my-project',
+  format: 'CYCLONEDX_XML',
+  onProgress: (loaded, total) => {
+    console.log(`Downloaded ${loaded}/${total} bytes`);
+  }
+});
+
+// Analyze SBOM for security insights
+const analysis = await client.sca.analyzeSbom({
+  project: 'my-project'
+});
+console.log(`Found ${analysis.vulnerabilities.critical} critical vulnerabilities`);
+console.log(`License compliance: ${analysis.licenses.compliant ? 'OK' : 'Issues found'}`);
+
+// Convert between SBOM formats
+const converted = await client.sca.convertSbomFormat({
+  sbomData: sbomJson,
+  fromFormat: 'JSON',
+  toFormat: 'SPDX_JSON'
+});
+```
+
+**Key Features:**
+- 📋 **SBOM Generation** - JSON, SPDX (JSON/RDF), CycloneDX (JSON/XML) formats
+- 🛡️ **Vulnerability Tracking** - CVE/CVSS scoring and security risk analysis
+- ⚖️ **License Compliance** - Automated risk assessment and policy enforcement
+- 📊 **Streaming Support** - Handle large SBOMs (1000+ components) efficiently
+- 📈 **Progress Tracking** - Real-time download progress with abort signal support
+- 🔄 **Format Conversion** - Convert between different SBOM formats
+- 🔍 **Security Analysis** - Built-in SBOM analysis for compliance insights
+
+### 📊 Scanner Management with Analysis v2 API
+
+The Analysis v2 API provides modern scanner management and project analysis functionality for SonarQube 10.3+:
+
+```typescript
+// Get active rules for project analysis
+const rules = await client.analysis.getActiveRules({
+  project: 'my-project',
+  branch: 'main',
+  language: 'java'
+});
+console.log(`Found ${rules.rules.length} active rules`);
+
+// Download scanner engine with progress tracking
+const scannerDownload = await client.analysis.downloadScannerEngine({
+  version: 'latest',
+  onProgress: (loaded, total) => {
+    console.log(`Downloading scanner: ${Math.round(loaded/total*100)}%`);
+  }
+});
+
+// Get scanner engine metadata
+const scannerInfo = await client.analysis.getScannerEngineMetadata({
+  version: '4.8.0.2856'
+});
+console.log(`Scanner version: ${scannerInfo.version}`);
+console.log(`Compatible Java versions: ${scannerInfo.javaVersions.join(', ')}`);
+
+// List available JRE versions for different platforms
+const jreList = await client.analysis.listJreVersions({
+  platform: 'linux-x64'
+});
+
+// Download JRE for scanner
+const jreDownload = await client.analysis.downloadJre({
+  version: '11.0.19',
+  platform: 'linux-x64',
+  onProgress: (loaded, total) => {
+    console.log(`Downloading JRE: ${Math.round(loaded/total*100)}%`);
+  }
+});
+
+// Get server version information
+const serverInfo = await client.analysis.getServerVersion();
+console.log(`SonarQube version: ${serverInfo.version}`);
+console.log(`Build: ${serverInfo.build}`);
+
+// Get analysis rules with branch-specific context
+const branchRules = await client.analysis.getActiveRules({
+  project: 'my-project',
+  branch: 'feature/new-feature',
+  pullRequest: '123',
+  includeInactive: false
+});
+```
+
+**Key Features:**
+- 🔧 **Scanner Management** - Download and manage scanner engines
+- ☕ **JRE Management** - Download JREs for different platforms
+- 📏 **Rule Management** - Get active rules for analysis with branch/PR support
+- 📊 **Metadata Access** - Scanner engine and server version information
+- 📥 **Progress Tracking** - Real-time download progress for large files
+- 🎯 **Conditional Responses** - JSON metadata vs binary downloads based on Accept headers
+- 🌿 **Branch Support** - Branch and pull request specific rule configurations
 
 ## 🛡️ Error Handling
 

@@ -28,6 +28,7 @@ import { NewCodePeriodsClient } from './resources/new-code-periods';
 import { AuditLogsClient } from './resources/audit-logs';
 import { PluginsClient } from './resources/plugins';
 import { ServerClient } from './resources/server';
+import { EditionsClient } from './resources/editions';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
@@ -124,6 +125,8 @@ export class SonarQubeClient {
   public readonly plugins: PluginsClient;
   /** Server API - Basic server information - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly server: ServerClient;
+  /** Editions API - License management for commercial editions - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly editions: EditionsClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
@@ -202,6 +205,7 @@ export class SonarQubeClient {
     this.auditLogs = new AuditLogsClient(this.baseUrl, this.token, this.options);
     this.plugins = new PluginsClient(this.baseUrl, this.token, this.options);
     this.server = new ServerClient(this.baseUrl, this.token, this.options);
+    this.editions = new EditionsClient(this.baseUrl, this.token, this.options);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
     this.rules = new RulesClient(this.baseUrl, this.token, this.options);
@@ -1116,6 +1120,14 @@ export type {
 
 // Re-export Server types
 export type { ServerVersionResponse } from './resources/server/types';
+
+// Re-export Editions types
+export type {
+  ActivateGracePeriodRequest,
+  ActivateGracePeriodResponse,
+  SetLicenseRequest,
+  SetLicenseResponse,
+} from './resources/editions/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

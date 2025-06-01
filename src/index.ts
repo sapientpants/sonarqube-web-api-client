@@ -1126,35 +1126,22 @@ export type {
   GetPluginUpdatesResponse,
 } from './resources/plugins/types';
 
-// Re-export Server types
-export type { ServerVersionResponse } from './resources/server/types';
-
 // Re-export Editions types
-export type {
-  ActivateGracePeriodRequest,
-  ActivateGracePeriodResponse,
-  SetLicenseRequest,
-  SetLicenseResponse,
-} from './resources/editions/types';
+export type { ActivateGracePeriodRequest, SetLicenseRequest } from './resources/editions/types';
 
 // Re-export Project Dump types
 export type {
   ExportProjectDumpRequest,
-  ExportProjectDumpResponse,
   ImportProjectDumpRequest,
-  ImportProjectDumpResponse,
 } from './resources/project-dump/types';
 
 // Re-export Views types
 export type {
   AddApplicationRequest,
-  AddApplicationResponse,
   AddApplicationBranchRequest,
-  AddApplicationBranchResponse,
   ShowPortfolioRequest,
   ShowPortfolioResponse,
   UpdatePortfolioRequest,
-  UpdatePortfolioResponse,
   PortfolioComponent,
 } from './resources/views/types';
 

@@ -34,9 +34,4 @@
 export { ProjectDumpClient } from './ProjectDumpClient';
 
 // Export all types
-export type {
-  ExportProjectDumpRequest,
-  ExportProjectDumpResponse,
-  ImportProjectDumpRequest,
-  ImportProjectDumpResponse,
-} from './types';
+export type { ExportProjectDumpRequest, ImportProjectDumpRequest } from './types';

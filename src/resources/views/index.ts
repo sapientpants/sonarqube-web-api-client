@@ -40,12 +40,9 @@ export { ViewsClient } from './ViewsClient';
 // Export all types
 export type {
   AddApplicationRequest,
-  AddApplicationResponse,
   AddApplicationBranchRequest,
-  AddApplicationBranchResponse,
   ShowPortfolioRequest,
   ShowPortfolioResponse,
   UpdatePortfolioRequest,
-  UpdatePortfolioResponse,
   PortfolioComponent,
 } from './types';

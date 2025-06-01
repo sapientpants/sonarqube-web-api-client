@@ -12,11 +12,6 @@
 export type ActivateGracePeriodRequest = Record<string, never>;
 
 /**
- * Response from activating grace period
- */
-export type ActivateGracePeriodResponse = undefined;
-
-/**
  * Request to set license for commercial editions
  */
 export interface SetLicenseRequest {
@@ -25,8 +20,3 @@ export interface SetLicenseRequest {
    */
   license: string;
 }
-
-/**
- * Response from setting license
- */
-export type SetLicenseResponse = undefined;

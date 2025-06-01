@@ -23,6 +23,3 @@
 
 // Export the client
 export { ServerClient } from './ServerClient';
-
-// Export all types
-export type { ServerVersionResponse } from './types';

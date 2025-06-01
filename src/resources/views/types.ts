@@ -22,11 +22,6 @@ export interface AddApplicationRequest {
 }
 
 /**
- * Response from adding an application to a portfolio
- */
-export type AddApplicationResponse = undefined;
-
-/**
  * Request to add a branch of an application selected in a portfolio
  */
 export interface AddApplicationBranchRequest {
@@ -45,11 +40,6 @@ export interface AddApplicationBranchRequest {
    */
   portfolio: string;
 }
-
-/**
- * Response from adding an application branch to a portfolio
- */
-export type AddApplicationBranchResponse = undefined;
 
 /**
  * Request to show portfolio details
@@ -150,8 +140,3 @@ export interface UpdatePortfolioRequest {
    */
   description?: string;
 }
-
-/**
- * Response from updating a portfolio
- */
-export type UpdatePortfolioResponse = undefined;

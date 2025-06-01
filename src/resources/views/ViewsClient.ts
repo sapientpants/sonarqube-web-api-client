@@ -1,13 +1,10 @@
 import { BaseClient } from '../../core/BaseClient';
 import type {
   AddApplicationRequest,
-  AddApplicationResponse,
   AddApplicationBranchRequest,
-  AddApplicationBranchResponse,
   ShowPortfolioRequest,
   ShowPortfolioResponse,
   UpdatePortfolioRequest,
-  UpdatePortfolioResponse,
 } from './types';
 
 /**
@@ -63,7 +60,7 @@ export class ViewsClient extends BaseClient {
    * });
    * ```
    */
-  async addApplication(request: AddApplicationRequest): Promise<AddApplicationResponse> {
+  async addApplication(request: AddApplicationRequest): Promise<undefined> {
     const formData = new URLSearchParams();
     formData.append('application', request.application);
     formData.append('portfolio', request.portfolio);
@@ -101,9 +98,7 @@ export class ViewsClient extends BaseClient {
    * });
    * ```
    */
-  async addApplicationBranch(
-    request: AddApplicationBranchRequest
-  ): Promise<AddApplicationBranchResponse> {
+  async addApplicationBranch(request: AddApplicationBranchRequest): Promise<undefined> {
     const formData = new URLSearchParams();
     formData.append('application', request.application);
     formData.append('branch', request.branch);
@@ -171,7 +166,7 @@ export class ViewsClient extends BaseClient {
    * });
    * ```
    */
-  async update(request: UpdatePortfolioRequest): Promise<UpdatePortfolioResponse> {
+  async update(request: UpdatePortfolioRequest): Promise<undefined> {
     const formData = new URLSearchParams();
     formData.append('key', request.key);
 

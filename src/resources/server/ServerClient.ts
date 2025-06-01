@@ -1,5 +1,4 @@
 import { BaseClient } from '../../core/BaseClient';
-import type { ServerVersionResponse } from './types';
 
 /**
  * Client for SonarQube Server API
@@ -21,8 +20,8 @@ export class ServerClient extends BaseClient {
    * console.log(version); // "10.8.0"
    * ```
    */
-  async version(): Promise<ServerVersionResponse> {
-    return this.request<ServerVersionResponse>('/api/server/version', {
+  async version(): Promise<string> {
+    return this.request<string>('/api/server/version', {
       responseType: 'text',
     });
   }

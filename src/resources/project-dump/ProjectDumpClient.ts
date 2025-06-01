@@ -1,10 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import type {
-  ExportProjectDumpRequest,
-  ExportProjectDumpResponse,
-  ImportProjectDumpRequest,
-  ImportProjectDumpResponse,
-} from './types';
+import type { ExportProjectDumpRequest, ImportProjectDumpRequest } from './types';
 
 /**
  * Client for SonarQube Project Dump API
@@ -57,11 +52,11 @@ export class ProjectDumpClient extends BaseClient {
    * });
    * ```
    */
-  async export(request: ExportProjectDumpRequest): Promise<ExportProjectDumpResponse> {
+  async export(request: ExportProjectDumpRequest): Promise<undefined> {
     const formData = new URLSearchParams();
     formData.append('key', request.key);
 
-    return this.request<ExportProjectDumpResponse>('/api/project_dump/export', {
+    return this.request<undefined>('/api/project_dump/export', {
       method: 'POST',
       headers: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -94,7 +89,7 @@ export class ProjectDumpClient extends BaseClient {
    * });
    * ```
    */
-  async import(request: ImportProjectDumpRequest): Promise<ImportProjectDumpResponse> {
+  async import(request: ImportProjectDumpRequest): Promise<undefined> {
     const formData = new FormData();
     formData.append('key', request.key);
 

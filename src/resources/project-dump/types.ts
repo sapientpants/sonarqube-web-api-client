@@ -17,11 +17,6 @@ export interface ExportProjectDumpRequest {
 }
 
 /**
- * Response from project export operation
- */
-export type ExportProjectDumpResponse = undefined;
-
-/**
  * Request to import a project dump
  */
 export interface ImportProjectDumpRequest {
@@ -35,8 +30,3 @@ export interface ImportProjectDumpRequest {
    */
   file?: File | Blob;
 }
-
-/**
- * Response from project import operation
- */
-export type ImportProjectDumpResponse = undefined;

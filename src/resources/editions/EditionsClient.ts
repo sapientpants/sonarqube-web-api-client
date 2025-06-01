@@ -1,10 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import type {
-  ActivateGracePeriodRequest,
-  ActivateGracePeriodResponse,
-  SetLicenseRequest,
-  SetLicenseResponse,
-} from './types';
+import type { ActivateGracePeriodRequest, SetLicenseRequest } from './types';
 
 /**
  * Client for SonarQube Editions API
@@ -49,10 +44,8 @@ export class EditionsClient extends BaseClient {
    * await client.editions.activateGracePeriod();
    * ```
    */
-  async activateGracePeriod(
-    _request: ActivateGracePeriodRequest = {}
-  ): Promise<ActivateGracePeriodResponse> {
-    return this.request<ActivateGracePeriodResponse>('/api/editions/activate_grace_period', {
+  async activateGracePeriod(_request: ActivateGracePeriodRequest = {}): Promise<undefined> {
+    return this.request<undefined>('/api/editions/activate_grace_period', {
       method: 'POST',
     });
   }
@@ -77,11 +70,11 @@ export class EditionsClient extends BaseClient {
    * });
    * ```
    */
-  async setLicense(request: SetLicenseRequest): Promise<SetLicenseResponse> {
+  async setLicense(request: SetLicenseRequest): Promise<undefined> {
     const formData = new URLSearchParams();
     formData.append('license', request.license);
 
-    return this.request<SetLicenseResponse>('/api/editions/set_license', {
+    return this.request<undefined>('/api/editions/set_license', {
       method: 'POST',
       headers: {
         // eslint-disable-next-line @typescript-eslint/naming-convention

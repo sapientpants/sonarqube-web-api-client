@@ -46,6 +46,7 @@ import { UserTokensClient } from './resources/user-tokens';
 import { PermissionsClient } from './resources/permissions';
 import { WebhooksClient } from './resources/webhooks';
 import { WebservicesClient } from './resources/webservices';
+import { ViewsClient } from './resources/views';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -152,6 +153,8 @@ export class SonarQubeClient {
   public readonly webhooks: WebhooksClient;
   /** Webservices API - Get information on the web API supported on this instance */
   public readonly webservices: WebservicesClient;
+  /** Views API - Manage portfolios and application views - **Note**: Only available in SonarQube Enterprise Edition and above */
+  public readonly views: ViewsClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -221,6 +224,7 @@ export class SonarQubeClient {
     this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
     this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
     this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
+    this.views = new ViewsClient(this.baseUrl, this.token, this.options);
   }
 
   // Legacy methods for backward compatibility
@@ -1140,6 +1144,19 @@ export type {
   ImportProjectDumpRequest,
   ImportProjectDumpResponse,
 } from './resources/project-dump/types';
+
+// Re-export Views types
+export type {
+  AddApplicationRequest,
+  AddApplicationResponse,
+  AddApplicationBranchRequest,
+  AddApplicationBranchResponse,
+  ShowPortfolioRequest,
+  ShowPortfolioResponse,
+  UpdatePortfolioRequest,
+  UpdatePortfolioResponse,
+  PortfolioComponent,
+} from './resources/views/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

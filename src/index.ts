@@ -24,6 +24,7 @@ import { ProjectAnalysesClient } from './resources/project-analyses';
 import { ProjectLinksClient } from './resources/project-links';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
+import { NewCodePeriodsClient } from './resources/new-code-periods';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
@@ -112,6 +113,8 @@ export class SonarQubeClient {
   public readonly metrics: MetricsClient;
   /** Measures API */
   public readonly measures: MeasuresClient;
+  /** New Code Periods API */
+  public readonly newCodePeriods: NewCodePeriodsClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
@@ -186,6 +189,7 @@ export class SonarQubeClient {
     this.permissions = new PermissionsClient(this.baseUrl, this.token, this.options);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.options);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.options);
+    this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.token, this.options);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
     this.rules = new RulesClient(this.baseUrl, this.token, this.options);
@@ -1043,6 +1047,19 @@ export {
   AuthenticationHelper,
   ConfigurationTemplates,
 } from './resources/dop-translation/utils';
+
+// Re-export New Code Periods types and enums
+export type {
+  NewCodePeriod,
+  BranchNewCodePeriod,
+  ListNewCodePeriodsRequest,
+  ListNewCodePeriodsResponse,
+  SetNewCodePeriodRequest,
+  SetNewCodePeriodResponse,
+  UnsetNewCodePeriodRequest,
+} from './resources/new-code-periods/types';
+
+export { NewCodePeriodType } from './resources/new-code-periods/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

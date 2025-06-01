@@ -711,6 +711,17 @@ export type {
   InfoResponse,
 } from './resources/system/types';
 
+// Re-export types from system v2
+export type {
+  SystemInfoV2,
+  SystemHealthV2,
+  SystemStatusV2Response,
+  SystemEdition,
+  SystemFeature,
+  SystemStatusV2,
+  HealthStatus as SystemHealthStatus,
+} from './resources/system/types-v2';
+
 // Re-export types from project tags
 export type {
   SearchTagsParams,

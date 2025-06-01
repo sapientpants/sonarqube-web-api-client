@@ -53,7 +53,7 @@ export default {
   
   // Reporter configuration for integration tests
   reporters: [
-    'default',
+    ['<rootDir>/src/__integration__/config/customReporter.ts', {}],
     ['jest-junit', {
       outputDirectory: 'coverage',
       outputName: 'integration-test-results.xml',

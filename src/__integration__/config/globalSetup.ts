@@ -10,20 +10,28 @@ import { getTestConfiguration } from './testConfig';
 import { IntegrationTestClient } from '../setup/IntegrationTestClient';
 
 export default async function globalSetup(): Promise<void> {
-  console.log('🚀 Starting Integration Test Global Setup...');
+  console.log(`\n┌${'─'.repeat(78)}┐`);
+  console.log(`│${' '.repeat(20)}SonarQube Web API Client${' '.repeat(35)}│`);
+  console.log(`│${' '.repeat(25)}Integration Tests${' '.repeat(36)}│`);
+  console.log(`└${'─'.repeat(78)}┘`);
+  console.log('\n🚀 Starting Integration Test Global Setup...\n');
 
   // Validate integration test environment
   if (!canRunIntegrationTests()) {
-    console.error('❌ Integration test environment not configured');
-    console.error('   Required environment variables:');
-    console.error('   - SONARQUBE_URL: The SonarQube/SonarCloud instance URL');
-    console.error('   - SONARQUBE_TOKEN: Authentication token for the instance');
-    console.error('   Optional environment variables:');
-    console.error('   - SONARQUBE_ORGANIZATION: Organization key (required for SonarCloud)');
-    console.error('   - INTEGRATION_TEST_TIMEOUT: Test timeout in milliseconds (default: 30000)');
+    console.error('❌ Integration test environment not configured\n');
+    console.error('📋 Required environment variables:');
+    console.error('   • SONARQUBE_URL: The SonarQube/SonarCloud instance URL');
+    console.error('   • SONARQUBE_TOKEN: Authentication token for the instance\n');
+    console.error('📋 Optional environment variables:');
+    console.error('   • SONARQUBE_ORGANIZATION: Organization key (required for SonarCloud)');
+    console.error('   • INTEGRATION_TEST_TIMEOUT: Test timeout in milliseconds (default: 30000)');
     console.error(
-      '   - INTEGRATION_TEST_DESTRUCTIVE: Allow tests that create/delete data (default: false)'
+      '   • INTEGRATION_TEST_DESTRUCTIVE: Allow tests that create/delete data (default: false)\n'
     );
+    console.error('💡 Example setup:');
+    console.error('   export SONARQUBE_URL="https://sonarcloud.io"');
+    console.error('   export SONARQUBE_TOKEN="your_token_here"');
+    console.error('   export SONARQUBE_ORGANIZATION="your_org_key"');
     process.exit(1);
   }
 
@@ -31,13 +39,19 @@ export default async function globalSetup(): Promise<void> {
   const testConfig = getTestConfiguration(envConfig);
 
   console.log('📋 Integration Test Configuration:');
-  console.log(`   Platform: ${envConfig.platform}`);
-  console.log(`   URL: ${envConfig.url}`);
-  console.log(`   Organization: ${envConfig.organization || 'N/A'}`);
-  console.log(`   Allow Destructive Tests: ${testConfig.allowDestructiveTests}`);
-  console.log(`   Run Admin Tests: ${testConfig.runAdminTests}`);
-  console.log(`   Run Enterprise Tests: ${testConfig.runEnterpriseTests}`);
-  console.log(`   Test Timeout: ${testConfig.defaultTimeout}ms`);
+  console.log(`   🏢 Platform:           ${envConfig.platform.toUpperCase()}`);
+  console.log(`   🌐 URL:                ${envConfig.url}`);
+  console.log(`   🏛️  Organization:       ${envConfig.organization || 'N/A'}`);
+  console.log(
+    `   💥 Destructive Tests:  ${testConfig.allowDestructiveTests ? '✅ Enabled' : '❌ Disabled'}`
+  );
+  console.log(
+    `   👨‍💼 Admin Tests:        ${testConfig.runAdminTests ? '✅ Enabled' : '❌ Disabled'}`
+  );
+  console.log(
+    `   🏢 Enterprise Tests:   ${testConfig.runEnterpriseTests ? '✅ Enabled' : '❌ Disabled'}`
+  );
+  console.log(`   ⏱️  Test Timeout:       ${testConfig.defaultTimeout}ms`);
 
   // Validate connection to SonarQube/SonarCloud instance
   try {

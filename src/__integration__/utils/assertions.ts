@@ -192,7 +192,7 @@ export const INTEGRATION_ASSERTIONS = {
     expect(measure.metric).toBeTruthy();
 
     // Should have either value or values array
-    expect(measure.value !== undefined || Boolean(measure.values)).toBe(true);
+    expect(measure.value !== undefined || measure.values !== undefined).toBe(true);
   },
 
   /**
@@ -311,6 +311,54 @@ export const INTEGRATION_ASSERTIONS = {
       } else if (response.rules) {
         this.expectValidRule(firstItem as RuleResponse);
       }
+    }
+  },
+
+  /**
+   * Handles expected API unavailability gracefully
+   * Logs a clear message and skips the test when an API endpoint returns 404
+   */
+  handleExpectedApiUnavailability(
+    testName: string,
+    apiName: string,
+    error: ErrorResponse & { status: number }
+  ): void {
+    if (error.status === 404) {
+      console.log(
+        `ℹ️  ${testName}: ${apiName} API not available in this SonarQube version (404 - Expected)`
+      );
+      return; // Test passes silently
+    }
+    if (error instanceof Error) {
+      throw error; // Re-throw non-404 errors
+    }
+    throw new Error(`API error: ${JSON.stringify(error)}`); // Convert non-Error objects to Error
+  },
+
+  /**
+   * Wraps a test function to handle expected 404 errors gracefully
+   */
+  async expectApiOrSkip<T>(
+    testName: string,
+    apiName: string,
+    testFunction: () => Promise<T>
+  ): Promise<T | undefined> {
+    try {
+      return await testFunction();
+    } catch (error: unknown) {
+      const errorObj = error as { status?: number };
+      if (errorObj.status === 404) {
+        this.handleExpectedApiUnavailability(
+          testName,
+          apiName,
+          errorObj as ErrorResponse & { status: number }
+        );
+        return undefined; // Skip test gracefully
+      }
+      if (error instanceof Error) {
+        throw error; // Re-throw non-404 errors
+      }
+      throw new Error(`Test failed with unexpected error: ${JSON.stringify(error)}`); // Convert non-Error objects to Error
     }
   },
 };

@@ -9,13 +9,13 @@ import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/e
 import { getTestConfiguration } from '../../config/testConfig';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
 import { TestDataManager } from '../../setup/TestDataManager';
-import { withRetry, measureTime, TestTiming } from '../../utils/testHelpers';
-import { IntegrationAssertions } from '../../utils/assertions';
+import { withRetry, measureTime, TEST_TIMING } from '../../utils/testHelpers';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();
 
-describe.skipIf(skipTests)('System API Integration Tests', () => {
+(skipTests ? describe.skip : describe)('System API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
   let envConfig: ReturnType<typeof getIntegrationTestConfig>;
@@ -29,13 +29,11 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
 
     // Validate connection before running tests
     await client.validateConnection();
-  }, TestTiming.NORMAL);
+  }, TEST_TIMING.normal);
 
   afterAll(async () => {
-    if (dataManager) {
-      await dataManager.cleanup();
-    }
-  }, TestTiming.NORMAL);
+    await dataManager.cleanup();
+  }, TEST_TIMING.normal);
 
   describe('System Ping', () => {
     test(
@@ -44,9 +42,9 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
         const { result, durationMs } = await measureTime(async () => client.system.ping());
 
         expect(result).toBe('pong');
-        IntegrationAssertions.expectReasonableResponseTime(durationMs, 2000);
+        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 2000);
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
 
     test(
@@ -61,7 +59,7 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           expect(result).toBe('pong');
         });
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
   });
 
@@ -76,9 +74,9 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           result.status
         );
 
-        IntegrationAssertions.expectReasonableResponseTime(durationMs, 3000);
+        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 3000);
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
 
     test(
@@ -92,9 +90,9 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           result.status
         );
 
-        IntegrationAssertions.expectReasonableResponseTime(durationMs, 3000);
+        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 3000);
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
   });
 
@@ -108,9 +106,9 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
         expect(result).toBeTruthy();
         expect(result).toMatch(/^\d+\.\d+/); // Should start with version number pattern
 
-        IntegrationAssertions.expectReasonableResponseTime(durationMs, 2000);
+        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 2000);
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
   });
 
@@ -125,18 +123,19 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           expect(result).toHaveProperty('health');
           expect(['GREEN', 'YELLOW', 'RED']).toContain(result.health);
 
-          IntegrationAssertions.expectReasonableResponseTime(durationMs, 5000);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
         } catch (error: any) {
           // Expect authorization error if user doesn't have admin permissions
           if (error.status === 403) {
-            IntegrationAssertions.expectAuthorizationError(error);
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping system health test - requires admin permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -148,17 +147,18 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           expect(result).toHaveProperty('status');
           expect(['GREEN', 'YELLOW', 'RED']).toContain(result.status);
 
-          IntegrationAssertions.expectReasonableResponseTime(durationMs, 5000);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
         } catch (error: any) {
           if (error.status === 403) {
-            IntegrationAssertions.expectAuthorizationError(error);
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping v2 system health test - requires admin permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 
@@ -172,17 +172,18 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           expect(result).toHaveProperty('System');
           expect(result.System).toHaveProperty('Version');
 
-          IntegrationAssertions.expectReasonableResponseTime(durationMs, 5000);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
         } catch (error: any) {
           if (error.status === 403) {
-            IntegrationAssertions.expectAuthorizationError(error);
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping system info test - requires admin permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -194,17 +195,18 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
           expect(result).toHaveProperty('version');
           expect(result).toHaveProperty('edition');
 
-          IntegrationAssertions.expectReasonableResponseTime(durationMs, 5000);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
         } catch (error: any) {
           if (error.status === 403) {
-            IntegrationAssertions.expectAuthorizationError(error);
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping v2 system info test - requires admin permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 
@@ -220,7 +222,7 @@ describe.skipIf(skipTests)('System API Integration Tests', () => {
 
         expect(result).toBe('pong');
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 

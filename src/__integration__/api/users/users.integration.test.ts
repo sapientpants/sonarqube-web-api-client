@@ -9,13 +9,13 @@ import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/e
 import { getTestConfiguration } from '../../config/testConfig';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
 import { TestDataManager } from '../../setup/TestDataManager';
-import { measureTime, TestTiming } from '../../utils/testHelpers';
-import { IntegrationAssertions } from '../../utils/assertions';
+import { measureTime, TEST_TIMING } from '../../utils/testHelpers';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();
 
-describe.skipIf(skipTests)('Users API Integration Tests', () => {
+(skipTests ? describe.skip : describe)('Users API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
   let envConfig: ReturnType<typeof getIntegrationTestConfig>;
@@ -28,13 +28,11 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
     dataManager = new TestDataManager(client);
 
     await client.validateConnection();
-  }, TestTiming.NORMAL);
+  }, TEST_TIMING.normal);
 
   afterAll(async () => {
-    if (dataManager) {
-      await dataManager.cleanup();
-    }
-  }, TestTiming.NORMAL);
+    await dataManager.cleanup();
+  }, TEST_TIMING.normal);
 
   describe('User Search (v1 API)', () => {
     test(
@@ -44,35 +42,35 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           client.users.search().execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
-        IntegrationAssertions.expectReasonableResponseTime(durationMs);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-        if (result.users && result.users.length > 0) {
-          IntegrationAssertions.expectValidUser(result.users[0]);
+        if (result.users?.length) {
+          INTEGRATION_ASSERTIONS.expectValidUser(result.users[0]);
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
       'should search users with pagination',
       async () => {
         const pageSize = 10;
-        const { result } = await measureTime(() =>
+        const { result } = await measureTime(async () =>
           client.users.search().withPageSize(pageSize).withPage(1).execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
         expect(result.paging.pageSize).toBe(pageSize);
 
         if (result.users) {
           expect(result.users.length).toBeLessThanOrEqual(pageSize);
           result.users.forEach((user) => {
-            IntegrationAssertions.expectValidUser(user);
+            INTEGRATION_ASSERTIONS.expectValidUser(user);
           });
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -81,7 +79,8 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
         // First get some users to find a query term
         const initialResult = await client.users.search().withPageSize(5).execute();
 
-        if (!initialResult.users || initialResult.users.length === 0) {
+        if (!initialResult.users?.length) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping user query test - no users available');
           return;
         }
@@ -90,24 +89,19 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
         const firstUser = initialResult.users[0];
         const query = firstUser.login.substring(0, 3);
 
-        const { result } = await measureTime(() =>
+        const { result } = await measureTime(async () =>
           client.users.search().withQuery(query).execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
 
-        if (result.users && result.users.length > 0) {
-          // At least one user should match our query
-          const hasMatchingUser = result.users.some(
-            (user) =>
-              user.login.toLowerCase().includes(query.toLowerCase()) ||
-              user.name.toLowerCase().includes(query.toLowerCase())
-          );
+        if (result.users?.length) {
           // Note: Search might not always return exact matches due to search algorithm
+          // eslint-disable-next-line no-console
           console.log(`Search for "${query}" returned ${result.users.length} users`);
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -128,10 +122,10 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
 
         expect(users.length).toBeLessThanOrEqual(maxItems);
         users.forEach((user) => {
-          IntegrationAssertions.expectValidUser(user);
+          INTEGRATION_ASSERTIONS.expectValidUser(user);
         });
       },
-      TestTiming.SLOW
+      TEST_TIMING.slow
     );
   });
 
@@ -146,9 +140,9 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
 
           expect(result).toHaveProperty('users');
           expect(result).toHaveProperty('page');
-          IntegrationAssertions.expectReasonableResponseTime(durationMs);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-          if (result.users && result.users.length > 0) {
+          if (result.users?.length) {
             const firstUser = result.users[0];
             expect(firstUser).toHaveProperty('id');
             expect(firstUser).toHaveProperty('login');
@@ -156,13 +150,14 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           }
         } catch (error: any) {
           if (error.status === 404) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping v2 user search test - API not available');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -170,7 +165,7 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
       async () => {
         try {
           const pageSize = 8;
-          const { result } = await measureTime(() =>
+          const { result } = await measureTime(async () =>
             client.users.searchV2().withPageSize(pageSize).withPageIndex(1).execute()
           );
 
@@ -183,13 +178,14 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           }
         } catch (error: any) {
           if (error.status === 404) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping v2 user pagination test - API not available');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -217,13 +213,14 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           });
         } catch (error: any) {
           if (error.status === 404) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping v2 user iteration test - API not available');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.SLOW
+      TEST_TIMING.slow
     );
   });
 
@@ -234,7 +231,8 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
         // First get a user to test with
         const usersResult = await client.users.search().withPageSize(1).execute();
 
-        if (!usersResult.users || usersResult.users.length === 0) {
+        if (!usersResult.users?.length) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping user groups test - no users available');
           return;
         }
@@ -242,13 +240,13 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
         const testUser = usersResult.users[0];
 
         try {
-          const { result, durationMs } = await measureTime(() =>
+          const { result, durationMs } = await measureTime(async () =>
             client.users.groups().withLogin(testUser.login).execute()
           );
 
           expect(result).toHaveProperty('groups');
           expect(Array.isArray(result.groups)).toBe(true);
-          IntegrationAssertions.expectReasonableResponseTime(durationMs);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
           if (result.groups.length > 0) {
             const firstGroup = result.groups[0];
@@ -257,13 +255,14 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           }
         } catch (error: any) {
           if (error.status === 403) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping user groups test - insufficient permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -271,7 +270,8 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
       async () => {
         const usersResult = await client.users.search().withPageSize(1).execute();
 
-        if (!usersResult.users || usersResult.users.length === 0) {
+        if (!usersResult.users?.length) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping groups pagination test - no users available');
           return;
         }
@@ -280,7 +280,7 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
 
         try {
           const pageSize = 5;
-          const { result } = await measureTime(() =>
+          const { result } = await measureTime(async () =>
             client.users.groups().withLogin(testUser.login).withPageSize(pageSize).execute()
           );
 
@@ -292,13 +292,14 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           }
         } catch (error: any) {
           if (error.status === 403) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping groups pagination test - insufficient permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 
@@ -312,22 +313,24 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           await client.users.groups().withLogin(invalidLogin).execute();
         } catch (error: any) {
           expect(error.status).toBe(404);
-          IntegrationAssertions.expectNotFoundError(error);
+          INTEGRATION_ASSERTIONS.expectNotFoundError(error);
         }
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
 
     test(
       'should handle empty search queries gracefully',
       async () => {
-        const { result } = await measureTime(() => client.users.search().withQuery('').execute());
+        const { result } = await measureTime(async () =>
+          client.users.search().withQuery('').execute()
+        );
 
-        IntegrationAssertions.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
         // Empty query should return all users (up to page limit)
-        expect(result.users || []).toBeDefined();
+        expect(result.users ?? []).toBeDefined();
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 
@@ -342,24 +345,27 @@ describe.skipIf(skipTests)('Users API Integration Tests', () => {
           ]);
 
           // Both should return user data, though in different formats
-          expect(v1Result.users || []).toBeDefined();
-          expect(v2Result.users || []).toBeDefined();
+          expect(v1Result.users ?? []).toBeDefined();
+          expect(v2Result.users ?? []).toBeDefined();
 
           // V1 uses traditional pagination, V2 uses different structure
           expect(v1Result).toHaveProperty('paging');
           expect(v2Result).toHaveProperty('page');
 
-          console.log(`✓ v1 API returned ${(v1Result.users || []).length} users`);
-          console.log(`✓ v2 API returned ${(v2Result.users || []).length} users`);
+          // eslint-disable-next-line no-console
+          console.log(`✓ v1 API returned ${(v1Result.users ?? []).length} users`);
+          // eslint-disable-next-line no-console
+          console.log(`✓ v2 API returned ${(v2Result.users ?? []).length} users`);
         } catch (error: any) {
           if (error.status === 404) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping API comparison - v2 API not available');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 });

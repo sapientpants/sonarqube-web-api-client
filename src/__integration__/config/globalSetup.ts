@@ -5,11 +5,13 @@
  * It performs environment validation and global initialization.
  */
 
+/* eslint-disable no-console */
+
 import { canRunIntegrationTests, getIntegrationTestConfig } from './environment';
 import { getTestConfiguration } from './testConfig';
 import { IntegrationTestClient } from '../setup/IntegrationTestClient';
 
-export default async function globalSetup() {
+export default async function globalSetup(): Promise<void> {
   console.log('🚀 Starting Integration Test Global Setup...');
 
   // Validate integration test environment

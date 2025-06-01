@@ -24,30 +24,30 @@ export interface IntegrationTestConfig {
  * Environment variable names
  */
 export const ENV_VARS = {
-  URL: 'SONARQUBE_URL',
-  TOKEN: 'SONARQUBE_TOKEN',
-  ORGANIZATION: 'SONARQUBE_ORGANIZATION',
+  url: 'SONARQUBE_URL',
+  token: 'SONARQUBE_TOKEN',
+  organization: 'SONARQUBE_ORGANIZATION',
 } as const;
 
 /**
  * Validates and parses integration test environment configuration
  */
 export function getIntegrationTestConfig(): IntegrationTestConfig {
-  const url = process.env[ENV_VARS.URL];
-  const token = process.env[ENV_VARS.TOKEN];
-  const organization = process.env[ENV_VARS.ORGANIZATION];
+  const url = process.env[ENV_VARS.url];
+  const token = process.env[ENV_VARS.token];
+  const organization = process.env[ENV_VARS.organization];
 
   // Validate required environment variables
-  if (!url) {
+  if (!url?.trim()) {
     throw new Error(
-      `Missing required environment variable: ${ENV_VARS.URL}. ` +
+      `Missing required environment variable: ${ENV_VARS.url}. ` +
         'Please set the URL of your SonarQube/SonarCloud instance.'
     );
   }
 
-  if (!token) {
+  if (!token?.trim()) {
     throw new Error(
-      `Missing required environment variable: ${ENV_VARS.TOKEN}. ` +
+      `Missing required environment variable: ${ENV_VARS.token}. ` +
         'Please set your authentication token.'
     );
   }
@@ -57,9 +57,9 @@ export function getIntegrationTestConfig(): IntegrationTestConfig {
   const isSonarCloud = platform === 'sonarcloud';
 
   // SonarCloud requires an organization
-  if (isSonarCloud && !organization) {
+  if (isSonarCloud && !organization?.trim()) {
     throw new Error(
-      `SonarCloud instance detected but ${ENV_VARS.ORGANIZATION} is not set. ` +
+      `SonarCloud instance detected but ${ENV_VARS.organization} is not set. ` +
         'SonarCloud requires an organization to be specified.'
     );
   }
@@ -123,7 +123,7 @@ export function getEnvironmentDescription(): string {
 
   const config = getIntegrationTestConfig();
   const platform = config.platform.charAt(0).toUpperCase() + config.platform.slice(1);
-  const orgInfo = config.organization ? ` (org: ${config.organization})` : '';
+  const orgInfo = config.organization?.trim() ? ` (org: ${config.organization})` : '';
 
   return `${platform} instance at ${config.url}${orgInfo}`;
 }

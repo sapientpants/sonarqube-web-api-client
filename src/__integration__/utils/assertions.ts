@@ -6,13 +6,86 @@
  */
 
 /**
+ * Common response types for assertions
+ */
+interface PaginatedResponse {
+  paging: {
+    pageIndex: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
+interface ProjectResponse {
+  key: string;
+  name: string;
+  qualifier: string;
+}
+
+interface UserResponse {
+  login: string;
+  name: string;
+}
+
+interface IssueResponse {
+  key: string;
+  rule: string;
+  severity: string;
+  component: string;
+  status: string;
+  type: string;
+}
+
+interface QualityGateResponse {
+  id: string;
+  name: string;
+}
+
+interface QualityProfileResponse {
+  key: string;
+  name: string;
+  language: string;
+}
+
+interface RuleResponse {
+  key: string;
+  name: string;
+  type: string;
+}
+
+interface MeasureResponse {
+  metric: string;
+  value?: string;
+  values?: unknown[];
+}
+
+interface ComponentResponse {
+  key: string;
+  name: string;
+  qualifier: string;
+}
+
+interface ErrorResponse {
+  message: string;
+  status?: number;
+  errors?: unknown[];
+}
+
+interface SearchResponse {
+  components?: ComponentResponse[];
+  issues?: IssueResponse[];
+  users?: UserResponse[];
+  rules?: RuleResponse[];
+}
+
+/**
  * Assertions for SonarQube API responses
  */
-export const IntegrationAssertions = {
+export const INTEGRATION_ASSERTIONS = {
   /**
    * Asserts that a response has valid pagination structure
    */
-  expectValidPagination(response: any): void {
+  expectValidPagination(response: PaginatedResponse): void {
     expect(response).toHaveProperty('paging');
     expect(response.paging).toMatchObject({
       pageIndex: expect.any(Number),
@@ -27,7 +100,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a project response has required fields
    */
-  expectValidProject(project: any): void {
+  expectValidProject(project: ProjectResponse): void {
     expect(project).toMatchObject({
       key: expect.any(String),
       name: expect.any(String),
@@ -40,7 +113,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a user response has required fields
    */
-  expectValidUser(user: any): void {
+  expectValidUser(user: UserResponse): void {
     expect(user).toMatchObject({
       login: expect.any(String),
       name: expect.any(String),
@@ -52,7 +125,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that an issue response has required fields
    */
-  expectValidIssue(issue: any): void {
+  expectValidIssue(issue: IssueResponse): void {
     expect(issue).toMatchObject({
       key: expect.any(String),
       rule: expect.any(String),
@@ -71,7 +144,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a quality gate response has required fields
    */
-  expectValidQualityGate(qualityGate: any): void {
+  expectValidQualityGate(qualityGate: QualityGateResponse): void {
     expect(qualityGate).toMatchObject({
       id: expect.any(String),
       name: expect.any(String),
@@ -83,7 +156,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a quality profile response has required fields
    */
-  expectValidQualityProfile(profile: any): void {
+  expectValidQualityProfile(profile: QualityProfileResponse): void {
     expect(profile).toMatchObject({
       key: expect.any(String),
       name: expect.any(String),
@@ -97,7 +170,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a rule response has required fields
    */
-  expectValidRule(rule: any): void {
+  expectValidRule(rule: RuleResponse): void {
     expect(rule).toMatchObject({
       key: expect.any(String),
       name: expect.any(String),
@@ -111,20 +184,20 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a measure response has required fields
    */
-  expectValidMeasure(measure: any): void {
+  expectValidMeasure(measure: MeasureResponse): void {
     expect(measure).toMatchObject({
       metric: expect.any(String),
     });
     expect(measure.metric).toBeTruthy();
 
     // Should have either value or values array
-    expect(measure.value !== undefined || Array.isArray(measure.values)).toBe(true);
+    expect(measure.value !== undefined || Boolean(measure.values)).toBe(true);
   },
 
   /**
    * Asserts that a component response has required fields
    */
-  expectValidComponent(component: any): void {
+  expectValidComponent(component: ComponentResponse): void {
     expect(component).toMatchObject({
       key: expect.any(String),
       name: expect.any(String),
@@ -138,7 +211,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that an error response has expected structure
    */
-  expectValidErrorResponse(error: any): void {
+  expectValidErrorResponse(error: ErrorResponse): void {
     expect(error).toHaveProperty('message');
     expect(error.message).toBeTruthy();
 
@@ -151,7 +224,7 @@ export const IntegrationAssertions = {
   /**
    * Asserts that an HTTP error has expected status code
    */
-  expectHttpError(error: any, expectedStatusCode: number): void {
+  expectHttpError(error: ErrorResponse & { status: number }, expectedStatusCode: number): void {
     expect(error).toHaveProperty('status', expectedStatusCode);
     this.expectValidErrorResponse(error);
   },
@@ -159,28 +232,28 @@ export const IntegrationAssertions = {
   /**
    * Asserts authentication error (401)
    */
-  expectAuthenticationError(error: any): void {
+  expectAuthenticationError(error: ErrorResponse & { status: number }): void {
     this.expectHttpError(error, 401);
   },
 
   /**
    * Asserts authorization error (403)
    */
-  expectAuthorizationError(error: any): void {
+  expectAuthorizationError(error: ErrorResponse & { status: number }): void {
     this.expectHttpError(error, 403);
   },
 
   /**
    * Asserts not found error (404)
    */
-  expectNotFoundError(error: any): void {
+  expectNotFoundError(error: ErrorResponse & { status: number }): void {
     this.expectHttpError(error, 404);
   },
 
   /**
    * Asserts that a response contains expected number of items
    */
-  expectItemCount(response: any, expectedCount: number): void {
+  expectItemCount(response: SearchResponse, expectedCount: number): void {
     if (response.components) {
       expect(response.components).toHaveLength(expectedCount);
     } else if (response.issues) {
@@ -205,23 +278,23 @@ export const IntegrationAssertions = {
   /**
    * Asserts that a search response contains expected items
    */
-  expectSearchResults(response: any, minResults = 0): void {
+  expectSearchResults(response: PaginatedResponse & SearchResponse, minResults = 0): void {
     this.expectValidPagination(response);
 
-    const items = response.components || response.issues || response.users || response.rules || [];
+    const items = response.components ?? response.issues ?? response.users ?? response.rules ?? [];
     expect(items.length).toBeGreaterThanOrEqual(minResults);
 
     if (items.length > 0) {
       // Validate first item structure based on type
       const firstItem = items[0];
       if (response.components) {
-        this.expectValidComponent(firstItem);
+        this.expectValidComponent(firstItem as ComponentResponse);
       } else if (response.issues) {
-        this.expectValidIssue(firstItem);
+        this.expectValidIssue(firstItem as IssueResponse);
       } else if (response.users) {
-        this.expectValidUser(firstItem);
+        this.expectValidUser(firstItem as UserResponse);
       } else if (response.rules) {
-        this.expectValidRule(firstItem);
+        this.expectValidRule(firstItem as RuleResponse);
       }
     }
   },

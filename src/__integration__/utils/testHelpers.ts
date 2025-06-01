@@ -48,16 +48,19 @@ export async function withRetry<T>(
 
       if (attempt === maxAttempts) {
         throw new Error(
-          `Operation failed after ${maxAttempts} attempts. Last error: ${lastError.message}`
+          `Operation failed after ${maxAttempts.toString()} attempts. Last error: ${lastError.message}`
         );
       }
 
-      console.warn(`Attempt ${attempt}/${maxAttempts} failed, retrying in ${currentDelay}ms...`);
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Attempt ${attempt.toString()}/${maxAttempts.toString()} failed, retrying in ${currentDelay.toString()}ms...`
+      );
       await sleep(currentDelay);
 
       // Exponential backoff
-      if (backoffMultiplier) {
-        currentDelay = Math.min(currentDelay * backoffMultiplier, maxDelayMs || Infinity);
+      if (backoffMultiplier && maxDelayMs) {
+        currentDelay = Math.min(currentDelay * backoffMultiplier, maxDelayMs);
       }
     }
   }
@@ -82,7 +85,7 @@ export async function waitFor(
     await sleep(intervalMs);
   }
 
-  throw new Error(`Condition not met within ${timeoutMs}ms timeout`);
+  throw new Error(`Condition not met within ${timeoutMs.toString()}ms timeout`);
 }
 
 /**
@@ -98,7 +101,7 @@ export async function sleep(ms: number): Promise<void> {
 export function generateTestId(prefix = 'test'): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8);
-  return `${prefix}-${timestamp}-${random}`;
+  return `${prefix}-${timestamp.toString()}-${random}`;
 }
 
 /**
@@ -133,64 +136,64 @@ export function testGroup(name: string, tests: () => void | Promise<void>): void
 /**
  * Skips test conditionally based on environment
  */
-export function skipIf(condition: boolean, reason: string) {
+export function skipIf(condition: boolean, _reason: string): typeof describe {
   return condition ? describe.skip : describe;
 }
 
 /**
  * Skips test if condition is met, otherwise runs it
  */
-export function skipUnless(condition: boolean, reason: string) {
+export function skipUnless(condition: boolean, reason: string): typeof describe {
   return skipIf(!condition, reason);
 }
 
 /**
  * Runs test only if condition is met
  */
-export function runIf(condition: boolean, reason: string) {
+export function runIf(condition: boolean, _reason: string): typeof describe {
   return condition ? describe : describe.skip;
 }
 
 /**
  * Test timing utilities
  */
-export const TestTiming = {
+export const TEST_TIMING = {
   /**
    * Fast test - should complete quickly
    */
-  FAST: 5000,
+  fast: 5000,
 
   /**
    * Normal test - standard timeout
    */
-  NORMAL: 10000,
+  normal: 10000,
 
   /**
    * Slow test - operations that take time
    */
-  SLOW: 30000,
+  slow: 30000,
 
   /**
    * Very slow test - complex operations
    */
-  VERY_SLOW: 60000,
+  verySlow: 60000,
 };
 
 /**
  * Common test patterns for API validation
  */
-export const TestPatterns = {
+export const TEST_PATTERNS = {
   /**
    * Tests basic CRUD operations on a resource
    */
-  async testCrudOperations<T>(
+  testCrudOperations<T>(
     resource: string,
     createFn: () => Promise<T>,
     readFn: (id: string) => Promise<T | null>,
     updateFn: (id: string, data: Partial<T>) => Promise<T>,
     deleteFn: (id: string) => Promise<void>,
     extractId: (item: T) => string
-  ): Promise<void> {
+  ): void {
     describe(`${resource} CRUD operations`, () => {
       let createdItem: T;
       let itemId: string;
@@ -225,10 +228,10 @@ export const TestPatterns = {
   /**
    * Tests pagination on a list endpoint
    */
-  async testPagination<T>(
+  testPagination(
     resource: string,
-    listFn: (page: number, pageSize: number) => Promise<{ items: T[]; total: number }>
-  ): Promise<void> {
+    listFn: (page: number, pageSize: number) => Promise<{ items: unknown[]; total: number }>
+  ): void {
     describe(`${resource} pagination`, () => {
       test('should handle page size limits', async () => {
         const response = await listFn(1, 10);

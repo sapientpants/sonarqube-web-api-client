@@ -9,13 +9,13 @@ import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/e
 import { getTestConfiguration } from '../../config/testConfig';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
 import { TestDataManager } from '../../setup/TestDataManager';
-import { withRetry, measureTime, TestTiming, skipIf } from '../../utils/testHelpers';
-import { IntegrationAssertions } from '../../utils/assertions';
+import { withRetry, measureTime, TEST_TIMING, skipIf } from '../../utils/testHelpers';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();
 
-describe.skipIf(skipTests)('Projects API Integration Tests', () => {
+(skipTests ? describe.skip : describe)('Projects API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
   let envConfig: ReturnType<typeof getIntegrationTestConfig>;
@@ -28,13 +28,11 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
     dataManager = new TestDataManager(client);
 
     await client.validateConnection();
-  }, TestTiming.NORMAL);
+  }, TEST_TIMING.normal);
 
   afterAll(async () => {
-    if (dataManager) {
-      await dataManager.cleanup();
-    }
-  }, TestTiming.NORMAL);
+    await dataManager.cleanup();
+  }, TEST_TIMING.normal);
 
   describe('Project Search', () => {
     test(
@@ -44,25 +42,25 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           client.projects.search().execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
-        IntegrationAssertions.expectReasonableResponseTime(durationMs);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-        if (result.components && result.components.length > 0) {
-          IntegrationAssertions.expectValidProject(result.components[0]);
+        if (result.components?.length) {
+          INTEGRATION_ASSERTIONS.expectValidProject(result.components[0]);
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
       'should search projects with pagination',
       async () => {
         const pageSize = 5;
-        const { result } = await measureTime(() =>
+        const { result } = await measureTime(async () =>
           client.projects.search().withPageSize(pageSize).withPage(1).execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
         expect(result.paging.pageSize).toBe(pageSize);
         expect(result.paging.pageIndex).toBe(1);
 
@@ -70,7 +68,7 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           expect(result.components.length).toBeLessThanOrEqual(pageSize);
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -78,25 +76,21 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
       async () => {
         // Search for projects containing common words
         const searchQuery = 'test';
-        const { result } = await measureTime(() =>
+        const { result } = await measureTime(async () =>
           client.projects.search().withQuery(searchQuery).execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
 
         // If results are found, they should match the search criteria
-        if (result.components && result.components.length > 0) {
-          const hasMatchingProject = result.components.some(
-            (project) =>
-              project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              project.key.toLowerCase().includes(searchQuery.toLowerCase())
-          );
+        if (result.components?.length) {
           // Note: This might not always be true due to search algorithm complexity
           // So we don't assert it, just log for debugging
+          // eslint-disable-next-line no-console
           console.log(`Search for "${searchQuery}" returned ${result.components.length} projects`);
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -104,15 +98,15 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
       async () => {
         // Search for projects with a very specific unlikely name
         const uniqueQuery = `nonexistent-project-${Date.now()}`;
-        const { result } = await measureTime(() =>
+        const { result } = await measureTime(async () =>
           client.projects.search().withQuery(uniqueQuery).execute()
         );
 
-        IntegrationAssertions.expectValidPagination(result);
-        expect(result.components || []).toHaveLength(0);
+        INTEGRATION_ASSERTIONS.expectValidPagination(result);
+        expect(result.components ?? []).toHaveLength(0);
         expect(result.paging.total).toBe(0);
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
@@ -133,15 +127,15 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
 
         expect(projects.length).toBeLessThanOrEqual(maxItems);
         projects.forEach((project) => {
-          IntegrationAssertions.expectValidProject(project);
+          INTEGRATION_ASSERTIONS.expectValidProject(project);
         });
       },
-      TestTiming.SLOW
+      TEST_TIMING.slow
     );
   });
 
   describe('Project CRUD Operations', () => {
-    skipIf(!testConfig.allowDestructiveTests, 'Destructive tests disabled')(
+    (!testConfig.allowDestructiveTests ? describe.skip : describe)(
       'Project Creation and Deletion',
       () => {
         test(
@@ -161,14 +155,14 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
             const searchResult = await withRetry(async () => {
               const result = await client.projects.search().withQuery(projectKey).execute();
 
-              const project = result.components?.find((p) => p.key === projectKey);
+              const project = result.components?.find((p: { key: string }) => p.key === projectKey);
               if (!project) {
                 throw new Error('Project not found in search results');
               }
               return project;
             });
 
-            IntegrationAssertions.expectValidProject(searchResult);
+            INTEGRATION_ASSERTIONS.expectValidProject(searchResult);
             expect(searchResult.key).toBe(projectKey);
             expect(searchResult.name).toBe(projectName);
 
@@ -179,13 +173,13 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
             await withRetry(async () => {
               const result = await client.projects.search().withQuery(projectKey).execute();
 
-              const project = result.components?.find((p) => p.key === projectKey);
+              const project = result.components?.find((p: { key: string }) => p.key === projectKey);
               if (project) {
                 throw new Error('Project still exists after deletion');
               }
             });
           },
-          TestTiming.SLOW
+          TEST_TIMING.slow
         );
 
         test(
@@ -215,7 +209,7 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
               await client.projects.delete({ project: projectKey });
             }
           },
-          TestTiming.SLOW
+          TEST_TIMING.slow
         );
       }
     );
@@ -225,6 +219,7 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
       async () => {
         // This test only works if we have destructive tests enabled
         if (!testConfig.allowDestructiveTests) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping project key update test - destructive tests disabled');
           return;
         }
@@ -251,7 +246,7 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           const searchResult = await withRetry(async () => {
             const result = await client.projects.search().withQuery(newKey).execute();
 
-            const project = result.components?.find((p) => p.key === newKey);
+            const project = result.components?.find((p: { key: string }) => p.key === newKey);
             if (!project) {
               throw new Error('Project with new key not found');
             }
@@ -268,13 +263,14 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           }
         }
       },
-      TestTiming.SLOW
+      TEST_TIMING.slow
     );
 
     test(
       'should update project visibility',
       async () => {
         if (!testConfig.allowDestructiveTests) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping project visibility test - destructive tests disabled');
           return;
         }
@@ -298,12 +294,13 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
 
           // Note: We can't easily verify the visibility change without additional API calls
           // that might not be available in all environments
+          // eslint-disable-next-line no-console
           console.log(`✓ Successfully updated visibility for project ${projectKey}`);
         } finally {
           await client.projects.delete({ project: projectKey });
         }
       },
-      TestTiming.SLOW
+      TEST_TIMING.slow
     );
   });
 
@@ -319,6 +316,7 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
       'should get project license usage information',
       async () => {
         if (!testProjectKey) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping license usage test - no test project available');
           return;
         }
@@ -328,22 +326,25 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
 
           expect(result).toBeDefined();
           // License usage response structure varies by SonarQube version and edition
+          // eslint-disable-next-line no-console
           console.log(`✓ Retrieved license usage information`);
         } catch (error: any) {
           if (error.status === 403) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping license usage test - requires admin permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
 
     test(
       'should handle AI code detection features',
       async () => {
         if (!testProjectKey) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping AI code test - no test project available');
           return;
         }
@@ -365,13 +366,14 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           }
         } catch (error: any) {
           if (error.status === 403 || error.status === 404) {
+            // eslint-disable-next-line no-console
             console.log('ℹ Skipping AI code test - not available or no permissions');
           } else {
             throw error;
           }
         }
       },
-      TestTiming.NORMAL
+      TEST_TIMING.normal
     );
   });
 
@@ -387,13 +389,14 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           }
         );
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
 
     test(
       'should handle invalid project key format',
       async () => {
         if (!testConfig.allowDestructiveTests) {
+          // eslint-disable-next-line no-console
           console.log('ℹ Skipping invalid key test - destructive tests disabled');
           return;
         }
@@ -408,7 +411,7 @@ describe.skipIf(skipTests)('Projects API Integration Tests', () => {
           })
         ).rejects.toThrow();
       },
-      TestTiming.FAST
+      TEST_TIMING.fast
     );
   });
 });

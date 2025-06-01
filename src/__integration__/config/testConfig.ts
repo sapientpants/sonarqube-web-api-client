@@ -131,15 +131,15 @@ export const TEST_CATEGORIES: Record<string, TestCategory> = {
 /**
  * Gets test configuration with environment-specific overrides
  */
-export function getTestConfiguration(envConfig: IntegrationTestConfig): TestConfiguration {
+export function getTestConfiguration(_envConfig: IntegrationTestConfig): TestConfiguration {
   const config = { ...DEFAULT_TEST_CONFIG };
 
   // Override from environment variables
-  if (process.env.INTEGRATION_TEST_TIMEOUT) {
+  if (process.env.INTEGRATION_TEST_TIMEOUT?.trim()) {
     config.defaultTimeout = parseInt(process.env.INTEGRATION_TEST_TIMEOUT, 10);
   }
 
-  if (process.env.INTEGRATION_TEST_MAX_RETRIES) {
+  if (process.env.INTEGRATION_TEST_MAX_RETRIES?.trim()) {
     config.maxRetries = parseInt(process.env.INTEGRATION_TEST_MAX_RETRIES, 10);
   }
 
@@ -169,17 +169,17 @@ export function getEnabledTestCategories(
     }
 
     // Check organization requirement
-    if (category.requiresOrganization && !envConfig.hasOrganization) {
+    if (Boolean(category.requiresOrganization) && !envConfig.hasOrganization) {
       return false;
     }
 
     // Check destructive test setting
-    if (category.isDestructive && !testConfig.allowDestructiveTests) {
+    if (Boolean(category.isDestructive) && !testConfig.allowDestructiveTests) {
       return false;
     }
 
     // Check enterprise test setting
-    if (category.isEnterpriseOnly && !testConfig.runEnterpriseTests) {
+    if (Boolean(category.isEnterpriseOnly) && !testConfig.runEnterpriseTests) {
       return false;
     }
 

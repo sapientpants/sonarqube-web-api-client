@@ -13,7 +13,7 @@ const skipSuite =
   !canRunIntegrationTests() ||
   (canRunIntegrationTests() && getIntegrationTestConfig().platform !== 'sonarcloud');
 
-describe.skipIf(skipSuite)('SonarCloud Integration Tests', () => {
+(skipSuite ? describe.skip : describe)('SonarCloud Integration Tests', () => {
   let envConfig: ReturnType<typeof getIntegrationTestConfig>;
   let testConfig: ReturnType<typeof getTestConfiguration>;
   let enabledCategories: ReturnType<typeof getEnabledTestCategories>;
@@ -23,26 +23,36 @@ describe.skipIf(skipSuite)('SonarCloud Integration Tests', () => {
     testConfig = getTestConfiguration(envConfig);
     enabledCategories = getEnabledTestCategories(envConfig, testConfig);
 
+    // eslint-disable-next-line no-console
     console.log('☁️ SonarCloud Integration Test Configuration:');
+    // eslint-disable-next-line no-console
     console.log(`   URL: ${envConfig.url}`);
+    // eslint-disable-next-line no-console
     console.log(`   Platform: ${envConfig.platform}`);
-    console.log(`   Organization: ${envConfig.organization}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Organization: ${envConfig.organization ?? 'N/A'}`);
+    // eslint-disable-next-line no-console
     console.log(
       `   Destructive Tests: ${testConfig.allowDestructiveTests ? 'Enabled' : 'Disabled'}`
     );
+    // eslint-disable-next-line no-console
     console.log(`   Admin Tests: ${testConfig.runAdminTests ? 'Enabled' : 'Disabled'}`);
+    // eslint-disable-next-line no-console
     console.log(`   Enabled Categories: ${enabledCategories.map((c) => c.name).join(', ')}`);
   });
 
   // Core APIs - Available on both platforms but may have different behavior
   describe('Core APIs', () => {
     // System API - Basic connectivity and health
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/system/system.integration.test.ts');
 
     // Projects API - Project management (organization-scoped)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/projects/projects.integration.test.ts');
 
     // Users API - User search and management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/users/users.integration.test.ts');
   });
 
@@ -168,6 +178,7 @@ describe.skipIf(skipSuite)('SonarCloud Integration Tests', () => {
   });
 
   afterAll(() => {
+    // eslint-disable-next-line no-console
     console.log('✅ SonarCloud Integration Tests Complete');
   });
 });

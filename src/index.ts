@@ -25,6 +25,8 @@ import { ProjectLinksClient } from './resources/project-links';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
 import { NewCodePeriodsClient } from './resources/new-code-periods';
+import { AuditLogsClient } from './resources/audit-logs';
+import { PluginsClient } from './resources/plugins';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
@@ -115,6 +117,10 @@ export class SonarQubeClient {
   public readonly measures: MeasuresClient;
   /** New Code Periods API */
   public readonly newCodePeriods: NewCodePeriodsClient;
+  /** Audit Logs API - **Note**: Only available in SonarQube Enterprise Edition */
+  public readonly auditLogs: AuditLogsClient;
+  /** Plugins API - Plugin management functionality - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly plugins: PluginsClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
@@ -190,6 +196,8 @@ export class SonarQubeClient {
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.options);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.options);
     this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.token, this.options);
+    this.auditLogs = new AuditLogsClient(this.baseUrl, this.token, this.options);
+    this.plugins = new PluginsClient(this.baseUrl, this.token, this.options);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
     this.rules = new RulesClient(this.baseUrl, this.token, this.options);
@@ -1071,6 +1079,36 @@ export type {
 } from './resources/new-code-periods/types';
 
 export { NewCodePeriodType } from './resources/new-code-periods/types';
+
+// Re-export Audit Logs types
+export type {
+  AuditEventCategory,
+  AuditEventAction,
+  AuditLogEntry,
+  SearchAuditLogsRequest,
+  SearchAuditLogsResponse,
+  DownloadAuditLogsRequest,
+  DownloadAuditLogsResponse,
+} from './resources/audit-logs/types';
+
+// Re-export Plugins types
+export type {
+  PluginUpdateStatus,
+  Plugin,
+  AvailablePlugin,
+  InstalledPlugin,
+  PendingPlugin,
+  PluginUpdate,
+  GetAvailablePluginsRequest,
+  GetAvailablePluginsResponse,
+  InstallPluginRequest,
+  GetInstalledPluginsRequest,
+  GetInstalledPluginsResponse,
+  GetPendingPluginsResponse,
+  UninstallPluginRequest,
+  UpdatePluginRequest,
+  GetPluginUpdatesResponse,
+} from './resources/plugins/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

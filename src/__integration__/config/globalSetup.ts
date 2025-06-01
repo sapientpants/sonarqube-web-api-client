@@ -22,7 +22,7 @@ export default async function globalSetup(): Promise<void> {
     console.error('   - SONARQUBE_ORGANIZATION: Organization key (required for SonarCloud)');
     console.error('   - INTEGRATION_TEST_TIMEOUT: Test timeout in milliseconds (default: 30000)');
     console.error(
-      '   - INTEGRATION_TEST_ALLOW_DESTRUCTIVE: Allow tests that create/delete data (default: false)'
+      '   - INTEGRATION_TEST_DESTRUCTIVE: Allow tests that create/delete data (default: false)'
     );
     process.exit(1);
   }

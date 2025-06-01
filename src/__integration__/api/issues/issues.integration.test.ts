@@ -8,25 +8,28 @@
 import { describe, test, beforeAll, afterAll, expect } from '@jest/globals';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
 import { TestDataManager } from '../../setup/TestDataManager';
-import { IntegrationAssertions } from '../../utils/assertions';
-import { measureTime, retryOperation } from '../../utils/testHelpers';
-import {
-  getIntegrationTestConfig,
-  getTestConfiguration,
-  type IntegrationTestConfig,
-  type TestConfiguration,
-} from '../../config';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
+import { measureTime, withRetry } from '../../utils/testHelpers';
+import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment';
+import { getTestConfiguration } from '../../config/testConfig';
 
-describe('Issues API Integration Tests', () => {
+// Skip all tests if integration test environment is not configured
+const skipTests = !canRunIntegrationTests();
+
+// Initialize test configuration at module load time for conditional describe blocks
+const envConfig = skipTests ? null : getIntegrationTestConfig();
+const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConfig);
+
+(skipTests ? describe.skip : describe)('Issues API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
-  let envConfig: IntegrationTestConfig;
-  let testConfig: TestConfiguration;
   let testProjectKey: string;
 
   beforeAll(async () => {
-    envConfig = getIntegrationTestConfig();
-    testConfig = getTestConfiguration(envConfig);
+    if (!envConfig || !testConfig) {
+      throw new Error('Integration test configuration is not available');
+    }
+
     client = new IntegrationTestClient(envConfig, testConfig);
     dataManager = new TestDataManager(client);
 
@@ -44,7 +47,7 @@ describe('Issues API Integration Tests', () => {
 
   afterAll(async () => {
     await dataManager.cleanup();
-  }, testConfig.longTimeout);
+  }, testConfig?.longTimeout ?? 30000);
 
   describe('Issue Search Operations', () => {
     test('should search issues without filters', async () => {
@@ -52,8 +55,8 @@ describe('Issues API Integration Tests', () => {
         client.issues.search().execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.paging).toBeDefined();
       expect(result.issues).toBeDefined();
@@ -82,8 +85,8 @@ describe('Issues API Integration Tests', () => {
         client.issues.search().componentKeys([testProjectKey]).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.issues).toBeDefined();
 
@@ -94,12 +97,12 @@ describe('Issues API Integration Tests', () => {
     });
 
     test('should search issues by severity', async () => {
-      const { result, durationMs } = await measureTime(() =>
-        client.issues.search().severities(['MAJOR', 'CRITICAL']).pageSize(10).execute()
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withSeverities(['MAJOR', 'CRITICAL']).pageSize(10).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       if (result.issues.length > 0) {
         result.issues.forEach((issue) => {
@@ -109,12 +112,12 @@ describe('Issues API Integration Tests', () => {
     });
 
     test('should search issues by type', async () => {
-      const { result, durationMs } = await measureTime(() =>
-        client.issues.search().types(['BUG', 'VULNERABILITY']).pageSize(10).execute()
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withTypes(['BUG', 'VULNERABILITY']).pageSize(10).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       if (result.issues.length > 0) {
         result.issues.forEach((issue) => {
@@ -124,12 +127,12 @@ describe('Issues API Integration Tests', () => {
     });
 
     test('should search issues by status', async () => {
-      const { result, durationMs } = await measureTime(() =>
-        client.issues.search().statuses(['OPEN', 'CONFIRMED']).pageSize(10).execute()
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withStatuses(['OPEN', 'CONFIRMED']).pageSize(10).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       if (result.issues.length > 0) {
         result.issues.forEach((issue) => {
@@ -139,7 +142,7 @@ describe('Issues API Integration Tests', () => {
     });
 
     test('should search issues with organization filter for SonarCloud', async () => {
-      if (!envConfig.isSonarCloud || !envConfig.organization) {
+      if (!envConfig?.isSonarCloud || !envConfig.organization) {
         console.warn(
           'Skipping organization-scoped issue search - not SonarCloud or no organization'
         );
@@ -150,8 +153,8 @@ describe('Issues API Integration Tests', () => {
         client.issues.search().organization(envConfig.organization).pageSize(10).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.issues).toBeDefined();
       // All issues should belong to projects within the organization
@@ -166,7 +169,7 @@ describe('Issues API Integration Tests', () => {
         client.issues.search().pageSize(pageSize).page(1).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(firstPage);
+      INTEGRATION_ASSERTIONS.expectValidResponse(firstPage);
       expect(firstPage.paging.pageIndex).toBe(1);
       expect(firstPage.paging.pageSize).toBe(pageSize);
 
@@ -175,7 +178,7 @@ describe('Issues API Integration Tests', () => {
           client.issues.search().pageSize(pageSize).page(2).execute()
         );
 
-        IntegrationAssertions.expectValidResponse(secondPage);
+        INTEGRATION_ASSERTIONS.expectValidResponse(secondPage);
         expect(secondPage.paging.pageIndex).toBe(2);
 
         // Ensure different results on different pages
@@ -188,12 +191,12 @@ describe('Issues API Integration Tests', () => {
 
   describe('Issue Search with Additional Fields', () => {
     test('should include additional fields in search results', async () => {
-      const { result, durationMs } = await measureTime(() =>
-        client.issues.search().additionalFields(['_all']).pageSize(5).execute()
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withAdditionalFields(['_all']).pageSize(5).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       if (result.issues.length > 0) {
         const issue = result.issues[0];
@@ -236,7 +239,7 @@ describe('Issues API Integration Tests', () => {
 
         expect(issueCount).toBeGreaterThan(0);
       },
-      testConfig.longTimeout
+      testConfig?.longTimeout ?? 60000
     );
   });
 
@@ -244,7 +247,7 @@ describe('Issues API Integration Tests', () => {
     test('should respect platform-specific search behavior', async () => {
       const searchBuilder = client.issues.search().pageSize(5);
 
-      if (envConfig.isSonarCloud) {
+      if (envConfig?.isSonarCloud) {
         // SonarCloud requires organization context for most operations
         if (envConfig.organization) {
           searchBuilder.organization(envConfig.organization);
@@ -253,10 +256,10 @@ describe('Issues API Integration Tests', () => {
 
       const { result, durationMs } = await measureTime(async () => searchBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-      if (envConfig.isSonarCloud && result.issues.length > 0) {
+      if (envConfig?.isSonarCloud && result.issues.length > 0) {
         // Verify organization context is respected
         expect(result.issues.length).toBeGreaterThanOrEqual(0);
       }
@@ -293,8 +296,8 @@ describe('Issues API Integration Tests', () => {
         client.issues.search().pageSize(10).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs, {
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, {
         expected: 2000, // 2 seconds
         maximum: 10000, // 10 seconds absolute max
       });
@@ -308,7 +311,7 @@ describe('Issues API Integration Tests', () => {
       const results = await Promise.all(searchPromises);
 
       results.forEach((result) => {
-        IntegrationAssertions.expectValidResponse(result);
+        INTEGRATION_ASSERTIONS.expectValidResponse(result);
         expect(result.issues).toBeDefined();
       });
     });
@@ -318,12 +321,12 @@ describe('Issues API Integration Tests', () => {
     test('should handle transient failures with retry', async () => {
       const operation = async (): Promise<unknown> => client.issues.search().pageSize(5).execute();
 
-      const result = await retryOperation(operation, {
-        maxRetries: testConfig.maxRetries,
-        delay: testConfig.retryDelay,
+      const result = await withRetry(operation, {
+        maxAttempts: testConfig?.maxRetries ?? 3,
+        delayMs: testConfig?.retryDelay ?? 1000,
       });
 
-      IntegrationAssertions.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
     });
   });
 });

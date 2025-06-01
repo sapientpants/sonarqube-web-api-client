@@ -271,9 +271,23 @@ export const INTEGRATION_ASSERTIONS = {
   /**
    * Asserts that response time is within acceptable limits
    */
-  expectReasonableResponseTime(durationMs: number, maxMs = 5000): void {
+  expectReasonableResponseTime(
+    durationMs: number,
+    options: number | { expected?: number; maximum?: number } = 5000
+  ): void {
+    const maxMs =
+      typeof options === 'number' ? options : (options.maximum ?? options.expected ?? 5000);
     expect(durationMs).toBeLessThan(maxMs);
     expect(durationMs).toBeGreaterThan(0);
+  },
+
+  /**
+   * Asserts that an API response is valid (has expected structure)
+   */
+  expectValidResponse(response: unknown): void {
+    expect(response).toBeDefined();
+    expect(response).not.toBeNull();
+    expect(typeof response).toBe('object');
   },
 
   /**

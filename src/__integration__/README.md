@@ -29,9 +29,9 @@ export SONARQUBE_ORGANIZATION="your-organization-key"
 
 # Optional configuration
 export INTEGRATION_TEST_TIMEOUT="30000"                    # Test timeout in ms
-export INTEGRATION_TEST_ALLOW_DESTRUCTIVE="false"          # Allow data creation/deletion
-export INTEGRATION_TEST_RUN_ADMIN="false"                  # Run admin-only tests
-export INTEGRATION_TEST_RUN_ENTERPRISE="false"             # Run enterprise feature tests
+export INTEGRATION_TEST_DESTRUCTIVE="false"               # Allow data creation/deletion
+export INTEGRATION_TEST_ADMIN="false"                      # Run admin-only tests
+export INTEGRATION_TEST_ENTERPRISE="false"                 # Run enterprise feature tests
 ```
 
 ### 2. Run Tests
@@ -82,9 +82,9 @@ Your authentication token should have permissions for:
 | `SONARQUBE_TOKEN` | *required* | Authentication token |
 | `SONARQUBE_ORGANIZATION` | `undefined` | Organization key (required for SonarCloud) |
 | `INTEGRATION_TEST_TIMEOUT` | `30000` | Test timeout in milliseconds |
-| `INTEGRATION_TEST_ALLOW_DESTRUCTIVE` | `false` | Allow tests that create/delete data |
-| `INTEGRATION_TEST_RUN_ADMIN` | `false` | Run tests requiring admin permissions |
-| `INTEGRATION_TEST_RUN_ENTERPRISE` | `false` | Run enterprise feature tests |
+| `INTEGRATION_TEST_DESTRUCTIVE` | `false` | Allow tests that create/delete data |
+| `INTEGRATION_TEST_ADMIN` | `false` | Run tests requiring admin permissions |
+| `INTEGRATION_TEST_ENTERPRISE` | `false` | Run enterprise feature tests |
 
 ## Test Structure
 
@@ -151,20 +151,20 @@ The framework organizes tests into logical categories:
 
 2. **Destructive Mode**: Allows creation/deletion of test data
    ```bash
-   INTEGRATION_TEST_ALLOW_DESTRUCTIVE=true pnpm test:integration:sonarqube
-   INTEGRATION_TEST_ALLOW_DESTRUCTIVE=true pnpm test:integration:sonarcloud
+   INTEGRATION_TEST_DESTRUCTIVE=true pnpm test:integration:sonarqube
+   INTEGRATION_TEST_DESTRUCTIVE=true pnpm test:integration:sonarcloud
    ```
 
 3. **Admin Mode**: Includes admin-only endpoints
    ```bash
-   INTEGRATION_TEST_RUN_ADMIN=true pnpm test:integration:sonarqube
-   INTEGRATION_TEST_RUN_ADMIN=true pnpm test:integration:sonarcloud
+   INTEGRATION_TEST_ADMIN=true pnpm test:integration:sonarqube
+   INTEGRATION_TEST_ADMIN=true pnpm test:integration:sonarcloud
    ```
 
 4. **Enterprise Mode**: Tests enterprise features
    ```bash
-   INTEGRATION_TEST_RUN_ENTERPRISE=true pnpm test:integration:sonarqube
-   INTEGRATION_TEST_RUN_ENTERPRISE=true pnpm test:integration:sonarcloud
+   INTEGRATION_TEST_ENTERPRISE=true pnpm test:integration:sonarqube
+   INTEGRATION_TEST_ENTERPRISE=true pnpm test:integration:sonarcloud
    ```
 
 ### Platform-Specific Testing

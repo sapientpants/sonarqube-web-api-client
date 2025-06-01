@@ -82,15 +82,30 @@ const skipTests = !canRunIntegrationTests();
     test(
       'should get v2 system status',
       async () => {
-        const { result, durationMs } = await measureTime(async () => client.system.getStatusV2());
+        try {
+          const { result, durationMs } = await measureTime(async () => client.system.getStatusV2());
 
-        expect(result).toHaveProperty('status');
-        expect(result).toHaveProperty('version');
-        expect(['UP', 'DOWN', 'STARTING', 'DB_MIGRATION_NEEDED', 'DB_MIGRATION_RUNNING']).toContain(
-          result.status
-        );
+          expect(result).toHaveProperty('status');
+          expect(result).toHaveProperty('version');
+          expect([
+            'UP',
+            'DOWN',
+            'STARTING',
+            'DB_MIGRATION_NEEDED',
+            'DB_MIGRATION_RUNNING',
+          ]).toContain(result.status);
 
-        INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 3000);
+          INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 3000);
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 404) {
+            console.log(
+              'ℹ Skipping v2 system status test - API not available in this SonarQube version'
+            );
+          } else {
+            throw error;
+          }
+        }
       },
       TEST_TIMING.fast
     );
@@ -201,6 +216,10 @@ const skipTests = !canRunIntegrationTests();
           if (errorObj.status === 403) {
             INTEGRATION_ASSERTIONS.expectAuthorizationError(errorObj);
             console.log('ℹ Skipping v2 system info test - requires admin permissions');
+          } else if (errorObj.status === 404) {
+            console.log(
+              'ℹ Skipping v2 system info test - API not available in this SonarQube version'
+            );
           } else {
             throw error;
           }

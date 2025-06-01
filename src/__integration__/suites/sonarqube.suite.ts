@@ -13,15 +13,17 @@ const skipSuite =
   !canRunIntegrationTests() ||
   (canRunIntegrationTests() && getIntegrationTestConfig().platform !== 'sonarqube');
 
-(skipSuite ? describe.skip : describe)('SonarQube Integration Tests', () => {
-  let envConfig: ReturnType<typeof getIntegrationTestConfig>;
-  let testConfig: ReturnType<typeof getTestConfiguration>;
-  let enabledCategories: ReturnType<typeof getEnabledTestCategories>;
+// Initialize configurations at module load time for conditional describe blocks
+const envConfig = skipSuite ? null : getIntegrationTestConfig();
+const testConfig = skipSuite || !envConfig ? null : getTestConfiguration(envConfig);
+const enabledCategories =
+  skipSuite || !envConfig || !testConfig ? [] : getEnabledTestCategories(envConfig, testConfig);
 
+(skipSuite ? describe.skip : describe)('SonarQube Integration Tests', () => {
   beforeAll(() => {
-    envConfig = getIntegrationTestConfig();
-    testConfig = getTestConfiguration(envConfig);
-    enabledCategories = getEnabledTestCategories(envConfig, testConfig);
+    if (!envConfig || !testConfig) {
+      throw new Error('Integration test configuration is not available');
+    }
 
     console.log('🔧 SonarQube Integration Test Configuration:');
     console.log(`   URL: ${envConfig.url}`);
@@ -98,43 +100,29 @@ const skipSuite =
     describe('SonarCloud API Exclusions', () => {
       test('should not have SonarCloud-specific endpoints', () => {
         // This is a meta-test to ensure we're testing the right platform
-        expect(envConfig.platform).toBe('sonarqube');
-        expect(envConfig.isSonarCloud).toBe(false);
+        expect(envConfig?.platform).toBe('sonarqube');
+        expect(envConfig?.isSonarCloud).toBe(false);
       });
     });
   });
 
   // Conditional tests based on configuration
-  describe('Conditional Tests', () => {
-    test('should run admin tests if enabled', () => {
-      if (testConfig?.runAdminTests) {
-        describe('Administrative APIs', () => {
-          test.todo('User management integration tests');
-          test.todo('Group management integration tests');
-          test.todo('Permission management integration tests');
-          test.todo('Settings management integration tests');
-        });
-      }
-    });
+  (testConfig?.runAdminTests ? describe : describe.skip)('Administrative APIs', () => {
+    test.todo('User management integration tests');
+    test.todo('Group management integration tests');
+    test.todo('Permission management integration tests');
+    test.todo('Settings management integration tests');
+  });
 
-    test('should run enterprise tests if enabled', () => {
-      if (testConfig?.runEnterpriseTests) {
-        describe('Enterprise APIs', () => {
-          test.todo('Portfolio management integration tests');
-          test.todo('Application management integration tests');
-          test.todo('Branch analysis integration tests');
-        });
-      }
-    });
+  (testConfig?.runEnterpriseTests ? describe : describe.skip)('Enterprise APIs', () => {
+    test.todo('Portfolio management integration tests');
+    test.todo('Application management integration tests');
+    test.todo('Branch analysis integration tests');
+  });
 
-    test('should run destructive tests if enabled', () => {
-      if (testConfig?.allowDestructiveTests) {
-        describe('Destructive Operations', () => {
-          test.todo('Project lifecycle management tests');
-          test.todo('Bulk operations integration tests');
-        });
-      }
-    });
+  (testConfig?.allowDestructiveTests ? describe : describe.skip)('Destructive Operations', () => {
+    test.todo('Project lifecycle management tests');
+    test.todo('Bulk operations integration tests');
   });
 
   // Performance and reliability tests

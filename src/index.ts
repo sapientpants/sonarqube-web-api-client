@@ -27,6 +27,7 @@ import { MeasuresClient } from './resources/measures';
 import { NewCodePeriodsClient } from './resources/new-code-periods';
 import { AuditLogsClient } from './resources/audit-logs';
 import { PluginsClient } from './resources/plugins';
+import { ServerClient } from './resources/server';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
@@ -121,6 +122,8 @@ export class SonarQubeClient {
   public readonly auditLogs: AuditLogsClient;
   /** Plugins API - Plugin management functionality - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly plugins: PluginsClient;
+  /** Server API - Basic server information - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly server: ServerClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
@@ -198,6 +201,7 @@ export class SonarQubeClient {
     this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.token, this.options);
     this.auditLogs = new AuditLogsClient(this.baseUrl, this.token, this.options);
     this.plugins = new PluginsClient(this.baseUrl, this.token, this.options);
+    this.server = new ServerClient(this.baseUrl, this.token, this.options);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
     this.rules = new RulesClient(this.baseUrl, this.token, this.options);
@@ -1109,6 +1113,9 @@ export type {
   UpdatePluginRequest,
   GetPluginUpdatesResponse,
 } from './resources/plugins/types';
+
+// Re-export Server types
+export type { ServerVersionResponse } from './resources/server/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

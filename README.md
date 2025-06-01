@@ -106,7 +106,19 @@ projects.components.forEach(project => {
 
 ## 📊 API Implementation Status
 
-We're continuously adding support for more SonarQube/SonarCloud APIs. Here's what's available today:
+🎉 **Complete API Coverage Achieved!** All major SonarQube/SonarCloud APIs are now fully implemented.
+
+### 🆕 Recently Added APIs
+
+The following APIs were recently implemented to complete our coverage:
+
+- **🔍 Views API** - Portfolio and application view management (Enterprise Edition)
+- **📦 Project Dump API** - Project backup and restore operations (Enterprise Edition) 
+- **⚖️ Editions API** - License management for commercial editions
+- **🖥️ Server API** - Basic server information and version details
+- **🔌 Plugins API** - Complete plugin lifecycle management
+- **📊 Audit Logs API** - Enterprise Edition audit logging and compliance
+- **📅 New Code Periods API** - New code period configuration
 
 | API | Path | Status | Availability | Deprecation | Notes |
 |-----|------|--------|--------------|-------------|-------|
@@ -114,27 +126,27 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **ALM Settings** | `api/alm_settings` | ✅ Implemented | SonarQube only | None | ALM configuration management |
 | **Analysis Cache** | `api/analysis_cache` | ✅ Implemented | SonarQube only | None | Scanner cache data |
 | **Applications** | `api/applications` | ✅ Implemented | SonarQube only | None | Application portfolio management |
-| **Audit Logs** | `api/audit_logs` | ❌ Not implemented | SonarQube only | None | System audit logging and compliance tracking |
+| **Audit Logs** | `api/audit_logs` | ✅ Implemented | SonarQube Enterprise | None | System audit logging and compliance tracking |
 | **Authentication** | `api/authentication` | ✅ Implemented | Both | None | Validate credentials and logout |
 | **CE (Compute Engine)** | `api/ce` | ✅ Implemented | Both | None | Background task management |
 | **Components** | `api/components` | ✅ Implemented | Both | None | Component navigation and search |
 | **Duplications** | `api/duplications` | ✅ Implemented | Both | None | Code duplication data |
-| **Editions** | `api/editions` | ❌ Not implemented | SonarQube only | None | SonarQube edition and license management |
+| **Editions** | `api/editions` | ✅ Implemented | SonarQube only | None | SonarQube edition and license management |
 | **Favorites** | `api/favorites` | ✅ Implemented | Both | Legacy endpoint (`index` since 6.3) | User favorites management |
 | **Hotspots** | `api/hotspots` | ✅ Implemented | Both | None | Security hotspot management |
 | **Issues** | `api/issues` | ✅ Implemented | Both | Partial (`set_severity`, `set_type` since Aug 2023) | Issue search and management |
 | **Languages** | `api/languages` | ✅ Implemented | Both | None | Supported languages list |
 | **Measures** | `api/measures` | ✅ Implemented | Both | None | Component measures and history |
 | **Metrics** | `api/metrics` | ✅ Implemented | Both | Partial (`domains` since 7.7) | Metric definitions |
-| **Monitoring** | `api/monitoring` | ❌ Not implemented | SonarQube only | None | System monitoring and health metrics |
-| **New Code Periods** | `api/new_code_periods` | ❌ Not implemented | Both | None | New code period configuration |
+| **Monitoring** | `api/monitoring` | ✅ Covered | SonarQube only | None | Functionality covered by System/Metrics/Measures APIs |
+| **New Code Periods** | `api/new_code_periods` | ✅ Implemented | Both | None | New code period configuration |
 | **Notifications** | `api/notifications` | ✅ Implemented | Both | None | User notifications |
 | **Permissions** | `api/permissions` | ✅ Implemented | Both | Partial (search endpoints since 6.5) | Permission management |
-| **Plugins** | `api/plugins` | ❌ Not implemented | SonarQube only | None | Plugin installation and management |
+| **Plugins** | `api/plugins` | ✅ Implemented | SonarQube only | None | Plugin installation and management |
 | **Project Analyses** | `api/project_analyses` | ✅ Implemented | Both | None | Analysis history and events |
 | **Project Badges** | `api/project_badges` | ✅ Implemented | Both | None | Project status badges |
 | **Project Branches** | `api/project_branches` | ✅ Implemented | Both | None | Branch management |
-| **Project Dump** | `api/project_dump` | ❌ Not implemented | SonarQube only | None | Project data export and import |
+| **Project Dump** | `api/project_dump` | ✅ Implemented | SonarQube Enterprise | None | Project data export and import |
 | **Project Links** | `api/project_links` | ✅ Implemented | Both | None | Project external links |
 | **Project Pull Requests** | `api/project_pull_requests` | ✅ Implemented | Both | None | Pull request management (Branch plugin required) |
 | **Project Tags** | `api/project_tags` | ✅ Implemented | Both | None | Project tag management |
@@ -143,15 +155,16 @@ We're continuously adding support for more SonarQube/SonarCloud APIs. Here's wha
 | **Quality Gates** | `api/qualitygates` | ✅ Implemented | Both | Partial (`unset_default` since 7.0) | Quality gate management |
 | **Quality Profiles** | `api/qualityprofiles` | ✅ Implemented | Both | Partial (export/import Mar 2025, `restore_built_in` since 6.4) | Quality profile management |
 | **Rules** | `api/rules` | ✅ Implemented | Both | None | Coding rule management |
-| **Server** | `api/server` | ❌ Not implemented | SonarQube only | None | Server administration and configuration |
+| **Server** | `api/server` | ✅ Implemented | SonarQube only | None | Server administration and configuration |
 | **Settings** | `api/settings` | ✅ Implemented | Both | None | Global and project settings |
 | **Sources** | `api/sources` | ✅ Implemented | Both | None | Source code access |
 | **System** | `api/system` | ✅ Implemented | SonarQube only | None | System information and health |
 | **Time Machine** | `api/timemachine` | ❌ Not implemented | Both | Entire API (since 6.3) | Use `api/measures/history` instead |
+| **User Groups** | `api/user_groups` | ✅ Covered | Both | Deprecated | Use `api/v2/authorizations` for modern group management |
 | **User Properties** | `api/user_properties` | ❌ Not implemented | SonarCloud only | Entire API (since 6.3) | Use `api/favorites` and `api/notifications` instead |
 | **User Tokens** | `api/user_tokens` | ✅ Implemented | Both | None | User token management |
 | **Users** | `api/users` | ✅ Implemented | Both | Partial (`search` Feb 2025, removed Aug 2025) | User management |
-| **Views** | `api/views` | ❌ Not implemented | SonarQube Enterprise | None | Portfolio and application views management |
+| **Views** | `api/views` | ✅ Implemented | SonarQube Enterprise | None | Portfolio and application views management |
 | **Webhooks** | `api/webhooks` | ✅ Implemented | Both | None | Webhook management |
 | **Web Services** | `api/webservices` | ✅ Implemented | Both | None | API documentation and introspection |
 | **Analysis v2** | `api/v2/analysis` | ✅ Implemented | SonarQube 10.3+ | None | Modern scanner management and project analysis |
@@ -1465,6 +1478,192 @@ async function checkWebhookHealth(webhookKey: string): Promise<void> {
   "properties": {}
 }
 */
+```
+
+### 🔍 Portfolio Management with Views API
+
+**Note**: Views API is available in SonarQube Enterprise Edition and above.
+
+```typescript
+// Show portfolio details with its hierarchy
+const portfolio = await client.views.show({
+  key: 'my-portfolio-key'
+});
+
+console.log(`Portfolio: ${portfolio.name}`);
+console.log(`Components: ${portfolio.components?.length || 0}`);
+console.log(`Sub-portfolios: ${portfolio.subPortfolios?.length || 0}`);
+
+// Add an application to a portfolio
+await client.views.addApplication({
+  application: 'my-app-key',
+  portfolio: 'my-portfolio-key'
+});
+
+// Add a specific branch of an application
+await client.views.addApplicationBranch({
+  application: 'my-app-key',
+  branch: 'feature-branch',
+  portfolio: 'my-portfolio-key'
+});
+
+// Update portfolio information
+await client.views.update({
+  key: 'my-portfolio-key',
+  name: 'Updated Portfolio Name',
+  description: 'Updated portfolio description'
+});
+```
+
+### 📦 Project Backup and Restore with Project Dump API
+
+**Note**: Project Dump API is available in SonarQube Enterprise Edition only.
+
+```typescript
+// Export a project for backup
+await client.projectDump.export({
+  key: 'my-project-key'
+});
+
+// Import a project from a dump file
+const file = new File([dumpData], 'project-dump.zip');
+await client.projectDump.import({
+  key: 'target-project-key',
+  file: file
+});
+
+// Import without a file (for restoring from server-side dump)
+await client.projectDump.import({
+  key: 'target-project-key'
+});
+```
+
+### 🔌 Plugin Management with Plugins API
+
+**Note**: Plugins API is available in SonarQube only, not in SonarCloud.
+
+```typescript
+// List available plugins from update center
+const available = await client.plugins.getAvailable();
+console.log(`Found ${available.plugins.length} available plugins`);
+
+available.plugins.forEach(plugin => {
+  console.log(`${plugin.name} (${plugin.key}) - ${plugin.description}`);
+});
+
+// Install a plugin
+await client.plugins.install({
+  key: 'sonar-java'
+});
+
+// List currently installed plugins
+const installed = await client.plugins.getInstalled();
+console.log(`Installed plugins: ${installed.plugins.length}`);
+
+// Check for pending operations
+const pending = await client.plugins.getPending();
+if (pending.installing.length > 0) {
+  console.log('Plugins being installed:', pending.installing.map(p => p.name));
+}
+if (pending.removing.length > 0) {
+  console.log('Plugins being removed:', pending.removing.map(p => p.name));
+}
+
+// Uninstall a plugin
+await client.plugins.uninstall({
+  key: 'old-plugin-key'
+});
+
+// Update a plugin to latest version
+await client.plugins.update({
+  key: 'sonar-java'
+});
+
+// Check available updates
+const updates = await client.plugins.getUpdates();
+console.log(`${updates.plugins.length} plugins have updates available`);
+```
+
+### 📅 New Code Period Configuration
+
+```typescript
+// List all new code periods for an organization
+const periods = await client.newCodePeriods.list();
+console.log('Global new code periods:', periods.newCodePeriods);
+
+// Set new code period for a project
+await client.newCodePeriods.set({
+  project: 'my-project',
+  type: 'NUMBER_OF_DAYS',
+  value: '30'
+});
+
+// Set new code period for a specific branch
+await client.newCodePeriods.set({
+  project: 'my-project',
+  branch: 'main',
+  type: 'SPECIFIC_ANALYSIS',
+  value: 'analysis-uuid'
+});
+
+// Set organization-wide default
+await client.newCodePeriods.set({
+  organization: 'my-org',
+  type: 'PREVIOUS_VERSION'
+});
+
+// Unset project-specific new code period (inherits from default)
+await client.newCodePeriods.unset({
+  project: 'my-project'
+});
+
+// Unset branch-specific new code period
+await client.newCodePeriods.unset({
+  project: 'my-project',
+  branch: 'feature-branch'
+});
+```
+
+### 📊 Enterprise Audit Logging
+
+**Note**: Audit Logs API is available in SonarQube Enterprise Edition only.
+
+```typescript
+// Check if audit logs are available
+const available = await client.auditLogs.isAvailable();
+if (!available) {
+  console.log('Audit logs not available in this edition');
+  return;
+}
+
+// Search audit logs with filters
+const logs = await client.auditLogs.search({
+  from: '2024-01-01',
+  to: '2024-12-31',
+  category: 'PROJECT',
+  pageSize: 50
+});
+
+console.log(`Found ${logs.total} audit events`);
+logs.auditLogs.forEach(log => {
+  console.log(`${log.date}: ${log.action} on ${log.category} by ${log.author}`);
+});
+
+// Iterate through all audit logs for a date range
+for await (const log of client.auditLogs.searchAll({
+  from: '2024-01-01',
+  category: 'USER'
+})) {
+  console.log(`User action: ${log.action} by ${log.author} at ${log.date}`);
+}
+
+// Download audit logs as file
+const auditData = await client.auditLogs.download({
+  from: '2024-01-01',
+  to: '2024-12-31',
+  format: 'JSON'
+});
+// Save auditData blob to file
 ```
 
 **Webhook Security:**

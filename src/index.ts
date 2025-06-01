@@ -24,6 +24,12 @@ import { ProjectAnalysesClient } from './resources/project-analyses';
 import { ProjectLinksClient } from './resources/project-links';
 import { MetricsClient } from './resources/metrics';
 import { MeasuresClient } from './resources/measures';
+import { NewCodePeriodsClient } from './resources/new-code-periods';
+import { AuditLogsClient } from './resources/audit-logs';
+import { PluginsClient } from './resources/plugins';
+import { ServerClient } from './resources/server';
+import { EditionsClient } from './resources/editions';
+import { ProjectDumpClient } from './resources/project-dump';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
@@ -40,6 +46,7 @@ import { UserTokensClient } from './resources/user-tokens';
 import { PermissionsClient } from './resources/permissions';
 import { WebhooksClient } from './resources/webhooks';
 import { WebservicesClient } from './resources/webservices';
+import { ViewsClient } from './resources/views';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -112,6 +119,18 @@ export class SonarQubeClient {
   public readonly metrics: MetricsClient;
   /** Measures API */
   public readonly measures: MeasuresClient;
+  /** New Code Periods API */
+  public readonly newCodePeriods: NewCodePeriodsClient;
+  /** Audit Logs API - **Note**: Only available in SonarQube Enterprise Edition */
+  public readonly auditLogs: AuditLogsClient;
+  /** Plugins API - Plugin management functionality - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly plugins: PluginsClient;
+  /** Server API - Basic server information - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly server: ServerClient;
+  /** Editions API - License management for commercial editions - **Note**: Only available in SonarQube, not in SonarCloud */
+  public readonly editions: EditionsClient;
+  /** Project Dump API - Project backup and restore operations - **Note**: Only available in SonarQube Enterprise Edition */
+  public readonly projectDump: ProjectDumpClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
@@ -134,6 +153,8 @@ export class SonarQubeClient {
   public readonly webhooks: WebhooksClient;
   /** Webservices API - Get information on the web API supported on this instance */
   public readonly webservices: WebservicesClient;
+  /** Views API - Manage portfolios and application views - **Note**: Only available in SonarQube Enterprise Edition and above */
+  public readonly views: ViewsClient;
 
   private readonly baseUrl: string;
   private readonly token: string;
@@ -186,6 +207,12 @@ export class SonarQubeClient {
     this.permissions = new PermissionsClient(this.baseUrl, this.token, this.options);
     this.metrics = new MetricsClient(this.baseUrl, this.token, this.options);
     this.measures = new MeasuresClient(this.baseUrl, this.token, this.options);
+    this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.token, this.options);
+    this.auditLogs = new AuditLogsClient(this.baseUrl, this.token, this.options);
+    this.plugins = new PluginsClient(this.baseUrl, this.token, this.options);
+    this.server = new ServerClient(this.baseUrl, this.token, this.options);
+    this.editions = new EditionsClient(this.baseUrl, this.token, this.options);
+    this.projectDump = new ProjectDumpClient(this.baseUrl, this.token, this.options);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
     this.rules = new RulesClient(this.baseUrl, this.token, this.options);
@@ -197,6 +224,7 @@ export class SonarQubeClient {
     this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
     this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
     this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
+    this.views = new ViewsClient(this.baseUrl, this.token, this.options);
   }
 
   // Legacy methods for backward compatibility
@@ -707,6 +735,17 @@ export type {
   InfoResponse,
 } from './resources/system/types';
 
+// Re-export types from system v2
+export type {
+  SystemInfoV2,
+  SystemHealthV2,
+  SystemStatusV2Response,
+  SystemEdition,
+  SystemFeature,
+  SystemStatusV2,
+  HealthStatus as SystemHealthStatus,
+} from './resources/system/types-v2';
+
 // Re-export types from project tags
 export type {
   SearchTagsParams,
@@ -1043,6 +1082,81 @@ export {
   AuthenticationHelper,
   ConfigurationTemplates,
 } from './resources/dop-translation/utils';
+
+// Re-export New Code Periods types and enums
+export type {
+  NewCodePeriod,
+  BranchNewCodePeriod,
+  ListNewCodePeriodsRequest,
+  ListNewCodePeriodsResponse,
+  SetNewCodePeriodRequest,
+  SetNewCodePeriodResponse,
+  UnsetNewCodePeriodRequest,
+} from './resources/new-code-periods/types';
+
+export { NewCodePeriodType } from './resources/new-code-periods/types';
+
+// Re-export Audit Logs types
+export type {
+  AuditEventCategory,
+  AuditEventAction,
+  AuditLogEntry,
+  SearchAuditLogsRequest,
+  SearchAuditLogsResponse,
+  DownloadAuditLogsRequest,
+  DownloadAuditLogsResponse,
+} from './resources/audit-logs/types';
+
+// Re-export Plugins types
+export type {
+  PluginUpdateStatus,
+  Plugin,
+  AvailablePlugin,
+  InstalledPlugin,
+  PendingPlugin,
+  PluginUpdate,
+  GetAvailablePluginsRequest,
+  GetAvailablePluginsResponse,
+  InstallPluginRequest,
+  GetInstalledPluginsRequest,
+  GetInstalledPluginsResponse,
+  GetPendingPluginsResponse,
+  UninstallPluginRequest,
+  UpdatePluginRequest,
+  GetPluginUpdatesResponse,
+} from './resources/plugins/types';
+
+// Re-export Server types
+export type { ServerVersionResponse } from './resources/server/types';
+
+// Re-export Editions types
+export type {
+  ActivateGracePeriodRequest,
+  ActivateGracePeriodResponse,
+  SetLicenseRequest,
+  SetLicenseResponse,
+} from './resources/editions/types';
+
+// Re-export Project Dump types
+export type {
+  ExportProjectDumpRequest,
+  ExportProjectDumpResponse,
+  ImportProjectDumpRequest,
+  ImportProjectDumpResponse,
+} from './resources/project-dump/types';
+
+// Re-export Views types
+export type {
+  AddApplicationRequest,
+  AddApplicationResponse,
+  AddApplicationBranchRequest,
+  AddApplicationBranchResponse,
+  ShowPortfolioRequest,
+  ShowPortfolioResponse,
+  UpdatePortfolioRequest,
+  UpdatePortfolioResponse,
+  PortfolioComponent,
+} from './resources/views/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

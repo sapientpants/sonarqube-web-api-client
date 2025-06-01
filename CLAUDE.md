@@ -25,6 +25,13 @@ pnpm test
 pnpm test:watch      # Watch mode
 pnpm test:coverage   # With coverage report
 
+# Run integration tests (requires environment setup)
+pnpm test:integration                    # All integration tests
+pnpm test:integration:sonarqube         # SonarQube-specific tests
+pnpm test:integration:sonarcloud        # SonarCloud-specific tests
+pnpm test:integration:watch             # Integration tests in watch mode
+pnpm test:all                           # Both unit and integration tests
+
 # Linting and formatting
 pnpm lint            # Check for linting issues
 pnpm lint:fix        # Fix linting issues
@@ -114,6 +121,47 @@ Available error types:
 - `NetworkError` - Network connectivity issues
 - `TimeoutError` - Request timeouts
 - `ValidationError` - Client-side validation errors
+
+## Integration Testing
+
+The project includes comprehensive integration tests that validate the client against real SonarQube and SonarCloud instances.
+
+### Quick Setup
+
+Set environment variables and run tests:
+
+```bash
+# Required for all tests
+export SONARQUBE_URL="https://your-sonarqube-instance.com"
+export SONARQUBE_TOKEN="your-authentication-token"
+
+# Required for SonarCloud only
+export SONARQUBE_ORGANIZATION="your-organization-key"
+
+# Run integration tests
+pnpm test:integration
+```
+
+### Configuration Options
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SONARQUBE_URL` | SonarQube/SonarCloud instance URL | *required* |
+| `SONARQUBE_TOKEN` | Authentication token | *required* |
+| `SONARQUBE_ORGANIZATION` | Organization key (SonarCloud only) | *optional* |
+| `INTEGRATION_TEST_ALLOW_DESTRUCTIVE` | Allow tests that create/delete data | `false` |
+| `INTEGRATION_TEST_RUN_ADMIN` | Include admin-only tests | `false` |
+| `INTEGRATION_TEST_RUN_ENTERPRISE` | Include enterprise feature tests | `false` |
+
+### Test Architecture
+
+- **Modular API Tests**: Individual files for each API category (`src/__integration__/api/`)
+- **Platform-Specific Suites**: Separate test suites for SonarQube vs SonarCloud
+- **Environment-Driven**: Tests adapt based on platform detection and configuration
+- **Test Data Management**: Automatic cleanup of test artifacts
+- **Robust Error Handling**: Graceful handling of permissions and API differences
+
+See `src/__integration__/README.md` for detailed documentation.
 
 ## Development Tips
 

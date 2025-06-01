@@ -29,6 +29,7 @@ import { AuditLogsClient } from './resources/audit-logs';
 import { PluginsClient } from './resources/plugins';
 import { ServerClient } from './resources/server';
 import { EditionsClient } from './resources/editions';
+import { ProjectDumpClient } from './resources/project-dump';
 import { IssuesClient } from './resources/issues';
 import { QualityGatesClient } from './resources/quality-gates';
 import { SourcesClient } from './resources/sources';
@@ -127,6 +128,8 @@ export class SonarQubeClient {
   public readonly server: ServerClient;
   /** Editions API - License management for commercial editions - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly editions: EditionsClient;
+  /** Project Dump API - Project backup and restore operations - **Note**: Only available in SonarQube Enterprise Edition */
+  public readonly projectDump: ProjectDumpClient;
   /** Quality Gates API */
   public readonly qualityGates: QualityGatesClient;
   /** Quality Profiles API */
@@ -206,6 +209,7 @@ export class SonarQubeClient {
     this.plugins = new PluginsClient(this.baseUrl, this.token, this.options);
     this.server = new ServerClient(this.baseUrl, this.token, this.options);
     this.editions = new EditionsClient(this.baseUrl, this.token, this.options);
+    this.projectDump = new ProjectDumpClient(this.baseUrl, this.token, this.options);
     this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
     this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
     this.rules = new RulesClient(this.baseUrl, this.token, this.options);
@@ -1128,6 +1132,14 @@ export type {
   SetLicenseRequest,
   SetLicenseResponse,
 } from './resources/editions/types';
+
+// Re-export Project Dump types
+export type {
+  ExportProjectDumpRequest,
+  ExportProjectDumpResponse,
+  ImportProjectDumpRequest,
+  ImportProjectDumpResponse,
+} from './resources/project-dump/types';
 
 // Re-export deprecation management
 export { DeprecationManager, deprecated } from './core/deprecation';

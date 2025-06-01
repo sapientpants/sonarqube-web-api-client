@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a TypeScript client library for the SonarQube Web API. The library provides a type-safe interface for interacting with SonarQube's REST API endpoints.
 
+## Memories
+
+- Use puppeteer to read v1 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api
+- Use puppeteer to read v2 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api_v2
+
 ## Development Commands
 
 ```bash
@@ -114,3 +119,4 @@ Available error types:
 
 - Use `pnpm format` to fix formatting issues in the code
 - Use `jq` to read json files
+```

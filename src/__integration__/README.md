@@ -37,20 +37,11 @@ export INTEGRATION_TEST_RUN_ENTERPRISE="false"             # Run enterprise feat
 ### 2. Run Tests
 
 ```bash
-# Run all integration tests
-pnpm test:integration
-
-# Run only SonarQube-specific tests
+# Run SonarQube-specific tests
 pnpm test:integration:sonarqube
 
-# Run only SonarCloud-specific tests  
+# Run SonarCloud-specific tests  
 pnpm test:integration:sonarcloud
-
-# Run integration tests in watch mode
-pnpm test:integration:watch
-
-# Run both unit and integration tests
-pnpm test:all
 ```
 
 ## Environment Configuration
@@ -154,34 +145,38 @@ The framework organizes tests into logical categories:
 
 1. **Read-Only Mode** (Default): Tests only perform read operations
    ```bash
-   pnpm test:integration
+   pnpm test:integration:sonarqube    # For SonarQube
+   pnpm test:integration:sonarcloud   # For SonarCloud
    ```
 
 2. **Destructive Mode**: Allows creation/deletion of test data
    ```bash
-   INTEGRATION_TEST_ALLOW_DESTRUCTIVE=true pnpm test:integration
+   INTEGRATION_TEST_ALLOW_DESTRUCTIVE=true pnpm test:integration:sonarqube
+   INTEGRATION_TEST_ALLOW_DESTRUCTIVE=true pnpm test:integration:sonarcloud
    ```
 
 3. **Admin Mode**: Includes admin-only endpoints
    ```bash
-   INTEGRATION_TEST_RUN_ADMIN=true pnpm test:integration
+   INTEGRATION_TEST_RUN_ADMIN=true pnpm test:integration:sonarqube
+   INTEGRATION_TEST_RUN_ADMIN=true pnpm test:integration:sonarcloud
    ```
 
 4. **Enterprise Mode**: Tests enterprise features
    ```bash
-   INTEGRATION_TEST_RUN_ENTERPRISE=true pnpm test:integration
+   INTEGRATION_TEST_RUN_ENTERPRISE=true pnpm test:integration:sonarqube
+   INTEGRATION_TEST_RUN_ENTERPRISE=true pnpm test:integration:sonarcloud
    ```
 
 ### Platform-Specific Testing
 
-The test framework automatically detects whether you're testing against SonarQube or SonarCloud and runs appropriate test suites:
+The test framework requires you to choose the appropriate platform-specific command:
 
 ```bash
-# Will automatically run SonarQube-specific tests
-SONARQUBE_URL="https://sonarqube.example.com" pnpm test:integration
+# Run SonarQube-specific tests
+SONARQUBE_URL="https://sonarqube.example.com" pnpm test:integration:sonarqube
 
-# Will automatically run SonarCloud-specific tests  
-SONARQUBE_URL="https://sonarcloud.io" SONARQUBE_ORGANIZATION="my-org" pnpm test:integration
+# Run SonarCloud-specific tests  
+SONARQUBE_URL="https://sonarcloud.io" SONARQUBE_ORGANIZATION="my-org" pnpm test:integration:sonarcloud
 ```
 
 ### Selective Test Execution
@@ -190,13 +185,16 @@ Run specific test categories:
 
 ```bash
 # Run only system tests
-pnpm test:integration --testPathPattern=system
+pnpm test:integration:sonarqube --testPathPattern=system
+pnpm test:integration:sonarcloud --testPathPattern=system
 
 # Run only project tests
-pnpm test:integration --testPathPattern=projects
+pnpm test:integration:sonarqube --testPathPattern=projects
+pnpm test:integration:sonarcloud --testPathPattern=projects
 
 # Run only user tests
-pnpm test:integration --testPathPattern=users
+pnpm test:integration:sonarqube --testPathPattern=users
+pnpm test:integration:sonarcloud --testPathPattern=users
 ```
 
 ## Test Data Management
@@ -238,7 +236,8 @@ If tests are interrupted, you can manually clean up test data:
 Enable verbose logging:
 
 ```bash
-DEBUG=true pnpm test:integration
+DEBUG=true pnpm test:integration:sonarqube
+DEBUG=true pnpm test:integration:sonarcloud
 ```
 
 ### Test Timeouts
@@ -246,7 +245,8 @@ DEBUG=true pnpm test:integration
 Increase timeout for slow networks:
 
 ```bash
-INTEGRATION_TEST_TIMEOUT=60000 pnpm test:integration
+INTEGRATION_TEST_TIMEOUT=60000 pnpm test:integration:sonarqube
+INTEGRATION_TEST_TIMEOUT=60000 pnpm test:integration:sonarcloud
 ```
 
 ## CI/CD Integration

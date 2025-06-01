@@ -5,8 +5,6 @@
  * It performs environment validation and global initialization.
  */
 
-/* eslint-disable no-console */
-
 import { canRunIntegrationTests, getIntegrationTestConfig } from './environment';
 import { getTestConfiguration } from './testConfig';
 import { IntegrationTestClient } from '../setup/IntegrationTestClient';
@@ -39,7 +37,7 @@ export default async function globalSetup(): Promise<void> {
   console.log(`   Allow Destructive Tests: ${testConfig.allowDestructiveTests}`);
   console.log(`   Run Admin Tests: ${testConfig.runAdminTests}`);
   console.log(`   Run Enterprise Tests: ${testConfig.runEnterpriseTests}`);
-  console.log(`   Test Timeout: ${testConfig.testTimeout}ms`);
+  console.log(`   Test Timeout: ${testConfig.defaultTimeout}ms`);
 
   // Validate connection to SonarQube/SonarCloud instance
   try {
@@ -47,8 +45,9 @@ export default async function globalSetup(): Promise<void> {
     const client = new IntegrationTestClient(envConfig, testConfig);
     await client.validateConnection();
     console.log('✅ Successfully connected to SonarQube instance');
-  } catch (error: any) {
-    console.error('❌ Failed to connect to SonarQube instance:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('❌ Failed to connect to SonarQube instance:', errorMessage);
     console.error('   Please verify:');
     console.error('   - SONARQUBE_URL is correct and accessible');
     console.error('   - SONARQUBE_TOKEN is valid and has appropriate permissions');
@@ -60,7 +59,7 @@ export default async function globalSetup(): Promise<void> {
 
   // Set global timeout based on test configuration
   if (typeof jest !== 'undefined' && jest.setTimeout) {
-    jest.setTimeout(testConfig.testTimeout);
+    jest.setTimeout(testConfig.defaultTimeout);
   }
 
   console.log('✅ Global Setup Complete - Ready to run integration tests');

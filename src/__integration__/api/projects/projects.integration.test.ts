@@ -9,7 +9,7 @@ import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/e
 import { getTestConfiguration } from '../../config/testConfig';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
 import { TestDataManager } from '../../setup/TestDataManager';
-import { withRetry, measureTime, TEST_TIMING, skipIf } from '../../utils/testHelpers';
+import { withRetry, measureTime, TEST_TIMING } from '../../utils/testHelpers';
 import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
 
 // Skip all tests if integration test environment is not configured
@@ -45,7 +45,7 @@ const skipTests = !canRunIntegrationTests();
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
         INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-        if (result.components?.length) {
+        if (result.components && result.components.length > 0) {
           INTEGRATION_ASSERTIONS.expectValidProject(result.components[0]);
         }
       },
@@ -56,15 +56,15 @@ const skipTests = !canRunIntegrationTests();
       'should search projects with pagination',
       async () => {
         const pageSize = 5;
-        const { result } = await measureTime(async () =>
-          client.projects.search().withPageSize(pageSize).withPage(1).execute()
-        );
+        const { result } = await measureTime(async () => {
+          return await client.projects.search().withPageSize(pageSize).withPage(1).execute();
+        });
 
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
         expect(result.paging.pageSize).toBe(pageSize);
         expect(result.paging.pageIndex).toBe(1);
 
-        if (result.components) {
+        if (result.components && result.components.length > 0) {
           expect(result.components.length).toBeLessThanOrEqual(pageSize);
         }
       },
@@ -76,18 +76,19 @@ const skipTests = !canRunIntegrationTests();
       async () => {
         // Search for projects containing common words
         const searchQuery = 'test';
-        const { result } = await measureTime(async () =>
-          client.projects.search().withQuery(searchQuery).execute()
-        );
+        const { result } = await measureTime(async () => {
+          return await client.projects.search().withQuery(searchQuery).execute();
+        });
 
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
 
         // If results are found, they should match the search criteria
-        if (result.components?.length) {
+        if (result.components && result.components.length > 0) {
           // Note: This might not always be true due to search algorithm complexity
           // So we don't assert it, just log for debugging
-          // eslint-disable-next-line no-console
-          console.log(`Search for "${searchQuery}" returned ${result.components.length} projects`);
+          console.log(
+            `Search for "${searchQuery}" returned ${String(result.components.length)} projects`
+          );
         }
       },
       TEST_TIMING.normal
@@ -97,10 +98,10 @@ const skipTests = !canRunIntegrationTests();
       'should handle empty search results',
       async () => {
         // Search for projects with a very specific unlikely name
-        const uniqueQuery = `nonexistent-project-${Date.now()}`;
-        const { result } = await measureTime(async () =>
-          client.projects.search().withQuery(uniqueQuery).execute()
-        );
+        const uniqueQuery = `nonexistent-project-${String(Date.now())}`;
+        const { result } = await measureTime(async () => {
+          return await client.projects.search().withQuery(uniqueQuery).execute();
+        });
 
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
         expect(result.components ?? []).toHaveLength(0);
@@ -113,7 +114,7 @@ const skipTests = !canRunIntegrationTests();
       'should use async iterator for all projects',
       async () => {
         const searchBuilder = client.projects.search().withPageSize(10);
-        const projects: any[] = [];
+        const projects: unknown[] = [];
         let count = 0;
         const maxItems = 20; // Limit to prevent long test execution
 
@@ -155,7 +156,9 @@ const skipTests = !canRunIntegrationTests();
             const searchResult = await withRetry(async () => {
               const result = await client.projects.search().withQuery(projectKey).execute();
 
-              const project = result.components?.find((p: { key: string }) => p.key === projectKey);
+              const project = result.components?.find(
+                (p: unknown) => (p as { key: string }).key === projectKey
+              );
               if (!project) {
                 throw new Error('Project not found in search results');
               }
@@ -173,7 +176,9 @@ const skipTests = !canRunIntegrationTests();
             await withRetry(async () => {
               const result = await client.projects.search().withQuery(projectKey).execute();
 
-              const project = result.components?.find((p: { key: string }) => p.key === projectKey);
+              const project = result.components?.find(
+                (p: unknown) => (p as { key: string }).key === projectKey
+              );
               if (project) {
                 throw new Error('Project still exists after deletion');
               }
@@ -219,7 +224,6 @@ const skipTests = !canRunIntegrationTests();
       async () => {
         // This test only works if we have destructive tests enabled
         if (!testConfig.allowDestructiveTests) {
-          // eslint-disable-next-line no-console
           console.log('ℹ Skipping project key update test - destructive tests disabled');
           return;
         }
@@ -246,7 +250,9 @@ const skipTests = !canRunIntegrationTests();
           const searchResult = await withRetry(async () => {
             const result = await client.projects.search().withQuery(newKey).execute();
 
-            const project = result.components?.find((p: { key: string }) => p.key === newKey);
+            const project = result.components?.find(
+              (p: unknown) => (p as { key: string }).key === newKey
+            );
             if (!project) {
               throw new Error('Project with new key not found');
             }
@@ -270,7 +276,6 @@ const skipTests = !canRunIntegrationTests();
       'should update project visibility',
       async () => {
         if (!testConfig.allowDestructiveTests) {
-          // eslint-disable-next-line no-console
           console.log('ℹ Skipping project visibility test - destructive tests disabled');
           return;
         }
@@ -294,7 +299,6 @@ const skipTests = !canRunIntegrationTests();
 
           // Note: We can't easily verify the visibility change without additional API calls
           // that might not be available in all environments
-          // eslint-disable-next-line no-console
           console.log(`✓ Successfully updated visibility for project ${projectKey}`);
         } finally {
           await client.projects.delete({ project: projectKey });
@@ -316,7 +320,6 @@ const skipTests = !canRunIntegrationTests();
       'should get project license usage information',
       async () => {
         if (!testProjectKey) {
-          // eslint-disable-next-line no-console
           console.log('ℹ Skipping license usage test - no test project available');
           return;
         }
@@ -326,11 +329,10 @@ const skipTests = !canRunIntegrationTests();
 
           expect(result).toBeDefined();
           // License usage response structure varies by SonarQube version and edition
-          // eslint-disable-next-line no-console
           console.log(`✓ Retrieved license usage information`);
-        } catch (error: any) {
-          if (error.status === 403) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
             console.log('ℹ Skipping license usage test - requires admin permissions');
           } else {
             throw error;
@@ -344,7 +346,6 @@ const skipTests = !canRunIntegrationTests();
       'should handle AI code detection features',
       async () => {
         if (!testProjectKey) {
-          // eslint-disable-next-line no-console
           console.log('ℹ Skipping AI code test - no test project available');
           return;
         }
@@ -364,9 +365,9 @@ const skipTests = !canRunIntegrationTests();
               containsAiCode: false,
             });
           }
-        } catch (error: any) {
-          if (error.status === 403 || error.status === 404) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403 || errorObj.status === 404) {
             console.log('ℹ Skipping AI code test - not available or no permissions');
           } else {
             throw error;
@@ -396,7 +397,6 @@ const skipTests = !canRunIntegrationTests();
       'should handle invalid project key format',
       async () => {
         if (!testConfig.allowDestructiveTests) {
-          // eslint-disable-next-line no-console
           console.log('ℹ Skipping invalid key test - destructive tests disabled');
           return;
         }

@@ -124,11 +124,11 @@ const skipTests = !canRunIntegrationTests();
           expect(['GREEN', 'YELLOW', 'RED']).toContain(result.health);
 
           INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
-        } catch (error: any) {
+        } catch (error: unknown) {
           // Expect authorization error if user doesn't have admin permissions
-          if (error.status === 403) {
-            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
-            // eslint-disable-next-line no-console
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(errorObj);
             console.log('ℹ Skipping system health test - requires admin permissions');
           } else {
             throw error;
@@ -148,10 +148,10 @@ const skipTests = !canRunIntegrationTests();
           expect(['GREEN', 'YELLOW', 'RED']).toContain(result.status);
 
           INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
-        } catch (error: any) {
-          if (error.status === 403) {
-            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(errorObj);
             console.log('ℹ Skipping v2 system health test - requires admin permissions');
           } else {
             throw error;
@@ -173,10 +173,10 @@ const skipTests = !canRunIntegrationTests();
           expect(result.System).toHaveProperty('Version');
 
           INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
-        } catch (error: any) {
-          if (error.status === 403) {
-            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(errorObj);
             console.log('ℹ Skipping system info test - requires admin permissions');
           } else {
             throw error;
@@ -196,10 +196,10 @@ const skipTests = !canRunIntegrationTests();
           expect(result).toHaveProperty('edition');
 
           INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, 5000);
-        } catch (error: any) {
-          if (error.status === 403) {
-            INTEGRATION_ASSERTIONS.expectAuthorizationError(error);
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
+            INTEGRATION_ASSERTIONS.expectAuthorizationError(errorObj);
             console.log('ℹ Skipping v2 system info test - requires admin permissions');
           } else {
             throw error;
@@ -238,11 +238,11 @@ const skipTests = !canRunIntegrationTests();
       }
     });
 
-    test('should report instance capabilities', async () => {
-      const supportsProjects = await client.supportsFeature('projects');
-      const supportsIssues = await client.supportsFeature('issues');
-      const supportsOrganizations = await client.supportsFeature('organizations');
-      const supportsEditions = await client.supportsFeature('editions');
+    test('should report instance capabilities', () => {
+      const supportsProjects = client.supportsFeature('projects');
+      const supportsIssues = client.supportsFeature('issues');
+      const supportsOrganizations = client.supportsFeature('organizations');
+      const supportsEditions = client.supportsFeature('editions');
 
       expect(supportsProjects).toBe(true);
       expect(supportsIssues).toBe(true);

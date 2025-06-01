@@ -287,6 +287,25 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/__integration__/**/*.ts'],
+    rules: {
+      // Type safety relaxations needed for integration tests with external APIs
+      '@typescript-eslint/no-deprecated': 'off', // Allow testing deprecated APIs
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-namespace': 'off', // Allow namespace for Jest matchers
+      'no-console': 'off', // Allow console logs for test output
+      'prefer-destructuring': 'off', // Allow flexible destructuring patterns
+    },
+  },
+  {
     files: ['src/core/deprecation/**/*.ts', 'src/core/deprecation/**/*.test.ts'],
     rules: {
       // Type safety relaxations needed for dynamic proxy and decorator patterns

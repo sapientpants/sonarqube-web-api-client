@@ -52,20 +52,19 @@ export async function withRetry<T>(
         );
       }
 
-      // eslint-disable-next-line no-console
       console.warn(
         `Attempt ${attempt.toString()}/${maxAttempts.toString()} failed, retrying in ${currentDelay.toString()}ms...`
       );
       await sleep(currentDelay);
 
       // Exponential backoff
-      if (backoffMultiplier && maxDelayMs) {
+      if (backoffMultiplier !== undefined && maxDelayMs !== undefined) {
         currentDelay = Math.min(currentDelay * backoffMultiplier, maxDelayMs);
       }
     }
   }
 
-  throw lastError || new Error('Unexpected retry failure');
+  throw lastError ?? new Error('Unexpected retry failure');
 }
 
 /**
@@ -208,7 +207,7 @@ export const TEST_PATTERNS = {
       test('should read created item', async () => {
         const item = await readFn(itemId);
         expect(item).toBeDefined();
-        expect(extractId(item!)).toBe(itemId);
+        expect(extractId(item as T)).toBe(itemId);
       });
 
       test('should update item', async () => {

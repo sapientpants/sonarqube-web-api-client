@@ -26,11 +26,8 @@ pnpm test:watch      # Watch mode
 pnpm test:coverage   # With coverage report
 
 # Run integration tests (requires environment setup)
-pnpm test:integration                    # All integration tests
 pnpm test:integration:sonarqube         # SonarQube-specific tests
 pnpm test:integration:sonarcloud        # SonarCloud-specific tests
-pnpm test:integration:watch             # Integration tests in watch mode
-pnpm test:all                           # Both unit and integration tests
 
 # Linting and formatting
 pnpm lint            # Check for linting issues
@@ -139,7 +136,8 @@ export SONARQUBE_TOKEN="your-authentication-token"
 export SONARQUBE_ORGANIZATION="your-organization-key"
 
 # Run integration tests
-pnpm test:integration
+pnpm test:integration:sonarqube   # For SonarQube instances
+pnpm test:integration:sonarcloud  # For SonarCloud instances
 ```
 
 ### Configuration Options

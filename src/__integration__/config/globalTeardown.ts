@@ -5,8 +5,6 @@
  * It performs cleanup and reports test completion status.
  */
 
-/* eslint-disable no-console */
-
 import { canRunIntegrationTests, getIntegrationTestConfig } from './environment';
 import { getTestConfiguration } from './testConfig';
 import { IntegrationTestClient } from '../setup/IntegrationTestClient';
@@ -34,8 +32,9 @@ export default async function globalTeardown(): Promise<void> {
     await dataManager.cleanup();
 
     console.log('✅ Global cleanup completed successfully');
-  } catch (error: any) {
-    console.warn('⚠️  Warning: Global cleanup encountered an error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.warn('⚠️  Warning: Global cleanup encountered an error:', errorMessage);
     console.warn('   Some test data may need to be cleaned up manually');
     // Don't fail the teardown process - tests have already completed
   }
@@ -44,7 +43,7 @@ export default async function globalTeardown(): Promise<void> {
   console.log('📊 Integration Test Session Summary:');
   console.log(`   Platform: ${envConfig.platform}`);
   console.log(`   Instance: ${envConfig.url}`);
-  console.log(`   Destructive Tests: ${testConfig.allowDestructiveTests.toString()}`);
+  console.log(`   Destructive Tests: ${String(testConfig.allowDestructiveTests)}`);
 
   if (testConfig.allowDestructiveTests) {
     console.log('   Note: Destructive tests were enabled - verify test data cleanup');

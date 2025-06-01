@@ -23,23 +23,15 @@ const skipSuite =
     testConfig = getTestConfiguration(envConfig);
     enabledCategories = getEnabledTestCategories(envConfig, testConfig);
 
-    // eslint-disable-next-line no-console
     console.log('🔧 SonarQube Integration Test Configuration:');
-    // eslint-disable-next-line no-console
     console.log(`   URL: ${envConfig.url}`);
-    // eslint-disable-next-line no-console
     console.log(`   Platform: ${envConfig.platform}`);
-    // eslint-disable-next-line no-console
     console.log(`   Organization: ${envConfig.organization ?? 'N/A'}`);
-    // eslint-disable-next-line no-console
     console.log(
       `   Destructive Tests: ${testConfig.allowDestructiveTests ? 'Enabled' : 'Disabled'}`
     );
-    // eslint-disable-next-line no-console
     console.log(`   Admin Tests: ${testConfig.runAdminTests ? 'Enabled' : 'Disabled'}`);
-    // eslint-disable-next-line no-console
     console.log(`   Enterprise Tests: ${testConfig.runEnterpriseTests ? 'Enabled' : 'Disabled'}`);
-    // eslint-disable-next-line no-console
     console.log(`   Enabled Categories: ${enabledCategories.map((c) => c.name).join(', ')}`);
   });
 
@@ -112,32 +104,38 @@ const skipSuite =
     });
   });
 
-  // Administrative APIs (if admin tests are enabled)
-  if (testConfig.runAdminTests) {
-    describe('Administrative APIs', () => {
-      test.todo('User management integration tests');
-      test.todo('Group management integration tests');
-      test.todo('Permission management integration tests');
-      test.todo('Settings management integration tests');
+  // Conditional tests based on configuration
+  describe('Conditional Tests', () => {
+    test('should run admin tests if enabled', () => {
+      if (testConfig?.runAdminTests) {
+        describe('Administrative APIs', () => {
+          test.todo('User management integration tests');
+          test.todo('Group management integration tests');
+          test.todo('Permission management integration tests');
+          test.todo('Settings management integration tests');
+        });
+      }
     });
-  }
 
-  // Enterprise APIs (if enterprise tests are enabled)
-  if (testConfig.runEnterpriseTests) {
-    describe('Enterprise APIs', () => {
-      test.todo('Portfolio management integration tests');
-      test.todo('Application management integration tests');
-      test.todo('Branch analysis integration tests');
+    test('should run enterprise tests if enabled', () => {
+      if (testConfig?.runEnterpriseTests) {
+        describe('Enterprise APIs', () => {
+          test.todo('Portfolio management integration tests');
+          test.todo('Application management integration tests');
+          test.todo('Branch analysis integration tests');
+        });
+      }
     });
-  }
 
-  // Destructive tests (if enabled)
-  if (testConfig.allowDestructiveTests) {
-    describe('Destructive Operations', () => {
-      test.todo('Project lifecycle management tests');
-      test.todo('Bulk operations integration tests');
+    test('should run destructive tests if enabled', () => {
+      if (testConfig?.allowDestructiveTests) {
+        describe('Destructive Operations', () => {
+          test.todo('Project lifecycle management tests');
+          test.todo('Bulk operations integration tests');
+        });
+      }
     });
-  }
+  });
 
   // Performance and reliability tests
   describe('Performance & Reliability', () => {
@@ -148,7 +146,6 @@ const skipSuite =
   });
 
   afterAll(() => {
-    // eslint-disable-next-line no-console
     console.log('✅ SonarQube Integration Tests Complete');
   });
 });

@@ -17,11 +17,11 @@ export class IntegrationTestClient extends SonarQubeClient {
   public readonly testConfig: TestConfiguration;
 
   constructor(config: IntegrationTestConfig, testConfig: TestConfiguration) {
-    super(config.url, config.token, {
-      organization: config.organization,
-      // Increase timeouts for integration tests
-      timeout: testConfig.defaultTimeout,
-    });
+    super(
+      config.url,
+      config.token,
+      config.organization ? { organization: config.organization } : undefined
+    );
 
     this.config = config;
     this.testConfig = testConfig;
@@ -56,13 +56,13 @@ export class IntegrationTestClient extends SonarQubeClient {
       return {
         platform: this.config.platform,
         version,
-        organization: this.config.organization,
+        ...(this.config.organization && { organization: this.config.organization }),
       };
     } catch {
       // Fallback if version endpoint is not available
       return {
         platform: this.config.platform,
-        organization: this.config.organization,
+        ...(this.config.organization && { organization: this.config.organization }),
       };
     }
   }
@@ -83,24 +83,20 @@ export class IntegrationTestClient extends SonarQubeClient {
   /**
    * Checks if the instance supports a specific feature
    */
-  async supportsFeature(feature: string): Promise<boolean> {
-    try {
-      switch (feature) {
-        case 'organizations':
-          return this.config.isSonarCloud;
-        case 'editions':
-          return !this.config.isSonarCloud;
-        case 'quality-gates':
-        case 'quality-profiles':
-        case 'projects':
-        case 'users':
-        case 'issues':
-          return true;
-        default:
-          return false;
-      }
-    } catch {
-      return false;
+  supportsFeature(feature: string): boolean {
+    switch (feature) {
+      case 'organizations':
+        return this.config.isSonarCloud;
+      case 'editions':
+        return !this.config.isSonarCloud;
+      case 'quality-gates':
+      case 'quality-profiles':
+      case 'projects':
+      case 'users':
+      case 'issues':
+        return true;
+      default:
+        return false;
     }
   }
 
@@ -130,9 +126,10 @@ export class IntegrationTestClient extends SonarQubeClient {
 
     try {
       await this.projects.delete({ project: projectKey });
-    } catch (error) {
+    } catch (error: unknown) {
       // Ignore errors during cleanup
-      console.warn(`Failed to delete test project ${projectKey}:`, error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`Failed to delete test project ${projectKey}:`, errorMessage);
     }
   }
 

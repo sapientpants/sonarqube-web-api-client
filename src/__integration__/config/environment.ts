@@ -11,7 +11,7 @@ export interface IntegrationTestConfig {
   /** Authentication token */
   token: string;
   /** Organization key (required for SonarCloud) */
-  organization?: string;
+  organization: string | undefined;
   /** Detected platform type */
   platform: 'sonarqube' | 'sonarcloud';
   /** Whether this is a SonarCloud instance */
@@ -79,7 +79,7 @@ export function getIntegrationTestConfig(): IntegrationTestConfig {
   return {
     url: url.replace(/\/$/, ''), // Remove trailing slash
     token,
-    organization,
+    organization: organization || undefined,
     platform,
     isSonarCloud,
     hasOrganization: !isSonarCloud || Boolean(organization),

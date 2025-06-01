@@ -45,7 +45,7 @@ const skipTests = !canRunIntegrationTests();
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
         INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-        if (result.users?.length) {
+        if (result.users && result.users.length > 0) {
           INTEGRATION_ASSERTIONS.expectValidUser(result.users[0]);
         }
       },
@@ -56,14 +56,15 @@ const skipTests = !canRunIntegrationTests();
       'should search users with pagination',
       async () => {
         const pageSize = 10;
-        const { result } = await measureTime(async () =>
-          client.users.search().withPageSize(pageSize).withPage(1).execute()
-        );
+        const { result } = await measureTime(async () => {
+          const searchBuilder = client.users.search();
+          return searchBuilder.withPageSize(pageSize).withPage(1).execute();
+        });
 
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
         expect(result.paging.pageSize).toBe(pageSize);
 
-        if (result.users) {
+        if (result.users && result.users.length > 0) {
           expect(result.users.length).toBeLessThanOrEqual(pageSize);
           result.users.forEach((user) => {
             INTEGRATION_ASSERTIONS.expectValidUser(user);
@@ -79,8 +80,7 @@ const skipTests = !canRunIntegrationTests();
         // First get some users to find a query term
         const initialResult = await client.users.search().withPageSize(5).execute();
 
-        if (!initialResult.users?.length) {
-          // eslint-disable-next-line no-console
+        if (!initialResult.users || initialResult.users.length === 0) {
           console.log('ℹ Skipping user query test - no users available');
           return;
         }
@@ -89,16 +89,16 @@ const skipTests = !canRunIntegrationTests();
         const firstUser = initialResult.users[0];
         const query = firstUser.login.substring(0, 3);
 
-        const { result } = await measureTime(async () =>
-          client.users.search().withQuery(query).execute()
-        );
+        const { result } = await measureTime(async () => {
+          const searchBuilder = client.users.search();
+          return searchBuilder.withQuery(query).execute();
+        });
 
         INTEGRATION_ASSERTIONS.expectValidPagination(result);
 
-        if (result.users?.length) {
+        if (result.users && result.users.length > 0) {
           // Note: Search might not always return exact matches due to search algorithm
-          // eslint-disable-next-line no-console
-          console.log(`Search for "${query}" returned ${result.users.length} users`);
+          console.log(`Search for "${query}" returned ${String(result.users.length)} users`);
         }
       },
       TEST_TIMING.normal
@@ -108,7 +108,7 @@ const skipTests = !canRunIntegrationTests();
       'should use async iterator for all users',
       async () => {
         const searchBuilder = client.users.search().withPageSize(5);
-        const users: any[] = [];
+        const users: unknown[] = [];
         let count = 0;
         const maxItems = 15; // Limit to prevent long test execution
 
@@ -134,23 +134,24 @@ const skipTests = !canRunIntegrationTests();
       'should search users with v2 API',
       async () => {
         try {
-          const { result, durationMs } = await measureTime(async () =>
-            client.users.searchV2().execute()
-          );
+          const { result, durationMs } = await measureTime(async () => {
+            const searchBuilder = client.users.searchV2();
+            return searchBuilder.execute();
+          });
 
           expect(result).toHaveProperty('users');
           expect(result).toHaveProperty('page');
           INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-          if (result.users?.length) {
+          if (result.users && result.users.length > 0) {
             const firstUser = result.users[0];
             expect(firstUser).toHaveProperty('id');
             expect(firstUser).toHaveProperty('login');
             expect(firstUser).toHaveProperty('name');
           }
-        } catch (error: any) {
-          if (error.status === 404) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 404) {
             console.log('ℹ Skipping v2 user search test - API not available');
           } else {
             throw error;
@@ -165,20 +166,21 @@ const skipTests = !canRunIntegrationTests();
       async () => {
         try {
           const pageSize = 8;
-          const { result } = await measureTime(async () =>
-            client.users.searchV2().withPageSize(pageSize).withPageIndex(1).execute()
-          );
+          const { result } = await measureTime(async () => {
+            const searchBuilder = client.users.searchV2();
+            return searchBuilder.withPageSize(pageSize).withPageIndex(1).execute();
+          });
 
           expect(result).toHaveProperty('page');
           expect(result.page.pageSize).toBe(pageSize);
           expect(result.page.pageIndex).toBe(1);
 
-          if (result.users) {
+          if (result.users && result.users.length > 0) {
             expect(result.users.length).toBeLessThanOrEqual(pageSize);
           }
-        } catch (error: any) {
-          if (error.status === 404) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 404) {
             console.log('ℹ Skipping v2 user pagination test - API not available');
           } else {
             throw error;
@@ -193,7 +195,7 @@ const skipTests = !canRunIntegrationTests();
       async () => {
         try {
           const searchBuilder = client.users.searchV2().withPageSize(5);
-          const users: any[] = [];
+          const users: unknown[] = [];
           let count = 0;
           const maxItems = 10;
 
@@ -211,9 +213,9 @@ const skipTests = !canRunIntegrationTests();
             expect(user).toHaveProperty('login');
             expect(user).toHaveProperty('name');
           });
-        } catch (error: any) {
-          if (error.status === 404) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 404) {
             console.log('ℹ Skipping v2 user iteration test - API not available');
           } else {
             throw error;
@@ -231,8 +233,7 @@ const skipTests = !canRunIntegrationTests();
         // First get a user to test with
         const usersResult = await client.users.search().withPageSize(1).execute();
 
-        if (!usersResult.users?.length) {
-          // eslint-disable-next-line no-console
+        if (!usersResult.users || usersResult.users.length === 0) {
           console.log('ℹ Skipping user groups test - no users available');
           return;
         }
@@ -253,9 +254,9 @@ const skipTests = !canRunIntegrationTests();
             expect(firstGroup).toHaveProperty('name');
             expect(firstGroup.name).toBeTruthy();
           }
-        } catch (error: any) {
-          if (error.status === 403) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
             console.log('ℹ Skipping user groups test - insufficient permissions');
           } else {
             throw error;
@@ -270,8 +271,7 @@ const skipTests = !canRunIntegrationTests();
       async () => {
         const usersResult = await client.users.search().withPageSize(1).execute();
 
-        if (!usersResult.users?.length) {
-          // eslint-disable-next-line no-console
+        if (!usersResult.users || usersResult.users.length === 0) {
           console.log('ℹ Skipping groups pagination test - no users available');
           return;
         }
@@ -287,12 +287,12 @@ const skipTests = !canRunIntegrationTests();
           expect(result).toHaveProperty('paging');
           expect(result.paging.pageSize).toBe(pageSize);
 
-          if (result.groups) {
+          if (result.groups && result.groups.length > 0) {
             expect(result.groups.length).toBeLessThanOrEqual(pageSize);
           }
-        } catch (error: any) {
-          if (error.status === 403) {
-            // eslint-disable-next-line no-console
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 403) {
             console.log('ℹ Skipping groups pagination test - insufficient permissions');
           } else {
             throw error;
@@ -311,9 +311,10 @@ const skipTests = !canRunIntegrationTests();
 
         try {
           await client.users.groups().withLogin(invalidLogin).execute();
-        } catch (error: any) {
-          expect(error.status).toBe(404);
-          INTEGRATION_ASSERTIONS.expectNotFoundError(error);
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          expect(errorObj.status).toBe(404);
+          INTEGRATION_ASSERTIONS.expectNotFoundError(errorObj);
         }
       },
       TEST_TIMING.fast
@@ -352,13 +353,11 @@ const skipTests = !canRunIntegrationTests();
           expect(v1Result).toHaveProperty('paging');
           expect(v2Result).toHaveProperty('page');
 
-          // eslint-disable-next-line no-console
-          console.log(`✓ v1 API returned ${(v1Result.users ?? []).length} users`);
-          // eslint-disable-next-line no-console
-          console.log(`✓ v2 API returned ${(v2Result.users ?? []).length} users`);
-        } catch (error: any) {
-          if (error.status === 404) {
-            // eslint-disable-next-line no-console
+          console.log(`✓ v1 API returned ${String((v1Result.users ?? []).length)} users`);
+          console.log(`✓ v2 API returned ${String((v2Result.users ?? []).length)} users`);
+        } catch (error: unknown) {
+          const errorObj = error as { status?: number };
+          if (errorObj.status === 404) {
             console.log('ℹ Skipping API comparison - v2 API not available');
           } else {
             throw error;

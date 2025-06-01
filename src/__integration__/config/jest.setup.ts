@@ -31,7 +31,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Custom jest matchers for integration tests
 expect.extend({
-  toBeValidSonarQubeResponse(received) {
+  toBeValidSonarQubeResponse(received): jest.CustomMatcherResult {
     const pass = received && typeof received === 'object';
     if (pass) {
       return {
@@ -46,13 +46,13 @@ expect.extend({
     }
   },
 
-  toHaveValidPagination(received) {
+  toHaveValidPagination(received): jest.CustomMatcherResult {
     const hasPaging = received?.paging;
     const hasValidStructure =
       hasPaging &&
-      typeof received.paging.pageIndex === 'number' &&
-      typeof received.paging.pageSize === 'number' &&
-      typeof received.paging.total === 'number';
+      typeof hasPaging.pageIndex === 'number' &&
+      typeof hasPaging.pageSize === 'number' &&
+      typeof hasPaging.total === 'number';
 
     if (hasValidStructure) {
       return {
@@ -72,8 +72,8 @@ expect.extend({
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toBeValidSonarQubeResponse(): R;
-      toHaveValidPagination(): R;
+      toBeValidSonarQubeResponse: () => R;
+      toHaveValidPagination: () => R;
     }
   }
 }

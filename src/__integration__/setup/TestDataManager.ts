@@ -58,8 +58,9 @@ export class TestDataManager {
 
       console.log(`✓ Created test project: ${projectKey}`);
       return project;
-    } catch (error) {
-      console.error(`✗ Failed to create test project ${projectKey}:`, error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`✗ Failed to create test project ${projectKey}:`, errorMessage);
       throw error;
     }
   }
@@ -70,15 +71,17 @@ export class TestDataManager {
   async findExistingProject(): Promise<string | null> {
     try {
       const searchBuilder = this.client.projects.search();
-      const response = await searchBuilder.withPageSize(1).execute();
+      const response = await searchBuilder.pageSize(1).execute();
 
       if (response.components && response.components.length > 0) {
-        return response.components[0].key;
+        const firstComponent = response.components[0] as { key: string };
+        return firstComponent.key;
       }
 
       return null;
-    } catch (error) {
-      console.warn('Failed to find existing project:', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn('Failed to find existing project:', errorMessage);
       return null;
     }
   }
@@ -142,9 +145,10 @@ export class TestDataManager {
         try {
           await this.client.deleteTestProject(project.key);
           console.log(`✓ Cleaned up test project: ${project.key}`);
-        } catch (error) {
+        } catch (error: unknown) {
           cleanupErrors++;
-          console.warn(`✗ Failed to cleanup project ${project.key}:`, error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          console.warn(`✗ Failed to cleanup project ${project.key}:`, errorMessage);
         }
       }
     }
@@ -153,10 +157,10 @@ export class TestDataManager {
     const totalItems = this.testData.projects.length;
     if (totalItems > 0) {
       if (cleanupErrors === 0) {
-        console.log(`✓ Successfully cleaned up all ${totalItems} test items`);
+        console.log(`✓ Successfully cleaned up all ${String(totalItems)} test items`);
       } else {
         console.warn(
-          `⚠ Cleaned up ${totalItems - cleanupErrors}/${totalItems} test items (${cleanupErrors} errors)`
+          `⚠ Cleaned up ${String(totalItems - cleanupErrors)}/${String(totalItems)} test items (${String(cleanupErrors)} errors)`
         );
       }
     }

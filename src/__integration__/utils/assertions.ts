@@ -87,7 +87,8 @@ export const INTEGRATION_ASSERTIONS = {
    */
   expectValidPagination(response: PaginatedResponse): void {
     expect(response).toHaveProperty('paging');
-    expect(response.paging).toMatchObject({
+    const { paging } = response;
+    expect(paging).toMatchObject({
       pageIndex: expect.any(Number),
       pageSize: expect.any(Number),
       total: expect.any(Number),

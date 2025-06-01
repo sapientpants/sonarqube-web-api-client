@@ -135,22 +135,22 @@ export function getTestConfiguration(_envConfig: IntegrationTestConfig): TestCon
   const config = { ...DEFAULT_TEST_CONFIG };
 
   // Override from environment variables
-  if (process.env.INTEGRATION_TEST_TIMEOUT?.trim()) {
-    config.defaultTimeout = parseInt(process.env.INTEGRATION_TEST_TIMEOUT, 10);
+  if (process.env['INTEGRATION_TEST_TIMEOUT']?.trim()) {
+    config.defaultTimeout = parseInt(process.env['INTEGRATION_TEST_TIMEOUT'], 10);
   }
 
-  if (process.env.INTEGRATION_TEST_MAX_RETRIES?.trim()) {
-    config.maxRetries = parseInt(process.env.INTEGRATION_TEST_MAX_RETRIES, 10);
+  if (process.env['INTEGRATION_TEST_MAX_RETRIES']?.trim()) {
+    config.maxRetries = parseInt(process.env['INTEGRATION_TEST_MAX_RETRIES'], 10);
   }
 
   // Enable destructive tests only if explicitly requested
-  config.allowDestructiveTests = process.env.INTEGRATION_TEST_DESTRUCTIVE === 'true';
+  config.allowDestructiveTests = process.env['INTEGRATION_TEST_DESTRUCTIVE'] === 'true';
 
   // Enable admin tests only if explicitly requested
-  config.runAdminTests = process.env.INTEGRATION_TEST_ADMIN === 'true';
+  config.runAdminTests = process.env['INTEGRATION_TEST_ADMIN'] === 'true';
 
   // Enable enterprise tests only if explicitly requested
-  config.runEnterpriseTests = process.env.INTEGRATION_TEST_ENTERPRISE === 'true';
+  config.runEnterpriseTests = process.env['INTEGRATION_TEST_ENTERPRISE'] === 'true';
 
   return config;
 }

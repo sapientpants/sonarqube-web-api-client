@@ -39,6 +39,10 @@ const enabledCategories =
 
   // Core APIs - Always available on SonarQube
   describe('Core APIs', () => {
+    // Authentication API - Token validation
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/authentication/authentication.integration.test.ts');
+
     // System API - Basic connectivity and health
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/system/system.integration.test.ts');
@@ -54,25 +58,21 @@ const enabledCategories =
 
   // Analysis APIs - Code analysis and quality
   describe('Analysis APIs', () => {
-    // These would be loaded conditionally based on enabled categories
-    const hasIssuesCategory = enabledCategories.some((c) => c.name === 'Issues');
-    const hasQualityGatesCategory = enabledCategories.some((c) => c.name === 'Quality Gates');
-    const hasMeasuresCategory = enabledCategories.some((c) => c.name === 'Measures');
+    // Core analysis APIs - always available
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/issues/issues.integration.test.ts');
 
-    if (hasIssuesCategory) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('../api/issues/issues.integration.test.ts');
-    }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/quality-gates/quality-gates.integration.test.ts');
 
-    if (hasQualityGatesCategory) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('../api/quality-gates/quality-gates.integration.test.ts');
-    }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/measures/measures.integration.test.ts');
 
-    if (hasMeasuresCategory) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('../api/measures/measures.integration.test.ts');
-    }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/quality-profiles/quality-profiles.integration.test.ts');
+
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/rules/rules.integration.test.ts');
   });
 
   // SonarQube-specific APIs

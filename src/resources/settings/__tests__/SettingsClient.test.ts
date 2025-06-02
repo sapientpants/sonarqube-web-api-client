@@ -45,6 +45,7 @@ describe('SettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listDefinitions();
       expect(result).toEqual(mockResponse);
     });
@@ -71,6 +72,7 @@ describe('SettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listDefinitions({ component: 'my_project' });
       expect(result).toEqual(mockResponse);
     });
@@ -311,6 +313,7 @@ describe('SettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.values().execute();
       expect(result).toEqual(mockResponse);
     });
@@ -338,6 +341,7 @@ describe('SettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .values()
         .keys(['sonar.test.inclusions', 'sonar.exclusions'])
@@ -366,6 +370,7 @@ describe('SettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.values().component('my_project').execute();
       expect(result).toEqual(mockResponse);
     });
@@ -393,6 +398,7 @@ describe('SettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.values().organization('my-org').execute();
       expect(result).toEqual(mockResponse);
     });

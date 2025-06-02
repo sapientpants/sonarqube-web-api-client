@@ -57,6 +57,7 @@ describe('Authorizations Builders', () => {
         };
         mockExecute.mockResolvedValue(mockResponse);
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.query('test').managed(false).execute();
 
         expect(mockExecute).toHaveBeenCalledWith({
@@ -175,6 +176,7 @@ describe('Authorizations Builders', () => {
         };
         mockExecute.mockResolvedValue(mockResponse);
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.groupId('group-1').query('john').execute();
 
         expect(mockExecute).toHaveBeenCalledWith({

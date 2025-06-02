@@ -75,6 +75,7 @@ describe('CompatibilityBridge', () => {
       ];
 
       const wrapped = CompatibilityBridge.withCompatibility(client, mappings);
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await wrapped.users.search();
 
       expect(result).toEqual({
@@ -217,6 +218,7 @@ describe('CompatibilityBridge', () => {
       };
 
       const wrapped = CompatibilityBridge.withCompatibility(client);
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await wrapped.users.search({ ps: 10, p: 1 });
 
       expect(client.users.searchV2).toHaveBeenCalledWith({

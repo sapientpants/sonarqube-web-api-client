@@ -176,6 +176,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
       }
 
       try {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.qualityGates.getProjectStatus({ projectKey: testProjectKey });
 
         // New projects without analysis might have NONE status
@@ -367,6 +368,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
     test('should handle transient failures with retry', async () => {
       const operation = async (): Promise<unknown> => client.qualityGates.list();
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await withRetry(operation, {
         maxAttempts: testConfig?.maxRetries ?? 3,
         delayMs: testConfig?.retryDelay ?? 1000,

@@ -119,8 +119,9 @@ export interface SearchMetricsParams {
   /**
    * Comma-separated list of the fields to be returned in response.
    * All the fields are returned by default.
+   * Can be a string (comma-separated) or an array of strings.
    */
-  f?: string[];
+  f?: string[] | string;
 
   /**
    * Filter on custom metrics or not

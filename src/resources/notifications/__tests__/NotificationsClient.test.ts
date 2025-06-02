@@ -113,6 +113,7 @@ describe('NotificationsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
       expect(result).toEqual(mockResponse);
     });
@@ -127,6 +128,7 @@ describe('NotificationsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({
         login: 'john.doe',
       });
@@ -155,6 +157,7 @@ describe('NotificationsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
       expect(result.notifications).toHaveLength(0);
     });

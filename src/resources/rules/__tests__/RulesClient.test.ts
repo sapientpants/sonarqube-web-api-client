@@ -14,6 +14,7 @@ describe('RulesClient', () => {
 
   describe('listRepositories', () => {
     it('should list all rule repositories', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listRepositories();
 
       expect(result.repositories).toHaveLength(4);
@@ -25,6 +26,7 @@ describe('RulesClient', () => {
     });
 
     it('should filter repositories by language', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listRepositories({ language: 'java' });
 
       expect(result.repositories).toHaveLength(2);
@@ -33,6 +35,7 @@ describe('RulesClient', () => {
     });
 
     it('should filter repositories by query', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listRepositories({ q: 'squid' });
 
       expect(result.repositories).toHaveLength(1);
@@ -46,6 +49,7 @@ describe('RulesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listRepositories({ language: 'unknown' });
       expect(result.repositories).toHaveLength(0);
     });
@@ -58,6 +62,7 @@ describe('RulesClient', () => {
     });
 
     it('should execute search with various parameters', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .withLanguages(['java', 'javascript'])
@@ -101,6 +106,7 @@ describe('RulesClient', () => {
     });
 
     it('should handle search with empty arrays', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .withLanguages([])
@@ -115,6 +121,7 @@ describe('RulesClient', () => {
     });
 
     it('should handle search with minimal parameters', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().execute();
 
       // Should return the expected response structure
@@ -128,6 +135,7 @@ describe('RulesClient', () => {
 
   describe('show', () => {
     it('should get detailed rule information', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'java:S1234',
         organization: 'my-org',
@@ -139,6 +147,7 @@ describe('RulesClient', () => {
     });
 
     it('should include activations when requested', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'java:S1234',
         organization: 'my-org',
@@ -170,6 +179,7 @@ describe('RulesClient', () => {
 
   describe('listTags', () => {
     it('should list all rule tags', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listTags({
         organization: 'my-org',
       });
@@ -178,6 +188,7 @@ describe('RulesClient', () => {
     });
 
     it('should filter tags by query', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listTags({
         organization: 'my-org',
         q: 'sec',
@@ -187,6 +198,7 @@ describe('RulesClient', () => {
     });
 
     it('should respect page size parameter', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listTags({
         organization: 'my-org',
         ps: 2,
@@ -198,6 +210,7 @@ describe('RulesClient', () => {
 
   describe('update', () => {
     it('should update a rule successfully', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.update({
         key: 'java:S1234',
         organization: 'my-org',
@@ -213,6 +226,7 @@ describe('RulesClient', () => {
     });
 
     it('should update rule description', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.update({
         key: 'java:S1234',
         organization: 'my-org',
@@ -224,6 +238,7 @@ describe('RulesClient', () => {
     });
 
     it('should update rule note', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.update({
         key: 'java:S1234',
         organization: 'my-org',
@@ -235,6 +250,7 @@ describe('RulesClient', () => {
     });
 
     it('should update remediation function', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.update({
         key: 'java:S1234',
         organization: 'my-org',
@@ -250,6 +266,7 @@ describe('RulesClient', () => {
     });
 
     it('should update rule with params', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.update({
         key: 'java:S1234',
         organization: 'my-org',
@@ -261,6 +278,7 @@ describe('RulesClient', () => {
     });
 
     it('should update rule status', async () => {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.update({
         key: 'java:S1234',
         organization: 'my-org',

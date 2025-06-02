@@ -205,6 +205,7 @@ describe('Enhanced Deprecation System', () => {
         },
       ]);
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await proxied.getItems();
       expect(result).toEqual({ items: ['a', 'b'] });
     });

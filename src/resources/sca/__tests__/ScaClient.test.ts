@@ -100,6 +100,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getSbomReportV2({
         projectKey: 'my-project',
       });
@@ -330,6 +331,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getSbomReportV2({
         projectKey: 'my-project',
         includeVulnerabilities: true,
@@ -406,6 +408,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getSbomReportV2({
         projectKey: 'my-project',
         includeLicenses: true,
@@ -468,6 +471,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getSbomReportV2({
         projectKey: 'empty-project',
       });
@@ -508,6 +512,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.downloadSbomReportV2({
         projectKey: 'my-project',
         format: 'json',
@@ -536,6 +541,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.downloadSbomReportV2({
         projectKey: 'my-project',
         format: 'spdx-json',
@@ -564,6 +570,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.downloadSbomReportV2({
         projectKey: 'my-project',
         format: 'cyclonedx-json',
@@ -591,6 +598,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.downloadSbomReportV2({
         projectKey: 'my-project',
         format: 'spdx-rdf',
@@ -706,6 +714,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getSbomMetadataV2({
         projectKey: 'my-project',
         branch: 'main',
@@ -811,6 +820,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getVulnerabilitySummaryV2({
         projectKey: 'my-project',
       });
@@ -837,6 +847,7 @@ describe('ScaClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.sca.getVulnerabilitySummaryV2({
         projectKey: 'secure-project',
       });

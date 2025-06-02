@@ -46,6 +46,10 @@ const enabledCategories =
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/system/system.integration.test.ts');
 
+    // Server API - Version and server information
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/server/server.integration.test.ts');
+
     // Projects API - Project management
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/projects/projects.integration.test.ts');
@@ -53,6 +57,25 @@ const enabledCategories =
     // Users API - User search and management
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/users/users.integration.test.ts');
+  });
+
+  // Foundation APIs - Basic platform information
+  describe('Foundation APIs', () => {
+    // Languages API - Programming language support
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/languages/languages.integration.test.ts');
+
+    // Metrics API - Available code metrics
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/metrics/metrics.integration.test.ts');
+
+    // Editions API - License information (SonarQube only)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/editions/editions.integration.test.ts');
+
+    // Notifications API - User notification preferences
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/notifications/notifications.integration.test.ts');
   });
 
   // Analysis APIs - Code analysis and quality
@@ -72,6 +95,68 @@ const enabledCategories =
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../api/rules/rules.integration.test.ts');
+  });
+
+  // Code Analysis APIs - Source code and quality analysis
+  describe('Code Analysis APIs', () => {
+    // Components API - Project structure and component search
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/components/components.integration.test.ts');
+
+    // Sources API - Source code viewing and SCM information
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/sources/sources.integration.test.ts');
+
+    // Hotspots API - Security hotspot management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/hotspots/hotspots.integration.test.ts');
+
+    // Duplications API - Code duplication detection
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/duplications/duplications.integration.test.ts');
+
+    // Analysis API - Project analysis history and details
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/analysis/analysis.integration.test.ts');
+
+    // Analysis Cache API - Analysis cache management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/analysis-cache/analysis-cache.integration.test.ts');
+  });
+
+  // Project Management APIs - Project-level operations
+  describe('Project Management APIs', () => {
+    // Project Analyses API - Project analysis history management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-analyses/project-analyses.integration.test.ts');
+
+    // Project Branches API - Branch analysis management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-branches/project-branches.integration.test.ts');
+
+    // Project Pull Requests API - PR analysis management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-pull-requests/project-pull-requests.integration.test.ts');
+
+    // New Code Periods API - New code period configuration
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/new-code-periods/new-code-periods.integration.test.ts');
+
+    // Project Badges API - Badge generation
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-badges/project-badges.integration.test.ts');
+
+    // Project Links API - External link management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-links/project-links.integration.test.ts');
+
+    // Project Tags API - Project tagging and categorization
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-tags/project-tags.integration.test.ts');
+
+    // Project Dump API - Project export and backup
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/project-dump/project-dump.integration.test.ts');
   });
 
   // SonarQube-specific APIs
@@ -105,12 +190,35 @@ const enabledCategories =
     });
   });
 
-  // Administrative APIs - Always available (assumes admin permissions)
-  describe('Administrative APIs', () => {
-    test.todo('User management integration tests');
-    test.todo('Group management integration tests');
-    test.todo('Permission management integration tests');
-    test.todo('Settings management integration tests');
+  // Administration APIs
+  describe('Administration APIs', () => {
+    // Permissions API - Global and project permission management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/permissions/permissions.integration.test.ts');
+
+    // Settings API - Global and project-level configuration management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/settings/settings.integration.test.ts');
+
+    // User Tokens API - User authentication token management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/user-tokens/user-tokens.integration.test.ts');
+
+    // Webhooks API - Webhook notification management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/webhooks/webhooks.integration.test.ts');
+
+    // Favorites API - User favorite component management
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/favorites/favorites.integration.test.ts');
+
+    // Views API - Portfolio and application view management (Enterprise)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/views/views.integration.test.ts');
+
+    // Webservices API - API discovery and documentation
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../api/webservices/webservices.integration.test.ts');
   });
 
   (testConfig?.runEnterpriseTests ? describe : describe.skip)('Enterprise APIs', () => {

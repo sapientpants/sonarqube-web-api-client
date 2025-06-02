@@ -20,3 +20,18 @@ export interface SetLicenseRequest {
    */
   license: string;
 }
+
+/**
+ * Response from getting edition status
+ */
+export interface EditionStatusResponse {
+  /**
+   * Current edition key (community, developer, enterprise, datacenter)
+   */
+  currentEditionKey: string;
+
+  /**
+   * Installation status for the current edition
+   */
+  installationStatus?: string;
+}

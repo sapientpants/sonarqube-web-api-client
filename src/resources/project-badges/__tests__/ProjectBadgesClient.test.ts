@@ -35,6 +35,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.aiCodeAssurance({ project: 'my-project' });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });
@@ -51,6 +52,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.aiCodeAssurance({
         project: 'my-project',
         token: 'badge-token',
@@ -102,6 +104,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.measure({
         project: 'my-project',
         metric: 'coverage',
@@ -122,6 +125,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.measure({
         project: 'my-project',
         metric: 'bugs',
@@ -158,6 +162,7 @@ describe('ProjectBadgesClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.measure({
           project: 'my-project',
           metric,
@@ -196,6 +201,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.qualityGate({ project: 'my-project' });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });
@@ -213,6 +219,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.qualityGate({
         project: 'my-project',
         branch: 'main',
@@ -244,6 +251,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.qualityGate({ project: 'my-project' });
       expect(result).toBe('');
     });
@@ -262,6 +270,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.qualityGate({ project: projectName });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });

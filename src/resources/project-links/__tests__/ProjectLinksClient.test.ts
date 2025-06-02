@@ -36,6 +36,7 @@ describe('ProjectLinksClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         projectKey: 'my-project',
         name: 'Documentation',
@@ -68,6 +69,7 @@ describe('ProjectLinksClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         projectId: 'AU-Tpxb--iU5OvuD2FLy',
         name: 'Issue Tracker',
@@ -131,6 +133,7 @@ describe('ProjectLinksClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search({ projectKey: 'my-project' });
 
       expect(result).toEqual(mockResponse);
@@ -158,6 +161,7 @@ describe('ProjectLinksClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search({ projectId: 'AU-Tpxb--iU5OvuD2FLy' });
 
       expect(result).toEqual(mockResponse);

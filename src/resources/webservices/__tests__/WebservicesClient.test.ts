@@ -116,6 +116,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
       expect(result).toEqual(mockResponse);
       expect(result.webServices).toHaveLength(2);
@@ -134,6 +135,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
       expect(result.webServices).toEqual([]);
     });
@@ -165,6 +167,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.list();
       expect(result).toEqual(mockResponse);
     });
@@ -280,6 +283,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.responseExample({
         controller: 'api/issues',
         action: 'search',
@@ -305,6 +309,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.responseExample({
         controller: 'api/authentication',
         action: 'validate',
@@ -325,6 +330,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.responseExample({
         controller: 'api/system',
         action: 'ping',
@@ -420,6 +426,7 @@ describe('WebservicesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.responseExample({
         controller: 'api/special chars & symbols',
         action: 'test action',

@@ -37,6 +37,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
 
       expect(result).toEqual(mockResponse);
@@ -79,6 +80,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
 
       expect(result.tags).toEqual([]);
@@ -96,6 +98,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search({ q: 'off' });
 
       expect(result.tags).toHaveLength(2);

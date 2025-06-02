@@ -3,13 +3,14 @@
  */
 
 export { ComponentsClient } from './ComponentsClient';
-export { ComponentsTreeBuilder } from './builders';
+export { ComponentsTreeBuilder, ComponentsSearchBuilder } from './builders';
 export type {
   Component,
   ComponentShowRequest,
   ComponentShowResponse,
   ComponentSearchRequest,
   ComponentSearchResponse,
+  ComponentGlobalSearchRequest,
   ComponentTreeRequest,
   ComponentTreeResponse,
   BooleanString,

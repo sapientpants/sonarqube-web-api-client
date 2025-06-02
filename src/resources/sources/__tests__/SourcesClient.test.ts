@@ -40,6 +40,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.raw({ key: 'my_project:src/hello.ts' });
       expect(result).toBe(mockSourceCode);
     });
@@ -63,6 +64,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.raw({
         key: 'my_project:src/main.ts',
         branch: 'feature/new-feature',
@@ -89,6 +91,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.raw({
         key: 'my_project:src/test.ts',
         pullRequest: '123',
@@ -108,6 +111,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.raw({ key: 'my_project:src/empty.ts' });
       expect(result).toBe('');
     });
@@ -128,6 +132,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.raw({ key: 'public_project:src/code.ts' });
       expect(result).toBe(mockSourceCode);
     });
@@ -181,6 +186,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.scm({ key: 'my_project:src/app.ts' });
       expect(result).toEqual(mockResponse);
     });
@@ -210,6 +216,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.scm({
         key: 'my_project:src/component.ts',
         commitsByLine: true,
@@ -242,6 +249,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.scm({
         key: 'my_project:src/file.ts',
         commitsByLine: false,
@@ -260,6 +268,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.scm({ key: 'my_project:src/new-file.ts' });
       expect(result).toEqual(mockResponse);
     });
@@ -327,6 +336,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({ key: 'my_project:src/MyComponent.tsx' });
       expect(result).toEqual(mockResponse);
     });
@@ -361,6 +371,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:src/utils.ts',
         from: 10,
@@ -397,6 +408,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({ key: 'my_project:src/whitespace.ts' });
       expect(result).toEqual(mockResponse);
     });
@@ -412,6 +424,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({ key: 'my_project:src/empty.ts' });
       expect(result).toEqual(mockResponse);
     });
@@ -433,6 +446,7 @@ describe('SourcesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.show({ key: 'public_project:src/public.ts' });
       expect(result).toEqual(mockResponse);
     });

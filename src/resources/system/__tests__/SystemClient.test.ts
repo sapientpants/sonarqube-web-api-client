@@ -34,6 +34,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.health();
       expect(result).toEqual(mockResponse);
     });
@@ -50,6 +51,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.health();
       expect(result.health).toBe('YELLOW');
       expect(result.causes).toHaveLength(2);
@@ -68,6 +70,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.health();
       expect(result.health).toBe('RED');
       expect(result.causes).toContain('Database connection lost');
@@ -107,6 +110,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.status();
       expect(result).toEqual(mockResponse);
     });
@@ -124,6 +128,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.status();
       expect(result.status).toBe('DOWN');
     });
@@ -141,6 +146,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.status();
       expect(result.status).toBe('STARTING');
     });
@@ -158,6 +164,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.status();
       expect(result.status).toBe('DB_MIGRATION_RUNNING');
     });
@@ -176,6 +183,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.status();
       expect(result).toEqual(mockResponse);
     });
@@ -195,6 +203,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.ping();
       expect(result).toBe('pong');
     });
@@ -212,6 +221,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.ping();
       expect(result).toBe('pong');
     });
@@ -273,6 +283,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.info();
       expect(result['System Date']).toBe('2024-01-15T10:30:00+0000');
       expect(result.Database).toEqual({
@@ -293,6 +304,7 @@ describe('SystemClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.info();
       expect(result['System Date']).toBe('2024-01-15T10:30:00+0000');
       expect(result.Database).toBeUndefined();
@@ -350,6 +362,7 @@ describe('SystemClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.getHealthV2();
         expect(result).toEqual(mockResponse);
         expect(result.status).toBe('GREEN');
@@ -372,6 +385,7 @@ describe('SystemClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.getHealthV2();
         expect(result.status).toBe('YELLOW');
         expect(result.nodes).toHaveLength(3);
@@ -392,6 +406,7 @@ describe('SystemClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.getHealthV2();
         expect(result.status).toBe('RED');
         expect(result.nodes?.[0].causes).toContain('Database connection lost');

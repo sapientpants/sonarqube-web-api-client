@@ -55,6 +55,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().query('john').execute();
 
       expect(result.users).toHaveLength(1);
@@ -97,6 +98,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().ids(['uuid-1', 'uuid-2']).execute();
 
       expect(result.users).toHaveLength(2);
@@ -123,6 +125,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().page(2).pageSize(10).execute();
 
       expect(result.page.pageIndex).toBe(2);
@@ -156,6 +159,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().active(true).execute();
 
       expect(result.users[0].active).toBe(true);
@@ -189,6 +193,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().includeExternalProvider(true).execute();
 
       expect(result.users[0].externalProvider).toBe('github');
@@ -212,6 +217,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().execute();
 
       expect(result.users).toHaveLength(0);
@@ -245,6 +251,7 @@ describe('UsersClient V2 API', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchV2().execute();
 
       expect(result.users).toHaveLength(1);

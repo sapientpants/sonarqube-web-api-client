@@ -1,16 +1,13 @@
 import { PermissionsClient } from '../PermissionsClient';
 import {
+  SearchGlobalPermissionsBuilder,
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
 } from '../builders';
 import { server } from '../../../test-utils/msw/server';
 import { http, HttpResponse } from 'msw';
-import type {
-  CreateTemplateResponse,
-  UpdateTemplateResponse,
-  SearchGlobalPermissionsResponse,
-} from '../types';
+import type { CreateTemplateResponse, UpdateTemplateResponse } from '../types';
 
 const mockBaseUrl = 'https://sonarqube.example.com';
 const mockToken = 'test-token';
@@ -304,6 +301,7 @@ describe('PermissionsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createTemplate({
         name: 'Mobile Projects Template',
         description: 'Template for mobile application projects',
@@ -337,6 +335,7 @@ describe('PermissionsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.updateTemplate({
         id: 'template-uuid',
         name: 'Updated Template Name',
@@ -405,26 +404,9 @@ describe('PermissionsClient', () => {
   // ============================================================================
 
   describe('searchGlobalPermissions', () => {
-    it('should search global permissions', async () => {
-      const mockResponse: SearchGlobalPermissionsResponse = {
-        permissions: ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'],
-      };
-
-      server.use(
-        http.get(`${mockBaseUrl}/api/permissions/search_global_permissions`, ({ request }) => {
-          const url = new URL(request.url);
-          expect(url.searchParams.get('organization')).toBe('my-org');
-          return HttpResponse.json(mockResponse);
-        })
-      );
-
-      const result = await client.searchGlobalPermissions({
-        organization: 'my-org',
-      });
-
-      expect(result.permissions).toHaveLength(5);
-      expect(result.permissions).toContain('admin');
-      expect(result.permissions).toContain('scan');
+    it('should return a SearchGlobalPermissionsBuilder instance', () => {
+      const builder = client.searchGlobalPermissions();
+      expect(builder).toBeInstanceOf(SearchGlobalPermissionsBuilder);
     });
   });
 

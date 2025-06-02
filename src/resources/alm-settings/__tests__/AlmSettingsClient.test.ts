@@ -25,6 +25,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.countBinding({ almSetting: 'my-github' });
       expect(result).toEqual({ projects: 5 });
     });
@@ -234,6 +235,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
       expect(result).toEqual(mockResponse);
     });
@@ -251,6 +253,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ project: 'my-project' });
       expect(result).toEqual(mockResponse);
     });
@@ -270,6 +273,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listDefinitions();
       expect(result).toEqual(mockResponse);
     });
@@ -292,6 +296,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getBinding({ project: 'my-project' });
       expect(result).toEqual(mockResponse);
     });
@@ -450,6 +455,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validate({ key: 'my-alm' });
       expect(result).toEqual(mockResponse);
     });
@@ -466,6 +472,7 @@ describe('AlmSettingsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validate({ key: 'my-alm' });
       expect(result).toEqual(mockResponse);
     });

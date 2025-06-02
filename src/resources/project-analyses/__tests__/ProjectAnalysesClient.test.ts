@@ -29,6 +29,7 @@ describe('ProjectAnalysesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createEvent({
         analysis: 'AU-Tpxb--iU5OvuD2FLy',
         category: 'VERSION',
@@ -58,6 +59,7 @@ describe('ProjectAnalysesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createEvent({
         analysis: 'AU-Tpxb--iU5OvuD2FLy',
         name: 'Deployment',
@@ -173,6 +175,7 @@ describe('ProjectAnalysesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .project('my-project')
@@ -318,6 +321,7 @@ describe('ProjectAnalysesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.updateEvent({
         event: 'AU-TpxcA-iU5OvuD2FL5',
         name: '5.6.1',

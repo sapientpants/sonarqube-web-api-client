@@ -56,6 +56,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.bulkUpdateKey({
         project: 'my_old_project',
         from: 'my_old_',
@@ -83,6 +84,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.bulkUpdateKey({
         project: 'my_old_project',
         from: 'my_old_',
@@ -117,6 +119,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         project: 'my-project',
         name: 'My Project',
@@ -181,6 +184,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.exportFindings({
         project: 'my-project',
         branch: 'main',
@@ -203,6 +207,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.exportFindings({
         project: 'my-project',
         pullRequest: '123',
@@ -238,6 +243,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getContainsAiCode({
         project: 'my-project',
       });
@@ -272,6 +278,7 @@ describe('ProjectsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.licenseUsage();
 
       expect(result).toEqual(mockResponse);

@@ -83,6 +83,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValue(expectedResponse);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBoundProjectV2(request);
 
       // Assert
@@ -151,6 +152,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValue(expectedResponse);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBoundProjectV2(request);
 
       // Assert
@@ -212,6 +214,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValue(expectedResponse);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBoundProjectV2(request);
 
       // Assert
@@ -277,6 +280,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValue(expectedResponse);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBoundProjectV2(request);
 
       // Assert
@@ -439,6 +443,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValue(expectedResponse);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getDopSettingsV2();
 
       // Assert
@@ -460,6 +465,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValue(expectedResponse);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getDopSettingsV2();
 
       // Assert
@@ -550,6 +556,7 @@ describe('DopTranslationClient', () => {
       mockRequest.mockResolvedValueOnce(mockResponses[0]).mockResolvedValueOnce(mockResponses[1]);
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBoundProjectsBatch(batchRequest);
 
       // Assert
@@ -630,6 +637,7 @@ describe('DopTranslationClient', () => {
       // The second request will fail validation before making the HTTP request
 
       // Act
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBoundProjectsBatch(batchRequest);
 
       // Assert

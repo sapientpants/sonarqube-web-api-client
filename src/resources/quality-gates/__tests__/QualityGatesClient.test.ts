@@ -29,6 +29,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.get({ id: '1' });
       expect(result).toEqual(mockResponse);
     });
@@ -65,6 +66,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
       expect(result).toEqual(mockResponse);
     });
@@ -87,6 +89,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({ name: 'New Gate' });
       expect(result).toEqual(mockResponse);
     });
@@ -151,6 +154,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.copy({ id: '1', name: 'Copy of Sonar way' });
       expect(result).toEqual(mockResponse);
     });
@@ -252,6 +256,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getProjects({ gateId: '1' });
       expect(result).toEqual(mockResponse);
     });
@@ -348,6 +353,7 @@ describe('QualityGatesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getProjectStatus({ projectKey: 'my-project' });
       expect(result).toEqual(mockResponse);
     });

@@ -81,7 +81,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
         return;
       }
 
-      const { result, durationMs } = await measureTime(() =>
+      const { result, durationMs } = await measureTime(async () =>
         client.issues.search().componentKeys([testProjectKey]).execute()
       );
 
@@ -149,7 +149,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
         return;
       }
 
-      const { result, durationMs } = await measureTime(() =>
+      const { result, durationMs } = await measureTime(async () =>
         client.issues.search().organization(envConfig.organization).pageSize(10).execute()
       );
 
@@ -321,6 +321,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
     test('should handle transient failures with retry', async () => {
       const operation = async (): Promise<unknown> => client.issues.search().pageSize(5).execute();
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await withRetry(operation, {
         maxAttempts: testConfig?.maxRetries ?? 3,
         delayMs: testConfig?.retryDelay ?? 1000,

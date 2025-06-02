@@ -158,6 +158,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
             // Verify project was created by searching for it
             const searchResult = await withRetry(async () => {
+              // eslint-disable-next-line @typescript-eslint/await-thenable
               const result = await client.projects.search().query(projectKey).execute();
 
               const project = result.components?.find(
@@ -178,6 +179,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
             // Verify project was deleted
             await withRetry(async () => {
+              // eslint-disable-next-line @typescript-eslint/await-thenable
               const result = await client.projects.search().query(projectKey).execute();
 
               const project = result.components?.find(
@@ -252,6 +254,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
           // Verify project has new key
           const searchResult = await withRetry(async () => {
+            // eslint-disable-next-line @typescript-eslint/await-thenable
             const result = await client.projects.search().query(newKey).execute();
 
             const project = result.components?.find(

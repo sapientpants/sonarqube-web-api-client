@@ -46,6 +46,7 @@ describe('LanguagesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
 
       expect(result).toEqual(mockResponse);
@@ -88,6 +89,7 @@ describe('LanguagesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list();
 
       expect(result.languages).toEqual([]);
@@ -105,6 +107,7 @@ describe('LanguagesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ q: 'j' });
 
       expect(result.languages).toHaveLength(2);

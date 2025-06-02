@@ -110,6 +110,7 @@ describe('V2BaseClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.testRequestV2<typeof responseData>('/api/v2/test');
       expect(result).toEqual(responseData);
     });
@@ -121,6 +122,7 @@ describe('V2BaseClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.testRequestV2('/api/v2/test/123', {
         method: 'DELETE',
       });
@@ -357,6 +359,7 @@ describe('V2BaseClient', () => {
       );
 
       const progressUpdates: number[] = [];
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.downloadWithProgress('/api/v2/download/file', {
         onProgress: (progress) => {
           progressUpdates.push(progress.percentage);

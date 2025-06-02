@@ -65,6 +65,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchGroupsV2().query('dev').pageSize(50).execute();
 
         expect(result.groups).toHaveLength(1);
@@ -171,6 +172,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.createGroupV2({
           name: 'new-group',
           description: 'New group description',
@@ -203,6 +205,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.getGroupV2('group-id');
         expect(result.name).toBe('developers');
       });
@@ -234,6 +237,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.updateGroupV2('group-id', {
           name: 'senior-developers',
           description: 'Senior development team',
@@ -285,6 +289,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchGroupMembershipsV2().groupId('group-1').execute();
 
         expect(result.memberships).toHaveLength(1);
@@ -326,6 +331,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchGroupMembershipsV2().userId('user-1').execute();
 
         expect(result.memberships).toHaveLength(2);
@@ -354,6 +360,7 @@ describe('AuthorizationsClient', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.addGroupMembershipV2({
           groupId: 'group-1',
           userId: 'user-1',

@@ -42,6 +42,7 @@ describe('Favorites Builders', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.page(2).execute();
       expect(result).toEqual(mockResponse);
     });
@@ -66,6 +67,7 @@ describe('Favorites Builders', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.pageSize(50).execute();
       expect(result).toEqual(mockResponse);
     });
@@ -91,6 +93,7 @@ describe('Favorites Builders', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.page(3).pageSize(25).execute();
       expect(result).toEqual(mockResponse);
     });

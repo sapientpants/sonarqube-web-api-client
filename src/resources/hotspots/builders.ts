@@ -24,6 +24,14 @@ export class SearchHotspotsBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter by project key (alias for forProject)
+   * @param projectKey - Key of the project to filter on
+   */
+  projectKey(projectKey: string): this {
+    return this.forProject(projectKey);
+  }
+
+  /**
    * Filter by specific Security Hotspot keys
    * @param hotspotKeys - Array of Security Hotspot keys
    */
@@ -40,11 +48,27 @@ export class SearchHotspotsBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter by Security Hotspot status (alias for withStatus)
+   * @param status - The status to filter by
+   */
+  status(status: HotspotStatus): this {
+    return this.withStatus(status);
+  }
+
+  /**
    * Filter by Security Hotspot resolution (only applies when status is REVIEWED)
    * @param resolution - The resolution to filter by
    */
   withResolution(resolution: HotspotResolution): this {
     return this.setParam('resolution', resolution);
+  }
+
+  /**
+   * Filter by Security Hotspot resolution (alias for withResolution)
+   * @param resolution - The resolution to filter by
+   */
+  resolution(resolution: HotspotResolution): this {
+    return this.withResolution(resolution);
   }
 
   /**
@@ -69,6 +93,14 @@ export class SearchHotspotsBuilder extends PaginatedBuilder<
    */
   inFiles(filePaths: string[]): this {
     return this.setParam('files', filePaths);
+  }
+
+  /**
+   * Filter by specific file paths (alias for inFiles)
+   * @param filePaths - Array of file paths to filter by
+   */
+  files(filePaths: string[]): this {
+    return this.inFiles(filePaths);
   }
 
   /**

@@ -16,6 +16,13 @@ export class ProjectBranchesListBuilder extends BaseBuilder<
   withProject = ParameterHelpers.createStringMethod<typeof this>('project');
 
   /**
+   * Set the project key (alias for withProject).
+   *
+   * Required unless branchIds is provided.
+   */
+  project = ParameterHelpers.createStringMethod<typeof this>('project');
+
+  /**
    * Set the branch IDs to retrieve.
    *
    * List of up to 50 branch IDs - required unless project key is provided.

@@ -109,6 +109,21 @@ export interface ComponentSearchRequest extends PaginatedRequest {
 }
 
 /**
+ * Modern request parameters for component search using tree API
+ * This provides a flexible search across components without requiring a base component
+ */
+export interface ComponentGlobalSearchRequest extends PaginatedRequest {
+  /** Search query */
+  q?: string;
+  /** Component qualifiers filter */
+  qualifiers?: ComponentQualifier[];
+  /** Languages filter */
+  languages?: string[];
+  /** Organization key (SonarCloud only) */
+  organization?: string;
+}
+
+/**
  * Response from components/search
  * @deprecated Use components/tree instead
  */

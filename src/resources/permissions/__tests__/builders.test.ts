@@ -1,16 +1,139 @@
 import {
+  SearchGlobalPermissionsBuilder,
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
 } from '../builders';
 import { ValidationError } from '../../../errors';
 import type {
+  SearchGlobalPermissionsResponse,
   SearchProjectPermissionsResponse,
   SearchTemplatesResponse,
   UserPermission,
+  PermissionEntry,
 } from '../types';
 
 describe('Permissions Builders', () => {
+  // ============================================================================
+  // SearchGlobalPermissionsBuilder
+  // ============================================================================
+
+  describe('SearchGlobalPermissionsBuilder', () => {
+    let mockExecutor: jest.Mock;
+    let builder: SearchGlobalPermissionsBuilder;
+
+    beforeEach(() => {
+      mockExecutor = jest.fn();
+      builder = new SearchGlobalPermissionsBuilder(mockExecutor);
+    });
+
+    describe('fluent interface', () => {
+      it('should set organization parameter', () => {
+        const result = builder.organization('my-org');
+        expect(result).toBe(builder);
+        expect(builder['params'].organization).toBe('my-org');
+      });
+
+      it('should set query parameter', () => {
+        const result = builder.query('admin');
+        expect(result).toBe(builder);
+        expect(builder['params'].q).toBe('admin');
+      });
+
+      it('should set pagination parameters', () => {
+        const result = builder.page(2).pageSize(50);
+        expect(result).toBe(builder);
+        expect(builder['params'].p).toBe(2);
+        expect(builder['params'].ps).toBe(50);
+      });
+
+      it('should support method chaining', () => {
+        const result = builder.organization('my-org').query('admin').page(1).pageSize(25);
+
+        expect(result).toBe(builder);
+        expect(builder['params'].organization).toBe('my-org');
+        expect(builder['params'].q).toBe('admin');
+        expect(builder['params'].p).toBe(1);
+        expect(builder['params'].ps).toBe(25);
+      });
+    });
+
+    describe('execute', () => {
+      it('should execute with valid parameters', async () => {
+        const mockResponse: SearchGlobalPermissionsResponse = {
+          paging: { pageIndex: 1, pageSize: 10, total: 5 },
+          permissions: [
+            { key: 'admin', name: 'Administer', usersCount: 3, groupsCount: 1 },
+            { key: 'scan', name: 'Execute analysis', usersCount: 5, groupsCount: 2 },
+          ],
+        };
+
+        mockExecutor.mockResolvedValue(mockResponse);
+
+        builder.organization('my-org').query('admin');
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await builder.execute();
+
+        expect(mockExecutor).toHaveBeenCalledWith({
+          organization: 'my-org',
+          q: 'admin',
+        });
+        expect(result).toBe(mockResponse);
+      });
+
+      it('should execute with minimal parameters', async () => {
+        const mockResponse: SearchGlobalPermissionsResponse = {
+          paging: { pageIndex: 1, pageSize: 10, total: 0 },
+          permissions: [],
+        };
+
+        mockExecutor.mockResolvedValue(mockResponse);
+
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await builder.execute();
+
+        expect(mockExecutor).toHaveBeenCalledWith({});
+        expect(result).toBe(mockResponse);
+      });
+    });
+
+    describe('getItems', () => {
+      it('should extract permissions from response', () => {
+        const permissions: PermissionEntry[] = [
+          { key: 'admin', name: 'Administer' },
+          { key: 'scan', name: 'Execute analysis' },
+        ];
+
+        const response: SearchGlobalPermissionsResponse = {
+          paging: { pageIndex: 1, pageSize: 10, total: 2 },
+          permissions,
+        };
+
+        const result = builder['getItems'](response);
+        expect(result).toBe(permissions);
+      });
+
+      it('should handle empty permissions array', () => {
+        const response: SearchGlobalPermissionsResponse = {
+          paging: { pageIndex: 1, pageSize: 10, total: 0 },
+          permissions: [],
+        };
+
+        const result = builder['getItems'](response);
+        expect(result).toEqual([]);
+      });
+
+      it('should handle missing permissions property', () => {
+        const response = {
+          paging: { pageIndex: 1, pageSize: 10, total: 0 },
+        } as SearchGlobalPermissionsResponse;
+
+        const result = builder['getItems'](response);
+        expect(result).toEqual([]);
+      });
+    });
+  });
+
   // ============================================================================
   // SearchProjectPermissionsBuilder
   // ============================================================================
@@ -99,6 +222,7 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.projectKey('my-project').query('john').execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({
@@ -121,6 +245,7 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({});
@@ -245,6 +370,7 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.query('mobile').execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({
@@ -261,6 +387,7 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({});

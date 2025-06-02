@@ -397,6 +397,7 @@ describe('Settings Builders', () => {
           })
         );
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
         expect(result.settings).toHaveLength(1);
       });

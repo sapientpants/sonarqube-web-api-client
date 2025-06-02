@@ -46,6 +46,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show('my_project');
       expect(result).toEqual(mockResponse);
     });
@@ -86,6 +87,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show('my_project:src/main.ts', {
         branch: 'feature/new-feature',
       });
@@ -114,6 +116,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show('my_project', {
         pullRequest: '123',
       });
@@ -153,6 +156,8 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search('my-org');
       expect(result).toEqual(mockResponse);
     });
@@ -185,6 +190,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search('my-org', {
         q: 'sonar',
         ps: 50,
@@ -214,6 +220,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search('my-org', {
         p: 2,
         ps: 25,
@@ -278,6 +285,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.tree().component('my_project').pullRequest('456').execute();
 
       expect(result).toEqual(mockResponse);
@@ -309,6 +317,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.tree().component('my_project').branch('feature/test').execute();
 
       expect(result).toEqual(mockResponse);
@@ -339,6 +348,7 @@ describe('ComponentsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .tree()
         .component('my_project')

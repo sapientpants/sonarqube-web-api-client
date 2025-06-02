@@ -235,6 +235,7 @@ describe('ViewsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({ key: portfolioKey });
 
       expect(result).toEqual(mockPortfolioResponse);
@@ -254,6 +255,7 @@ describe('ViewsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({ key: specialKey });
       expect(result.key).toBe(specialKey);
     });

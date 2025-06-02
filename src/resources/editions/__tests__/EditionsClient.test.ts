@@ -12,6 +12,116 @@ describe('EditionsClient', () => {
     client = new EditionsClient(baseUrl, token);
   });
 
+  describe('status', () => {
+    const mockStatusResponse = {
+      currentEditionKey: 'enterprise',
+      installationStatus: 'COMPLETED',
+    };
+
+    it('should get edition status successfully', async () => {
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return HttpResponse.json(mockStatusResponse);
+        })
+      );
+
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      const result = await client.status();
+      expect(result).toEqual(mockStatusResponse);
+      expect(result.currentEditionKey).toBe('enterprise');
+      expect(result.installationStatus).toBe('COMPLETED');
+    });
+
+    it('should get status for community edition', async () => {
+      const communityResponse = {
+        currentEditionKey: 'community',
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return HttpResponse.json(communityResponse);
+        })
+      );
+
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      const result = await client.status();
+      expect(result).toEqual(communityResponse);
+      expect(result.currentEditionKey).toBe('community');
+      expect(result.installationStatus).toBeUndefined();
+    });
+
+    it('should handle authentication errors', async () => {
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return new HttpResponse('Unauthorized', { status: 401 });
+        })
+      );
+
+      await expect(client.status()).rejects.toThrow(AuthenticationError);
+    });
+
+    it('should handle forbidden access', async () => {
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return new HttpResponse('Forbidden', { status: 403 });
+        })
+      );
+
+      await expect(client.status()).rejects.toThrow();
+    });
+
+    it('should handle not found errors for unsupported versions', async () => {
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return new HttpResponse('Not Found', { status: 404 });
+        })
+      );
+
+      await expect(client.status()).rejects.toThrow();
+    });
+
+    it('should handle network errors', async () => {
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return HttpResponse.error();
+        })
+      );
+
+      await expect(client.status()).rejects.toThrow(NetworkError);
+    });
+
+    it('should handle server errors', async () => {
+      server.use(
+        http.get(`${baseUrl}/api/editions/status`, () => {
+          return new HttpResponse('Internal Server Error', { status: 500 });
+        })
+      );
+
+      await expect(client.status()).rejects.toThrow();
+    });
+
+    it('should handle different edition keys', async () => {
+      const editions = ['community', 'developer', 'enterprise', 'datacenter'];
+
+      for (const edition of editions) {
+        const response = {
+          currentEditionKey: edition,
+          installationStatus: edition === 'community' ? undefined : 'COMPLETED',
+        };
+
+        server.use(
+          http.get(`${baseUrl}/api/editions/status`, () => {
+            return HttpResponse.json(response);
+          })
+        );
+
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await client.status();
+        expect(result.currentEditionKey).toBe(edition);
+      }
+    });
+  });
+
   describe('activateGracePeriod', () => {
     it('should activate grace period successfully', async () => {
       server.use(

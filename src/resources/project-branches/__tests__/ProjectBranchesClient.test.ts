@@ -54,6 +54,7 @@ describe('ProjectBranchesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list().withProject('my-project').execute();
 
       expect(result.branches).toHaveLength(2);
@@ -73,6 +74,7 @@ describe('ProjectBranchesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list().withBranchIds(branchIds).execute();
 
       expect(result.branches).toHaveLength(2);
@@ -85,6 +87,7 @@ describe('ProjectBranchesClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list().withProject('empty-project').execute();
 
       expect(result.branches).toHaveLength(0);

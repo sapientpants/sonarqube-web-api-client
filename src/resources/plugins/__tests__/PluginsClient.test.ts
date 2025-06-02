@@ -61,6 +61,7 @@ describe('PluginsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getAvailable();
 
       expect(result).toEqual(mockResponse);
@@ -91,6 +92,7 @@ describe('PluginsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getAvailable({ q: 'java' });
 
       expect(result.plugins).toHaveLength(1);
@@ -199,6 +201,7 @@ describe('PluginsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getInstalled();
 
       expect(result.plugins).toHaveLength(2);
@@ -260,6 +263,7 @@ describe('PluginsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getPending();
 
       expect(result.installing).toHaveLength(1);
@@ -363,6 +367,7 @@ describe('PluginsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.getUpdates();
 
       expect(result.plugins).toHaveLength(1);

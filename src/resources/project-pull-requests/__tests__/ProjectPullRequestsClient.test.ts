@@ -61,6 +61,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ project: 'my-project' });
       expect(result).toEqual(response);
       expect(result.pullRequests).toHaveLength(2);
@@ -79,6 +80,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ project: 'my-project' });
       expect(result.pullRequests).toEqual([]);
     });
@@ -100,6 +102,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ project: 'my-project' });
       expect(result.pullRequests[0].pullRequestUuidV1).toBe('uuid-1543-v1');
       expect(result.pullRequests[0].pullRequestId).toBe('pr-1543');
@@ -242,6 +245,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ project: 'my-project' });
       expect(result.pullRequests[0]).toEqual(minimalPr);
       expect(result.pullRequests[0].status.qualityGateStatus).toBeUndefined();

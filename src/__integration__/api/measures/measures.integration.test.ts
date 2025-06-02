@@ -395,6 +395,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
       }
 
       try {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.measures.component({
           component: projectKey,
           metricKeys: ['invalid_metric_key'],
@@ -471,6 +472,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           metricKeys: ['ncloc'],
         });
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await withRetry(operation, {
         maxAttempts: testConfig?.maxRetries ?? 3,
         delayMs: testConfig?.retryDelay ?? 1000,

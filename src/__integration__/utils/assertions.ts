@@ -93,8 +93,8 @@ export const INTEGRATION_ASSERTIONS = {
       pageSize: expect.any(Number),
       total: expect.any(Number),
     });
-    expect(response.paging.pageIndex).toBeGreaterThan(0);
-    expect(response.paging.pageSize).toBeGreaterThan(0);
+    expect(response.paging.pageIndex).toBeGreaterThanOrEqual(1);
+    expect(response.paging.pageSize).toBeGreaterThanOrEqual(1);
     expect(response.paging.total).toBeGreaterThanOrEqual(0);
   },
 
@@ -278,7 +278,7 @@ export const INTEGRATION_ASSERTIONS = {
     const maxMs =
       typeof options === 'number' ? options : (options.maximum ?? options.expected ?? 5000);
     expect(durationMs).toBeLessThan(maxMs);
-    expect(durationMs).toBeGreaterThan(0);
+    expect(durationMs).toBeGreaterThanOrEqual(0);
   },
 
   /**

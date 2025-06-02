@@ -1,13 +1,69 @@
 import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
 import { ValidationError } from '../../errors';
 import type {
+  SearchGlobalPermissionsRequest,
+  SearchGlobalPermissionsResponse,
   SearchProjectPermissionsRequest,
   SearchProjectPermissionsResponse,
   SearchTemplatesRequest,
   SearchTemplatesResponse,
   BulkApplyTemplateRequest,
   UserPermission,
+  PermissionEntry,
 } from './types';
+
+/**
+ * Builder for constructing global permissions search requests.
+ *
+ * @deprecated Since 6.5
+ *
+ * @example
+ * ```typescript
+ * // Search all global permissions
+ * const results = await client.permissions.searchGlobalPermissions()
+ *   .execute();
+ *
+ * // Search with query filter
+ * const adminPermissions = await client.permissions.searchGlobalPermissions()
+ *   .query('admin')
+ *   .execute();
+ *
+ * // Search with pagination
+ * const permissions = await client.permissions.searchGlobalPermissions()
+ *   .pageSize(50)
+ *   .query('user')
+ *   .execute();
+ * ```
+ */
+export class SearchGlobalPermissionsBuilder extends PaginatedBuilder<
+  SearchGlobalPermissionsRequest,
+  SearchGlobalPermissionsResponse,
+  PermissionEntry
+> {
+  /**
+   * Set the organization key
+   */
+  organization = ParameterHelpers.createStringMethod<typeof this>('organization');
+
+  /**
+   * Set the search query to filter permissions
+   */
+  query = ParameterHelpers.createStringMethod<typeof this>('q');
+
+  /**
+   * Execute the search request and return the response
+   */
+  async execute(): Promise<SearchGlobalPermissionsResponse> {
+    return await this.executor(this.params as SearchGlobalPermissionsRequest);
+  }
+
+  /**
+   * Get the items from the response for pagination
+   */
+  protected getItems(response: SearchGlobalPermissionsResponse): PermissionEntry[] {
+    return Array.isArray(response.permissions) ? response.permissions : [];
+  }
+}
 
 /**
  * Builder for constructing paginated project permissions search requests.

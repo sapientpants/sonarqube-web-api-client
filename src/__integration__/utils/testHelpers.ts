@@ -154,6 +154,67 @@ export function runIf(condition: boolean, _reason: string): typeof describe {
 }
 
 /**
+ * Standard error object structure used in integration tests
+ */
+export interface IntegrationTestError {
+  status?: number;
+  message?: string;
+  code?: string;
+}
+
+/**
+ * Safely extracts error information from unknown error objects
+ * with proper type guarding instead of type assertions
+ */
+export function extractErrorInfo(error: unknown): IntegrationTestError {
+  if (typeof error === 'object' && error !== null) {
+    const errorObj = error as Record<string, unknown>;
+    const result: IntegrationTestError = {};
+
+    if (typeof errorObj['status'] === 'number') {
+      result.status = errorObj['status'];
+    }
+    if (typeof errorObj['message'] === 'string') {
+      result.message = errorObj['message'];
+    }
+    if (typeof errorObj['code'] === 'string') {
+      result.code = errorObj['code'];
+    }
+
+    return result;
+  }
+
+  return {
+    message: typeof error === 'string' ? error : String(error),
+  };
+}
+
+/**
+ * Checks if an error indicates a missing API endpoint
+ */
+export function isApiNotAvailableError(error: IntegrationTestError): boolean {
+  return (
+    error.status === 404 ||
+    error.message?.includes('Unknown url') === true ||
+    error.message?.includes('not found') === true
+  );
+}
+
+/**
+ * Checks if an error indicates insufficient permissions
+ */
+export function isPermissionError(error: IntegrationTestError): boolean {
+  return error.status === 403 || error.status === 401;
+}
+
+/**
+ * Checks if an error indicates validation issues
+ */
+export function isValidationError(error: IntegrationTestError): boolean {
+  return error.status === 400;
+}
+
+/**
  * Test timing utilities
  */
 export const TEST_TIMING = {

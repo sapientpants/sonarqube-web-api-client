@@ -26,6 +26,7 @@ describe('ServerClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.version();
 
       expect(result).toBe(mockVersion);
@@ -45,6 +46,7 @@ describe('ServerClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithoutToken.version();
 
       expect(result).toBe(mockVersion);
@@ -63,6 +65,7 @@ describe('ServerClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.version();
 
       expect(result).toBe(mockVersion);

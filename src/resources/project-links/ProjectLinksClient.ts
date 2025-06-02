@@ -1,4 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
+import { ProjectLinksSearchBuilder } from './builders';
 import type {
   CreateProjectLinkRequest,
   CreateProjectLinkResponse,
@@ -70,7 +71,7 @@ export class ProjectLinksClient extends BaseClient {
   }
 
   /**
-   * List links of a project
+   * List links of a project using builder pattern
    *
    * The 'projectId' or 'projectKey' must be provided.
    *
@@ -78,8 +79,7 @@ export class ProjectLinksClient extends BaseClient {
    * - 'Administer' rights on the specified project
    * - 'Browse' on the specified project
    *
-   * @param request - The search parameters
-   * @returns List of project links
+   * @returns Builder for constructing project links search queries
    * @throws {ValidationError} When neither projectId nor projectKey is provided
    * @throws {NotFoundError} When the project doesn't exist
    * @throws {AuthorizationError} When the user lacks required permissions
@@ -87,19 +87,47 @@ export class ProjectLinksClient extends BaseClient {
    * @example
    * ```typescript
    * // Search by project key
-   * const links = await client.projectLinks.search({
-   *   projectKey: 'my-project'
-   * });
+   * const links = await client.projectLinks.search()
+   *   .projectKey('my-project')
+   *   .execute();
    *
    * // Search by project ID
-   * const links = await client.projectLinks.search({
-   *   projectId: 'AU-Tpxb--iU5OvuD2FLy'
-   * });
+   * const links = await client.projectLinks.search()
+   *   .projectId('AU-Tpxb--iU5OvuD2FLy')
+   *   .execute();
    * ```
    *
    * @since 6.1
    */
-  async search(request: SearchProjectLinksRequest): Promise<SearchProjectLinksResponse> {
+  search(): ProjectLinksSearchBuilder {
+    return new ProjectLinksSearchBuilder(async (request: SearchProjectLinksRequest) => {
+      if (request.projectId === undefined && request.projectKey === undefined) {
+        throw new Error('Either projectId or projectKey must be provided');
+      }
+
+      const params = new URLSearchParams();
+      if (request.projectId !== undefined) {
+        params.append('projectId', request.projectId);
+      }
+      if (request.projectKey !== undefined) {
+        params.append('projectKey', request.projectKey);
+      }
+
+      return this.request<SearchProjectLinksResponse>(
+        `/api/project_links/search?${params.toString()}`
+      );
+    });
+  }
+
+  /**
+   * List links of a project (legacy method)
+   *
+   * @deprecated Use the builder pattern with search() instead
+   * @param request - The search parameters
+   * @returns List of project links
+   * @since 6.1
+   */
+  async searchDirect(request: SearchProjectLinksRequest): Promise<SearchProjectLinksResponse> {
     if (request.projectId === undefined && request.projectKey === undefined) {
       throw new Error('Either projectId or projectKey must be provided');
     }

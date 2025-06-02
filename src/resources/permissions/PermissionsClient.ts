@@ -1,6 +1,7 @@
 import { BaseClient } from '../../core/BaseClient';
 import { DeprecationManager } from '../../core/deprecation';
 import {
+  SearchGlobalPermissionsBuilder,
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
@@ -22,7 +23,6 @@ import type {
   DeleteTemplateRequest,
   ApplyTemplateRequest,
   SetDefaultTemplateRequest,
-  SearchGlobalPermissionsRequest,
   SearchGlobalPermissionsResponse,
   CreateTemplateResponse,
   UpdateTemplateResponse,
@@ -584,10 +584,10 @@ export class PermissionsClient extends BaseClient {
 
   /**
    * List global permissions.
+   * Returns a builder for constructing the search request.
    *
    * @deprecated Since 6.5
-   * @param params - Parameters for searching global permissions
-   * @returns Global permissions response
+   * @returns A builder for constructing the search request
    * @throws {AuthenticationError} If the user is not authenticated
    * @throws {AuthorizationError} If the user lacks 'Administer System' permission
    * @throws {ValidationError} If required parameters are missing
@@ -595,28 +595,42 @@ export class PermissionsClient extends BaseClient {
    *
    * @example
    * ```typescript
-   * const permissions = await client.permissions.searchGlobalPermissions({
-   *   organization: 'my-org'
-   * });
+   * // Search all global permissions
+   * const permissions = await client.permissions.searchGlobalPermissions()
+   *   .execute();
+   *
+   * // Search with query filter
+   * const adminPermissions = await client.permissions.searchGlobalPermissions()
+   *   .query('admin')
+   *   .execute();
    * ```
    */
-  async searchGlobalPermissions(
-    params: SearchGlobalPermissionsRequest
-  ): Promise<SearchGlobalPermissionsResponse> {
+  searchGlobalPermissions(): SearchGlobalPermissionsBuilder {
     DeprecationManager.warn({
       api: 'permissions.searchGlobalPermissions()',
       removeVersion: '6.5',
       reason: 'This endpoint has been deprecated and will be removed.',
     });
-    const query = new URLSearchParams();
-    query.append('organization', params.organization);
 
-    return await this.request<SearchGlobalPermissionsResponse>(
-      `/api/permissions/search_global_permissions?${query.toString()}`,
-      {
-        method: 'GET',
+    return new SearchGlobalPermissionsBuilder(async (params) => {
+      const query = new URLSearchParams();
+
+      addParamIfValid(query, 'organization', params.organization);
+      addParamIfValid(query, 'q', params.q);
+      if (params.p !== undefined) {
+        query.append('p', params.p.toString());
       }
-    );
+      if (params.ps !== undefined) {
+        query.append('ps', params.ps.toString());
+      }
+
+      return await this.request<SearchGlobalPermissionsResponse>(
+        `/api/permissions/search_global_permissions?${query.toString()}`,
+        {
+          method: 'GET',
+        }
+      );
+    });
   }
 
   // ============================================================================
@@ -714,6 +728,32 @@ export class PermissionsClient extends BaseClient {
         method: 'GET',
       });
     });
+  }
+
+  /**
+   * Search permission templates.
+   * Alias for searchTemplates() method.
+   * Returns a builder for constructing the search request.
+   *
+   * @returns A builder for constructing the search request
+   * @throws {AuthenticationError} If the user is not authenticated
+   * @throws {ValidationError} If required parameters are missing
+   * @throws {ApiError} If the API request fails
+   *
+   * @example
+   * ```typescript
+   * // Search templates by query
+   * const templates = await client.permissions.searchPermissionTemplates()
+   *   .query('mobile')
+   *   .execute();
+   *
+   * // Get all templates
+   * const allTemplates = await client.permissions.searchPermissionTemplates()
+   *   .execute();
+   * ```
+   */
+  searchPermissionTemplates(): SearchTemplatesBuilder {
+    return this.searchTemplates();
   }
 
   /**

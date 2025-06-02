@@ -45,6 +45,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().query('john').execute();
       expect(result.users).toHaveLength(1);
       expect(result.users[0].login).toBe('john.doe');
@@ -68,6 +69,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().ids(testIds).execute();
       expect(result.users).toHaveLength(2);
     });
@@ -85,6 +87,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().page(2).pageSize(25).execute();
       expect(result.paging.pageIndex).toBe(2);
       expect(result.paging.pageSize).toBe(25);
@@ -106,6 +109,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().execute();
       expect(result.users).toHaveLength(1);
     });
@@ -133,6 +137,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().execute();
       const user = result.users[0];
       expect(user.email).toBe('admin@example.com');
@@ -256,6 +261,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.groups().login('john.doe').organization('my-org').execute();
 
       expect(result.groups).toHaveLength(2);
@@ -285,6 +291,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .groups()
         .login('john.doe')
@@ -311,6 +318,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .groups()
         .login('john.doe')
@@ -336,6 +344,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .groups()
         .login('john.doe')
@@ -360,6 +369,7 @@ describe('UsersClient', () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.groups().login('john.doe').organization('my-org').execute();
 
       expect(result.groups).toHaveLength(1);

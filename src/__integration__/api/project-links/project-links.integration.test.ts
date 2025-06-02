@@ -366,20 +366,29 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
               linkTypeAnalysis.unnamed++;
             }
 
-            // Analyze URL patterns for common services
-            const urlLower = link.url.toLowerCase();
-            if (urlLower.includes('github.com')) {
-              console.log(`  GitHub link detected: ${link.name || 'unnamed'}`);
-            } else if (urlLower.includes('gitlab.com')) {
-              console.log(`  GitLab link detected: ${link.name || 'unnamed'}`);
-            } else if (urlLower.includes('bitbucket.org')) {
-              console.log(`  Bitbucket link detected: ${link.name || 'unnamed'}`);
-            } else if (
-              urlLower.includes('jenkins') ||
-              urlLower.includes('travis-ci') ||
-              urlLower.includes('circleci')
-            ) {
-              console.log(`  CI/CD link detected: ${link.name || 'unnamed'}`);
+            // Analyze URL patterns for common services using proper hostname validation
+            try {
+              const url = new URL(link.url);
+              const hostname = url.hostname.toLowerCase();
+
+              if (hostname === 'github.com' || hostname.endsWith('.github.com')) {
+                console.log(`  GitHub link detected: ${link.name || 'unnamed'}`);
+              } else if (hostname === 'gitlab.com' || hostname.endsWith('.gitlab.com')) {
+                console.log(`  GitLab link detected: ${link.name || 'unnamed'}`);
+              } else if (hostname === 'bitbucket.org' || hostname.endsWith('.bitbucket.org')) {
+                console.log(`  Bitbucket link detected: ${link.name || 'unnamed'}`);
+              } else if (
+                hostname.includes('jenkins') ||
+                hostname === 'travis-ci.org' ||
+                hostname === 'travis-ci.com' ||
+                hostname === 'circleci.com' ||
+                hostname.endsWith('.circleci.com')
+              ) {
+                console.log(`  CI/CD link detected: ${link.name || 'unnamed'}`);
+              }
+            } catch {
+              // Invalid URL, skip analysis
+              console.log(`  ⚠ Could not analyze URL: ${link.url}`);
             }
           });
 

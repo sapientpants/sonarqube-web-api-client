@@ -5,6 +5,7 @@
  * These tests should work on both SonarQube and SonarCloud.
  */
 
+import { describe, test, beforeAll, afterAll, expect } from '@jest/globals';
 import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment';
 import { getTestConfiguration } from '../../config/testConfig';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';

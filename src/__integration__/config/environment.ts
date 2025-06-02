@@ -90,15 +90,26 @@ export function getIntegrationTestConfig(): IntegrationTestConfig {
  * Detects whether the URL points to SonarQube or SonarCloud
  */
 function detectPlatform(url: string): 'sonarqube' | 'sonarcloud' {
-  const normalizedUrl = url.toLowerCase();
+  try {
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname.toLowerCase();
 
-  // SonarCloud patterns
-  if (normalizedUrl.includes('sonarcloud.io') || normalizedUrl.includes('sonarcloud.com')) {
-    return 'sonarcloud';
+    // SonarCloud patterns - check exact hostname match
+    if (
+      hostname === 'sonarcloud.io' ||
+      hostname.endsWith('.sonarcloud.io') ||
+      hostname === 'sonarcloud.com' ||
+      hostname.endsWith('.sonarcloud.com')
+    ) {
+      return 'sonarcloud';
+    }
+
+    // Default to SonarQube for all other URLs
+    return 'sonarqube';
+  } catch {
+    // If URL parsing fails, default to SonarQube
+    return 'sonarqube';
   }
-
-  // Default to SonarQube for all other URLs
-  return 'sonarqube';
 }
 
 /**

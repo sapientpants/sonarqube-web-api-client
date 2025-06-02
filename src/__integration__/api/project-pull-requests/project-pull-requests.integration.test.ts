@@ -806,8 +806,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           // 4. Quality trends
           if (analyzedPRs.length > 1) {
             const avgBugs =
-              analyzedPRs.reduce((sum, pr) => sum + (pr.status?.bugs ?? 0), 0) /
-              analyzedPRs.length;
+              analyzedPRs.reduce((sum, pr) => sum + (pr.status?.bugs ?? 0), 0) / analyzedPRs.length;
             const avgVulns =
               analyzedPRs.reduce((sum, pr) => sum + (pr.status?.vulnerabilities ?? 0), 0) /
               analyzedPRs.length;

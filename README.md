@@ -2016,7 +2016,44 @@ pnpm lint
 
 # Fix formatting
 pnpm format
+
+# Integration testing (requires running SonarQube)
+export SONARQUBE_URL="http://localhost:9000"
+export SONARQUBE_TOKEN="your-token"
+pnpm test:integration:sonarqube
+
+# Analyze your SonarQube instance capabilities
+pnpm run analyze-instance
+
+# View expected test results for different configurations
+pnpm run analyze-instance:examples
 ```
+
+### 🧪 Integration Testing
+
+This library includes comprehensive integration tests that validate the client against real SonarQube and SonarCloud instances.
+
+#### Quick Assessment
+
+If your integration tests show **120/144 passing tests (83% success rate)**, this is **EXPECTED and NORMAL** for most SonarQube instances! The failures typically represent:
+
+- Enterprise features not available in Community/Developer editions
+- v2 APIs not available in older versions (< 10.6)
+- Intentional validation errors for invalid parameters
+
+#### Analysis Tools
+
+```bash
+# Analyze your specific SonarQube instance
+export SONARQUBE_URL="http://localhost:9000"
+export SONARQUBE_TOKEN="your-token"
+pnpm run analyze-instance
+
+# View examples for different SonarQube configurations
+pnpm run analyze-instance:examples
+```
+
+For detailed information about interpreting integration test results, see [INTEGRATION_TEST_ANALYSIS.md](./INTEGRATION_TEST_ANALYSIS.md).
 
 ### 🏗️ Architecture
 

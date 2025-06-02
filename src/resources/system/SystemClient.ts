@@ -1,7 +1,7 @@
 import { BaseClient } from '../../core/BaseClient';
 import { Deprecated } from '../../core/deprecation';
 import type { HealthResponse, StatusResponse, InfoResponse } from './types';
-import type { SystemInfoV2, SystemHealthV2, SystemStatusV2Response } from './types-v2';
+import type { SystemHealthV2 } from './types-v2';
 
 /**
  * Client for interacting with system endpoints
@@ -31,27 +31,55 @@ export class SystemClient extends BaseClient {
   }
 
   /**
-   * Get detailed system information (v2)
+   * Get system liveness status (v2)
    *
-   * Requires system administration permission.
+   * This endpoint provides a simple liveness check for the system.
+   * It's designed for container orchestration and monitoring systems.
    *
-   * This is the REST-compliant v2 API that provides structured system information
-   * including version, edition, features, database details, and plugin information.
-   *
-   * @returns Structured system information
-   * @since 10.6
+   * @returns System liveness status
+   * @since 10.3
    *
    * @example
    * ```typescript
    * const client = new SystemClient(baseUrl, token);
-   * const info = await client.getInfoV2();
-   * console.log(info.version); // e.g., '10.8.0'
-   * console.log(info.edition); // 'community', 'developer', 'enterprise', or 'datacenter'
-   * console.log(info.features); // ['branch', 'audit', etc.]
+   * const liveness = await client.getLivenessV2();
+   * console.log(liveness.status); // 'UP' or 'DOWN'
    * ```
    */
-  async getInfoV2(): Promise<SystemInfoV2> {
-    return this.request<SystemInfoV2>('/api/v2/system/info');
+  async getLivenessV2(): Promise<{ status: string }> {
+    const response = await this.request<{ status: string } | string>('/api/v2/system/liveness');
+
+    // Handle different response formats
+    if (typeof response === 'string') {
+      return { status: response };
+    }
+
+    if (typeof response === 'object') {
+      return response as { status: string };
+    }
+
+    // Fallback for empty/null responses
+    return { status: 'UP' };
+  }
+
+  /**
+   * Get system migrations status (v2)
+   *
+   * Provides information about database migration status.
+   * Useful for monitoring system startup and upgrade processes.
+   *
+   * @returns Database migration status
+   * @since 10.3
+   *
+   * @example
+   * ```typescript
+   * const client = new SystemClient(baseUrl, token);
+   * const migrations = await client.getMigrationsStatusV2();
+   * console.log(migrations.status); // 'UP_TO_DATE', 'RUNNING', etc.
+   * ```
+   */
+  async getMigrationsStatusV2(): Promise<{ status: string; message?: string }> {
+    return this.request<{ status: string; message?: string }>('/api/v2/system/migrations-status');
   }
 
   /**
@@ -63,7 +91,7 @@ export class SystemClient extends BaseClient {
    * For clustered setups, it includes individual node health details.
    *
    * @returns System health status with node details
-   * @since 10.6
+   * @since 10.3
    *
    * @example
    * ```typescript
@@ -79,29 +107,6 @@ export class SystemClient extends BaseClient {
    */
   async getHealthV2(): Promise<SystemHealthV2> {
     return this.request<SystemHealthV2>('/api/v2/system/health');
-  }
-
-  /**
-   * Get system status (v2)
-   *
-   * This is the REST-compliant v2 API that provides system operational status.
-   * It includes additional information like migration progress and startup time.
-   *
-   * @returns System operational status
-   * @since 10.6
-   *
-   * @example
-   * ```typescript
-   * const client = new SystemClient(baseUrl, token);
-   * const status = await client.getStatusV2();
-   * console.log(status.status); // 'UP', 'DOWN', 'STARTING', etc.
-   * if (status.migrationProgress) {
-   *   console.log(`Migration progress: ${status.migrationProgress}%`);
-   * }
-   * ```
-   */
-  async getStatusV2(): Promise<SystemStatusV2Response> {
-    return this.request<SystemStatusV2Response>('/api/v2/system/status');
   }
 
   /**
@@ -153,10 +158,10 @@ export class SystemClient extends BaseClient {
   @Deprecated({
     deprecatedSince: '10.6',
     removalDate: 'TBD',
-    replacement: 'getStatusV2()',
-    reason: 'v1 endpoint deprecated in favor of REST-compliant v2 API',
+    replacement: 'continue using status() - v2 equivalent not yet available',
+    reason: 'v1 endpoint deprecated but v2 replacement not yet implemented in SonarQube',
     migrationGuide:
-      'Replace status() with getStatusV2(). The v2 API provides additional information like migration progress and startup time.',
+      'Continue using status() for now. The v2 system status endpoint is not yet available in current SonarQube versions.',
   })
   async status(): Promise<StatusResponse> {
     return this.request<StatusResponse>('/api/system/status');
@@ -186,10 +191,10 @@ export class SystemClient extends BaseClient {
   @Deprecated({
     deprecatedSince: '10.6',
     removalDate: 'TBD',
-    replacement: 'getInfoV2()',
-    reason: 'v1 endpoint deprecated in favor of REST-compliant v2 API',
+    replacement: 'continue using info() - v2 equivalent not yet available',
+    reason: 'v1 endpoint deprecated but v2 replacement not yet implemented in SonarQube',
     migrationGuide:
-      'Replace info() with getInfoV2(). The v2 API provides a more structured response with typed fields and consistent naming.',
+      'Continue using info() for now. The v2 system info endpoint is not yet available in current SonarQube versions.',
   })
   async info(): Promise<InfoResponse> {
     return this.request<InfoResponse>('/api/system/info');

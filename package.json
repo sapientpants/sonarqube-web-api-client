@@ -19,6 +19,8 @@
     "test:integration": "tsx scripts/run-integration-tests.ts",
     "test:integration:sonarqube": "tsx scripts/run-integration-tests.ts sonarqube",
     "test:integration:sonarcloud": "tsx scripts/run-integration-tests.ts sonarcloud",
+    "analyze-instance": "tsx scripts/analyze-instance.ts",
+    "analyze-instance:examples": "tsx scripts/analyze-instance-mock.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",

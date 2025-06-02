@@ -59,6 +59,34 @@ export default async function globalSetup(): Promise<void> {
     const client = new IntegrationTestClient(envConfig, testConfig);
     await client.validateConnection();
     console.log('✅ Successfully connected to SonarQube instance');
+
+    // Try to get instance information for better test result interpretation
+    try {
+      const instanceInfo = await client.getInstanceInfo();
+      console.log('🔍 Detecting instance capabilities...');
+
+      if (instanceInfo.version) {
+        console.log(`   📋 Version: ${instanceInfo.version}`);
+        // Store version globally for the reporter
+        (global as Record<string, unknown>)['__SONARQUBE_VERSION__'] = instanceInfo.version;
+      }
+
+      // Try to detect edition (this might not always be available)
+      try {
+        const systemInfo = await client.system.info();
+        if (systemInfo['edition']) {
+          const edition = systemInfo['edition'];
+          console.log(`   🏢 Edition: ${edition as string}`);
+          (global as Record<string, unknown>)['__SONARQUBE_EDITION__'] = edition;
+        }
+      } catch {
+        // Edition info not available, that's OK
+      }
+
+      console.log('✅ Instance analysis complete');
+    } catch (_error) {
+      console.log('⚠️  Could not fully analyze instance (tests will still run)');
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('❌ Failed to connect to SonarQube instance:', errorMessage);

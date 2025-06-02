@@ -10,6 +10,7 @@ This is a TypeScript client library for the SonarQube Web API. The library provi
 
 - Use puppeteer to read v1 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api
 - Use puppeteer to read v2 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api_v2
+- Do not try to run integration tests, they need to be run manually
 
 ## Development Commands
 

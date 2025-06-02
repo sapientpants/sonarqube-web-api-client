@@ -31,6 +31,10 @@ async function checkV2Apis(baseUrl: string, token?: string) {
     { path: '/api/v2/quality-profiles', methods: ['GET'], since: '10.7' },
     { path: '/api/v2/metrics', methods: ['GET'], since: '10.8' },
     { path: '/api/v2/settings', methods: ['GET', 'PATCH'], since: '10.8' },
+    { path: '/api/v2/system/health', methods: ['GET'], since: '10.6' },
+    { path: '/api/v2/system/liveness', methods: ['GET'], since: '10.6' },
+    { path: '/api/v2/system/migrations-status', methods: ['GET'], since: '10.6' },
+    // Note: /api/v2/system/status and /api/v2/system/info are NOT available yet
   ];
 
   const results: Array<{endpoint: V2ApiEndpoint, available: boolean, error?: string}> = [];

@@ -7,7 +7,7 @@ import {
 import { SystemClient } from '../SystemClient';
 import { AuthorizationError, AuthenticationError } from '../../../errors';
 import type { HealthResponse, StatusResponse, InfoResponse } from '../types';
-import type { SystemInfoV2, SystemHealthV2, SystemStatusV2Response } from '../types-v2';
+import type { SystemHealthV2 } from '../types-v2';
 
 describe('SystemClient', () => {
   let client: SystemClient;
@@ -336,94 +336,6 @@ describe('SystemClient', () => {
   });
 
   describe('v2 API methods', () => {
-    describe('getInfoV2', () => {
-      it('should fetch system information v2', async () => {
-        const mockResponse: SystemInfoV2 = {
-          version: '10.8.0',
-          edition: 'community',
-          features: ['branch', 'audit'],
-          serverId: '4622696D-AYuMnjWY_td5_ZrpCNOp',
-          installedAt: '2023-01-15T10:30:00Z',
-          database: {
-            name: 'PostgreSQL',
-            version: '13.7',
-          },
-          productionMode: true,
-        };
-
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/info`, ({ request }) => {
-            assertAuthorizationHeader(request, token);
-            return HttpResponse.json(mockResponse);
-          })
-        );
-
-        const result = await client.getInfoV2();
-        expect(result).toEqual(mockResponse);
-        expect(result.edition).toBe('community');
-        expect(result.features).toContain('branch');
-      });
-
-      it('should handle enterprise edition with additional features', async () => {
-        const mockResponse: SystemInfoV2 = {
-          version: '10.8.0',
-          edition: 'enterprise',
-          features: ['branch', 'audit', 'portfolios', 'governance', 'security'],
-          serverId: '4622696D-AYuMnjWY_td5_ZrpCNOp',
-          installedAt: '2023-01-15T10:30:00Z',
-          database: {
-            name: 'PostgreSQL',
-            version: '14.5',
-          },
-          plugins: [
-            { key: 'java', name: 'Java', version: '7.16.0.30901' },
-            { key: 'javascript', name: 'JavaScript/TypeScript', version: '10.3.0.22755' },
-          ],
-          externalAuthProviders: ['ldap', 'saml'],
-          productionMode: true,
-          branchSupport: {
-            enabled: true,
-            includedLanguages: ['java', 'javascript', 'python'],
-          },
-        };
-
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/info`, () => {
-            return HttpResponse.json(mockResponse);
-          })
-        );
-
-        const result = await client.getInfoV2();
-        expect(result.edition).toBe('enterprise');
-        expect(result.features).toContain('portfolios');
-        expect(result.plugins).toHaveLength(2);
-        expect(result.externalAuthProviders).toContain('ldap');
-        expect(result.branchSupport?.enabled).toBe(true);
-      });
-
-      it('should require authentication', async () => {
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/info`, () => {
-            return HttpResponse.json(
-              {
-                status: 403,
-                error: {
-                  message: 'Insufficient privileges',
-                  code: 'FORBIDDEN',
-                },
-              },
-              {
-                status: 403,
-                statusText: 'Forbidden',
-              }
-            );
-          })
-        );
-
-        await expect(client.getInfoV2()).rejects.toThrow(AuthorizationError);
-      });
-    });
-
     describe('getHealthV2', () => {
       it('should fetch health status v2', async () => {
         const mockResponse: SystemHealthV2 = {
@@ -483,78 +395,6 @@ describe('SystemClient', () => {
         const result = await client.getHealthV2();
         expect(result.status).toBe('RED');
         expect(result.nodes?.[0].causes).toContain('Database connection lost');
-      });
-    });
-
-    describe('getStatusV2', () => {
-      it('should fetch system status v2', async () => {
-        const mockResponse: SystemStatusV2Response = {
-          status: 'UP',
-        };
-
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/status`, ({ request }) => {
-            assertAuthorizationHeader(request, token);
-            return HttpResponse.json(mockResponse);
-          })
-        );
-
-        const result = await client.getStatusV2();
-        expect(result).toEqual(mockResponse);
-        expect(result.status).toBe('UP');
-      });
-
-      it('should handle migration in progress', async () => {
-        const mockResponse: SystemStatusV2Response = {
-          status: 'DB_MIGRATION_RUNNING',
-          message: 'Database migration in progress',
-          migrationProgress: 67,
-        };
-
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/status`, () => {
-            return HttpResponse.json(mockResponse);
-          })
-        );
-
-        const result = await client.getStatusV2();
-        expect(result.status).toBe('DB_MIGRATION_RUNNING');
-        expect(result.migrationProgress).toBe(67);
-        expect(result.message).toBe('Database migration in progress');
-      });
-
-      it('should handle starting status with startup time', async () => {
-        const mockResponse: SystemStatusV2Response = {
-          status: 'STARTING',
-          message: 'System is starting up',
-          startupTime: 45000,
-        };
-
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/status`, () => {
-            return HttpResponse.json(mockResponse);
-          })
-        );
-
-        const result = await client.getStatusV2();
-        expect(result.status).toBe('STARTING');
-        expect(result.startupTime).toBe(45000);
-      });
-
-      it('should work without authentication', async () => {
-        const mockResponse: SystemStatusV2Response = {
-          status: 'UP',
-        };
-
-        server.use(
-          http.get(`${baseUrl}/api/v2/system/status`, ({ request }) => {
-            assertNoAuthorizationHeader(request);
-            return HttpResponse.json(mockResponse);
-          })
-        );
-
-        const result = await clientWithEmptyToken.getStatusV2();
-        expect(result.status).toBe('UP');
       });
     });
   });

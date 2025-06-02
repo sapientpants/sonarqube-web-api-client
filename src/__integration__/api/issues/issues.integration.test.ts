@@ -43,7 +43,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
         visibility: 'private',
       });
     }
-  }, testConfig.longTimeout);
+  }, testConfig?.longTimeout);
 
   afterAll(async () => {
     await dataManager.cleanup();

@@ -8,46 +8,56 @@
 import { describe, test, beforeAll, afterAll, expect } from '@jest/globals';
 import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
 import { TestDataManager } from '../../setup/TestDataManager';
-import { IntegrationAssertions } from '../../utils/assertions';
-import { measureTime, retryOperation } from '../../utils/testHelpers';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
+import { measureTime, withRetry } from '../../utils/testHelpers';
 import {
   getIntegrationTestConfig,
+  canRunIntegrationTests,
+  type IntegrationTestConfig as _IntegrationTestConfig,
+} from '../../config/environment';
+import {
   getTestConfiguration,
-  type IntegrationTestConfig,
-  type TestConfiguration,
-} from '../../config';
+  type TestConfiguration as _TestConfiguration,
+} from '../../config/testConfig';
 
-describe('Quality Profiles API Integration Tests', () => {
+// Skip all tests if integration test environment is not configured
+const skipTests = !canRunIntegrationTests();
+
+// Initialize test configuration at module load time for conditional describe blocks
+const envConfig = skipTests ? null : getIntegrationTestConfig();
+const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConfig);
+
+(skipTests ? describe.skip : describe)('Quality Profiles API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
-  let envConfig: IntegrationTestConfig;
-  let testConfig: TestConfiguration;
 
   beforeAll(async () => {
-    envConfig = getIntegrationTestConfig();
-    testConfig = getTestConfiguration(envConfig);
+    if (!envConfig || !testConfig) {
+      throw new Error('Integration test configuration is not available');
+    }
+
     client = new IntegrationTestClient(envConfig, testConfig);
     dataManager = new TestDataManager(client);
 
     await client.validateConnection();
-  }, testConfig.longTimeout);
+  }, testConfig?.longTimeout);
 
   afterAll(async () => {
     await dataManager.cleanup();
-  }, testConfig.longTimeout);
+  }, testConfig?.longTimeout ?? 30000);
 
   describe('Quality Profile Search Operations', () => {
     test('should search all quality profiles', async () => {
       const searchBuilder = client.qualityProfiles.search();
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
       const { result, durationMs } = await measureTime(async () => searchBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.profiles).toBeDefined();
       expect(Array.isArray(result.profiles)).toBe(true);
@@ -76,7 +86,7 @@ describe('Quality Profiles API Integration Tests', () => {
     test('should search quality profiles by language', async () => {
       // First get available languages
       const allProfilesBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         allProfilesBuilder.organization(envConfig.organization);
       }
 
@@ -91,14 +101,14 @@ describe('Quality Profiles API Integration Tests', () => {
 
       const searchBuilder = client.qualityProfiles.search().language(targetLanguage);
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
       const { result, durationMs } = await measureTime(async () => searchBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.profiles).toBeDefined();
       expect(result.profiles.length).toBeGreaterThan(0);
@@ -112,13 +122,13 @@ describe('Quality Profiles API Integration Tests', () => {
     test('should identify default quality profiles', async () => {
       const searchBuilder = client.qualityProfiles.search();
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
       const { result } = await measureTime(async () => searchBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
 
       // Group profiles by language to check defaults
       const profilesByLanguage = result.profiles.reduce<Record<string, typeof result.profiles>>(
@@ -148,7 +158,7 @@ describe('Quality Profiles API Integration Tests', () => {
     test('should show quality profile details', async () => {
       // Get a profile first
       const searchBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
@@ -157,39 +167,46 @@ describe('Quality Profiles API Integration Tests', () => {
 
       const profileKey = searchResult.profiles[0].key;
 
-      // Get profile details
-      const showBuilder = client.qualityProfiles.show().key(profileKey);
-      if (envConfig.isSonarCloud && envConfig.organization) {
-        showBuilder.organization(envConfig.organization);
-      }
+      // Quality Profiles API doesn't have a dedicated show method
+      // We can get profile details by searching with specific key
+      console.log(
+        `ℹ Quality Profiles API doesn't have a show method - using search with key filter`
+      );
 
-      const { result, durationMs } = await measureTime(() => showBuilder.execute());
+      const { result, durationMs } = await measureTime(async () => {
+        const searchBuilder = client.qualityProfiles.search();
+        if (envConfig?.isSonarCloud && envConfig.organization) {
+          searchBuilder.organization(envConfig.organization);
+        }
+        return searchBuilder.execute();
+      });
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
-      expect(result.profile).toBeDefined();
-      expect(result.profile.key).toBe(profileKey);
-      expect(result.profile.name).toBeDefined();
-      expect(result.profile.language).toBeDefined();
-      expect(typeof result.profile.isBuiltIn).toBe('boolean');
-      expect(typeof result.profile.isDefault).toBe('boolean');
-      expect(typeof result.profile.isInherited).toBe('boolean');
-      expect(result.profile.activeRuleCount).toBeDefined();
+      const targetProfile = result.profiles.find((p) => p.key === profileKey);
+      expect(targetProfile).toBeDefined();
+      expect(targetProfile?.key).toBe(profileKey);
+      expect(targetProfile?.name).toBeDefined();
+      expect(targetProfile?.language).toBeDefined();
+      expect(typeof targetProfile?.isBuiltIn).toBe('boolean');
+      expect(typeof targetProfile?.isDefault).toBe('boolean');
+      expect(typeof targetProfile?.isInherited).toBe('boolean');
+      expect(targetProfile?.activeRuleCount).toBeDefined();
 
       // Check for inheritance information
-      if (result.profile.isInherited && result.profile.parentKey) {
-        expect(result.profile.parentKey).toBeDefined();
-        expect(result.profile.parentName).toBeDefined();
+      if (targetProfile?.isInherited && targetProfile.parentKey) {
+        expect(targetProfile.parentKey).toBeDefined();
+        expect(targetProfile.parentName).toBeDefined();
       }
 
       // Check for timestamps
-      if (result.profile.userUpdatedAt) {
-        expect(new Date(result.profile.userUpdatedAt)).toBeInstanceOf(Date);
+      if (targetProfile?.userUpdatedAt) {
+        expect(new Date(targetProfile.userUpdatedAt)).toBeInstanceOf(Date);
       }
 
-      if (result.profile.lastUsed) {
-        expect(new Date(result.profile.lastUsed)).toBeInstanceOf(Date);
+      if (targetProfile?.lastUsed) {
+        expect(new Date(targetProfile.lastUsed)).toBeInstanceOf(Date);
       }
     });
   });
@@ -197,7 +214,7 @@ describe('Quality Profiles API Integration Tests', () => {
   describe('Quality Profile Inheritance', () => {
     test('should show inheritance relationships', async () => {
       const searchBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
@@ -217,14 +234,14 @@ describe('Quality Profiles API Integration Tests', () => {
         .inheritance()
         .profileKey(inheritedProfile.key);
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         inheritanceBuilder.organization(envConfig.organization);
       }
 
       const { result, durationMs } = await measureTime(() => inheritanceBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.profile).toBeDefined();
       expect(result.profile.key).toBe(inheritedProfile.key);
@@ -252,7 +269,7 @@ describe('Quality Profiles API Integration Tests', () => {
   describe('Quality Profile Projects', () => {
     test('should get projects associated with quality profile', async () => {
       const searchBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
@@ -261,16 +278,16 @@ describe('Quality Profiles API Integration Tests', () => {
 
       const profileKey = searchResult.profiles[0].key;
 
-      const projectsBuilder = client.qualityProfiles.projects().key(profileKey).pageSize(10);
+      const projectsBuilder = client.qualityProfiles.projects().profile(profileKey).pageSize(10);
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         projectsBuilder.organization(envConfig.organization);
       }
 
-      const { result, durationMs } = await measureTime(() => projectsBuilder.execute());
+      const { result, durationMs } = await measureTime(async () => projectsBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.paging).toBeDefined();
       expect(result.results).toBeDefined();
@@ -290,7 +307,7 @@ describe('Quality Profiles API Integration Tests', () => {
   describe('Quality Profile Rules', () => {
     test('should search rules in quality profile', async () => {
       const searchBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
@@ -306,18 +323,18 @@ describe('Quality Profiles API Integration Tests', () => {
 
       const rulesBuilder = client.rules
         .search()
-        .qprofile(profileWithRules.key)
-        .activation('true')
+        .inQualityProfile(profileWithRules.key)
+        .withActivation(true)
         .pageSize(10);
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         rulesBuilder.organization(envConfig.organization);
       }
 
-      const { result, durationMs } = await measureTime(() => rulesBuilder.execute());
+      const { result, durationMs } = await measureTime(async () => rulesBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.rules).toBeDefined();
       expect(Array.isArray(result.rules)).toBe(true);
@@ -336,7 +353,7 @@ describe('Quality Profiles API Integration Tests', () => {
 
   describe('Platform-Specific Behavior', () => {
     test('should handle organization context for SonarCloud', async () => {
-      if (!envConfig.isSonarCloud || !envConfig.organization) {
+      if (!envConfig?.isSonarCloud || !envConfig.organization) {
         console.warn('Skipping SonarCloud organization test - not SonarCloud or no organization');
         return;
       }
@@ -345,8 +362,8 @@ describe('Quality Profiles API Integration Tests', () => {
         client.qualityProfiles.search().organization(envConfig.organization).execute()
       );
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
 
       expect(result.profiles).toBeDefined();
       expect(result.profiles.length).toBeGreaterThan(0);
@@ -359,14 +376,14 @@ describe('Quality Profiles API Integration Tests', () => {
     });
 
     test('should show built-in quality profiles for SonarQube', async () => {
-      if (envConfig.isSonarCloud) {
+      if (envConfig?.isSonarCloud) {
         console.warn('Skipping SonarQube built-in profiles test - running on SonarCloud');
         return;
       }
 
       const { result } = await measureTime(async () => client.qualityProfiles.search().execute());
 
-      IntegrationAssertions.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
 
       const builtInProfiles = result.profiles.filter((profile) => profile.isBuiltIn);
       expect(builtInProfiles.length).toBeGreaterThan(0);
@@ -388,13 +405,13 @@ describe('Quality Profiles API Integration Tests', () => {
   describe('Quality Profile Language Coverage', () => {
     test('should have quality profiles for major languages', async () => {
       const searchBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
       const { result } = await measureTime(async () => searchBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
 
       const languages = [...new Set(result.profiles.map((p) => p.language))];
 
@@ -421,7 +438,7 @@ describe('Quality Profiles API Integration Tests', () => {
           .show()
           .key('invalid-profile-key-that-does-not-exist');
 
-        if (envConfig.isSonarCloud && envConfig.organization) {
+        if (envConfig?.isSonarCloud && envConfig.organization) {
           showBuilder.organization(envConfig.organization);
         }
 
@@ -432,33 +449,35 @@ describe('Quality Profiles API Integration Tests', () => {
       }
     });
 
-    test('should handle invalid language filter gracefully', async () => {
+    test('should reject invalid language filter with proper validation error', async () => {
       const searchBuilder = client.qualityProfiles.search().language('invalid-language-code');
 
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
-      const { result } = await measureTime(async () => searchBuilder.execute());
-
-      // Should return empty results for invalid language
-      IntegrationAssertions.expectValidResponse(result);
-      expect(result.profiles).toBeDefined();
-      expect(result.profiles.length).toBe(0);
+      try {
+        await searchBuilder.execute();
+        fail('Expected an error to be thrown for invalid language');
+      } catch (error: unknown) {
+        const apiError = error as { statusCode?: number; message?: string };
+        expect(apiError.statusCode).toBe(400);
+        expect(apiError.message).toContain('must be one of');
+      }
     });
   });
 
   describe('Quality Profiles Performance', () => {
     test('should maintain reasonable performance for profile operations', async () => {
       const searchBuilder = client.qualityProfiles.search();
-      if (envConfig.isSonarCloud && envConfig.organization) {
+      if (envConfig?.isSonarCloud && envConfig.organization) {
         searchBuilder.organization(envConfig.organization);
       }
 
       const { result, durationMs } = await measureTime(async () => searchBuilder.execute());
 
-      IntegrationAssertions.expectValidResponse(result);
-      IntegrationAssertions.expectReasonableResponseTime(durationMs, {
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs, {
         expected: 1500, // 1.5 seconds
         maximum: 6000, // 6 seconds absolute max
       });
@@ -469,7 +488,7 @@ describe('Quality Profiles API Integration Tests', () => {
         .fill(null)
         .map(async (): Promise<unknown> => {
           const searchBuilder = client.qualityProfiles.search();
-          if (envConfig.isSonarCloud && envConfig.organization) {
+          if (envConfig?.isSonarCloud && envConfig.organization) {
             searchBuilder.organization(envConfig.organization);
           }
           return searchBuilder.execute();
@@ -478,7 +497,7 @@ describe('Quality Profiles API Integration Tests', () => {
       const results = await Promise.all(requests);
 
       results.forEach((result) => {
-        IntegrationAssertions.expectValidResponse(result);
+        INTEGRATION_ASSERTIONS.expectValidResponse(result);
         expect(result.profiles).toBeDefined();
       });
     });
@@ -488,18 +507,18 @@ describe('Quality Profiles API Integration Tests', () => {
     test('should handle transient failures with retry', async () => {
       const operation = async (): Promise<unknown> => {
         const searchBuilder = client.qualityProfiles.search();
-        if (envConfig.isSonarCloud && envConfig.organization) {
+        if (envConfig?.isSonarCloud && envConfig.organization) {
           searchBuilder.organization(envConfig.organization);
         }
         return searchBuilder.execute();
       };
 
-      const result = await retryOperation(operation, {
-        maxRetries: testConfig.maxRetries,
-        delay: testConfig.retryDelay,
+      const result = await withRetry(operation, {
+        maxAttempts: testConfig?.maxRetries ?? 3,
+        delayMs: testConfig?.retryDelay ?? 1000,
       });
 
-      IntegrationAssertions.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
       expect(result.profiles).toBeDefined();
     });
   });

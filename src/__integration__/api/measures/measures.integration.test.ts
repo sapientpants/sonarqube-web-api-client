@@ -52,7 +52,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
       );
       testProjectKey = createdProject.key;
     }
-  }, testConfig.longTimeout);
+  }, testConfig?.longTimeout);
 
   afterAll(async () => {
     await dataManager.cleanup();

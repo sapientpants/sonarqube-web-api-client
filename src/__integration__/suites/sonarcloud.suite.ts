@@ -13,15 +13,17 @@ const skipSuite =
   !canRunIntegrationTests() ||
   (canRunIntegrationTests() && getIntegrationTestConfig().platform !== 'sonarcloud');
 
-(skipSuite ? describe.skip : describe)('SonarCloud Integration Tests', () => {
-  let envConfig: ReturnType<typeof getIntegrationTestConfig>;
-  let testConfig: ReturnType<typeof getTestConfiguration>;
-  let enabledCategories: ReturnType<typeof getEnabledTestCategories>;
+// Initialize configurations at module load time for conditional describe blocks
+const envConfig = skipSuite ? null : getIntegrationTestConfig();
+const testConfig = skipSuite || !envConfig ? null : getTestConfiguration(envConfig);
+const enabledCategories =
+  skipSuite || !envConfig || !testConfig ? [] : getEnabledTestCategories(envConfig, testConfig);
 
+(skipSuite ? describe.skip : describe)('SonarCloud Integration Tests', () => {
   beforeAll(() => {
-    envConfig = getIntegrationTestConfig();
-    testConfig = getTestConfiguration(envConfig);
-    enabledCategories = getEnabledTestCategories(envConfig, testConfig);
+    if (!envConfig || !testConfig) {
+      throw new Error('Integration test configuration is not available');
+    }
 
     console.log('☁️ SonarCloud Integration Test Configuration:');
     console.log(`   URL: ${envConfig.url}`);
@@ -30,7 +32,6 @@ const skipSuite =
     console.log(
       `   Destructive Tests: ${testConfig.allowDestructiveTests ? 'Enabled' : 'Disabled'}`
     );
-    console.log(`   Admin Tests: ${testConfig.runAdminTests ? 'Enabled' : 'Disabled'}`);
     console.log(`   Enabled Categories: ${enabledCategories.map((c) => c.name).join(', ')}`);
   });
 
@@ -77,14 +78,14 @@ const skipSuite =
 
     describe('Organization Context', () => {
       test('should require organization for all operations', () => {
-        expect(envConfig.organization).toBeTruthy();
-        expect(envConfig.hasOrganization).toBe(true);
+        expect(envConfig?.organization).toBeTruthy();
+        expect(envConfig?.hasOrganization).toBe(true);
       });
 
       test('should include organization in API calls', () => {
         // This is a meta-test to verify our client configuration
-        expect(envConfig.isSonarCloud).toBe(true);
-        expect(envConfig.platform).toBe('sonarcloud');
+        expect(envConfig?.isSonarCloud).toBe(true);
+        expect(envConfig?.platform).toBe('sonarcloud');
       });
     });
 
@@ -112,8 +113,8 @@ const skipSuite =
     // Always test that SonarQube-specific APIs are not available
     describe('SonarQube API Exclusions', () => {
       test('should not have SonarQube-specific endpoints', () => {
-        expect(envConfig.platform).toBe('sonarcloud');
-        expect(envConfig.isSonarCloud).toBe(true);
+        expect(envConfig?.platform).toBe('sonarcloud');
+        expect(envConfig?.isSonarCloud).toBe(true);
       });
 
       test.todo('should not access Editions API (SonarQube-only)');
@@ -135,29 +136,23 @@ const skipSuite =
     test.todo('Project-level permission inheritance');
   });
 
-  // Administrative operations (if admin tests are enabled)
-  describe('Conditional Tests', () => {
-    test('should run admin tests if enabled', () => {
-      if (testConfig?.runAdminTests) {
-        describe('Organization Administration', () => {
-          test.todo('Organization member management');
-          test.todo('Permission template management');
-          test.todo('Organization settings configuration');
-          test.todo('Billing and usage management');
-        });
-      }
-    });
-
-    test('should run destructive tests if enabled', () => {
-      if (testConfig?.allowDestructiveTests) {
-        describe('Organization-Scoped Destructive Operations', () => {
-          test.todo('Project lifecycle within organization');
-          test.todo('Member invitation and removal');
-          test.todo('Bulk organization operations');
-        });
-      }
-    });
+  // Administrative operations - Always available (assumes admin permissions)
+  describe('Organization Administration', () => {
+    test.todo('Organization member management');
+    test.todo('Permission template management');
+    test.todo('Organization settings configuration');
+    test.todo('Billing and usage management');
   });
+
+  // Destructive operations (only if enabled)
+  (testConfig?.allowDestructiveTests ? describe : describe.skip)(
+    'Organization-Scoped Destructive Operations',
+    () => {
+      test.todo('Project lifecycle within organization');
+      test.todo('Member invitation and removal');
+      test.todo('Bulk organization operations');
+    }
+  );
 
   // SonarCloud-specific performance considerations
   describe('SonarCloud Performance & Limits', () => {

@@ -30,7 +30,6 @@ export SONARQUBE_ORGANIZATION="your-organization-key"
 # Optional configuration
 export INTEGRATION_TEST_TIMEOUT="30000"                    # Test timeout in ms
 export INTEGRATION_TEST_DESTRUCTIVE="false"               # Allow data creation/deletion
-export INTEGRATION_TEST_ADMIN="false"                      # Run admin-only tests
 export INTEGRATION_TEST_ENTERPRISE="false"                 # Run enterprise feature tests
 ```
 
@@ -70,8 +69,8 @@ export SONARQUBE_ORGANIZATION="your-org-key"  # Required for SonarCloud
 
 Your authentication token should have permissions for:
 
-- **Basic Access**: Read projects, issues, measures, and user information
-- **Admin Access** (optional): Required for system health, user management, and settings tests
+- **Basic Access**: Read projects, issues, measures, and user information  
+- **Admin Access**: Required for system health, user management, and settings tests (assumes admin permissions)
 - **Project Creation** (optional): Required for destructive tests that create/delete projects
 
 ### Configuration Options
@@ -83,7 +82,6 @@ Your authentication token should have permissions for:
 | `SONARQUBE_ORGANIZATION` | `undefined` | Organization key (required for SonarCloud) |
 | `INTEGRATION_TEST_TIMEOUT` | `30000` | Test timeout in milliseconds |
 | `INTEGRATION_TEST_DESTRUCTIVE` | `false` | Allow tests that create/delete data |
-| `INTEGRATION_TEST_ADMIN` | `false` | Run tests requiring admin permissions |
 | `INTEGRATION_TEST_ENTERPRISE` | `false` | Run enterprise feature tests |
 
 ## Test Structure
@@ -155,13 +153,7 @@ The framework organizes tests into logical categories:
    INTEGRATION_TEST_DESTRUCTIVE=true pnpm test:integration:sonarcloud
    ```
 
-3. **Admin Mode**: Includes admin-only endpoints
-   ```bash
-   INTEGRATION_TEST_ADMIN=true pnpm test:integration:sonarqube
-   INTEGRATION_TEST_ADMIN=true pnpm test:integration:sonarcloud
-   ```
-
-4. **Enterprise Mode**: Tests enterprise features
+3. **Enterprise Mode**: Tests enterprise features
    ```bash
    INTEGRATION_TEST_ENTERPRISE=true pnpm test:integration:sonarqube
    INTEGRATION_TEST_ENTERPRISE=true pnpm test:integration:sonarcloud

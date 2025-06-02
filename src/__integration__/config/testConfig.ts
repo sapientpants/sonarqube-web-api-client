@@ -18,8 +18,6 @@ export interface TestConfiguration {
   retryDelay: number;
   /** Whether to run destructive tests (delete operations) */
   allowDestructiveTests: boolean;
-  /** Whether to run admin-only tests */
-  runAdminTests: boolean;
   /** Whether to run enterprise feature tests */
   runEnterpriseTests: boolean;
 }
@@ -33,7 +31,6 @@ export const DEFAULT_TEST_CONFIG: TestConfiguration = {
   maxRetries: 3,
   retryDelay: 1000, // 1 second
   allowDestructiveTests: false,
-  runAdminTests: false,
   runEnterpriseTests: false,
 };
 
@@ -145,9 +142,6 @@ export function getTestConfiguration(_envConfig: IntegrationTestConfig): TestCon
 
   // Enable destructive tests only if explicitly requested
   config.allowDestructiveTests = process.env['INTEGRATION_TEST_DESTRUCTIVE'] === 'true';
-
-  // Enable admin tests only if explicitly requested
-  config.runAdminTests = process.env['INTEGRATION_TEST_ADMIN'] === 'true';
 
   // Enable enterprise tests only if explicitly requested
   config.runEnterpriseTests = process.env['INTEGRATION_TEST_ENTERPRISE'] === 'true';

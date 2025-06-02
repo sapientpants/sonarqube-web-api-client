@@ -149,7 +149,6 @@ pnpm test:integration:sonarcloud  # For SonarCloud instances
 | `SONARQUBE_TOKEN` | Authentication token | *required* |
 | `SONARQUBE_ORGANIZATION` | Organization key (SonarCloud only) | *optional* |
 | `INTEGRATION_TEST_DESTRUCTIVE` | Allow tests that create/delete data | `false` |
-| `INTEGRATION_TEST_ADMIN` | Include admin-only tests | `false` |
 | `INTEGRATION_TEST_ENTERPRISE` | Include enterprise feature tests | `false` |
 
 ### Test Architecture

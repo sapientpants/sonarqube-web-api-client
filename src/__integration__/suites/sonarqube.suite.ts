@@ -32,7 +32,6 @@ const enabledCategories =
     console.log(
       `   Destructive Tests: ${testConfig.allowDestructiveTests ? 'Enabled' : 'Disabled'}`
     );
-    console.log(`   Admin Tests: ${testConfig.runAdminTests ? 'Enabled' : 'Disabled'}`);
     console.log(`   Enterprise Tests: ${testConfig.runEnterpriseTests ? 'Enabled' : 'Disabled'}`);
     console.log(`   Enabled Categories: ${enabledCategories.map((c) => c.name).join(', ')}`);
   });
@@ -106,8 +105,8 @@ const enabledCategories =
     });
   });
 
-  // Conditional tests based on configuration
-  (testConfig?.runAdminTests ? describe : describe.skip)('Administrative APIs', () => {
+  // Administrative APIs - Always available (assumes admin permissions)
+  describe('Administrative APIs', () => {
     test.todo('User management integration tests');
     test.todo('Group management integration tests');
     test.todo('Permission management integration tests');

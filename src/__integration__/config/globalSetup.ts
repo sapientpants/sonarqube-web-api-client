@@ -46,9 +46,6 @@ export default async function globalSetup(): Promise<void> {
     `   💥 Destructive Tests:  ${testConfig.allowDestructiveTests ? '✅ Enabled' : '❌ Disabled'}`
   );
   console.log(
-    `   👨‍💼 Admin Tests:        ${testConfig.runAdminTests ? '✅ Enabled' : '❌ Disabled'}`
-  );
-  console.log(
     `   🏢 Enterprise Tests:   ${testConfig.runEnterpriseTests ? '✅ Enabled' : '❌ Disabled'}`
   );
   console.log(`   ⏱️  Test Timeout:       ${testConfig.defaultTimeout}ms`);

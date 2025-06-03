@@ -219,6 +219,42 @@ describe('ProjectPullRequestsClient', () => {
     });
   });
 
+  describe('listDirect (deprecated)', () => {
+    it('should return list of pull requests using direct method', async () => {
+      const mockResponse: ListPullRequestsResponse = {
+        pullRequests: [
+          {
+            key: '1',
+            title: 'Feature: Add new component',
+            branch: 'feature/new-component',
+            base: 'main',
+            status: {
+              qualityGateStatus: 'OK',
+              bugs: 0,
+              vulnerabilities: 0,
+              codeSmells: 2,
+            },
+            analysisDate: '2023-12-01T10:00:00+0000',
+            target: 'main',
+          },
+        ],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/project_pull_requests/list`, ({ request }) => {
+          const url = new URL(request.url);
+          expect(url.searchParams.get('project')).toBe('my-project');
+          expect(request.headers.get('authorization')).toBe(`Bearer ${token}`);
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.listDirect({ project: 'my-project' });
+      expect(result).toEqual(mockResponse);
+      expect(result.pullRequests).toHaveLength(1);
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle special characters in project names', async () => {
       const projectName = 'my-project/with:special@chars';

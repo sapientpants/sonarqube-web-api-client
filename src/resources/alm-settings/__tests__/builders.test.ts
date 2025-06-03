@@ -381,6 +381,47 @@ describe('AlmSettings Builders', () => {
           monorepo: true,
         });
       });
+
+      it('should set Azure binding using builder', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_azure_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'azure-alm',
+              projectName: 'AzureProject',
+              repositoryName: 'AzureRepo',
+              monorepo: true,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .setAzureBindingBuilder('my-project', 'azure-alm')
+          .withAzureProjectName('AzureProject')
+          .withRepositoryName('AzureRepo')
+          .asMonorepo(true)
+          .execute();
+      });
+
+      it('should throw validation error when Azure project name is missing', async () => {
+        await expect(
+          client
+            .setAzureBindingBuilder('my-project', 'azure-alm')
+            .withRepositoryName('AzureRepo')
+            .execute()
+        ).rejects.toThrow('Azure project name is required');
+      });
+
+      it('should throw validation error when repository name is missing', async () => {
+        await expect(
+          client
+            .setAzureBindingBuilder('my-project', 'azure-alm')
+            .withAzureProjectName('AzureProject')
+            .execute()
+        ).rejects.toThrow('Repository name is required');
+      });
     });
 
     describe('setBitbucketBinding', () => {
@@ -406,6 +447,47 @@ describe('AlmSettings Builders', () => {
           slug: 'repo',
           monorepo: false,
         });
+      });
+
+      it('should set Bitbucket binding using builder', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_bitbucket_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'bitbucket-alm',
+              repository: 'PROJ/repo',
+              slug: 'repo',
+              monorepo: false,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .setBitbucketBindingBuilder('my-project', 'bitbucket-alm')
+          .withRepository('PROJ/repo')
+          .withRepositorySlug('repo')
+          .asMonorepo(false)
+          .execute();
+      });
+
+      it('should throw validation error when repository is missing', async () => {
+        await expect(
+          client
+            .setBitbucketBindingBuilder('my-project', 'bitbucket-alm')
+            .withRepositorySlug('repo')
+            .execute()
+        ).rejects.toThrow('Bitbucket repository is required');
+      });
+
+      it('should throw validation error when repository slug is missing', async () => {
+        await expect(
+          client
+            .setBitbucketBindingBuilder('my-project', 'bitbucket-alm')
+            .withRepository('PROJ/repo')
+            .execute()
+        ).rejects.toThrow('Repository slug is required');
       });
     });
 
@@ -433,6 +515,58 @@ describe('AlmSettings Builders', () => {
           monorepo: true,
         });
       });
+
+      it('should set GitHub binding using builder', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_github_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'github-alm',
+              repository: 'org/repo',
+              summaryCommentEnabled: true,
+              monorepo: true,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .setGitHubBindingBuilder('my-project', 'github-alm')
+          .withRepository('org/repo')
+          .withSummaryComments(true)
+          .asMonorepo(true)
+          .execute();
+      });
+
+      it('should set GitHub binding with default summary comments', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_github_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'github-alm',
+              repository: 'org/repo',
+              summaryCommentEnabled: true,
+              monorepo: false,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .setGitHubBindingBuilder('my-project', 'github-alm')
+          .withRepository('org/repo')
+          .withSummaryComments() // Should default to true
+          .asMonorepo(false)
+          .execute();
+      });
+
+      it('should throw validation error when repository is missing', async () => {
+        await expect(
+          client.setGitHubBindingBuilder('my-project', 'github-alm').execute()
+        ).rejects.toThrow('Repository is required');
+      });
     });
 
     describe('setGitLabBinding', () => {
@@ -456,6 +590,33 @@ describe('AlmSettings Builders', () => {
           repository: '123',
           monorepo: false,
         });
+      });
+
+      it('should set GitLab binding using builder', async () => {
+        server.use(
+          http.post(`${baseUrl}/api/alm_settings/set_gitlab_binding`, async ({ request }) => {
+            const body = await request.json();
+            expect(body).toEqual({
+              project: 'my-project',
+              almSetting: 'gitlab-alm',
+              repository: '123',
+              monorepo: false,
+            });
+            return new HttpResponse(null, { status: 200 });
+          })
+        );
+
+        await client
+          .setGitLabBindingBuilder('my-project', 'gitlab-alm')
+          .withRepository('123')
+          .asMonorepo(false)
+          .execute();
+      });
+
+      it('should throw validation error when repository is missing', async () => {
+        await expect(
+          client.setGitLabBindingBuilder('my-project', 'gitlab-alm').execute()
+        ).rejects.toThrow('Repository is required');
       });
     });
 
@@ -483,6 +644,36 @@ describe('AlmSettings Builders', () => {
           repository: 'workspace/repo',
           monorepo: true,
         });
+      });
+
+      it('should set Bitbucket Cloud binding using builder', async () => {
+        server.use(
+          http.post(
+            `${baseUrl}/api/alm_settings/set_bitbucketcloud_binding`,
+            async ({ request }) => {
+              const body = await request.json();
+              expect(body).toEqual({
+                project: 'my-project',
+                almSetting: 'bitbucket-cloud-alm',
+                repository: 'workspace/repo',
+                monorepo: true,
+              });
+              return new HttpResponse(null, { status: 200 });
+            }
+          )
+        );
+
+        await client
+          .setBitbucketCloudBindingBuilder('my-project', 'bitbucket-cloud-alm')
+          .withRepository('workspace/repo')
+          .asMonorepo(true)
+          .execute();
+      });
+
+      it('should throw validation error when repository is missing', async () => {
+        await expect(
+          client.setBitbucketCloudBindingBuilder('my-project', 'bitbucket-cloud-alm').execute()
+        ).rejects.toThrow('Repository is required');
       });
     });
   });

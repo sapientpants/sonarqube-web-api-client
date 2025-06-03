@@ -92,6 +92,7 @@ describe('Error Scenarios with MSW', () => {
       await expect(client.getProjects()).rejects.toThrow(RateLimitError);
 
       // Second attempt should succeed
+
       const result = await client.getProjects();
       expect(result.components).toHaveLength(1);
       expect(attemptCount).toBe(2);
@@ -210,6 +211,7 @@ describe('Error Scenarios with MSW', () => {
       );
 
       const start = Date.now();
+
       const result = await client.getProjects();
       const duration = Date.now() - start;
 
@@ -247,6 +249,7 @@ describe('Error Scenarios with MSW', () => {
       );
 
       // Normal request succeeds
+
       const result = await client.getIssues('normal-project');
       expect(result.issues).toEqual([]);
 
@@ -283,6 +286,7 @@ describe('Error Scenarios with MSW', () => {
       await expect(client.getProjects()).rejects.toThrow(ServerError);
 
       // Third attempt succeeds
+
       const result = await client.getProjects();
       expect(result.components).toHaveLength(1);
       expect(requestCount).toBe(3);

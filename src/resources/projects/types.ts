@@ -159,6 +159,7 @@ export interface LicenseUsageResponse {
 export interface SearchProjectsRequest {
   analyzedBefore?: string;
   onProvisionedOnly?: boolean;
+  organization?: string;
   p?: number;
   projects?: string[];
   ps?: number;

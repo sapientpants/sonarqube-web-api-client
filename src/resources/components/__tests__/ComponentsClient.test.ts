@@ -153,7 +153,7 @@ describe('ComponentsClient', () => {
         })
       );
 
-      const result = await client.search('my-org');
+      const result = await client.searchLegacy('my-org');
       expect(result).toEqual(mockResponse);
     });
 
@@ -185,7 +185,7 @@ describe('ComponentsClient', () => {
         })
       );
 
-      const result = await client.search('my-org', {
+      const result = await client.searchLegacy('my-org', {
         q: 'sonar',
         ps: 50,
       });
@@ -214,7 +214,7 @@ describe('ComponentsClient', () => {
         })
       );
 
-      const result = await client.search('my-org', {
+      const result = await client.searchLegacy('my-org', {
         p: 2,
         ps: 25,
       });

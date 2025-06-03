@@ -441,4 +441,21 @@ describe('SearchIssuesBuilder', () => {
       await expect(unauthorizedBuilder.withProjects(['project']).execute()).rejects.toThrow();
     });
   });
+
+  describe('alias methods', () => {
+    it('should support organization() alias for inOrganization()', () => {
+      const result = builder.organization('my-org');
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should support componentKeys() alias for withComponents()', () => {
+      const result = builder.componentKeys(['comp1', 'comp2']);
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should support rules() alias for withRules()', () => {
+      const result = builder.rules(['rule1', 'rule2']);
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+  });
 });

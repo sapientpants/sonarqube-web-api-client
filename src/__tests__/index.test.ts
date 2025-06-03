@@ -72,6 +72,7 @@ describe('SonarQubeClient', () => {
       );
 
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
+
       const result = await client.getProjects();
 
       expect(result).toEqual(mockResponse);
@@ -91,6 +92,7 @@ describe('SonarQubeClient', () => {
       );
 
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token', 'my-org');
+
       const result = await client.getProjects();
 
       expect(capturedUrl).toContain('organization=my-org');
@@ -109,6 +111,7 @@ describe('SonarQubeClient', () => {
       );
 
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
+
       const result = await client.getProjects();
 
       expect(result).toEqual(mockResponse);
@@ -126,6 +129,7 @@ describe('SonarQubeClient', () => {
       );
 
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
+
       const result = await client.getIssues();
 
       expect(result).toEqual(mockResponse);
@@ -143,6 +147,7 @@ describe('SonarQubeClient', () => {
       );
 
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
+
       const result = await client.getIssues('my-project');
 
       expect(capturedUrl).toContain('componentKeys=my-project');
@@ -178,6 +183,7 @@ describe('SonarQubeClient', () => {
       );
 
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token', 'my-org');
+
       const result = await client.getIssues('my-project');
 
       expect(capturedUrl).toContain('organization=my-org');

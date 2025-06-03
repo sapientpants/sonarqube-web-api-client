@@ -285,6 +285,9 @@ export class ProjectsClient extends BaseClient {
       if (params.onProvisionedOnly !== undefined) {
         query.append('onProvisionedOnly', String(params.onProvisionedOnly));
       }
+      if (params.organization !== undefined) {
+        query.append('organization', params.organization);
+      }
       if (params.p !== undefined) {
         query.append('p', String(params.p));
       }

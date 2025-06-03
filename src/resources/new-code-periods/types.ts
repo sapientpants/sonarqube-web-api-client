@@ -91,3 +91,29 @@ export interface UnsetNewCodePeriodRequest {
   /** Branch name (optional) */
   branch?: string;
 }
+
+/**
+ * Request parameters for showing new code period
+ */
+export interface ShowNewCodePeriodRequest {
+  /** Project key (optional - if not provided, shows global default) */
+  project?: string;
+  /** Branch name (optional - if not provided with project, shows project default) */
+  branch?: string;
+}
+
+/**
+ * Response for showing new code period
+ */
+export interface ShowNewCodePeriodResponse {
+  /** Project key */
+  projectKey?: string;
+  /** Branch key */
+  branchKey?: string;
+  /** New code period definition */
+  type: NewCodePeriodType;
+  /** Value associated with the type */
+  value?: string;
+  /** Whether this is the default setting */
+  inherited?: boolean;
+}

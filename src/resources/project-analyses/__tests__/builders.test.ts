@@ -106,6 +106,7 @@ describe('SearchProjectAnalysesBuilder', () => {
       mockExecutor.mockResolvedValue(mockResponse);
 
       builder.project('my-project').branch('main').category('VERSION');
+
       const result = await builder.execute();
 
       expect(mockExecutor).toHaveBeenCalledWith({

@@ -4,6 +4,8 @@ import type {
   ListNewCodePeriodsResponse,
   SetNewCodePeriodRequest,
   SetNewCodePeriodResponse,
+  ShowNewCodePeriodRequest,
+  ShowNewCodePeriodResponse,
   UnsetNewCodePeriodRequest,
 } from './types';
 
@@ -50,6 +52,50 @@ export class NewCodePeriodsClient extends BaseClient {
 
     const response = await this.request<ListNewCodePeriodsResponse>(
       `/api/new_code_periods/list?${params.toString()}`
+    );
+
+    return response;
+  }
+
+  /**
+   * Gets the new code period setting for global, project, or branch level.
+   * Requires the permission to browse the project (when project key is provided).
+   *
+   * @param request - Request parameters (optional - if not provided, shows global setting)
+   * @returns Promise that resolves to the new code period setting
+   * @throws {AuthorizationError} If user lacks browse permission on the project
+   * @throws {NotFoundError} If the project or branch is not found
+   *
+   * @example
+   * ```typescript
+   * // Show global new code period setting
+   * const globalSetting = await client.newCodePeriods.show();
+   *
+   * // Show project-specific new code period setting
+   * const projectSetting = await client.newCodePeriods.show({
+   *   project: 'my-project'
+   * });
+   *
+   * // Show branch-specific new code period setting
+   * const branchSetting = await client.newCodePeriods.show({
+   *   project: 'my-project',
+   *   branch: 'main'
+   * });
+   * ```
+   */
+  async show(request?: ShowNewCodePeriodRequest): Promise<ShowNewCodePeriodResponse> {
+    const params = new URLSearchParams();
+
+    if (request?.project !== undefined) {
+      params.append('project', request.project);
+    }
+
+    if (request?.branch !== undefined) {
+      params.append('branch', request.branch);
+    }
+
+    const response = await this.request<ShowNewCodePeriodResponse>(
+      `/api/new_code_periods/show?${params.toString()}`
     );
 
     return response;

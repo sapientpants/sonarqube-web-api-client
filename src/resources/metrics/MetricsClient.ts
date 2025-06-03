@@ -26,10 +26,21 @@ export class MetricsClient extends BaseClient {
    * ```
    */
   async search(params?: SearchMetricsParams): Promise<SearchMetricsResponse> {
+    // Validate pagination parameters
+    if (params?.ps !== undefined) {
+      if (params.ps < 1 || params.ps > 500) {
+        throw new Error('Page size must be between 1 and 500');
+      }
+    }
+
     const searchParams = new URLSearchParams();
 
-    if (params?.f) {
-      searchParams.append('f', params.f.join(','));
+    if (params?.f !== undefined) {
+      if (Array.isArray(params.f)) {
+        searchParams.append('f', params.f.join(','));
+      } else {
+        searchParams.append('f', String(params.f));
+      }
     }
     if (params?.isCustom !== undefined) {
       searchParams.append('isCustom', String(params.isCustom));

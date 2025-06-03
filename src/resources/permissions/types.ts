@@ -384,15 +384,6 @@ export interface UpdateTemplateResponse {
 }
 
 /**
- * Response for searching global permissions
- * @deprecated Since 6.5
- */
-export interface SearchGlobalPermissionsResponse {
-  /** List of permissions */
-  permissions: GlobalPermission[];
-}
-
-/**
  * Response for searching project permissions
  * @deprecated Since 6.5
  */
@@ -425,4 +416,51 @@ export interface SearchTemplatesResponse {
     /** Qualifier (e.g., 'TRK' for projects) */
     qualifier: string;
   }>;
+}
+
+// ============================================================================
+// GLOBAL PERMISSION SEARCH OPERATIONS
+// ============================================================================
+
+/**
+ * Parameters for searching global permissions
+ */
+export interface SearchGlobalPermissionsRequest extends BasePermissionParams {
+  /** Query string to filter permissions */
+  q?: string;
+  /** Page number (1-based) */
+  p?: number;
+  /** Page size (max 500) */
+  ps?: number;
+}
+
+/**
+ * Permission entry in search results
+ */
+export interface PermissionEntry {
+  /** Permission key */
+  key: string;
+  /** Permission name */
+  name: string;
+  /** Permission description */
+  description?: string;
+  /** Users with this permission */
+  usersCount?: number;
+  /** Groups with this permission */
+  groupsCount?: number;
+}
+
+/**
+ * Response from global permissions search
+ * @deprecated Since 6.5
+ */
+export interface SearchGlobalPermissionsResponse {
+  /** Pagination information */
+  paging: {
+    pageIndex: number;
+    pageSize: number;
+    total: number;
+  };
+  /** List of permissions */
+  permissions: PermissionEntry[];
 }

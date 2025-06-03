@@ -29,4 +29,4 @@
 export { EditionsClient } from './EditionsClient';
 
 // Export all types
-export type { ActivateGracePeriodRequest, SetLicenseRequest } from './types';
+export type { ActivateGracePeriodRequest, SetLicenseRequest, EditionStatusResponse } from './types';

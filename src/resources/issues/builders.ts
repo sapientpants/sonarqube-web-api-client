@@ -30,6 +30,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter by component keys (alias for withComponents)
+   */
+  componentKeys(componentKeys: string[]): this {
+    return this.withComponents(componentKeys);
+  }
+
+  /**
    * Filter by project keys
    */
   withProjects(projectKeys: string[]): this {
@@ -163,6 +170,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter by rule keys (alias for withRules)
+   */
+  rules(rules: string[]): this {
+    return this.withRules(rules);
+  }
+
+  /**
    * Filter by specific issue keys
    */
   withIssues(issueKeys: string[]): this {
@@ -244,6 +258,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    */
   inOrganization(organization: string): this {
     return this.setParam('organization', organization);
+  }
+
+  /**
+   * Filter by organization (alias for inOrganization)
+   */
+  organization(organization: string): this {
+    return this.inOrganization(organization);
   }
 
   /**

@@ -128,6 +128,11 @@ export class SearchProjectsBuilder extends PaginatedBuilder<
    */
   qualifiers = ParameterHelpers.createArrayMethod<typeof this>('qualifiers');
 
+  /**
+   * Filter by organization (SonarCloud only).
+   */
+  organization = ParameterHelpers.createStringMethod<typeof this>('organization');
+
   async execute(): Promise<SearchProjectsResponse> {
     return this.executor(this.params as SearchProjectsRequest);
   }

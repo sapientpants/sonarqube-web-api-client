@@ -1,5 +1,5 @@
 import { BaseClient } from '../../core/BaseClient';
-import type { ActivateGracePeriodRequest, SetLicenseRequest } from './types';
+import type { ActivateGracePeriodRequest, SetLicenseRequest, EditionStatusResponse } from './types';
 
 /**
  * Client for SonarQube Editions API
@@ -26,6 +26,31 @@ import type { ActivateGracePeriodRequest, SetLicenseRequest } from './types';
  * ```
  */
 export class EditionsClient extends BaseClient {
+  /**
+   * Get the current edition status.
+   *
+   * This endpoint retrieves information about the currently active edition
+   * and its installation status.
+   *
+   * **Requires**: Administer System permission
+   *
+   * @returns Promise that resolves to the edition status information
+   *
+   * @since SonarQube 6.7
+   *
+   * @example
+   * ```typescript
+   * const status = await client.editions.status();
+   * console.log(`Current edition: ${status.currentEditionKey}`);
+   * if (status.installationStatus) {
+   *   console.log(`Installation status: ${status.installationStatus}`);
+   * }
+   * ```
+   */
+  async status(): Promise<EditionStatusResponse> {
+    return this.request<EditionStatusResponse>('/api/editions/status');
+  }
+
   /**
    * Enable a license 7-days grace period if the Server ID is invalid.
    *

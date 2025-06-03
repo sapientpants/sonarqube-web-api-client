@@ -357,6 +357,7 @@ describe('V2BaseClient', () => {
       );
 
       const progressUpdates: number[] = [];
+
       const result = await client.downloadWithProgress('/api/v2/download/file', {
         onProgress: (progress) => {
           progressUpdates.push(progress.percentage);

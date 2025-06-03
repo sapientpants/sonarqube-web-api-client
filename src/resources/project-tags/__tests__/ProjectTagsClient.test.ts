@@ -37,7 +37,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      const result = await client.search();
+      const result = await client.search().execute();
 
       expect(result).toEqual(mockResponse);
       expect(result.tags).toHaveLength(5);
@@ -57,10 +57,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await client.search({
-        ps: 20,
-        q: 'off',
-      });
+      await client.search().pageSize(20).query('off').execute();
 
       expect(capturedUrl).toBeDefined();
       expect(capturedUrl).not.toBeNull();
@@ -79,7 +76,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      const result = await client.search();
+      const result = await client.search().execute();
 
       expect(result.tags).toEqual([]);
     });
@@ -96,7 +93,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      const result = await client.search({ q: 'off' });
+      const result = await client.search().query('off').execute();
 
       expect(result.tags).toHaveLength(2);
       expect(result.tags).toContain('finance');
@@ -112,7 +109,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await expect(client.search()).rejects.toThrow(ServerError);
+      await expect(client.search().execute()).rejects.toThrow(ServerError);
     });
 
     it('should handle rate limiting', async () => {
@@ -126,7 +123,7 @@ describe('ProjectTagsClient', () => {
       );
 
       try {
-        await client.search();
+        await client.search().execute();
         fail('Expected RateLimitError');
       } catch (error) {
         expect(error).toBeInstanceOf(RateLimitError);
@@ -315,7 +312,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await client.search({ ps: 5 });
+      await client.search().pageSize(5).execute();
 
       expect(capturedUrl).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -334,7 +331,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await client.search({ q: 'finance' });
+      await client.search().query('finance').execute();
 
       expect(capturedUrl).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -353,7 +350,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await client.search({ ps: 0 });
+      await client.search().pageSize(0).execute();
 
       expect(capturedUrl).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -371,7 +368,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await client.search({ q: '' });
+      await client.search().query('').execute();
 
       expect(capturedUrl).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -389,7 +386,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await client.search();
+      await client.search().execute();
 
       expect(capturedUrl).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -405,7 +402,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await expect(client.search()).rejects.toThrow(NetworkError);
+      await expect(client.search().execute()).rejects.toThrow(NetworkError);
     });
 
     it('should handle authentication errors in search', async () => {
@@ -418,7 +415,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await expect(client.search()).rejects.toThrow(AuthenticationError);
+      await expect(client.search().execute()).rejects.toThrow(AuthenticationError);
     });
 
     it('should handle authorization errors in search', async () => {
@@ -431,7 +428,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await expect(client.search()).rejects.toThrow(AuthorizationError);
+      await expect(client.search().execute()).rejects.toThrow(AuthorizationError);
     });
 
     it('should handle not found errors in search', async () => {
@@ -443,7 +440,7 @@ describe('ProjectTagsClient', () => {
         })
       );
 
-      await expect(client.search()).rejects.toThrow(NotFoundError);
+      await expect(client.search().execute()).rejects.toThrow(NotFoundError);
     });
 
     it('should handle special characters in project name for set', async () => {

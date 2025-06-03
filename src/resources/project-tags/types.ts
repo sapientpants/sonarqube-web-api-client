@@ -7,6 +7,11 @@
  */
 export interface SearchTagsParams {
   /**
+   * Project key (optional for global tag search)
+   */
+  project?: string;
+
+  /**
    * Page size. Must be greater than 0 and less or equal than 100
    * @default 10
    * @maximum 100

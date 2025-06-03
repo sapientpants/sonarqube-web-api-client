@@ -3,11 +3,61 @@ import { ValidationError } from '../../errors';
 import {
   type ComponentTreeRequest,
   type ComponentTreeResponse,
+  type ComponentGlobalSearchRequest,
+  type ComponentSearchResponse,
   type Component,
   ComponentQualifier,
   ComponentSortField,
   ComponentTreeStrategy,
 } from './types';
+
+/**
+ * Builder for searching components across all projects
+ * This provides a simpler interface for general component search
+ */
+export class ComponentsSearchBuilder extends PaginatedBuilder<
+  ComponentGlobalSearchRequest,
+  ComponentSearchResponse,
+  Component
+> {
+  /**
+   * Set search query to filter components
+   * @param query - Search query
+   */
+  query(query: string): this {
+    return this.setParam('q', query);
+  }
+
+  /**
+   * Filter by component qualifiers
+   * @param qualifiers - Array of component qualifiers
+   */
+  qualifiers(qualifiers: ComponentQualifier[]): this {
+    return this.setParam('qualifiers', qualifiers);
+  }
+
+  /**
+   * Filter by languages
+   * @param languages - Array of language keys
+   */
+  languages(languages: string[]): this {
+    return this.setParam('languages', languages);
+  }
+
+  /**
+   * Execute the search request
+   */
+  async execute(): Promise<ComponentSearchResponse> {
+    return this.executor(this.params as ComponentGlobalSearchRequest);
+  }
+
+  /**
+   * Extract components array from response for pagination
+   */
+  protected getItems(response: ComponentSearchResponse): Component[] {
+    return response.components;
+  }
+}
 
 /**
  * Builder for constructing complex component tree queries

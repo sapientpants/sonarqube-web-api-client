@@ -61,11 +61,13 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      const result = await client.list({ project: 'my-project' });
+      const result = await client.list().project('my-project').execute();
       expect(result).toEqual(response);
       expect(result.pullRequests).toHaveLength(2);
-      expect(result.pullRequests[0].key).toBe('1543');
-      expect(result.pullRequests[0].status.qualityGateStatus).toBe('OK');
+
+      expect(result.pullRequests[0]?.key).toBe('1543');
+
+      expect(result.pullRequests[0]?.status.qualityGateStatus).toBe('OK');
     });
 
     it('should return empty list when no pull requests exist', async () => {
@@ -79,7 +81,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      const result = await client.list({ project: 'my-project' });
+      const result = await client.list().project('my-project').execute();
       expect(result.pullRequests).toEqual([]);
     });
 
@@ -100,9 +102,11 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      const result = await client.list({ project: 'my-project' });
-      expect(result.pullRequests[0].pullRequestUuidV1).toBe('uuid-1543-v1');
-      expect(result.pullRequests[0].pullRequestId).toBe('pr-1543');
+      const result = await client.list().project('my-project').execute();
+
+      expect(result.pullRequests[0]?.pullRequestUuidV1).toBe('uuid-1543-v1');
+
+      expect(result.pullRequests[0]?.pullRequestId).toBe('pr-1543');
     });
 
     it('should handle authentication errors', async () => {
@@ -114,7 +118,9 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      await expect(client.list({ project: 'my-project' })).rejects.toThrow(AuthenticationError);
+      await expect(client.list().project('my-project').execute()).rejects.toThrow(
+        AuthenticationError
+      );
     });
 
     it('should handle authorization errors', async () => {
@@ -129,7 +135,9 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      await expect(client.list({ project: 'my-project' })).rejects.toThrow(AuthorizationError);
+      await expect(client.list().project('my-project').execute()).rejects.toThrow(
+        AuthorizationError
+      );
     });
 
     it('should handle not found errors', async () => {
@@ -141,7 +149,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      await expect(client.list({ project: 'non-existent' })).rejects.toThrow(NotFoundError);
+      await expect(client.list().project('non-existent').execute()).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -224,7 +232,7 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      await client.list({ project: projectName });
+      await client.list().project(projectName).execute();
     });
 
     it('should handle pull requests with minimal data', async () => {
@@ -242,10 +250,13 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      const result = await client.list({ project: 'my-project' });
+      const result = await client.list().project('my-project').execute();
+
       expect(result.pullRequests[0]).toEqual(minimalPr);
-      expect(result.pullRequests[0].status.qualityGateStatus).toBeUndefined();
-      expect(result.pullRequests[0].analysisDate).toBeUndefined();
+
+      expect(result.pullRequests[0]?.status.qualityGateStatus).toBeUndefined();
+
+      expect(result.pullRequests[0]?.analysisDate).toBeUndefined();
     });
   });
 });

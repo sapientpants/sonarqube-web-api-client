@@ -57,4 +57,9 @@ export interface QualityGateBadgeParams extends BaseBadgeParams {
    * Long-lived branch key
    */
   branch?: string;
+
+  /**
+   * Template for the badge
+   */
+  template?: string;
 }

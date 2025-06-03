@@ -108,6 +108,7 @@ describe('Measures Builders', () => {
         executor.mockResolvedValue(mockResponse);
 
         const freshBuilder = new ComponentTreeBuilder(executor, 'my-project', ['coverage', 'bugs']);
+
         const result = await freshBuilder.execute();
         expect(result).toEqual(mockResponse);
         expect(executor).toHaveBeenCalledWith({

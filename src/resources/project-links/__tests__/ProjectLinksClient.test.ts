@@ -131,7 +131,7 @@ describe('ProjectLinksClient', () => {
         })
       );
 
-      const result = await client.search({ projectKey: 'my-project' });
+      const result = await client.search().projectKey('my-project').execute();
 
       expect(result).toEqual(mockResponse);
     });
@@ -158,13 +158,13 @@ describe('ProjectLinksClient', () => {
         })
       );
 
-      const result = await client.search({ projectId: 'AU-Tpxb--iU5OvuD2FLy' });
+      const result = await client.search().projectId('AU-Tpxb--iU5OvuD2FLy').execute();
 
       expect(result).toEqual(mockResponse);
     });
 
     it('should throw error when neither projectId nor projectKey is provided', async () => {
-      await expect(client.search({})).rejects.toThrow(
+      await expect(client.search().execute()).rejects.toThrow(
         'Either projectId or projectKey must be provided'
       );
     });

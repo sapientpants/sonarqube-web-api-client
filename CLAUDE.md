@@ -10,6 +10,7 @@ This is a TypeScript client library for the SonarQube Web API. The library provi
 
 - Use puppeteer to read v1 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api
 - Use puppeteer to read v2 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api_v2
+- Do not try to run integration tests, they need to be run manually
 
 ## Development Commands
 
@@ -24,6 +25,10 @@ pnpm build
 pnpm test
 pnpm test:watch      # Watch mode
 pnpm test:coverage   # With coverage report
+
+# Run integration tests (requires environment setup)
+pnpm test:integration:sonarqube         # SonarQube-specific tests
+pnpm test:integration:sonarcloud        # SonarCloud-specific tests
 
 # Linting and formatting
 pnpm lint            # Check for linting issues
@@ -114,6 +119,47 @@ Available error types:
 - `NetworkError` - Network connectivity issues
 - `TimeoutError` - Request timeouts
 - `ValidationError` - Client-side validation errors
+
+## Integration Testing
+
+The project includes comprehensive integration tests that validate the client against real SonarQube and SonarCloud instances.
+
+### Quick Setup
+
+Set environment variables and run tests:
+
+```bash
+# Required for all tests
+export SONARQUBE_URL="https://your-sonarqube-instance.com"
+export SONARQUBE_TOKEN="your-authentication-token"
+
+# Required for SonarCloud only
+export SONARQUBE_ORGANIZATION="your-organization-key"
+
+# Run integration tests
+pnpm test:integration:sonarqube   # For SonarQube instances
+pnpm test:integration:sonarcloud  # For SonarCloud instances
+```
+
+### Configuration Options
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SONARQUBE_URL` | SonarQube/SonarCloud instance URL | *required* |
+| `SONARQUBE_TOKEN` | Authentication token | *required* |
+| `SONARQUBE_ORGANIZATION` | Organization key (SonarCloud only) | *optional* |
+| `INTEGRATION_TEST_DESTRUCTIVE` | Allow tests that create/delete data | `false` |
+| `INTEGRATION_TEST_ENTERPRISE` | Include enterprise feature tests | `false` |
+
+### Test Architecture
+
+- **Modular API Tests**: Individual files for each API category (`src/__integration__/api/`)
+- **Platform-Specific Suites**: Separate test suites for SonarQube vs SonarCloud
+- **Environment-Driven**: Tests adapt based on platform detection and configuration
+- **Test Data Management**: Automatic cleanup of test artifacts
+- **Robust Error Handling**: Graceful handling of permissions and API differences
+
+See `src/__integration__/README.md` for detailed documentation.
 
 ## Development Tips
 

@@ -227,4 +227,44 @@ export class SettingsClient extends BaseClient {
       return this.request<ValuesResponse>(endpoint);
     });
   }
+
+  /**
+   * List settings values.
+   * Alias for values() method.
+   * If no value has been set for a setting, then the default value is returned.
+   * Both component and organization parameters cannot be used together.
+   * Requires 'Browse' or 'Execute Analysis' permission when a component is specified.
+   * Requires to be member of the organization if one is specified.
+   * To access secured settings, one of the following permissions is required:
+   * 'Execute Analysis' or 'Administer' rights on the specified component
+   *
+   * @returns A builder for constructing the values request
+   * @throws {AuthenticationError} If authentication is required
+   * @throws {AuthorizationError} If user lacks required permissions
+   * @throws {ValidationError} If both component and organization are specified
+   *
+   * @example
+   * ```typescript
+   * // Get all settings values
+   * const allSettings = await client.settings.list().execute();
+   *
+   * // Get specific settings values
+   * const specificSettings = await client.settings.list()
+   *   .keys(['sonar.test.inclusions', 'sonar.exclusions'])
+   *   .execute();
+   *
+   * // Get component-specific settings
+   * const componentSettings = await client.settings.list()
+   *   .component('my_project')
+   *   .execute();
+   *
+   * // Get organization-specific settings
+   * const orgSettings = await client.settings.list()
+   *   .organization('my-org')
+   *   .execute();
+   * ```
+   */
+  list(): ValuesBuilder {
+    return this.values();
+  }
 }

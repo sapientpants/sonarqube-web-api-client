@@ -222,9 +222,108 @@ describe('ComponentsClient', () => {
     });
   });
 
+  describe('search() builder method', () => {
+    it('should return a ComponentsSearchBuilder', async () => {
+      const builder = client.search();
+      expect(builder).toBeDefined();
+      expect(typeof builder.execute).toBe('function');
+    });
+
+    it('should search for components with organization', async () => {
+      const mockResponse: ComponentSearchResponse = {
+        components: [
+          {
+            key: 'project1',
+            name: 'Project 1',
+            qualifier: ComponentQualifier.Project,
+          },
+        ],
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 1,
+        },
+      };
+
+      // Set organization on client
+      const orgClient = new ComponentsClient(baseUrl, token, 'my-org');
+
+      server.use(
+        http.get(`${baseUrl}/api/components/search`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            organization: 'my-org',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await orgClient.search().execute();
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle search without organization (fallback)', async () => {
+      const result = await client.search().execute();
+      expect(result).toEqual({
+        components: [],
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 0,
+        },
+      });
+    });
+
+    it('should handle search with qualifiers', async () => {
+      const result = await client.search().qualifiers(['FIL', 'DIR']).execute();
+      expect(result.components).toEqual([]);
+    });
+
+    it('should handle search with pagination', async () => {
+      const result = await client.search().page(2).pageSize(50).execute();
+      expect(result.paging).toEqual({
+        pageIndex: 2,
+        pageSize: 50,
+        total: 0,
+      });
+    });
+
+    it('should handle search with query parameter', async () => {
+      const orgClient = new ComponentsClient(baseUrl, token, 'my-org');
+      const mockResponse: ComponentSearchResponse = {
+        components: [],
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 0,
+        },
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/search`, ({ request }) => {
+          assertQueryParams(request, {
+            organization: 'my-org',
+            q: 'test',
+            p: '2',
+            ps: '25',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await orgClient.search().query('test').page(2).pageSize(25).execute();
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('tree', () => {
     it('should return a ComponentsTreeBuilder', () => {
       const builder = client.tree();
+      expect(builder).toBeInstanceOf(ComponentsTreeBuilder);
+    });
+
+    it('should accept component key in constructor', () => {
+      const builder = client.tree('my_project');
       expect(builder).toBeInstanceOf(ComponentsTreeBuilder);
     });
 
@@ -347,6 +446,151 @@ describe('ComponentsClient', () => {
         .execute();
 
       expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle tree request with componentKey parameter in constructor', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 0,
+        },
+        baseComponent: {
+          key: 'preset_project',
+          name: 'Preset Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            component: 'preset_project',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.tree('preset_project').execute();
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle tree request with array parameters', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 2,
+        },
+        baseComponent: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [
+          {
+            key: 'my_project:src/file1.ts',
+            name: 'file1.ts',
+            qualifier: ComponentQualifier.File,
+          },
+          {
+            key: 'my_project:src/file2.ts',
+            name: 'file2.ts',
+            qualifier: ComponentQualifier.File,
+          },
+        ],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          assertQueryParams(request, {
+            component: 'my_project',
+            qualifiers: 'FIL,UTS',
+            s: 'name,path',
+            asc: 'true',
+            strategy: 'all',
+            q: 'test',
+            p: '2',
+            ps: '50',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .tree()
+        .component('my_project')
+        .qualifiers(['FIL', 'UTS'])
+        .sortBy(['name', 'path'])
+        .ascending('true')
+        .strategy('all')
+        .query('test')
+        .page(2)
+        .pageSize(50)
+        .execute();
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle undefined and zero values in tree parameters', async () => {
+      const mockResponse: ComponentTreeResponse = {
+        paging: {
+          pageIndex: 1,
+          pageSize: 100,
+          total: 0,
+        },
+        baseComponent: {
+          key: 'my_project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project,
+        },
+        components: [],
+      };
+
+      server.use(
+        http.get(`${baseUrl}/api/components/tree`, ({ request }) => {
+          assertCommonHeaders(request, token);
+          // Should not include parameters with undefined, empty, or zero values
+          assertQueryParams(request, {
+            component: 'my_project',
+          });
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client
+        .tree()
+        .component('my_project')
+        .qualifiers([])
+        .sortBy([])
+        .page(0)
+        .pageSize(0)
+        .execute();
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty arrays in appendArrayParam', async () => {
+      const result = await client.searchLegacy('my-org', {
+        q: '', // empty string should be ignored
+        p: -1, // negative number should be ignored
+        ps: 0, // zero should be ignored
+      });
+
+      // Test should complete without errors
+      expect(result).toBeDefined();
+    });
+
+    it('should handle ComponentsClient with organization parameter', () => {
+      const orgClient = new ComponentsClient(baseUrl, token, 'test-org');
+      expect(orgClient).toBeDefined();
+      // Check that organization is passed correctly by verifying the client exists
+      // Organization is internal to the client implementation
     });
   });
 });

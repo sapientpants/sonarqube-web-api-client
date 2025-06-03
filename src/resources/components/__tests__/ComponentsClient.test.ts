@@ -565,7 +565,7 @@ describe('ComponentsClient', () => {
         .tree()
         .component('my_project')
         .qualifiers([])
-        .sortBy(undefined as unknown as string[])
+        .sortBy([])
         .page(0)
         .pageSize(0)
         .execute();

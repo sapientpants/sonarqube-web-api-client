@@ -167,15 +167,16 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
 
       const baseOptions = options ?? {};
       const optionHeaders =
-        options?.headers && typeof options.headers === 'object' && !Array.isArray(options.headers)
-          ? options.headers
+        options?.headers &&
+        typeof options.headers === 'object' &&
+        !Array.isArray(options.headers) &&
+        !(options.headers instanceof Headers)
+          ? (options.headers as Record<string, string>)
           : {};
 
-      const mergedHeaders = Object.assign({}, headers, optionHeaders);
+      const mergedHeaders = { ...headers, ...optionHeaders };
 
-      const requestOptions: RequestInit = Object.assign({}, baseOptions, {
-        headers: mergedHeaders,
-      });
+      const requestOptions: RequestInit = { ...baseOptions, headers: mergedHeaders };
 
       const response = await fetch(`${this.baseUrl}${url}`, requestOptions);
 

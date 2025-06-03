@@ -332,7 +332,6 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
       for (const op of operations) {
         try {
-          // eslint-disable-next-line @typescript-eslint/await-thenable
           const result = await op.operation();
           expect(result).toBeDefined();
 
@@ -357,7 +356,6 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
     test('should handle transient failures with retry', async () => {
       const operation = async (): Promise<unknown> => client.authentication.validate();
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await withRetry(operation, {
         maxAttempts: testConfig?.maxRetries ?? 3,
         delayMs: testConfig?.retryDelay ?? 1000,

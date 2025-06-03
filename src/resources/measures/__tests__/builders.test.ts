@@ -108,7 +108,7 @@ describe('Measures Builders', () => {
         executor.mockResolvedValue(mockResponse);
 
         const freshBuilder = new ComponentTreeBuilder(executor, 'my-project', ['coverage', 'bugs']);
-        // eslint-disable-next-line @typescript-eslint/await-thenable
+
         const result = await freshBuilder.execute();
         expect(result).toEqual(mockResponse);
         expect(executor).toHaveBeenCalledWith({
@@ -261,7 +261,6 @@ describe('Measures Builders', () => {
         };
         executor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
         expect(result).toEqual(mockResponse);
         expect(executor).toHaveBeenCalledWith({

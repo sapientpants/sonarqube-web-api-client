@@ -301,7 +301,6 @@ describe('PermissionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createTemplate({
         name: 'Mobile Projects Template',
         description: 'Template for mobile application projects',
@@ -335,7 +334,6 @@ describe('PermissionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.updateTemplate({
         id: 'template-uuid',
         name: 'Updated Template Name',

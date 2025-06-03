@@ -136,7 +136,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.query('frontend').execute();
       expect(result).toEqual(mockResponse);
     });
@@ -152,7 +151,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.analyzedBefore('2024-01-01').execute();
       expect(result).toEqual(mockResponse);
     });
@@ -168,7 +166,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.onProvisionedOnly().execute();
       expect(result).toEqual(mockResponse);
     });
@@ -184,7 +181,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.projects(['project-1', 'project-2']).execute();
       expect(result).toEqual(mockResponse);
     });
@@ -200,7 +196,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.qualifiers(['TRK', 'APP']).execute();
       expect(result).toEqual(mockResponse);
     });
@@ -224,7 +219,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.page(2).pageSize(50).execute();
       expect(result.paging.pageIndex).toBe(2);
       expect(result.paging.pageSize).toBe(50);
@@ -308,7 +302,6 @@ describe('Projects Builders', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder
         .query('frontend')
         .analyzedBefore('2024-01-01')

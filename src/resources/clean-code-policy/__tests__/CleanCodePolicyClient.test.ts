@@ -56,7 +56,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createCustomRuleV2(request);
 
       expect(result).toEqual(mockResponse);
@@ -154,7 +153,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .createRule()
         .withKey('avoid-nullpointer')
@@ -199,7 +197,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .createRule()
         .withKey('complex-rule')
@@ -244,7 +241,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .createAdvancedRule()
         .withKey('sql-injection')
@@ -280,7 +276,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .createAdvancedRule()
         .withKey('no-console-regex')
@@ -318,7 +313,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .createAdvancedRule()
         .withKey('test-files-only')
@@ -357,7 +351,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .createAdvancedRule()
         .withKey('old-api-usage')
@@ -382,7 +375,6 @@ describe('CleanCodePolicyClient', () => {
         parameters: [{ key: 'message', value: 'Issue detected' }],
       };
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validateRule(request);
 
       expect(result.valid).toBe(true);
@@ -395,7 +387,6 @@ describe('CleanCodePolicyClient', () => {
         name: 'Incomplete Rule',
       };
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validateRule(request as CreateCustomRuleV2Request);
 
       expect(result.valid).toBe(false);
@@ -418,7 +409,6 @@ describe('CleanCodePolicyClient', () => {
         markdownDescription: 'Description',
       };
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validateRule(request);
 
       expect(result.valid).toBe(false);
@@ -438,7 +428,6 @@ describe('CleanCodePolicyClient', () => {
         markdownDescription: 'Too short', // less than 10 chars
       };
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validateRule(request);
 
       expect(result.valid).toBe(true); // Still valid, just a warning
@@ -488,7 +477,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBatch(rules);
 
       expect(callCount).toBe(2);
@@ -532,7 +520,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.createBatch(rules);
 
       expect(result.created).toHaveLength(1);
@@ -569,7 +556,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.importRules(exportData);
 
       expect(result.imported).toHaveLength(1);
@@ -599,7 +585,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.importRules(exportData, { skipExisting: true });
 
       // Since we're using skipExisting, the rule should be in either skipped or failed
@@ -631,7 +616,6 @@ describe('CleanCodePolicyClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.importRules(exportData, { keyPrefix: 'prefix-' });
 
       expect(result.imported).toHaveLength(1);

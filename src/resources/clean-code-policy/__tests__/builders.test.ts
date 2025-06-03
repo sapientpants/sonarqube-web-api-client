@@ -132,7 +132,6 @@ describe('CreateCustomRuleV2Builder', () => {
     it('should validate required fields', async () => {
       const builder = new CreateCustomRuleV2Builder(mockExecutor);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.validate();
 
       expect(result.valid).toBe(false);
@@ -175,7 +174,6 @@ describe('CreateCustomRuleV2Builder', () => {
         .withName('Test')
         .withDescription('Description');
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.validate();
 
       expect(result.valid).toBe(false);
@@ -197,7 +195,6 @@ describe('CreateCustomRuleV2Builder', () => {
         .withName('a'.repeat(201)) // Too long
         .withDescription('Description');
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.validate();
 
       expect(result.valid).toBe(false);
@@ -219,7 +216,6 @@ describe('CreateCustomRuleV2Builder', () => {
         .withName('Test Rule')
         .withDescription('Short'); // Less than 10 chars
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.validate();
 
       expect(result.valid).toBe(true);
@@ -244,7 +240,6 @@ describe('CreateCustomRuleV2Builder', () => {
           { key: '', value: 'value' }, // Empty key
         ]);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.validate();
 
       expect(result.valid).toBe(false);
@@ -267,7 +262,6 @@ describe('CreateCustomRuleV2Builder', () => {
         .withDescription('Valid description')
         .withParameter('param1', ''); // Empty value
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.validate();
 
       expect(result.valid).toBe(true);
@@ -299,7 +293,6 @@ describe('CreateCustomRuleV2Builder', () => {
         .withName('Test Rule')
         .withDescription('Valid description');
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.execute();
 
       expect(mockExecutor).toHaveBeenCalledWith({

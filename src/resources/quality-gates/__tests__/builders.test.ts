@@ -228,7 +228,6 @@ describe('Quality Gates Builders', () => {
         };
         executor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
         expect(result).toEqual(mockResponse);
         expect(executor).toHaveBeenCalledWith({
@@ -243,7 +242,6 @@ describe('Quality Gates Builders', () => {
         };
         executor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.withQuery('project').onlySelected().pageSize(50).execute();
 
         expect(result).toEqual(mockResponse);

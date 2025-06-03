@@ -34,7 +34,6 @@ describe('MetricsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
 
       expect(result).toEqual(mockResponse);
@@ -83,7 +82,6 @@ describe('MetricsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
 
       expect(result.metrics).toEqual([]);
@@ -279,7 +277,6 @@ describe('MetricsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.types();
 
       expect(result).toEqual(mockResponse);
@@ -325,7 +322,6 @@ describe('MetricsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.domains();
 
       expect(result).toEqual(mockResponse);

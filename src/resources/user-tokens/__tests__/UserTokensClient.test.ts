@@ -37,7 +37,6 @@ describe('UserTokensClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.generate({ name: 'CI Token' });
       expect(result).toEqual(mockResponse);
     });
@@ -59,7 +58,6 @@ describe('UserTokensClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.generate({
         login: 'g.hopper',
         name: 'Project scan on Travis',
@@ -198,7 +196,6 @@ describe('UserTokensClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
       expect(result).toEqual(mockResponse);
     });
@@ -218,7 +215,6 @@ describe('UserTokensClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search({ login: 'g.hopper' });
       expect(result).toEqual(mockResponse);
     });
@@ -235,7 +231,6 @@ describe('UserTokensClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
       expect(result).toEqual(mockResponse);
     });
@@ -289,7 +284,6 @@ describe('UserTokensClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.search();
       expect(result).toEqual(mockResponse);
     });

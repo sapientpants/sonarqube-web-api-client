@@ -51,7 +51,6 @@ describe('Users Builders', () => {
         };
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.query('test').execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({
@@ -262,7 +261,6 @@ describe('Users Builders', () => {
         };
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.login('john.doe').organization('my-org').execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({

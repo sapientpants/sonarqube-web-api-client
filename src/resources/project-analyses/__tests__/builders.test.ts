@@ -106,7 +106,7 @@ describe('SearchProjectAnalysesBuilder', () => {
       mockExecutor.mockResolvedValue(mockResponse);
 
       builder.project('my-project').branch('main').category('VERSION');
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder.execute();
 
       expect(mockExecutor).toHaveBeenCalledWith({

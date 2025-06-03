@@ -44,7 +44,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         name: 'My Webhook',
         organization: 'my-org',
@@ -80,7 +79,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         name: 'My Webhook',
         organization: 'my-org',
@@ -197,7 +195,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .deliveries()
         .ceTaskId('task-1')
@@ -228,7 +225,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.deliveries().execute();
 
       expect(result).toEqual(mockResponse);
@@ -263,7 +259,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.delivery({
         deliveryId: 'delivery-1',
       });
@@ -311,7 +306,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list().organization('my-org').project('my-project').execute();
 
       expect(result).toEqual(mockResponse);
@@ -339,7 +333,6 @@ describe('WebhooksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list().organization('my-org').execute();
 
       expect(result).toEqual(mockResponse);

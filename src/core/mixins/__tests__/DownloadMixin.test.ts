@@ -38,7 +38,6 @@ describe('DownloadMixin', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.downloadWithProgress('/api/v2/test/download');
       expect(result).toBeInstanceOf(Blob);
       expect(result.size).toBe(5);
@@ -81,7 +80,6 @@ describe('DownloadMixin', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.downloadWithProgress('/api/v2/test/download', {
         onProgress: (progress) => {
           progressUpdates.push({ ...progress });
@@ -121,7 +119,6 @@ describe('DownloadMixin', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.downloadWithProgress('/api/v2/test/download', {
         onProgress: () => {
           progressCalled = true;
@@ -201,7 +198,6 @@ describe('DownloadMixin', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.requestText('/api/v2/test/text');
       expect(result).toBe(textContent);
     });
@@ -216,7 +212,6 @@ describe('DownloadMixin', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.requestText('/api/v2/test/text', {
         headers: {
           Accept: 'application/json',

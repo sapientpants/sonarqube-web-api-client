@@ -92,7 +92,6 @@ describe('AlmIntegrationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.listAzureProjects({
         almSetting: 'azure-devops',
       });
@@ -149,7 +148,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchAzureRepos({
           almSetting: 'azure-devops',
           projectName: 'Project 1',
@@ -176,7 +174,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client
           .searchAzureReposBuilder()
           .withAlmSetting('azure-devops')
@@ -261,7 +258,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.listBitbucketServerProjects({
           almSetting: 'bitbucket-server',
         });
@@ -278,7 +274,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchBitbucketServerRepos({
           almSetting: 'bitbucket-server',
           projectKey: 'PROJ1',
@@ -309,7 +304,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client
           .searchBitbucketServerReposBuilder()
           .withAlmSetting('bitbucket-server')
@@ -345,7 +339,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchBitbucketCloudRepos({
           almSetting: 'bitbucket-cloud',
           workspaceId: 'my-workspace',
@@ -363,7 +356,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client
           .searchBitbucketCloudReposBuilder()
           .withAlmSetting('bitbucket-cloud')
@@ -402,7 +394,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.searchGitLabRepos({
           almSetting: 'gitlab',
           projectName: 'project',
@@ -433,7 +424,6 @@ describe('AlmIntegrationsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client
           .searchGitLabReposBuilder()
           .withAlmSetting('gitlab')

@@ -70,7 +70,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/foo/Bar.php',
       });
@@ -94,7 +93,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/foo/Bar.php',
         branch: 'feature/my_branch',
@@ -119,7 +117,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/foo/Bar.php',
         pullRequest: '5461',
@@ -164,7 +161,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/foo/Bar.php',
         branch: 'feature/my_branch',
@@ -186,7 +182,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/clean/File.php',
       });
@@ -266,7 +261,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/foo/Bar.php',
       });
@@ -293,7 +287,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({
         key: 'my_project:/src/foo/File with spaces.php',
         branch: 'feature/branch-with-special-chars',
@@ -315,7 +308,6 @@ describe('DuplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.show({
         key: 'my_project:/src/foo/Bar.php',
       });

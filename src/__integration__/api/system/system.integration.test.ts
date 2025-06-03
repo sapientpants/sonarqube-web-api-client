@@ -233,7 +233,7 @@ const skipTests = !canRunIntegrationTests();
       'should handle network timeouts gracefully',
       async () => {
         // Test retry logic with a potentially flaky operation
-        // eslint-disable-next-line @typescript-eslint/await-thenable
+
         const result = await withRetry(async () => client.system.ping(), {
           maxAttempts: 2,
           delayMs: 500,

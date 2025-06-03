@@ -36,7 +36,6 @@ describe('FixSuggestionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.fixSuggestions.getIssueAvailabilityV2({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
       });
@@ -58,7 +57,6 @@ describe('FixSuggestionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.fixSuggestions.getIssueAvailabilityV2({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         projectKey: 'my-project',
@@ -190,7 +188,6 @@ describe('FixSuggestionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.fixSuggestions.requestAiSuggestionsV2({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         includeContext: true,
@@ -260,7 +257,6 @@ describe('FixSuggestionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.fixSuggestions.requestAiSuggestionsV2({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         maxAlternatives: 3,

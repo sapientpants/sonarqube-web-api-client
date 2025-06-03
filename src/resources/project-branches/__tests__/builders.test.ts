@@ -32,7 +32,7 @@ describe('Project Branches Builders', () => {
       mockRequest.mockResolvedValue({ branches: mockBranches });
 
       const builder = new ProjectBranchesListBuilder(mockRequest);
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder.withProject('my-project').execute();
 
       expect(mockRequest).toHaveBeenCalledWith({
@@ -46,7 +46,7 @@ describe('Project Branches Builders', () => {
       mockRequest.mockResolvedValue({ branches: mockBranches });
 
       const builder = new ProjectBranchesListBuilder(mockRequest);
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder.withBranchIds(branchIds).execute();
 
       expect(mockRequest).toHaveBeenCalledWith({
@@ -60,7 +60,7 @@ describe('Project Branches Builders', () => {
       mockRequest.mockResolvedValue({ branches: mockBranches });
 
       const builder = new ProjectBranchesListBuilder(mockRequest);
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder.withProject('my-project').withBranchIds(branchIds).execute();
 
       expect(mockRequest).toHaveBeenCalledWith({
@@ -74,7 +74,7 @@ describe('Project Branches Builders', () => {
       mockRequest.mockResolvedValue({ branches: [] });
 
       const builder = new ProjectBranchesListBuilder(mockRequest);
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder.withProject('empty-project').execute();
 
       expect(result.branches).toEqual([]);

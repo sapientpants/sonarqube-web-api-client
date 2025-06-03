@@ -37,7 +37,6 @@ describe('AnalysisCacheClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.get({ project: 'my-project' });
       expect(result).toEqual(mockArrayBuffer);
     });
@@ -61,7 +60,6 @@ describe('AnalysisCacheClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.get({
         project: 'my-project',
         branch: 'feature/my-branch',
@@ -113,7 +111,6 @@ describe('AnalysisCacheClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.get({ project: 'my-project' });
 
       // Verify we received an ArrayBuffer with the expected data
@@ -160,7 +157,6 @@ describe('AnalysisCacheClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.get({ project: 'my-project' });
       expect(result).toEqual(emptyBuffer);
       expect(result.byteLength).toBe(0);
@@ -208,7 +204,6 @@ describe('AnalysisCacheClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.get({ project: 'my-project' });
       expect(result).toEqual(mockArrayBuffer);
     });

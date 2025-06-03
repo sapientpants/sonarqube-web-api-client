@@ -25,7 +25,6 @@ describe('EditionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.status();
       expect(result).toEqual(mockStatusResponse);
       expect(result.currentEditionKey).toBe('enterprise');
@@ -43,7 +42,6 @@ describe('EditionsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.status();
       expect(result).toEqual(communityResponse);
       expect(result.currentEditionKey).toBe('community');
@@ -115,7 +113,6 @@ describe('EditionsClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await client.status();
         expect(result.currentEditionKey).toBe(edition);
       }

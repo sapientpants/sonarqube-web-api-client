@@ -22,7 +22,6 @@ describe('IssuesClient', () => {
 
   describe('addComment', () => {
     it('should add a comment to an issue successfully', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.addComment({
         issue: 'issue-1',
         text: 'This is a comment',
@@ -35,7 +34,6 @@ describe('IssuesClient', () => {
     });
 
     it('should handle feedback comments', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.addComment({
         issue: 'issue-1',
         text: 'This is feedback',
@@ -65,7 +63,6 @@ describe('IssuesClient', () => {
 
   describe('assign', () => {
     it('should assign an issue to a user', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.assign({
         issue: 'issue-1',
         assignee: 'john.doe',
@@ -76,7 +73,6 @@ describe('IssuesClient', () => {
     });
 
     it('should unassign an issue when no assignee is provided', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.assign({
         issue: 'issue-1',
       });
@@ -105,7 +101,6 @@ describe('IssuesClient', () => {
 
   describe('doTransition', () => {
     it('should perform a confirm transition', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.doTransition({
         issue: 'issue-1',
         transition: 'confirm',
@@ -116,7 +111,6 @@ describe('IssuesClient', () => {
     });
 
     it('should perform a resolve transition', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.doTransition({
         issue: 'issue-1',
         transition: 'resolve',
@@ -128,7 +122,6 @@ describe('IssuesClient', () => {
     });
 
     it('should perform a false positive transition', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.doTransition({
         issue: 'issue-1',
         transition: 'falsepositive',
@@ -159,7 +152,6 @@ describe('IssuesClient', () => {
 
   describe('setTags', () => {
     it('should set tags on an issue', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.setTags({
         issue: 'issue-1',
         tags: ['security', 'performance'],
@@ -170,7 +162,6 @@ describe('IssuesClient', () => {
     });
 
     it('should clear tags when empty array is provided', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.setTags({
         issue: 'issue-1',
         tags: [],

@@ -71,7 +71,7 @@ describe('Permissions Builders', () => {
         mockExecutor.mockResolvedValue(mockResponse);
 
         builder.organization('my-org').query('admin');
-        // eslint-disable-next-line @typescript-eslint/await-thenable
+
         const result = await builder.execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({
@@ -89,7 +89,6 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({});
@@ -222,7 +221,6 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.projectKey('my-project').query('john').execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({
@@ -245,7 +243,6 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({});
@@ -370,7 +367,6 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.query('mobile').execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({
@@ -387,7 +383,6 @@ describe('Permissions Builders', () => {
 
         mockExecutor.mockResolvedValue(mockResponse);
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
         const result = await builder.execute();
 
         expect(mockExecutor).toHaveBeenCalledWith({});

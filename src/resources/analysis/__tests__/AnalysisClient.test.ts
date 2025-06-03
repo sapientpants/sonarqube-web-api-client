@@ -51,7 +51,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.analysis.getActiveRulesV2({
         projectKey: 'my-project',
       });
@@ -117,7 +116,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.analysis.getActiveRulesV2({
         projectKey: 'empty-project',
       });
@@ -148,7 +146,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.analysis.getEngineMetadataV2();
       expect(result).toEqual(mockMetadata);
     });
@@ -267,7 +264,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.analysis.getAllJresMetadataV2();
       expect(result).toEqual(mockResponse);
       expect(result.jres).toHaveLength(2);
@@ -300,7 +296,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.analysis.getJreMetadataV2('jre-17-linux-x64');
       expect(result).toEqual(mockJre);
     });
@@ -382,7 +377,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.analysis.getVersionV2();
       expect(result).toEqual(mockVersion);
     });
@@ -400,7 +394,6 @@ describe('AnalysisClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await unauthClient.analysis.getVersionV2();
       expect(result).toEqual(mockVersion);
     });

@@ -35,7 +35,6 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.aiCodeAssurance({ project: 'my-project' });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });
@@ -52,7 +51,6 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.aiCodeAssurance({
         project: 'my-project',
         token: 'badge-token',
@@ -105,7 +103,7 @@ describe('ProjectBadgesClient', () => {
       );
 
       // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.measure({
+      const result = await client.measureDirect({
         project: 'my-project',
         metric: 'coverage',
       });
@@ -125,8 +123,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.measure({
+      const result = await client.measureDirect({
         project: 'my-project',
         metric: 'bugs',
         branch: 'develop',
@@ -162,8 +159,7 @@ describe('ProjectBadgesClient', () => {
           })
         );
 
-        // eslint-disable-next-line @typescript-eslint/await-thenable
-        const result = await client.measure({
+        const result = await client.measureDirect({
           project: 'my-project',
           metric,
         });
@@ -181,9 +177,9 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      await expect(client.measure({ project: 'my-project', metric: 'coverage' })).rejects.toThrow(
-        RateLimitError
-      );
+      await expect(
+        client.measureDirect({ project: 'my-project', metric: 'coverage' })
+      ).rejects.toThrow(RateLimitError);
     });
   });
 
@@ -202,7 +198,7 @@ describe('ProjectBadgesClient', () => {
       );
 
       // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.qualityGate({ project: 'my-project' });
+      const result = await client.qualityGateDirect({ project: 'my-project' });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });
 
@@ -219,8 +215,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.qualityGate({
+      const result = await client.qualityGateDirect({
         project: 'my-project',
         branch: 'main',
         token: 'badge-token',
@@ -237,7 +232,9 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      await expect(client.qualityGate({ project: 'my-project' })).rejects.toThrow(ServerError);
+      await expect(client.qualityGateDirect({ project: 'my-project' })).rejects.toThrow(
+        ServerError
+      );
     });
   });
 
@@ -251,8 +248,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.qualityGate({ project: 'my-project' });
+      const result = await client.qualityGateDirect({ project: 'my-project' });
       expect(result).toBe('');
     });
 
@@ -270,8 +266,7 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.qualityGate({ project: projectName });
+      const result = await client.qualityGateDirect({ project: projectName });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });
   });

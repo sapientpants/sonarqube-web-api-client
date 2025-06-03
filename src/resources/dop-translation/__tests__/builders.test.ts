@@ -63,7 +63,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       (client.createBoundProjectV2 as jest.Mock).mockResolvedValue(expectedResponse);
 
       // Act
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder
         .forPlatform(DevOpsPlatform.GITHUB)
         .withProjectIdentifier('acme-corp/api-service')
@@ -183,7 +183,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       (client.createBoundProjectV2 as jest.Mock).mockResolvedValue(expectedResponse);
 
       // Act
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder
         .forPlatform(DevOpsPlatform.GITLAB)
         .withProjectIdentifier('frontend-team/react-dashboard')
@@ -270,7 +270,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       (client.createBoundProjectV2 as jest.Mock).mockResolvedValue(expectedResponse);
 
       // Act
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder
         .forPlatform(DevOpsPlatform.BITBUCKET)
         .withProjectIdentifier('mobile-team/ios-app')
@@ -350,7 +350,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       (client.createBoundProjectV2 as jest.Mock).mockResolvedValue(expectedResponse);
 
       // Act
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder
         .forPlatform(DevOpsPlatform.AzureDevops)
         .withProjectIdentifier('enterprise-org/core-services')
@@ -628,7 +628,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
         });
 
       // Act
-      // eslint-disable-next-line @typescript-eslint/await-thenable
+
       const result = await builder.execute();
 
       // Assert

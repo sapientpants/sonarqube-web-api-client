@@ -20,7 +20,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with basic parameters', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').execute();
 
       expect(result.hotspots).toBeDefined();
@@ -28,7 +27,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with multiple hotspot keys', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().withHotspots(['hotspot-1', 'hotspot-2']).execute();
 
       expect(result.hotspots).toHaveLength(2);
@@ -37,7 +35,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with status filter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -52,7 +49,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with resolution filter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -67,7 +63,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with onlyMine filter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').onlyMine(true).execute();
 
       expect(result.hotspots).toBeDefined();
@@ -78,7 +73,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with sinceLeakPeriod filter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -95,7 +89,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with files filter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -106,7 +99,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with fileUuids filter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -117,7 +109,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with pagination parameters', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -132,7 +123,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should execute search with all parameters combined', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .forProject('test-project')
@@ -166,42 +156,36 @@ describe('HotspotsClient', () => {
     });
 
     it('should handle empty hotspots array parameter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').withHotspots([]).execute();
 
       expect(result.hotspots).toBeDefined();
     });
 
     it('should handle empty files array parameter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').inFiles([]).execute();
 
       expect(result.hotspots).toBeDefined();
     });
 
     it('should handle empty fileUuids array parameter', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').inFileUuids([]).execute();
 
       expect(result.hotspots).toBeDefined();
     });
 
     it('should handle zero page number', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').page(0).execute();
 
       expect(result.hotspots).toBeDefined();
     });
 
     it('should handle zero page size', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('test-project').pageSize(0).execute();
 
       expect(result.hotspots).toBeDefined();
     });
 
     it('should handle empty project key', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().forProject('').execute();
 
       expect(result.hotspots).toBeDefined();
@@ -220,7 +204,6 @@ describe('HotspotsClient', () => {
 
   describe('show', () => {
     it('should fetch hotspot details successfully', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show({ hotspot: 'hotspot-1' });
 
       expect(result.key).toBe('hotspot-1');
@@ -262,7 +245,6 @@ describe('HotspotsClient', () => {
 
   describe('changeStatus', () => {
     it('should change hotspot status to TO_REVIEW successfully', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.changeStatus({
         hotspot: 'hotspot-1',
         status: 'TO_REVIEW',
@@ -273,7 +255,6 @@ describe('HotspotsClient', () => {
     });
 
     it('should change hotspot status to REVIEWED with resolution', async () => {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.changeStatus({
         hotspot: 'hotspot-1',
         status: 'REVIEWED',

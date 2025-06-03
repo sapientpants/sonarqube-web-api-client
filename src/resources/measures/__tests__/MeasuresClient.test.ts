@@ -31,7 +31,6 @@ describe('MeasuresClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.component({
         component: 'my-project',
         metricKeys: ['coverage', 'bugs'],
@@ -61,7 +60,6 @@ describe('MeasuresClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.component({
         componentId: 'AVXuGHKutxRmSBZ3KuSQ',
         metricKeys: ['coverage'],
@@ -186,7 +184,6 @@ describe('MeasuresClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.componentTree('my-project', ['coverage', 'bugs']).execute();
       expect(result).toEqual(mockResponse);
     });
@@ -223,7 +220,6 @@ describe('MeasuresClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.searchHistory('my-project', ['coverage']).execute();
       expect(result).toEqual(mockResponse);
     });

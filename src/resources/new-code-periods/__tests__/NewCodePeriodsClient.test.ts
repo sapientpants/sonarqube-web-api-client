@@ -45,7 +45,6 @@ describe('NewCodePeriodsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({ project: 'my-project' });
 
       expect(result).toEqual(mockResponse);
@@ -78,7 +77,6 @@ describe('NewCodePeriodsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list({
         project: 'my-project',
         branch: 'feature-branch',
@@ -136,7 +134,6 @@ describe('NewCodePeriodsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.set({
         type: NewCodePeriodType.PREVIOUS_VERSION,
       });
@@ -164,7 +161,6 @@ describe('NewCodePeriodsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.set({
         project: 'my-project',
         type: NewCodePeriodType.NUMBER_OF_DAYS,
@@ -195,7 +191,6 @@ describe('NewCodePeriodsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.set({
         project: 'my-project',
         branch: 'feature-branch',

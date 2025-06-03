@@ -84,7 +84,6 @@ describe('AlmIntegrationBuilder', () => {
     it('should pass validation when almSetting is set', async () => {
       executor.mockResolvedValue({ result: 'success' });
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.withAlmSetting('my-alm-setting').execute();
       expect(result).toEqual({ result: 'success' });
       expect(executor).toHaveBeenCalledWith({ almSetting: 'my-alm-setting' });
@@ -157,7 +156,6 @@ describe('RepositorySearchBuilder', () => {
       };
       executor.mockResolvedValue(mockResponse);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder
         .withAlmSetting('my-alm')
         .withQuery('test')

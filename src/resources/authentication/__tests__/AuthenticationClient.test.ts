@@ -32,7 +32,6 @@ describe('AuthenticationClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.validate();
       expect(result).toEqual(mockResponse);
     });
@@ -49,7 +48,6 @@ describe('AuthenticationClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await clientWithEmptyToken.validate();
       expect(result).toEqual(mockResponse);
     });

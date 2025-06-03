@@ -22,7 +22,6 @@ describe('FixSuggestions Builders', () => {
 
       const builder = new GetIssueAvailabilityV2BuilderImpl(mockClient);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder
         .withIssue('AY8qEqN7UVrTsQCOExjT')
         .inProject('my-project')
@@ -97,7 +96,6 @@ describe('FixSuggestions Builders', () => {
 
       const builder = new RequestAiSuggestionsV2BuilderImpl(mockClient);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder
         .withIssue('AY8qEqN7UVrTsQCOExjT')
         .withContext(true)

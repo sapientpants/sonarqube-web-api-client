@@ -513,7 +513,6 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
         return searchBuilder.execute();
       };
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await withRetry(operation, {
         maxAttempts: testConfig?.maxRetries ?? 3,
         delayMs: testConfig?.retryDelay ?? 1000,

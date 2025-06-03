@@ -100,7 +100,6 @@ describe('SearchUsersV2Builder', () => {
       const params: SearchUsersV2Request = { query: 'test', page: 1 };
       builder.query('test').page(1);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await builder.execute();
 
       expect(mockExecutor).toHaveBeenCalledWith(params);

@@ -77,7 +77,6 @@ describe('ApplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create(params);
       expect(result).toEqual(response);
     });
@@ -223,7 +222,6 @@ describe('ApplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show(params);
       expect(result).toEqual(response);
     });
@@ -251,7 +249,6 @@ describe('ApplicationsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.show(params);
       expect(result).toEqual(response);
     });

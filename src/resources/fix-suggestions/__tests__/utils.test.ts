@@ -458,7 +458,6 @@ describe('FixSuggestionIntegration', () => {
         .mockResolvedValueOnce({ available: true })
         .mockResolvedValueOnce({ available: false });
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.findEligibleIssues(mockClient, 'my-project', {
         autoCheckAvailability: true,
       });
@@ -484,7 +483,6 @@ describe('FixSuggestionIntegration', () => {
 
       mockClient.fixSuggestions.getIssueAvailabilityV2.mockResolvedValue({ available: true });
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.findEligibleIssues(mockClient, 'my-project', {
         autoCheckAvailability: true,
         eligibilityCriteria: { age: 30 }, // Only issues from last 30 days
@@ -509,7 +507,6 @@ describe('FixSuggestionIntegration', () => {
 
       mockClient.fixSuggestions.getIssueAvailabilityV2.mockResolvedValue({ available: true });
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.findEligibleIssues(mockClient, 'my-project', {
         autoCheckAvailability: true,
         eligibilityCriteria: { hasLocation: true },
@@ -533,7 +530,6 @@ describe('FixSuggestionIntegration', () => {
 
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.findEligibleIssues(mockClient, 'my-project');
 
       expect(result).toHaveLength(1);
@@ -573,7 +569,6 @@ describe('FixSuggestionIntegration', () => {
         progressUpdates.push(progress);
       });
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.batchProcessIssues(mockClient, issueKeys, {
         concurrency: 2,
         onProgress,
@@ -600,7 +595,6 @@ describe('FixSuggestionIntegration', () => {
         .mockRejectedValueOnce(new Error('API Error'))
         .mockResolvedValueOnce(mockResponse);
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.batchProcessIssues(mockClient, issueKeys, {
         continueOnError: true,
       });
@@ -642,7 +636,6 @@ describe('FixSuggestionIntegration', () => {
           metadata: {},
         });
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await FixSuggestionIntegration.batchProcessIssues(mockClient, issueKeys);
 
       // Average confidence: ((80+90)/2 + 70)/2 = (85 + 70)/2 = 77.5

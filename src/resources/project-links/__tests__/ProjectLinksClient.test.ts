@@ -36,7 +36,6 @@ describe('ProjectLinksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         projectKey: 'my-project',
         name: 'Documentation',
@@ -69,7 +68,6 @@ describe('ProjectLinksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         projectId: 'AU-Tpxb--iU5OvuD2FLy',
         name: 'Issue Tracker',
@@ -133,8 +131,7 @@ describe('ProjectLinksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.search({ projectKey: 'my-project' });
+      const result = await client.search().projectKey('my-project').execute();
 
       expect(result).toEqual(mockResponse);
     });
@@ -161,14 +158,13 @@ describe('ProjectLinksClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      const result = await client.search({ projectId: 'AU-Tpxb--iU5OvuD2FLy' });
+      const result = await client.search().projectId('AU-Tpxb--iU5OvuD2FLy').execute();
 
       expect(result).toEqual(mockResponse);
     });
 
     it('should throw error when neither projectId nor projectKey is provided', async () => {
-      await expect(client.search({})).rejects.toThrow(
+      await expect(client.search().execute()).rejects.toThrow(
         'Either projectId or projectKey must be provided'
       );
     });

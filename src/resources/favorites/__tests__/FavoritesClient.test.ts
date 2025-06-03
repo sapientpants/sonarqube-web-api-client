@@ -89,7 +89,6 @@ describe('FavoritesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().execute();
       expect(result).toEqual(mockResponse);
     });
@@ -121,7 +120,6 @@ describe('FavoritesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().page(2).pageSize(50).execute();
       expect(result).toEqual(mockResponse);
     });

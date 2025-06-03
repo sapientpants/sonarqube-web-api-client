@@ -52,7 +52,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search();
 
       expect(result).toEqual(mockResponse);
@@ -89,7 +88,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search({ category: 'AUTH' });
 
       expect(result.auditLogs[0].category).toBe('AUTH');
@@ -120,7 +118,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search({
         category: 'AUTH',
         action: 'LOGIN',
@@ -285,7 +282,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.download();
 
       expect(result).toBeInstanceOf(Blob);
@@ -310,7 +306,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.download({
         from: '2024-01-01T00:00:00Z',
         to: '2024-01-31T23:59:59Z',
@@ -347,7 +342,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.isAvailable();
 
       expect(result).toBe(true);
@@ -360,7 +354,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.isAvailable();
 
       expect(result).toBe(false);
@@ -373,7 +366,6 @@ describe('AuditLogsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.isAvailable();
 
       expect(result).toBe(false);

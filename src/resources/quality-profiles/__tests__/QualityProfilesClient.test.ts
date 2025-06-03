@@ -100,7 +100,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .activateRules()
         .targetProfile('java-profile-key')
@@ -188,7 +187,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.backup({
         key: 'java-profile-key',
       });
@@ -212,7 +210,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.backup({
         qualityProfile: 'Sonar way',
         language: 'java',
@@ -276,7 +273,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.changelog().profile('java-profile-key').execute();
       expect(result).toEqual(mockResponse);
     });
@@ -305,7 +301,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.changelog().profileByName('Sonar way', 'java').execute();
       expect(result).toEqual(mockResponse);
     });
@@ -330,7 +325,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .changelog()
         .profile('java-profile-key')
@@ -365,7 +359,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.compare({
         leftKey: 'old-profile',
         rightKey: 'new-profile',
@@ -395,7 +388,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.compare({
         leftQualityProfile: 'Sonar way',
         rightQualityProfile: 'Custom Java',
@@ -426,7 +418,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.copy({
         fromKey: 'source-profile',
         toName: 'Custom Java Profile',
@@ -463,7 +454,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.create({
         name: 'Strict Java Rules',
         language: 'java',
@@ -520,7 +510,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .deactivateRules()
         .targetProfile('java-profile-key')
@@ -565,7 +554,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.export({
         key: 'java-profile-key',
       });
@@ -587,7 +575,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.export({
         key: 'js-profile-key',
         exporterKey: 'eslint',
@@ -610,7 +597,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.export({
         qualityProfile: 'Sonar way',
         language: 'java',
@@ -636,7 +622,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.exporters();
       expect(result).toEqual(mockResponse);
     });
@@ -658,7 +643,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.importers();
       expect(result).toEqual(mockResponse);
     });
@@ -700,7 +684,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.inheritance({
         key: 'custom-java-profile',
       });
@@ -743,7 +726,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.inheritance({
         qualityProfile: 'Sonar way',
         language: 'java',
@@ -783,7 +765,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .projects()
         .profile('java-profile-key')
@@ -900,7 +881,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.restore({
         backup: '<?xml version="1.0"?><profile>...</profile>',
         organization: 'my-org',
@@ -946,7 +926,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.search().execute();
       expect(result).toEqual(mockResponse);
     });
@@ -982,7 +961,6 @@ describe('QualityProfilesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client
         .search()
         .defaults(true)

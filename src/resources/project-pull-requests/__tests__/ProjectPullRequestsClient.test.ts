@@ -64,9 +64,9 @@ describe('ProjectPullRequestsClient', () => {
       const result = await client.list().project('my-project').execute();
       expect(result).toEqual(response);
       expect(result.pullRequests).toHaveLength(2);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]?.key).toBe('1543');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]?.status.qualityGateStatus).toBe('OK');
     });
 
@@ -102,11 +102,10 @@ describe('ProjectPullRequestsClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.list().project('my-project').execute();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]?.pullRequestUuidV1).toBe('uuid-1543-v1');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]?.pullRequestId).toBe('pr-1543');
     });
 
@@ -252,11 +251,11 @@ describe('ProjectPullRequestsClient', () => {
       );
 
       const result = await client.list().project('my-project').execute();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]).toEqual(minimalPr);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]?.status.qualityGateStatus).toBeUndefined();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       expect(result.pullRequests[0]?.analysisDate).toBeUndefined();
     });
   });

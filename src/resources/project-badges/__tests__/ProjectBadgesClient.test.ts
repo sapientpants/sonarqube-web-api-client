@@ -102,7 +102,6 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.measureDirect({
         project: 'my-project',
         metric: 'coverage',
@@ -197,7 +196,6 @@ describe('ProjectBadgesClient', () => {
         })
       );
 
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const result = await client.qualityGateDirect({ project: 'my-project' });
       expect(result).toBe(SAMPLE_SVG_BADGE);
     });

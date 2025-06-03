@@ -11,6 +11,11 @@ import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './typ
 import type { PrimitiveValue } from './types/primitive';
 
 /**
+ * Type for optional headers
+ */
+type OptionalHeaders = Record<string, string> | undefined;
+
+/**
  * Base class for all v2 API clients
  * Extends BaseClient with v2-specific functionality and download capabilities
  */
@@ -143,7 +148,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
       'Content-Type': 'application/json',
       // eslint-disable-next-line @typescript-eslint/naming-convention
       Accept: 'application/json',
-      ...(options?.headers as Record<string, string> | undefined),
+      ...(options?.headers as OptionalHeaders),
     };
 
     if (this.token.length > 0) {

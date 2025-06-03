@@ -165,10 +165,19 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
         headers['Authorization'] = `Bearer ${this.token}`;
       }
 
-      const response = await fetch(`${this.baseUrl}${url}`, {
-        ...options,
-        headers: Object.assign(headers, options?.headers ?? {}),
+      const baseOptions = options ?? {};
+      const optionHeaders =
+        options?.headers && typeof options.headers === 'object' && !Array.isArray(options.headers)
+          ? options.headers
+          : {};
+
+      const mergedHeaders = Object.assign({}, headers, optionHeaders);
+
+      const requestOptions: RequestInit = Object.assign({}, baseOptions, {
+        headers: mergedHeaders,
       });
+
+      const response = await fetch(`${this.baseUrl}${url}`, requestOptions);
 
       if (!response.ok) {
         const { createErrorFromResponse } = await import('../../errors');

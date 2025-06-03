@@ -229,26 +229,8 @@ export class ComponentsClient extends BaseClient {
     const includesProjects =
       searchQualifiers.length === 0 || searchQualifiers.includes(ComponentQualifier.Project);
 
-    if (includesProjects && searchQualifiers.length <= 1) {
-      // Simple project search - use the legacy search endpoint if organization is available
-      if (this.organization !== undefined && this.organization !== '') {
-        const searchParams = new URLSearchParams();
-        searchParams.set('organization', this.organization);
-
-        if (params.q !== undefined && params.q !== '') {
-          searchParams.set('q', params.q);
-        }
-        if (params.p !== undefined && params.p > 0) {
-          searchParams.set('p', params.p.toString());
-        }
-        if (params.ps !== undefined && params.ps > 0) {
-          searchParams.set('ps', params.ps.toString());
-        }
-
-        return this.request<ComponentSearchResponse>(
-          `/api/components/search?${searchParams.toString()}`
-        );
-      }
+    if (includesProjects && searchQualifiers.length <= 1 && this.canUseOrganizationSearch()) {
+      return this.searchWithOrganization(params);
     }
 
     // Fallback: Search within all accessible projects using tree endpoint
@@ -256,6 +238,42 @@ export class ComponentsClient extends BaseClient {
     // 1. Get a list of projects first
     // 2. Search within each project
     // For now, return an empty result to prevent errors
+    return this.createEmptySearchResponse(params);
+  }
+
+  private canUseOrganizationSearch(): boolean {
+    return this.organization !== undefined && this.organization !== '';
+  }
+
+  private async searchWithOrganization(
+    params: ComponentGlobalSearchRequest
+  ): Promise<ComponentSearchResponse> {
+    const searchParams = this.buildOrganizationSearchParams(params);
+    return this.request<ComponentSearchResponse>(
+      `/api/components/search?${searchParams.toString()}`
+    );
+  }
+
+  private buildOrganizationSearchParams(params: ComponentGlobalSearchRequest): URLSearchParams {
+    const searchParams = new URLSearchParams();
+    if (this.organization !== undefined && this.organization !== '') {
+      searchParams.set('organization', this.organization);
+    }
+
+    if (params.q !== undefined && params.q !== '') {
+      searchParams.set('q', params.q);
+    }
+    if (params.p !== undefined && params.p > 0) {
+      searchParams.set('p', params.p.toString());
+    }
+    if (params.ps !== undefined && params.ps > 0) {
+      searchParams.set('ps', params.ps.toString());
+    }
+
+    return searchParams;
+  }
+
+  private createEmptySearchResponse(params: ComponentGlobalSearchRequest): ComponentSearchResponse {
     return {
       components: [],
       paging: {

@@ -35,13 +35,8 @@ export const ruleKeyUtils = {
     // Convert to lowercase and replace spaces/special chars with hyphens
     let key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    // Remove leading and trailing hyphens safely
-    while (key.startsWith('-')) {
-      key = key.slice(1);
-    }
-    while (key.endsWith('-')) {
-      key = key.slice(0, -1);
-    }
+    // Remove leading and trailing hyphens
+    key = key.replace(/^-+|-+$/g, '');
 
     // Add prefix if provided
     if (prefix !== undefined && prefix !== '') {

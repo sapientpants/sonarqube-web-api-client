@@ -37,13 +37,10 @@ export const ruleKeyUtils = {
 
     // Remove leading and trailing hyphens
     // Remove leading hyphens
-    while (key.startsWith('-')) {
-      key = key.slice(1);
-    }
-    // Remove trailing hyphens
-    while (key.endsWith('-')) {
-      key = key.slice(0, -1);
-    }
+    // Remove leading and trailing hyphens in one pass
+    const start = key.search(/[^-]/); // Find first non-hyphen index
+    const end = key.lastIndexOf('-') + 1; // Find last non-hyphen index
+    key = start === -1 ? '' : key.slice(start, end);
 
     // Add prefix if provided
     if (prefix !== undefined && prefix !== '') {

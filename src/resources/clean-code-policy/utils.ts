@@ -36,7 +36,21 @@ export const ruleKeyUtils = {
     let key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
     // Remove leading and trailing hyphens
-    key = key.replace(/^-+/, '').replace(/-+$/, '');
+    // Find first non-hyphen character using search
+    const start = key.search(/[^-]/);
+
+    if (start === -1) {
+      // String contains only hyphens
+      key = '';
+    } else {
+      // Find last non-hyphen character
+      let end = key.length - 1;
+      while (end >= 0 && key[end] === '-') {
+        end--;
+      }
+
+      key = key.slice(start, end + 1);
+    }
 
     // Add prefix if provided
     if (prefix !== undefined && prefix !== '') {

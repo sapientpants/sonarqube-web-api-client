@@ -397,5 +397,165 @@ describe('SystemClient', () => {
         expect(result.nodes?.[0].causes).toContain('Database connection lost');
       });
     });
+
+    describe('getLivenessV2', () => {
+      it('should fetch liveness status as object', async () => {
+        const mockResponse = { status: 'UP' };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/liveness`, ({ request }) => {
+            assertAuthorizationHeader(request, token);
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getLivenessV2();
+        expect(result).toEqual({ status: 'UP' });
+      });
+
+      it('should handle DOWN status', async () => {
+        const mockResponse = { status: 'DOWN' };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/liveness`, () => {
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getLivenessV2();
+        expect(result.status).toBe('DOWN');
+      });
+
+      it('should handle empty response with fallback', async () => {
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/liveness`, () => {
+            return HttpResponse.json({ status: 'UP' });
+          })
+        );
+
+        const result = await client.getLivenessV2();
+        expect(result).toEqual({ status: 'UP' });
+      });
+
+      it('should work without authentication', async () => {
+        const mockResponse = { status: 'UP' };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/liveness`, ({ request }) => {
+            assertNoAuthorizationHeader(request);
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await clientWithEmptyToken.getLivenessV2();
+        expect(result).toEqual({ status: 'UP' });
+      });
+    });
+
+    describe('getMigrationsStatusV2', () => {
+      it('should fetch migrations status when up to date', async () => {
+        const mockResponse = {
+          status: 'UP_TO_DATE',
+          message: 'Database is up to date',
+        };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/migrations-status`, ({ request }) => {
+            assertAuthorizationHeader(request, token);
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getMigrationsStatusV2();
+        expect(result).toEqual(mockResponse);
+      });
+
+      it('should handle running migrations', async () => {
+        const mockResponse = {
+          status: 'RUNNING',
+          message: 'Migration #1234 in progress: Updating indices',
+        };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/migrations-status`, () => {
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getMigrationsStatusV2();
+        expect(result.status).toBe('RUNNING');
+        expect(result.message).toContain('Migration #1234 in progress');
+      });
+
+      it('should handle pending migrations', async () => {
+        const mockResponse = {
+          status: 'PENDING',
+          message: '3 migrations pending',
+        };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/migrations-status`, () => {
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getMigrationsStatusV2();
+        expect(result.status).toBe('PENDING');
+        expect(result.message).toBe('3 migrations pending');
+      });
+
+      it('should handle failed migrations', async () => {
+        const mockResponse = {
+          status: 'FAILED',
+          message: 'Migration #1234 failed: Database connection error',
+        };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/migrations-status`, () => {
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getMigrationsStatusV2();
+        expect(result.status).toBe('FAILED');
+        expect(result.message).toContain('failed');
+      });
+
+      it('should handle response without message', async () => {
+        const mockResponse = {
+          status: 'UP_TO_DATE',
+        };
+
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/migrations-status`, () => {
+            return HttpResponse.json(mockResponse);
+          })
+        );
+
+        const result = await client.getMigrationsStatusV2();
+        expect(result.status).toBe('UP_TO_DATE');
+        expect(result.message).toBeUndefined();
+      });
+
+      it('should require authentication', async () => {
+        server.use(
+          http.get(`${baseUrl}/api/v2/system/migrations-status`, () => {
+            return HttpResponse.json(
+              {
+                errors: [{ msg: 'Authentication required' }],
+              },
+              {
+                status: 401,
+                statusText: 'Unauthorized',
+              }
+            );
+          })
+        );
+
+        await expect(clientWithEmptyToken.getMigrationsStatusV2()).rejects.toThrow(
+          AuthenticationError
+        );
+      });
+    });
   });
 });

@@ -340,6 +340,44 @@ describe('ProjectTagsClient', () => {
       expect(params2.get('ps')).toBeNull();
     });
 
+    it('should handle search with project parameter', async () => {
+      let capturedUrl: URL | null = null;
+
+      server.use(
+        http.get(`${baseUrl}/api/project_tags/search`, ({ request }) => {
+          capturedUrl = new URL(request.url);
+          return HttpResponse.json({ tags: ['project-tag'] });
+        })
+      );
+
+      await client.search().project('my-project').execute();
+
+      expect(capturedUrl).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const params = capturedUrl!.searchParams;
+      expect(params.get('project')).toBe('my-project');
+    });
+
+    it('should handle search with all parameters', async () => {
+      let capturedUrl: URL | null = null;
+
+      server.use(
+        http.get(`${baseUrl}/api/project_tags/search`, ({ request }) => {
+          capturedUrl = new URL(request.url);
+          return HttpResponse.json({ tags: ['finance'] });
+        })
+      );
+
+      await client.search().project('my-project').query('finance').pageSize(10).execute();
+
+      expect(capturedUrl).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const params = capturedUrl!.searchParams;
+      expect(params.get('project')).toBe('my-project');
+      expect(params.get('q')).toBe('finance');
+      expect(params.get('ps')).toBe('10');
+    });
+
     it('should handle search with ps = 0', async () => {
       let capturedUrl: URL | null = null;
 
@@ -502,6 +540,88 @@ describe('ProjectTagsClient', () => {
       expect(capturedBody).toBeDefined();
       const parsedBody = JSON.parse(capturedBody as string) as { project: string; tags: string };
       expect(parsedBody.tags).toBe(longTagList);
+    });
+  });
+
+  describe('searchDirect (deprecated)', () => {
+    it('should return tags with default parameters', async () => {
+      const mockResponse = createSearchTagsResponse(SAMPLE_TAGS);
+
+      server.use(
+        http.get(`${baseUrl}/api/project_tags/search`, () => {
+          return HttpResponse.json(mockResponse);
+        })
+      );
+
+      const result = await client.searchDirect();
+
+      expect(result).toEqual(mockResponse);
+      expect(result.tags).toHaveLength(5);
+    });
+
+    it('should handle search parameters', async () => {
+      let capturedUrl: URL | null = null;
+
+      server.use(
+        http.get(`${baseUrl}/api/project_tags/search`, ({ request }) => {
+          capturedUrl = new URL(request.url);
+          return HttpResponse.json({ tags: ['finance'] });
+        })
+      );
+
+      await client.searchDirect({
+        project: 'my-project',
+        ps: 10,
+        q: 'finance',
+      });
+
+      expect(capturedUrl).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const params = capturedUrl!.searchParams;
+      expect(params.get('project')).toBe('my-project');
+      expect(params.get('ps')).toBe('10');
+      expect(params.get('q')).toBe('finance');
+    });
+
+    it('should handle undefined parameters', async () => {
+      let capturedUrl: URL | null = null;
+
+      server.use(
+        http.get(`${baseUrl}/api/project_tags/search`, ({ request }) => {
+          capturedUrl = new URL(request.url);
+          return HttpResponse.json({ tags: [] });
+        })
+      );
+
+      await client.searchDirect({
+        project: undefined,
+        ps: undefined,
+        q: undefined,
+      });
+
+      expect(capturedUrl).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const params = capturedUrl!.searchParams;
+      expect(params.get('project')).toBeNull();
+      expect(params.get('ps')).toBeNull();
+      expect(params.get('q')).toBeNull();
+    });
+
+    it('should handle no parameters object', async () => {
+      let capturedUrl: URL | null = null;
+
+      server.use(
+        http.get(`${baseUrl}/api/project_tags/search`, ({ request }) => {
+          capturedUrl = new URL(request.url);
+          return HttpResponse.json({ tags: SAMPLE_TAGS });
+        })
+      );
+
+      await client.searchDirect();
+
+      expect(capturedUrl).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(capturedUrl!.search).toBe('');
     });
   });
 

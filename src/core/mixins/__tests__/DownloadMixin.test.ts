@@ -27,8 +27,10 @@ describe('DownloadMixin', () => {
 
       server.use(
         http.get('http://localhost:9000/api/v2/test/download', ({ request }) => {
+          // Verify headers were sent correctly
           expect(request.headers.get('Accept')).toBe('application/octet-stream');
           expect(request.headers.get('Authorization')).toBe('Bearer test-token');
+
           return HttpResponse.arrayBuffer(binaryData, {
             status: 200,
             headers: {

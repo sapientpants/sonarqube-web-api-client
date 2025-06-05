@@ -76,16 +76,9 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Downloaded content as Blob
      */
     async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-      const headers: Record<string, string> = {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        Accept: 'application/octet-stream',
-      };
-
-      const headersObj = new Headers(headers);
-      this.authProvider.applyAuth(headersObj);
-      headersObj.forEach((value, key) => {
-        headers[key] = value;
-      });
+      let headers = new Headers();
+      headers.set('Accept', 'application/octet-stream');
+      headers = this.authProvider.applyAuth(headers);
 
       let response: Response;
       try {
@@ -158,26 +151,19 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Text content
      */
     async requestText(url: string, options?: RequestInit): Promise<string> {
-      const headers: Record<string, string> = {};
+      let headers = new Headers();
 
-      const headersObj = new Headers(headers);
-      this.authProvider.applyAuth(headersObj);
-      headersObj.forEach((value, key) => {
-        headers[key] = value;
-      });
+      // Merge with any headers from options
+      if (options?.headers) {
+        const optHeaders = new Headers(options.headers);
+        optHeaders.forEach((value, key) => {
+          headers.set(key, value);
+        });
+      }
 
-      const baseOptions = options ?? {};
-      const optionHeaders =
-        options?.headers &&
-        typeof options.headers === 'object' &&
-        !Array.isArray(options.headers) &&
-        !(options.headers instanceof Headers)
-          ? (options.headers as Record<string, string>)
-          : {};
+      headers = this.authProvider.applyAuth(headers);
 
-      const mergedHeaders = { ...headers, ...optionHeaders };
-
-      const requestOptions: RequestInit = { ...baseOptions, headers: mergedHeaders };
+      const requestOptions: RequestInit = { ...options, headers };
 
       const response = await fetch(`${this.baseUrl}${url}`, requestOptions);
 

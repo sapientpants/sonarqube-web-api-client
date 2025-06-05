@@ -1207,4 +1207,9 @@ export type { ClientOptions } from './core/BaseClient';
 
 // Re-export authentication
 export type { AuthProvider } from './core/auth';
-export { BearerTokenAuthProvider, BasicAuthProvider, PasscodeAuthProvider } from './core/auth';
+export {
+  BearerTokenAuthProvider,
+  BasicAuthProvider,
+  PasscodeAuthProvider,
+  NoAuthProvider,
+} from './core/auth';

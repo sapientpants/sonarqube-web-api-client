@@ -1,6 +1,6 @@
 import { http, HttpResponse, delay } from 'msw';
 import { server } from '../../../test-utils/msw/server';
-import { SonarQubeClient } from '../../../index';
+import { SonarQubeClient, NoAuthProvider } from '../../../index';
 import type {
   GetActiveRulesV2Response,
   EngineMetadataV2,
@@ -382,7 +382,7 @@ describe('AnalysisClient', () => {
     });
 
     it('should work without authentication', async () => {
-      const unauthClient = new SonarQubeClient(baseUrl, '');
+      const unauthClient = SonarQubeClient.withAuth(baseUrl, new NoAuthProvider());
       const mockVersion: VersionV2Response = {
         version: '10.3.0',
       };

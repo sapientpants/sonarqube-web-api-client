@@ -9,6 +9,12 @@ import { DopTranslationClient } from './resources/dop-translation';
 import { createErrorFromResponse, createNetworkError } from './errors';
 import { DeprecationManager } from './core/deprecation';
 import { type ClientOptions } from './core/BaseClient';
+import {
+  type AuthProvider,
+  BearerTokenAuthProvider,
+  BasicAuthProvider,
+  PasscodeAuthProvider,
+} from './core/auth';
 import { ApplicationsClient } from './resources/applications';
 import { AuthenticationClient } from './resources/authentication';
 import { AuthorizationsClient } from './resources/authorizations';
@@ -61,7 +67,48 @@ interface IssuesResponse {
 /**
  * Main SonarQube API client
  */
+/* eslint-disable @typescript-eslint/member-ordering */
 export class SonarQubeClient {
+  /**
+   * Create a client with Bearer token authentication
+   */
+  static withToken(baseUrl: string, token: string, options?: ClientOptions): SonarQubeClient {
+    const authProvider = new BearerTokenAuthProvider(token);
+    return new SonarQubeClient(baseUrl, authProvider, options);
+  }
+
+  /**
+   * Create a client with HTTP Basic authentication
+   */
+  static withBasicAuth(
+    baseUrl: string,
+    username: string,
+    password: string,
+    options?: ClientOptions
+  ): SonarQubeClient {
+    const authProvider = new BasicAuthProvider(username, password);
+    return new SonarQubeClient(baseUrl, authProvider, options);
+  }
+
+  /**
+   * Create a client with passcode authentication
+   */
+  static withPasscode(baseUrl: string, passcode: string, options?: ClientOptions): SonarQubeClient {
+    const authProvider = new PasscodeAuthProvider(passcode);
+    return new SonarQubeClient(baseUrl, authProvider, options);
+  }
+
+  /**
+   * Create a client with custom authentication provider
+   */
+  static withAuth(
+    baseUrl: string,
+    authProvider: AuthProvider,
+    options?: ClientOptions
+  ): SonarQubeClient {
+    return new SonarQubeClient(baseUrl, authProvider, options);
+  }
+
   // Resource clients
   /** ALM Integrations API - **Note**: Only available in SonarQube, not in SonarCloud */
   public readonly almIntegrations: AlmIntegrationsClient;
@@ -157,12 +204,22 @@ export class SonarQubeClient {
   public readonly views: ViewsClient;
 
   private readonly baseUrl: string;
-  private readonly token: string;
+  private readonly authProvider: AuthProvider;
   private readonly options: ClientOptions;
 
-  constructor(baseUrl: string, token: string, organizationOrOptions?: string | ClientOptions) {
+  constructor(
+    baseUrl: string,
+    authProviderOrToken: AuthProvider | string,
+    organizationOrOptions?: string | ClientOptions
+  ) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
-    this.token = token;
+
+    // For backward compatibility, accept string token and convert to BearerTokenAuthProvider
+    if (typeof authProviderOrToken === 'string') {
+      this.authProvider = new BearerTokenAuthProvider(authProviderOrToken);
+    } else {
+      this.authProvider = authProviderOrToken;
+    }
 
     // Handle backward compatibility
     if (typeof organizationOrOptions === 'string') {
@@ -175,56 +232,56 @@ export class SonarQubeClient {
     DeprecationManager.configure(this.options);
 
     // Initialize resource clients
-    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.token, this.options);
-    this.almSettings = new AlmSettingsClient(this.baseUrl, this.token, this.options);
-    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.token, this.options);
-    this.analysis = new AnalysisClient(this.baseUrl, this.token, this.options);
-    this.sca = new ScaClient(this.baseUrl, this.token, this.options);
-    this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.token, this.options);
-    this.cleanCodePolicy = new CleanCodePolicyClient(this.baseUrl, this.token, this.options);
-    this.dopTranslation = new DopTranslationClient(this.baseUrl, this.token, this.options);
-    this.applications = new ApplicationsClient(this.baseUrl, this.token, this.options);
-    this.authentication = new AuthenticationClient(this.baseUrl, this.token, this.options);
-    this.authorizations = new AuthorizationsClient(this.baseUrl, this.token, this.options);
-    this.ce = new CEClient(this.baseUrl, this.token, this.options);
-    this.components = new ComponentsClient(this.baseUrl, this.token, this.options);
-    this.duplications = new DuplicationsClient(this.baseUrl, this.token, this.options);
-    this.favorites = new FavoritesClient(this.baseUrl, this.token, this.options);
-    this.issues = new IssuesClient(this.baseUrl, this.token, this.options);
-    this.languages = new LanguagesClient(this.baseUrl, this.token, this.options);
-    this.hotspots = new HotspotsClient(this.baseUrl, this.token, this.options);
-    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.token, this.options);
-    this.notifications = new NotificationsClient(this.baseUrl, this.token, this.options);
-    this.projects = new ProjectsClient(this.baseUrl, this.token, this.options);
-    this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.token, this.options);
-    this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.token, this.options);
-    this.projectLinks = new ProjectLinksClient(this.baseUrl, this.token, this.options);
+    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.authProvider, this.options);
+    this.almSettings = new AlmSettingsClient(this.baseUrl, this.authProvider, this.options);
+    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.authProvider, this.options);
+    this.analysis = new AnalysisClient(this.baseUrl, this.authProvider, this.options);
+    this.sca = new ScaClient(this.baseUrl, this.authProvider, this.options);
+    this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.authProvider, this.options);
+    this.cleanCodePolicy = new CleanCodePolicyClient(this.baseUrl, this.authProvider, this.options);
+    this.dopTranslation = new DopTranslationClient(this.baseUrl, this.authProvider, this.options);
+    this.applications = new ApplicationsClient(this.baseUrl, this.authProvider, this.options);
+    this.authentication = new AuthenticationClient(this.baseUrl, this.authProvider, this.options);
+    this.authorizations = new AuthorizationsClient(this.baseUrl, this.authProvider, this.options);
+    this.ce = new CEClient(this.baseUrl, this.authProvider, this.options);
+    this.components = new ComponentsClient(this.baseUrl, this.authProvider, this.options);
+    this.duplications = new DuplicationsClient(this.baseUrl, this.authProvider, this.options);
+    this.favorites = new FavoritesClient(this.baseUrl, this.authProvider, this.options);
+    this.issues = new IssuesClient(this.baseUrl, this.authProvider, this.options);
+    this.languages = new LanguagesClient(this.baseUrl, this.authProvider, this.options);
+    this.hotspots = new HotspotsClient(this.baseUrl, this.authProvider, this.options);
+    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.authProvider, this.options);
+    this.notifications = new NotificationsClient(this.baseUrl, this.authProvider, this.options);
+    this.projects = new ProjectsClient(this.baseUrl, this.authProvider, this.options);
+    this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.authProvider, this.options);
+    this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.authProvider, this.options);
+    this.projectLinks = new ProjectLinksClient(this.baseUrl, this.authProvider, this.options);
     this.projectPullRequests = new ProjectPullRequestsClient(
       this.baseUrl,
-      this.token,
+      this.authProvider,
       this.options
     );
-    this.permissions = new PermissionsClient(this.baseUrl, this.token, this.options);
-    this.metrics = new MetricsClient(this.baseUrl, this.token, this.options);
-    this.measures = new MeasuresClient(this.baseUrl, this.token, this.options);
-    this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.token, this.options);
-    this.auditLogs = new AuditLogsClient(this.baseUrl, this.token, this.options);
-    this.plugins = new PluginsClient(this.baseUrl, this.token, this.options);
-    this.server = new ServerClient(this.baseUrl, this.token, this.options);
-    this.editions = new EditionsClient(this.baseUrl, this.token, this.options);
-    this.projectDump = new ProjectDumpClient(this.baseUrl, this.token, this.options);
-    this.qualityGates = new QualityGatesClient(this.baseUrl, this.token, this.options);
-    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.token, this.options);
-    this.rules = new RulesClient(this.baseUrl, this.token, this.options);
-    this.sources = new SourcesClient(this.baseUrl, this.token, this.options);
-    this.system = new SystemClient(this.baseUrl, this.token, this.options);
-    this.projectTags = new ProjectTagsClient(this.baseUrl, this.token, this.options);
-    this.settings = new SettingsClient(this.baseUrl, this.token, this.options);
-    this.users = new UsersClient(this.baseUrl, this.token, this.options);
-    this.userTokens = new UserTokensClient(this.baseUrl, this.token, this.options);
-    this.webhooks = new WebhooksClient(this.baseUrl, this.token, this.options);
-    this.webservices = new WebservicesClient(this.baseUrl, this.token, this.options);
-    this.views = new ViewsClient(this.baseUrl, this.token, this.options);
+    this.permissions = new PermissionsClient(this.baseUrl, this.authProvider, this.options);
+    this.metrics = new MetricsClient(this.baseUrl, this.authProvider, this.options);
+    this.measures = new MeasuresClient(this.baseUrl, this.authProvider, this.options);
+    this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.authProvider, this.options);
+    this.auditLogs = new AuditLogsClient(this.baseUrl, this.authProvider, this.options);
+    this.plugins = new PluginsClient(this.baseUrl, this.authProvider, this.options);
+    this.server = new ServerClient(this.baseUrl, this.authProvider, this.options);
+    this.editions = new EditionsClient(this.baseUrl, this.authProvider, this.options);
+    this.projectDump = new ProjectDumpClient(this.baseUrl, this.authProvider, this.options);
+    this.qualityGates = new QualityGatesClient(this.baseUrl, this.authProvider, this.options);
+    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.authProvider, this.options);
+    this.rules = new RulesClient(this.baseUrl, this.authProvider, this.options);
+    this.sources = new SourcesClient(this.baseUrl, this.authProvider, this.options);
+    this.system = new SystemClient(this.baseUrl, this.authProvider, this.options);
+    this.projectTags = new ProjectTagsClient(this.baseUrl, this.authProvider, this.options);
+    this.settings = new SettingsClient(this.baseUrl, this.authProvider, this.options);
+    this.users = new UsersClient(this.baseUrl, this.authProvider, this.options);
+    this.userTokens = new UserTokensClient(this.baseUrl, this.authProvider, this.options);
+    this.webhooks = new WebhooksClient(this.baseUrl, this.authProvider, this.options);
+    this.webservices = new WebservicesClient(this.baseUrl, this.authProvider, this.options);
+    this.views = new ViewsClient(this.baseUrl, this.authProvider, this.options);
   }
 
   // Legacy methods for backward compatibility
@@ -248,12 +305,9 @@ export class SonarQubeClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const headers = new Headers();
+    let headers = new Headers();
     headers.set('Content-Type', 'application/json');
-
-    if (this.token.length > 0) {
-      headers.set('Authorization', `Bearer ${this.token}`);
-    }
+    headers = this.authProvider.applyAuth(headers);
 
     let response: Response;
     try {
@@ -272,6 +326,7 @@ export class SonarQubeClient {
     return response.json() as Promise<T>;
   }
 }
+/* eslint-enable @typescript-eslint/member-ordering */
 
 export default SonarQubeClient;
 
@@ -1149,3 +1204,12 @@ export type {
 export { DeprecationManager, deprecated } from './core/deprecation';
 export type { DeprecationContext, DeprecationOptions } from './core/deprecation';
 export type { ClientOptions } from './core/BaseClient';
+
+// Re-export authentication
+export type { AuthProvider } from './core/auth';
+export {
+  BearerTokenAuthProvider,
+  BasicAuthProvider,
+  PasscodeAuthProvider,
+  NoAuthProvider,
+} from './core/auth';

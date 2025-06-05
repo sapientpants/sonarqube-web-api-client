@@ -55,11 +55,19 @@ yarn add sonarqube-web-api-client
 ```typescript
 import { SonarQubeClient } from 'sonarqube-web-api-client';
 
-// Initialize the client (token is required)
-const client = new SonarQubeClient('https://sonarqube.example.com', 'your-token');
+// Initialize with Bearer token (most common)
+const client = SonarQubeClient.withToken('https://sonarqube.example.com', 'your-token');
+
+// Initialize with HTTP Basic Authentication
+const client = SonarQubeClient.withBasicAuth('https://sonarqube.example.com', 'username', 'password');
+
+// Initialize with SonarQube system passcode
+const client = SonarQubeClient.withPasscode('https://sonarqube.example.com', 'system-passcode');
 
 // For SonarCloud with organization support
-const cloudClient = new SonarQubeClient('https://sonarcloud.io', 'your-token', 'your-organization');
+const cloudClient = SonarQubeClient.withToken('https://sonarcloud.io', 'your-token', { 
+  organization: 'your-organization' 
+});
 
 // Everything is type-safe and intuitive
 const projects = await client.projects.search()
@@ -101,6 +109,59 @@ const issues = await client.issues.search()
 projects.components.forEach(project => {
   console.log(project.key);        // ✅ TypeScript knows the structure
   console.log(project.lastAnalysis); // ✅ Optional field handling
+});
+```
+
+## 🔐 Authentication Methods
+
+SonarQube supports multiple authentication methods, and this library provides convenient factory methods for each:
+
+### Bearer Token (Recommended)
+```typescript
+const client = SonarQubeClient.withToken('https://sonarqube.example.com', 'your-token');
+```
+
+### HTTP Basic Authentication
+```typescript
+const client = SonarQubeClient.withBasicAuth(
+  'https://sonarqube.example.com', 
+  'username', 
+  'password'
+);
+```
+
+### System Passcode
+```typescript
+const client = SonarQubeClient.withPasscode(
+  'https://sonarqube.example.com', 
+  'system-passcode'
+);
+```
+
+### Custom Authentication
+```typescript
+import { AuthProvider } from 'sonarqube-web-api-client';
+
+const customAuth: AuthProvider = {
+  applyAuth(headers: Headers): Headers {
+    headers.set('X-Custom-Auth', 'custom-value');
+    return headers;
+  },
+  getAuthType(): 'bearer' | 'basic' | 'passcode' | 'none' {
+    return 'bearer';
+  }
+};
+
+const client = SonarQubeClient.withAuth('https://sonarqube.example.com', customAuth);
+```
+
+### Client Options
+All factory methods accept an optional configuration object:
+
+```typescript
+const client = SonarQubeClient.withToken('https://sonarqube.example.com', 'token', {
+  organization: 'my-org',  // For SonarCloud
+  // Other options...
 });
 ```
 

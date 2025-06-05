@@ -4,6 +4,7 @@
  */
 
 import type { BaseClient } from '../BaseClient';
+import type { AuthProvider } from '../auth/AuthProvider';
 
 /**
  * Download options for binary content
@@ -55,6 +56,31 @@ export interface DownloadCapable {
 }
 
 /**
+ * Helper function to initialize headers with authentication
+ * @param authProvider - The authentication provider
+ * @param initialHeaders - Initial headers to apply
+ * @returns Headers object with authentication applied
+ */
+function initializeHeadersWithAuth(
+  authProvider: AuthProvider,
+  initialHeaders?: Record<string, string>
+): Headers {
+  let headers = new Headers();
+
+  // Apply initial headers if provided
+  if (initialHeaders) {
+    Object.entries(initialHeaders).forEach(([key, value]) => {
+      headers.set(key, value);
+    });
+  }
+
+  // Apply authentication
+  headers = authProvider.applyAuth(headers);
+
+  return headers;
+}
+
+/**
  * Mixin that adds download functionality to BaseClient
  * Provides methods for downloading binary content with progress tracking
  * and text content retrieval
@@ -76,17 +102,10 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Downloaded content as Blob
      */
     async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-      const headers: Record<string, string> = {
+      const headers = initializeHeadersWithAuth(this.authProvider, {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         Accept: 'application/octet-stream',
-      };
-
-      if (this.token.length > 0) {
-        Object.assign(headers, {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          Authorization: `Bearer ${this.token}`,
-        });
-      }
+      });
 
       let response: Response;
       try {
@@ -159,24 +178,17 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Text content
      */
     async requestText(url: string, options?: RequestInit): Promise<string> {
-      const headers: Record<string, string> = {};
+      const headers = initializeHeadersWithAuth(this.authProvider);
 
-      if (this.token.length > 0) {
-        headers['Authorization'] = `Bearer ${this.token}`;
+      // Merge with any headers from options
+      if (options?.headers) {
+        const optHeaders = new Headers(options.headers);
+        optHeaders.forEach((value, key) => {
+          headers.set(key, value);
+        });
       }
 
-      const baseOptions = options ?? {};
-      const optionHeaders =
-        options?.headers &&
-        typeof options.headers === 'object' &&
-        !Array.isArray(options.headers) &&
-        !(options.headers instanceof Headers)
-          ? (options.headers as Record<string, string>)
-          : {};
-
-      const mergedHeaders = { ...headers, ...optionHeaders };
-
-      const requestOptions: RequestInit = { ...baseOptions, headers: mergedHeaders };
+      const requestOptions: RequestInit = { ...options, headers };
 
       const response = await fetch(`${this.baseUrl}${url}`, requestOptions);
 
@@ -193,13 +205,12 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @protected
      */
     protected getAuthHeaders(): Record<string, string> {
-      if (this.token.length > 0) {
-        return {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          Authorization: `Bearer ${this.token}`,
-        };
-      }
-      return {};
+      const headers = initializeHeadersWithAuth(this.authProvider);
+      const result: Record<string, string> = {};
+      headers.forEach((value, key) => {
+        result[key] = value;
+      });
+      return result;
     }
   };
 }

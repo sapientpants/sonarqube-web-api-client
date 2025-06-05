@@ -47,19 +47,7 @@ export class SystemClient extends BaseClient {
    * ```
    */
   async getLivenessV2(): Promise<{ status: string }> {
-    const response = await this.request<{ status: string } | string>('/api/v2/system/liveness');
-
-    // Handle different response formats
-    if (typeof response === 'string') {
-      return { status: response };
-    }
-
-    if (typeof response === 'object') {
-      return response as { status: string };
-    }
-
-    // Fallback for empty/null responses
-    return { status: 'UP' };
+    return this.request<{ status: string }>('/api/v2/system/liveness');
   }
 
   /**

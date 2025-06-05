@@ -20,14 +20,16 @@ describe('SonarQubeClient', () => {
 
     it('should accept organization parameter', () => {
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token', 'my-org');
-      expect(client['token']).toBe('test-token');
+      expect(client['authProvider']).toBeDefined();
+      expect(client['authProvider'].getAuthType()).toBe('bearer');
       expect(client['options'].organization).toBe('my-org');
     });
 
     it('should handle undefined organization parameter', () => {
       const client = new SonarQubeClient('https://sonarqube.example.com', 'test-token');
-      expect(client['token']).toBe('test-token');
-      expect(client['organization']).toBeUndefined();
+      expect(client['authProvider']).toBeDefined();
+      expect(client['authProvider'].getAuthType()).toBe('bearer');
+      expect(client['options'].organization).toBeUndefined();
     });
 
     it('should pass organization parameter to all resource clients', () => {

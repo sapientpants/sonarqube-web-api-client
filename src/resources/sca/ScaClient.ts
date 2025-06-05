@@ -179,14 +179,9 @@ export class ScaClient extends V2BaseClient {
   ): Promise<ReadableStream<Uint8Array>> {
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
 
-    const headers: Record<string, string> = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      Accept: 'application/octet-stream',
-    };
-
-    if (this.token.length > 0) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
+    let headers = new Headers();
+    headers.set('Accept', 'application/octet-stream');
+    headers = this.authProvider.applyAuth(headers);
 
     const response = await fetch(`${this.baseUrl}/api/v2/sca/sbom-reports?${query}`, {
       headers,

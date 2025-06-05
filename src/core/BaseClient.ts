@@ -1,6 +1,7 @@
 import { createErrorFromResponse, createNetworkError } from '../errors';
 import type { DeprecationOptions } from './deprecation';
 import { buildV2Query } from './utils/v2-query-builder';
+import { type AuthProvider, BearerTokenAuthProvider, NoAuthProvider } from './auth';
 
 /**
  * Response type options for BaseClient requests
@@ -20,12 +21,24 @@ export interface ClientOptions extends DeprecationOptions {
  */
 export abstract class BaseClient {
   protected readonly options: ClientOptions;
+  protected readonly authProvider: AuthProvider;
 
   constructor(
     protected readonly baseUrl: string,
-    protected readonly token: string,
+    authProviderOrToken: AuthProvider | string,
     organizationOrOptions?: string | ClientOptions
   ) {
+    // Handle backward compatibility: accept string token and convert to appropriate AuthProvider
+    if (typeof authProviderOrToken === 'string') {
+      // If empty string, use NoAuthProvider, otherwise BearerTokenAuthProvider
+      this.authProvider =
+        authProviderOrToken.length === 0
+          ? new NoAuthProvider()
+          : new BearerTokenAuthProvider(authProviderOrToken);
+    } else {
+      this.authProvider = authProviderOrToken;
+    }
+
     // Handle backward compatibility: organization can be string or options object
     if (typeof organizationOrOptions === 'string') {
       this.options = { organization: organizationOrOptions };
@@ -44,17 +57,19 @@ export abstract class BaseClient {
   ): Promise<T> {
     const responseType = options?.responseType ?? 'json';
 
-    const headers: Record<string, string> = {
-      ...(responseType === 'json' && { ['Content-Type']: 'application/json' }),
-      ...(this.token.length > 0 && { ['Authorization']: `Bearer ${this.token}` }),
-    };
+    let headers = new Headers();
+    if (responseType === 'json') {
+      headers.set('Content-Type', 'application/json');
+    }
+    headers = this.authProvider.applyAuth(headers);
 
-    const mergedHeaders = {
-      ...headers,
-      ...(options?.headers !== undefined
-        ? Object.fromEntries(Object.entries(options.headers))
-        : {}),
-    };
+    // Merge with any headers from options
+    if (options?.headers) {
+      const optHeaders = new Headers(options.headers);
+      optHeaders.forEach((value, key) => {
+        headers.set(key, value);
+      });
+    }
 
     // Append organization parameter if provided and not already in URL
     let finalUrl = url;
@@ -71,7 +86,7 @@ export abstract class BaseClient {
     try {
       response = await fetch(`${this.baseUrl}${finalUrl}`, {
         ...options,
-        headers: mergedHeaders,
+        headers,
       });
     } catch (error) {
       throw createNetworkError(error);

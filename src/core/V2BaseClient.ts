@@ -11,11 +11,6 @@ import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './typ
 import type { PrimitiveValue } from './types/primitive';
 
 /**
- * Type for optional headers
- */
-type OptionalHeaders = Record<string, string> | undefined;
-
-/**
  * Base class for all v2 API clients
  * Extends BaseClient with v2-specific functionality and download capabilities
  */
@@ -28,14 +23,9 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
    * @returns Downloaded content as Blob
    */
   async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-    const headers: Record<string, string> = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      Accept: 'application/octet-stream',
-    };
-
-    if (this.token.length > 0) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
+    let headers = new Headers();
+    headers.set('Accept', 'application/octet-stream');
+    headers = this.authProvider.applyAuth(headers);
 
     const response = await fetch(`${this.baseUrl}${url}`, {
       headers,
@@ -143,16 +133,17 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
    * @protected
    */
   protected async requestV2<T>(url: string, options?: RequestInit): Promise<T> {
-    const headers: Record<string, string> = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Type': 'application/json',
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      Accept: 'application/json',
-      ...(options?.headers as OptionalHeaders),
-    };
+    let headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    headers.set('Accept', 'application/json');
+    headers = this.authProvider.applyAuth(headers);
 
-    if (this.token.length > 0) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Merge with any headers from options
+    if (options?.headers) {
+      const optHeaders = new Headers(options.headers);
+      optHeaders.forEach((value, key) => {
+        headers.set(key, value);
+      });
     }
 
     try {

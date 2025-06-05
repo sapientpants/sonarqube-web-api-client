@@ -48,4 +48,44 @@ describe('BasicAuthProvider', () => {
     // Base64 encoding of 'newuser:newpass' is 'bmV3dXNlcjpuZXdwYXNz'
     expect(result.get('Authorization')).toBe('Basic bmV3dXNlcjpuZXdwYXNz');
   });
+
+  it('should handle browser environment without Buffer', () => {
+    // Mock Buffer as undefined to simulate browser environment
+    const originalBuffer = global.Buffer;
+    // @ts-expect-error - Temporarily setting Buffer to undefined for testing
+    global.Buffer = undefined;
+
+    try {
+      const provider = new BasicAuthProvider('testuser', 'testpass');
+      const headers = new Headers();
+
+      const result = provider.applyAuth(headers);
+
+      // Base64 encoding of 'testuser:testpass' is 'dGVzdHVzZXI6dGVzdHBhc3M='
+      expect(result.get('Authorization')).toBe('Basic dGVzdHVzZXI6dGVzdHBhc3M=');
+    } finally {
+      // Restore original Buffer
+      global.Buffer = originalBuffer;
+    }
+  });
+
+  it('should handle browser environment with unicode characters', () => {
+    // Mock Buffer as undefined to simulate browser environment
+    const originalBuffer = global.Buffer;
+    // @ts-expect-error - Temporarily setting Buffer to undefined for testing
+    global.Buffer = undefined;
+
+    try {
+      const provider = new BasicAuthProvider('user', 'café☕');
+      const headers = new Headers();
+
+      const result = provider.applyAuth(headers);
+
+      // Base64 encoding of 'user:café☕' with proper UTF-8 handling
+      expect(result.get('Authorization')).toBe('Basic dXNlcjpjYWbDqeKYlQ==');
+    } finally {
+      // Restore original Buffer
+      global.Buffer = originalBuffer;
+    }
+  });
 });

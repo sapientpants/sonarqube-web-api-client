@@ -4,6 +4,7 @@
  */
 
 import type { BaseClient } from '../BaseClient';
+import type { AuthProvider } from '../auth/AuthProvider';
 
 /**
  * Download options for binary content
@@ -55,6 +56,31 @@ export interface DownloadCapable {
 }
 
 /**
+ * Helper function to initialize headers with authentication
+ * @param authProvider - The authentication provider
+ * @param initialHeaders - Initial headers to apply
+ * @returns Headers object with authentication applied
+ */
+function initializeHeadersWithAuth(
+  authProvider: AuthProvider,
+  initialHeaders?: Record<string, string>
+): Headers {
+  let headers = new Headers();
+
+  // Apply initial headers if provided
+  if (initialHeaders) {
+    Object.entries(initialHeaders).forEach(([key, value]) => {
+      headers.set(key, value);
+    });
+  }
+
+  // Apply authentication
+  headers = authProvider.applyAuth(headers);
+
+  return headers;
+}
+
+/**
  * Mixin that adds download functionality to BaseClient
  * Provides methods for downloading binary content with progress tracking
  * and text content retrieval
@@ -76,9 +102,10 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Downloaded content as Blob
      */
     async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-      let headers = new Headers();
-      headers.set('Accept', 'application/octet-stream');
-      headers = this.authProvider.applyAuth(headers);
+      const headers = initializeHeadersWithAuth(this.authProvider, {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        Accept: 'application/octet-stream',
+      });
 
       let response: Response;
       try {
@@ -151,7 +178,7 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Text content
      */
     async requestText(url: string, options?: RequestInit): Promise<string> {
-      let headers = new Headers();
+      const headers = initializeHeadersWithAuth(this.authProvider);
 
       // Merge with any headers from options
       if (options?.headers) {
@@ -160,8 +187,6 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
           headers.set(key, value);
         });
       }
-
-      headers = this.authProvider.applyAuth(headers);
 
       const requestOptions: RequestInit = { ...options, headers };
 
@@ -180,13 +205,12 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @protected
      */
     protected getAuthHeaders(): Record<string, string> {
-      const headers: Record<string, string> = {};
-      const headersObj = new Headers();
-      this.authProvider.applyAuth(headersObj);
-      headersObj.forEach((value, key) => {
-        headers[key] = value;
+      const headers = initializeHeadersWithAuth(this.authProvider);
+      const result: Record<string, string> = {};
+      headers.forEach((value, key) => {
+        result[key] = value;
       });
-      return headers;
+      return result;
     }
   };
 }

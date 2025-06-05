@@ -136,6 +136,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     let headers = new Headers();
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
+    headers = this.authProvider.applyAuth(headers);
 
     // Merge with any headers from options
     if (options?.headers) {
@@ -144,8 +145,6 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
         headers.set(key, value);
       });
     }
-
-    headers = this.authProvider.applyAuth(headers);
 
     try {
       const response = await fetch(`${this.baseUrl}${url}`, {

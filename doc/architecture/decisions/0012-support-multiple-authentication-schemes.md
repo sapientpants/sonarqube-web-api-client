@@ -72,14 +72,14 @@ const client = SonarQubeClient.withBasicAuth('https://sonar.example.com', 'admin
 // Passcode
 const client = SonarQubeClient.withPasscode('https://sonar.example.com', 'system-passcode');
 
-// Custom Provider
+// Custom Provider (implementing as 'none' type since it's custom)
 const customAuth: AuthProvider = {
   applyAuth(headers: Headers): Headers {
     headers.set('X-Custom-Auth', 'custom-value');
     return headers;
   },
-  getAuthType(): 'custom' {
-    return 'custom';
+  getAuthType(): 'none' {
+    return 'none';
   }
 };
 const client = SonarQubeClient.withAuth('https://sonar.example.com', customAuth);

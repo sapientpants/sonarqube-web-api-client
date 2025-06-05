@@ -2053,7 +2053,7 @@ pnpm run analyze-instance
 pnpm run analyze-instance:examples
 ```
 
-For detailed information about interpreting integration test results, see [INTEGRATION_TEST_ANALYSIS.md](./INTEGRATION_TEST_ANALYSIS.md).
+For detailed information about interpreting integration test results, see [Integration Test Analysis](./docs/testing/integration-test-analysis.md).
 
 ### 🏗️ Architecture
 

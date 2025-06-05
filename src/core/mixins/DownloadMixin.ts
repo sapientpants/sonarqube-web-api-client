@@ -81,12 +81,11 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
         Accept: 'application/octet-stream',
       };
 
-      if (this.token.length > 0) {
-        Object.assign(headers, {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          Authorization: `Bearer ${this.token}`,
-        });
-      }
+      const headersObj = new Headers(headers);
+      this.authProvider.applyAuth(headersObj);
+      headersObj.forEach((value, key) => {
+        headers[key] = value;
+      });
 
       let response: Response;
       try {
@@ -161,9 +160,11 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
     async requestText(url: string, options?: RequestInit): Promise<string> {
       const headers: Record<string, string> = {};
 
-      if (this.token.length > 0) {
-        headers['Authorization'] = `Bearer ${this.token}`;
-      }
+      const headersObj = new Headers(headers);
+      this.authProvider.applyAuth(headersObj);
+      headersObj.forEach((value, key) => {
+        headers[key] = value;
+      });
 
       const baseOptions = options ?? {};
       const optionHeaders =
@@ -193,13 +194,13 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @protected
      */
     protected getAuthHeaders(): Record<string, string> {
-      if (this.token.length > 0) {
-        return {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          Authorization: `Bearer ${this.token}`,
-        };
-      }
-      return {};
+      const headers: Record<string, string> = {};
+      const headersObj = new Headers();
+      this.authProvider.applyAuth(headersObj);
+      headersObj.forEach((value, key) => {
+        headers[key] = value;
+      });
+      return headers;
     }
   };
 }

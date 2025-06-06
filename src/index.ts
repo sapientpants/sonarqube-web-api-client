@@ -79,14 +79,19 @@ export class SonarQubeClient {
 
   /**
    * Create a client with HTTP Basic authentication
+   *
+   * @param baseUrl - The base URL of the SonarQube instance
+   * @param username - The username or token
+   * @param password - The password (optional, can be omitted for token authentication)
+   * @param options - Additional client options
    */
   static withBasicAuth(
     baseUrl: string,
     username: string,
-    password: string,
+    password?: string,
     options?: ClientOptions
   ): SonarQubeClient {
-    const authProvider = new BasicAuthProvider(username, password);
+    const authProvider = new BasicAuthProvider(username, password ?? '');
     return new SonarQubeClient(baseUrl, authProvider, options);
   }
 

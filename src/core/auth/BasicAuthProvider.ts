@@ -6,9 +6,9 @@ import type { AuthProvider } from './AuthProvider';
 export class BasicAuthProvider implements AuthProvider {
   private readonly encodedCredentials: string;
 
-  constructor(username: string, password: string) {
-    if (!username || !password) {
-      throw new Error('Username and password are required for Basic authentication');
+  constructor(username: string, password = '') {
+    if (!username) {
+      throw new Error('Username is required for Basic authentication');
     }
 
     const credentials = `${username}:${password}`;

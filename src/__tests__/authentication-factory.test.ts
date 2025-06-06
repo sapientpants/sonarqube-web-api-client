@@ -41,6 +41,14 @@ describe('SonarQubeClient Factory Methods', () => {
       expect(client).toBeInstanceOf(SonarQubeClient);
       expect(client['authProvider']).toBeInstanceOf(BasicAuthProvider);
     });
+
+    it('should create client with token as username and no password', () => {
+      const client = SonarQubeClient.withBasicAuth(baseUrl, 'squ_mytoken123');
+
+      expect(client).toBeInstanceOf(SonarQubeClient);
+      expect(client['authProvider']).toBeInstanceOf(BasicAuthProvider);
+      expect(client['authProvider'].getAuthType()).toBe('basic');
+    });
   });
 
   describe('withPasscode', () => {

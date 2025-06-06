@@ -114,14 +114,32 @@ projects.components.forEach(project => {
 
 ## 🔐 Authentication Methods
 
-SonarQube supports multiple authentication methods, and this library provides convenient factory methods for each:
+SonarQube supports multiple authentication methods, and this library provides convenient factory methods for each. The authentication strategy differs between SonarQube versions:
 
-### Bearer Token (Recommended)
+### SonarQube 10.0+ (Recommended: Bearer Token)
+
+Starting with SonarQube 10.0, Bearer token authentication is the recommended approach:
+
 ```typescript
 const client = SonarQubeClient.withToken('https://sonarqube.example.com', 'your-token');
 ```
 
-### HTTP Basic Authentication
+### SonarQube < 10.0 (Token as Username)
+
+For SonarQube versions before 10.0, tokens should be sent as the username in HTTP Basic authentication with no password:
+
+```typescript
+// Using a token as username (no password required)
+const client = SonarQubeClient.withBasicAuth(
+  'https://sonarqube.example.com', 
+  'your-token'  // Token as username, password omitted
+);
+```
+
+### HTTP Basic Authentication (Username/Password)
+
+Traditional username and password authentication:
+
 ```typescript
 const client = SonarQubeClient.withBasicAuth(
   'https://sonarqube.example.com', 
@@ -131,12 +149,22 @@ const client = SonarQubeClient.withBasicAuth(
 ```
 
 ### System Passcode
+
+For system administration tasks:
+
 ```typescript
 const client = SonarQubeClient.withPasscode(
   'https://sonarqube.example.com', 
   'system-passcode'
 );
 ```
+
+### Authentication Best Practices
+
+1. **Always use tokens over passwords** - Tokens can be revoked without changing passwords
+2. **Use Bearer tokens for SonarQube 10.0+** - It's the recommended authentication method
+3. **For older versions**, use tokens as usernames in Basic auth without passwords
+4. **Never commit credentials** - Use environment variables or secure credential stores
 
 ### Custom Authentication
 ```typescript

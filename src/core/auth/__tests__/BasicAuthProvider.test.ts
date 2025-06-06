@@ -3,14 +3,42 @@ import { BasicAuthProvider } from '../BasicAuthProvider';
 describe('BasicAuthProvider', () => {
   it('should throw error if username is empty', () => {
     expect(() => new BasicAuthProvider('', 'password')).toThrow(
-      'Username and password are required for Basic authentication'
+      'Username is required for Basic authentication'
     );
   });
 
-  it('should throw error if password is empty', () => {
-    expect(() => new BasicAuthProvider('username', '')).toThrow(
-      'Username and password are required for Basic authentication'
-    );
+  it('should allow empty password for token authentication', () => {
+    const provider = new BasicAuthProvider('mytoken', '');
+    const headers = new Headers();
+
+    const result = provider.applyAuth(headers);
+
+    // Base64 encoding of 'mytoken:' is 'bXl0b2tlbjo='
+    expect(result.get('Authorization')).toBe('Basic bXl0b2tlbjo=');
+  });
+
+  it('should allow password to be omitted for token authentication', () => {
+    const provider = new BasicAuthProvider('mytoken');
+    const headers = new Headers();
+
+    const result = provider.applyAuth(headers);
+
+    // Base64 encoding of 'mytoken:' is 'bXl0b2tlbjo='
+    expect(result.get('Authorization')).toBe('Basic bXl0b2tlbjo=');
+  });
+
+  it('should support SonarQube token authentication pattern', () => {
+    // SonarQube documentation states: "The token is sent via the login field
+    // of HTTP basic authentication, without any password"
+    const sonarqubeToken = 'squ_1234567890abcdef';
+    const provider = new BasicAuthProvider(sonarqubeToken);
+    const headers = new Headers();
+
+    const result = provider.applyAuth(headers);
+
+    // Token should be used as username with empty password
+    const expectedCredentials = Buffer.from(`${sonarqubeToken}:`).toString('base64');
+    expect(result.get('Authorization')).toBe(`Basic ${expectedCredentials}`);
   });
 
   it('should apply Basic auth to headers', () => {

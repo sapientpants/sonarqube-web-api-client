@@ -163,6 +163,42 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
       }
     });
 
+    test('should search issues by directories', async () => {
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withDirectories(['src/', 'test/']).pageSize(10).execute()
+      );
+
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
+
+      expect(result.issues).toBeDefined();
+      // Note: Results will depend on project structure
+    });
+
+    test('should search issues by files', async () => {
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withFiles(['pom.xml', 'package.json']).pageSize(10).execute()
+      );
+
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
+
+      expect(result.issues).toBeDefined();
+      // Note: Results will depend on project structure
+    });
+
+    test('should search issues by scopes', async () => {
+      const { result, durationMs } = await measureTime(async () =>
+        client.issues.search().withScopes(['MAIN']).pageSize(10).execute()
+      );
+
+      INTEGRATION_ASSERTIONS.expectValidResponse(result);
+      INTEGRATION_ASSERTIONS.expectReasonableResponseTime(durationMs);
+
+      expect(result.issues).toBeDefined();
+      // All issues should be from main code (not test code)
+    });
+
     test('should handle pagination correctly', async () => {
       const pageSize = 5;
       const { result: firstPage } = await measureTime(async () =>

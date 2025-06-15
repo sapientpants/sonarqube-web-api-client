@@ -337,6 +337,7 @@ const history = await client.measures.history({
 ### 🚨 Advanced Issue Filtering
 
 ```typescript
+// Basic filtering
 const criticalIssues = await client.issues.search()
   .withProjects(['my-project'])
   .withBranch('main')
@@ -345,6 +346,17 @@ const criticalIssues = await client.issues.search()
   .createdAfter('2024-01-01')
   .assignedTo('john.doe')
   .sortBy('SEVERITY')
+  .execute();
+
+// Filter by file paths and directories
+const fileIssues = await client.issues.search()
+  .withFiles(['src/index.ts', 'src/app.ts'])
+  .withDirectories(['src/components/', 'src/utils/'])
+  .execute();
+
+// Filter by code scope (main code vs test code)
+const mainCodeIssues = await client.issues.search()
+  .withScopes(['MAIN'])  // Options: 'MAIN', 'TEST', 'OVERALL'
   .execute();
 ```
 

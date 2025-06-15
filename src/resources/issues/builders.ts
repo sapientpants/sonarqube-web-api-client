@@ -12,6 +12,7 @@ import type {
   CleanCodeAttributeCategory,
   IssueStatusNew,
   FacetMode,
+  IssueScope,
 } from './types';
 
 /**
@@ -34,6 +35,20 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    */
   componentKeys(componentKeys: string[]): this {
     return this.withComponents(componentKeys);
+  }
+
+  /**
+   * Filter by directory paths
+   */
+  withDirectories(directories: string[]): this {
+    return this.setParam('directories', directories);
+  }
+
+  /**
+   * Filter by file paths
+   */
+  withFiles(files: string[]): this {
+    return this.setParam('files', files);
   }
 
   /**
@@ -146,6 +161,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    */
   withLanguages(languages: string[]): this {
     return this.setParam('languages', languages);
+  }
+
+  /**
+   * Filter by issue scopes (MAIN, TEST, OVERALL)
+   */
+  withScopes(scopes: IssueScope[]): this {
+    return this.setParam('scopes', scopes);
   }
 
   /**

@@ -54,6 +54,20 @@ describe('SearchIssuesBuilder', () => {
       expect(result).toBeInstanceOf(SearchIssuesBuilder);
     });
 
+    it('should build directory and file filters', () => {
+      const result = builder
+        .withDirectories(['src/components', 'src/utils'])
+        .withFiles(['src/index.ts', 'src/app.ts']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should build scope filters', () => {
+      const result = builder.withScopes(['MAIN', 'TEST']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
     it('should build branch and pull request filters', () => {
       const result = builder.onBranch('feature/my-branch').onPullRequest('5461');
 

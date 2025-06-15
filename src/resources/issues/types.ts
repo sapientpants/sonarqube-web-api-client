@@ -136,6 +136,11 @@ export type IssueStatusNew = 'OPEN' | 'CONFIRMED' | 'RESOLVED' | 'REOPENED' | 'C
 export type FacetMode = 'effort' | 'count';
 
 /**
+ * Issue scope values
+ */
+export type IssueScope = 'MAIN' | 'TEST' | 'OVERALL';
+
+/**
  * Request to search for issues
  */
 export interface SearchIssuesRequest extends PaginatedRequest {
@@ -154,8 +159,10 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   createdBefore?: string;
   createdInLast?: string;
   cwe?: string[];
+  directories?: string[];
   facetMode?: FacetMode;
   facets?: string[];
+  files?: string[];
   impactSeverities?: ImpactSeverity[];
   impactSoftwareQualities?: ImpactSoftwareQuality[];
   inNewCodePeriod?: boolean;
@@ -173,6 +180,7 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   rules?: string[];
   s?: string; // sort field
   sansTop25?: string[];
+  scopes?: IssueScope[];
   severities?: IssueSeverity[]; // deprecated
   sinceLeakPeriod?: boolean;
   sonarsourceSecurity?: string[];

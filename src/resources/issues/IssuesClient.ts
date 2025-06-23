@@ -303,13 +303,15 @@ export class IssuesClient extends BaseClient {
    * Execute search request with proper parameter handling
    */
   private async searchExecutor(params: SearchIssuesRequest): Promise<SearchIssuesResponse> {
+    // Validate parameter constraints
+    this.validateSearchParameters(params);
+
     const searchParams = new URLSearchParams();
 
     // Handle array parameters by joining with commas
     const arrayParams: Array<keyof SearchIssuesRequest> = [
       'additionalFields',
       'assignees',
-      'authors',
       'casa',
       'cleanCodeAttributeCategories',
       'codeVariants',
@@ -344,6 +346,9 @@ export class IssuesClient extends BaseClient {
       'types',
     ];
 
+    // Parameters that need multiple calls instead of comma-separated values
+    const multipleCallParams: Array<keyof SearchIssuesRequest> = ['authors'];
+
     // Parameter name mapping for API compatibility
     const parameterMapping: Record<string, string> = {
       owaspTop10v2021: 'owaspTop10-2021',
@@ -360,7 +365,18 @@ export class IssuesClient extends BaseClient {
         // Map camelCase parameter names to API parameter names
         const apiKey = parameterMapping[key] ?? key;
 
-        if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
+        // Handle parameters that need multiple calls (e.g., authors)
+        if (multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
+          if (value.length > 0) {
+            value.forEach((singleValue) => {
+              if (typeof singleValue === 'string') {
+                searchParams.append(apiKey, singleValue);
+              }
+            });
+          }
+        }
+        // Handle normal array parameters (comma-separated)
+        else if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
           if (value.length > 0) {
             searchParams.append(apiKey, value.join(','));
           }
@@ -373,5 +389,29 @@ export class IssuesClient extends BaseClient {
     });
 
     return this.request<SearchIssuesResponse>(`/api/issues/search?${searchParams.toString()}`);
+  }
+
+  /**
+   * Validate search parameters for constraints and mutual exclusions
+   */
+  private validateSearchParameters(params: SearchIssuesRequest): void {
+    // fixedInPullRequest cannot be used with pullRequest
+    if (
+      params.fixedInPullRequest !== undefined &&
+      params.fixedInPullRequest !== '' &&
+      params.pullRequest !== undefined &&
+      params.pullRequest !== ''
+    ) {
+      throw new Error('Parameters "fixedInPullRequest" and "pullRequest" cannot be used together');
+    }
+
+    // fixedInPullRequest requires components to be specified
+    if (
+      params.fixedInPullRequest !== undefined &&
+      params.fixedInPullRequest !== '' &&
+      (!params.components || params.components.length === 0)
+    ) {
+      throw new Error('Parameter "fixedInPullRequest" requires "components" to be specified');
+    }
   }
 }

@@ -102,6 +102,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by author login
+   * @param author - Author login to filter by
    */
   byAuthor(author: string): this {
     return this.setParam('authors', [author]);
@@ -109,6 +110,8 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by multiple authors
+   * @param authors - Array of author logins to filter by
+   * @note Each author will be sent as a separate parameter call to the API
    */
   byAuthors(authors: string[]): this {
     return this.setParam('authors', authors);
@@ -116,6 +119,8 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by a single author (alternative to byAuthors for single values)
+   * @param author - Single author login to filter by
+   * @deprecated Use byAuthor() instead for consistency
    */
   byAuthorSingle(author: string): this {
     return this.setParam('author', author);
@@ -293,6 +298,8 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter issues that would be fixed in a specific pull request
+   * @param pullRequestId - Pull request ID to check for fixes
+   * @note Cannot be used with onPullRequest(). Requires withComponents() to be specified.
    * @since 10.4
    */
   fixedInPullRequest(pullRequestId: string): this {

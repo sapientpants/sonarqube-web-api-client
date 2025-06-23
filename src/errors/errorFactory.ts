@@ -2,6 +2,7 @@ import {
   ApiError,
   AuthenticationError,
   AuthorizationError,
+  IndexingInProgressError,
   NetworkError,
   NotFoundError,
   RateLimitError,
@@ -44,6 +45,49 @@ async function parseErrorResponse(response: Response): Promise<string> {
 }
 
 /**
+ * Check if error message indicates indexing is in progress
+ */
+function isIndexingError(errorMessage: string): boolean {
+  const lowerMessage = errorMessage.toLowerCase();
+  return (
+    lowerMessage.includes('indexing in progress') ||
+    lowerMessage.includes('issues index') ||
+    lowerMessage.includes('index is not ready') ||
+    (lowerMessage.includes('index') && lowerMessage.includes('progress'))
+  );
+}
+
+/**
+ * Parse Retry-After header value
+ */
+function parseRetryAfter(retryAfter: string | null): number | undefined {
+  if (retryAfter === null || retryAfter === '') {
+    return undefined;
+  }
+  const parsed = parseInt(retryAfter, 10);
+  return isNaN(parsed) ? undefined : parsed;
+}
+
+/**
+ * Create error with response headers
+ */
+function createErrorWithHeaders(
+  errorClass: typeof ApiError | typeof ServerError | typeof SonarQubeError,
+  errorMessage: string,
+  status: number,
+  headers: Headers
+): ApiError | ServerError | SonarQubeError {
+  const headerObject = Object.fromEntries(headers.entries());
+  if (errorClass === SonarQubeError) {
+    return new SonarQubeError(errorMessage, 'UNKNOWN_ERROR', status, { headers: headerObject });
+  }
+  if (errorClass === ApiError) {
+    return new ApiError(errorMessage, status, { headers: headerObject });
+  }
+  return new ServerError(errorMessage, status, { headers: headerObject });
+}
+
+/**
  * Creates appropriate error instance based on the response
  */
 export async function createErrorFromResponse(response: Response): Promise<SonarQubeError> {
@@ -61,36 +105,28 @@ export async function createErrorFromResponse(response: Response): Promise<Sonar
     case 404:
       return new NotFoundError(errorMessage);
 
-    case 429: {
-      // Try to parse Retry-After header
-      const retryAfter = response.headers.get('Retry-After');
-      let retrySeconds: number | undefined;
-      if (retryAfter !== null && retryAfter !== '') {
-        const parsed = parseInt(retryAfter, 10);
-        retrySeconds = isNaN(parsed) ? undefined : parsed;
+    case 429:
+      return new RateLimitError(errorMessage, parseRetryAfter(response.headers.get('Retry-After')));
+
+    case 503:
+      if (isIndexingError(errorMessage)) {
+        return new IndexingInProgressError(errorMessage);
       }
-      return new RateLimitError(errorMessage, retrySeconds);
-    }
+      return createErrorWithHeaders(ServerError, errorMessage, status, response.headers);
 
     default:
       // Server errors (5xx)
       if (status >= 500 && status < 600) {
-        return new ServerError(errorMessage, status, {
-          headers: Object.fromEntries(response.headers.entries()),
-        });
+        return createErrorWithHeaders(ServerError, errorMessage, status, response.headers);
       }
 
       // Other client errors (4xx)
       if (status >= 400 && status < 500) {
-        return new ApiError(errorMessage, status, {
-          headers: Object.fromEntries(response.headers.entries()),
-        });
+        return createErrorWithHeaders(ApiError, errorMessage, status, response.headers);
       }
 
       // Unexpected status codes
-      return new SonarQubeError(errorMessage, 'UNKNOWN_ERROR', status, {
-        headers: Object.fromEntries(response.headers.entries()),
-      });
+      return createErrorWithHeaders(SonarQubeError, errorMessage, status, response.headers);
   }
 }
 

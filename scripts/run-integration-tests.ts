@@ -74,7 +74,7 @@ function runTests(options: TestRunOptions = {}): void {
   // Build the Jest command
   const jestArgs = [
     '--config=jest.integration.config.js',
-    `--testPathPattern=${platform}.suite`,
+    `src/__integration__/suites/${platform}.suite.ts`,
   ];
 
   if (options.verbose) {

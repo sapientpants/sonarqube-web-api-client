@@ -13,6 +13,16 @@ import type {
   IssueStatusNew,
   FacetMode,
   IssueScope,
+  IssueFacet,
+  OwaspTop10Category,
+  OwaspTop10v2021Category,
+  OwaspAsvs40Category,
+  OwaspMobileTop102024Category,
+  PciDss32Category,
+  PciDss40Category,
+  SansTop25Category,
+  StigASDV5R3Category,
+  CasaCategory,
 } from './types';
 
 /**
@@ -27,14 +37,16 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by component keys (files, directories, projects)
    */
   withComponents(componentKeys: string[]): this {
-    return this.setParam('componentKeys', componentKeys);
+    return this.setParam('components', componentKeys);
   }
 
   /**
    * Filter by component keys (alias for withComponents)
+   * @deprecated Use withComponents() instead
    */
   componentKeys(componentKeys: string[]): this {
-    return this.withComponents(componentKeys);
+    this.setParam('componentKeys', componentKeys);
+    return this;
   }
 
   /**
@@ -102,6 +114,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by author login
+   * @param author - Author login to filter by
    */
   byAuthor(author: string): this {
     return this.setParam('authors', [author]);
@@ -109,6 +122,8 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by multiple authors
+   * @param authors - Array of author logins to filter by
+   * @note Each author will be sent as a separate parameter call to the API
    */
   byAuthors(authors: string[]): this {
     return this.setParam('authors', authors);
@@ -116,6 +131,14 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Filter by a single author (alternative to byAuthors for single values)
+   * @param author - Single author login to filter by
+   * @deprecated Use byAuthor() instead for consistency. This method will be removed in version 1.0.0.
+   * @example
+   * // Old way (deprecated)
+   * builder.byAuthorSingle('john.doe')
+   *
+   * // New way
+   * builder.byAuthor('john.doe')
    */
   byAuthorSingle(author: string): this {
     return this.setParam('author', author);
@@ -215,14 +238,15 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   /**
    * Filter by OWASP Top 10 categories
    */
-  withOwaspTop10(categories: string[]): this {
+  withOwaspTop10(categories: OwaspTop10Category[]): this {
     return this.setParam('owaspTop10', categories);
   }
 
   /**
    * Filter by SANS Top 25 categories
+   * @deprecated Since SonarQube 10.0
    */
-  withSansTop25(categories: string[]): this {
+  withSansTop25(categories: SansTop25Category[]): this {
     return this.setParam('sansTop25', categories);
   }
 
@@ -271,8 +295,97 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   /**
    * Filter by OWASP Top 10 2021 categories
    */
-  withOwaspTop10v2021(categories: string[]): this {
+  withOwaspTop10v2021(categories: OwaspTop10v2021Category[]): this {
     return this.setParam('owaspTop10v2021', categories);
+  }
+
+  /**
+   * Filter by CASA categories
+   * @since 10.7
+   */
+  withCasa(categories: CasaCategory[]): this {
+    return this.setParam('casa', categories);
+  }
+
+  /**
+   * Filter by code variants
+   * @since 10.1
+   */
+  withCodeVariants(variants: string[]): this {
+    return this.setParam('codeVariants', variants);
+  }
+
+  /**
+   * Filter issues that would be fixed in a specific pull request
+   * @param pullRequestId - Pull request ID to check for fixes
+   * @note Cannot be used with onPullRequest(). Requires withComponents() to be specified.
+   * @since 10.4
+   */
+  fixedInPullRequest(pullRequestId: string): this {
+    return this.setParam('fixedInPullRequest', pullRequestId);
+  }
+
+  /**
+   * Filter by OWASP ASVS v4.0 categories
+   * @since 9.7
+   */
+  withOwaspAsvs40(categories: OwaspAsvs40Category[]): this {
+    return this.setParam('owaspAsvs40', categories);
+  }
+
+  /**
+   * Set the level of OWASP ASVS categories (1, 2, or 3)
+   * @since 9.7
+   */
+  withOwaspAsvsLevel(level: 1 | 2 | 3): this {
+    return this.setParam('owaspAsvsLevel', level);
+  }
+
+  /**
+   * Filter by OWASP Mobile Top 10 2024 categories
+   * @since 2025.3
+   */
+  withOwaspMobileTop102024(categories: OwaspMobileTop102024Category[]): this {
+    return this.setParam('owaspMobileTop102024', categories);
+  }
+
+  /**
+   * Filter by PCI DSS v3.2 categories
+   * @since 9.6
+   */
+  withPciDss32(categories: PciDss32Category[]): this {
+    return this.setParam('pciDss32', categories);
+  }
+
+  /**
+   * Filter by PCI DSS v4.0 categories
+   * @since 9.6
+   */
+  withPciDss40(categories: PciDss40Category[]): this {
+    return this.setParam('pciDss40', categories);
+  }
+
+  /**
+   * Filter by prioritized rule status
+   */
+  withPrioritizedRule(prioritized: boolean): this {
+    return this.setParam('prioritizedRule', prioritized);
+  }
+
+  /**
+   * Filter by STIG V5R3 categories
+   * @since 10.7
+   */
+  withStigASDV5R3(categories: StigASDV5R3Category[]): this {
+    return this.setParam('stigASDV5R3', categories);
+  }
+
+  /**
+   * Set timezone for date resolution and histogram computation
+   * @since 8.6
+   */
+  withTimeZone(timeZone: string): this {
+    return this.setParam('timeZone', timeZone);
   }
 
   /**
@@ -362,8 +475,10 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Request facets for aggregated data
+   * @param facets - Array of facet names for aggregation
+   * @note Includes new security standard facets: pciDss-3.2, pciDss-4.0, owaspAsvs-4.0, owaspMobileTop10-2024, stig-ASD_V5R3, casa
    */
-  withFacets(facets: string[]): this {
+  withFacets(facets: IssueFacet[]): this {
     return this.setParam('facets', facets);
   }
 

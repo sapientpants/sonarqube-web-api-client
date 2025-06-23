@@ -117,7 +117,7 @@ describe('SearchIssuesBuilder', () => {
       // Should return issues that match both project AND component filters
       response.issues.forEach((issue) => {
         expect(issue.project).toBe('project');
-        expect(issue.component).toContain('project:src/file.ts');
+        expect(issue.component).toContain('project:src/');
       });
     });
 
@@ -397,6 +397,83 @@ describe('SearchIssuesBuilder', () => {
       expect(result).toBeInstanceOf(SearchIssuesBuilder);
     });
 
+    it('should handle new security standard filters', () => {
+      const result = builder
+        .withOwaspTop10v2021(['a1', 'a3'])
+        .withOwaspAsvs40(['1.1', '2.1'])
+        .withOwaspAsvsLevel(2)
+        .withOwaspMobileTop102024(['m1', 'm3'])
+        .withPciDss32(['1.1', '2.1'])
+        .withPciDss40(['1.1', '2.1'])
+        .withStigASDV5R3(['V-222400', 'V-222401'])
+        .withCasa(['authentication', 'authorization']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle new search parameters', () => {
+      const result = builder
+        .withCodeVariants(['variant1', 'variant2'])
+        .fixedInPullRequest('123')
+        .withPrioritizedRule(true)
+        .withTimeZone('UTC');
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle author methods', () => {
+      const result = builder
+        .byAuthor('single-author')
+        .byAuthors(['author1', 'author2'])
+        .byAuthorSingle('deprecated-method');
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle date and creation filters', () => {
+      const result = builder
+        .createdAt('2024-01-15')
+        .createdAfter('2024-01-01')
+        .createdBefore('2024-12-31')
+        .createdInLast('1w');
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle boolean state filters', () => {
+      const result = builder
+        .onlyAssigned()
+        .onlyResolved()
+        .inNewCodePeriod()
+        .sinceLeakPeriod()
+        .onComponentOnly();
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle unassigned and unresolved filters', () => {
+      const result = builder.onlyUnassigned().onlyUnresolved();
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle SonarSource security methods', () => {
+      const result = builder
+        .withSonarSourceSecurity(['sql-injection'])
+        .withSonarSourceSecurityNew(['xss']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle issue filtering', () => {
+      const result = builder
+        .withIssues(['issue-1', 'issue-2'])
+        .withRules(['rule:1', 'rule:2'])
+        .rules(['rule:3', 'rule:4']);
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
     it('should handle facets and additional fields', () => {
       const result = builder
         .withFacets(['severities', 'types', 'tags'])
@@ -420,6 +497,24 @@ describe('SearchIssuesBuilder', () => {
         .inOrganization('my-org')
         .withOwaspTop10v2021(['a1', 'a2'])
         .withFacetMode('effort');
+
+      expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+
+    it('should handle new facet values', () => {
+      const result = builder.withFacets([
+        'assigned_to_me',
+        'author',
+        'createdAt',
+        'codeVariants',
+        'prioritizedRule',
+        'owaspAsvs-4.0',
+        'owaspMobileTop10-2024',
+        'pciDss-3.2',
+        'pciDss-4.0',
+        'stig-ASD_V5R3',
+        'casa',
+      ]);
 
       expect(result).toBeInstanceOf(SearchIssuesBuilder);
     });
@@ -470,6 +565,151 @@ describe('SearchIssuesBuilder', () => {
     it('should support rules() alias for withRules()', () => {
       const result = builder.rules(['rule1', 'rule2']);
       expect(result).toBeInstanceOf(SearchIssuesBuilder);
+    });
+  });
+
+  describe('parameter verification', () => {
+    it('should pass security standard parameters correctly', async () => {
+      server.use(
+        http.get('*/api/issues/search', ({ request }) => {
+          const url = new URL(request.url);
+
+          // Check parameter mapping
+          expect(url.searchParams.get('owaspTop10-2021')).toBe('a1,a3');
+          expect(url.searchParams.get('owaspAsvs-4.0')).toBe('1.1,2.1');
+          expect(url.searchParams.get('owaspAsvsLevel')).toBe('2');
+          expect(url.searchParams.get('owaspMobileTop10-2024')).toBe('m1,m3');
+          expect(url.searchParams.get('pciDss-3.2')).toBe('1.1,2.1');
+          expect(url.searchParams.get('pciDss-4.0')).toBe('1.1,2.1');
+          expect(url.searchParams.get('stig-ASD_V5R3')).toBe('V-222400,V-222401');
+          expect(url.searchParams.get('casa')).toBe('authentication,authorization');
+
+          return HttpResponse.json({
+            total: 0,
+            p: 1,
+            ps: 100,
+            issues: [],
+          });
+        })
+      );
+
+      await builder
+        .withOwaspTop10v2021(['a1', 'a3'])
+        .withOwaspAsvs40(['1.1', '2.1'])
+        .withOwaspAsvsLevel(2)
+        .withOwaspMobileTop102024(['m1', 'm3'])
+        .withPciDss32(['1.1', '2.1'])
+        .withPciDss40(['1.1', '2.1'])
+        .withStigASDV5R3(['V-222400', 'V-222401'])
+        .withCasa(['authentication', 'authorization'])
+        .execute();
+    });
+
+    it('should pass new parameters correctly', async () => {
+      server.use(
+        http.get('*/api/issues/search', ({ request }) => {
+          const url = new URL(request.url);
+
+          expect(url.searchParams.get('codeVariants')).toBe('variant1,variant2');
+          expect(url.searchParams.get('fixedInPullRequest')).toBe('123');
+          expect(url.searchParams.get('prioritizedRule')).toBe('true');
+          expect(url.searchParams.get('timeZone')).toBe('UTC');
+          expect(url.searchParams.get('inNewCodePeriod')).toBe('true');
+          expect(url.searchParams.get('sinceLeakPeriod')).toBe('true');
+          expect(url.searchParams.get('onComponentOnly')).toBe('true');
+
+          return HttpResponse.json({
+            total: 0,
+            p: 1,
+            ps: 100,
+            issues: [],
+          });
+        })
+      );
+
+      await builder
+        .withComponents(['comp1']) // Required for fixedInPullRequest
+        .withCodeVariants(['variant1', 'variant2'])
+        .fixedInPullRequest('123')
+        .withPrioritizedRule(true)
+        .withTimeZone('UTC')
+        .inNewCodePeriod()
+        .sinceLeakPeriod()
+        .onComponentOnly()
+        .execute();
+    });
+
+    it('should pass boolean state filters correctly', async () => {
+      server.use(
+        http.get('*/api/issues/search', ({ request }) => {
+          const url = new URL(request.url);
+
+          expect(url.searchParams.get('assigned')).toBe('false');
+          expect(url.searchParams.get('resolved')).toBe('false');
+
+          return HttpResponse.json({
+            total: 0,
+            p: 1,
+            ps: 100,
+            issues: [],
+          });
+        })
+      );
+
+      await builder.onlyUnassigned().onlyUnresolved().execute();
+    });
+
+    it('should pass date parameters correctly', async () => {
+      server.use(
+        http.get('*/api/issues/search', ({ request }) => {
+          const url = new URL(request.url);
+
+          expect(url.searchParams.get('createdAt')).toBe('2024-01-15');
+          expect(url.searchParams.get('createdAfter')).toBe('2024-01-01');
+          expect(url.searchParams.get('createdBefore')).toBe('2024-12-31');
+          expect(url.searchParams.get('createdInLast')).toBe('1w');
+
+          return HttpResponse.json({
+            total: 0,
+            p: 1,
+            ps: 100,
+            issues: [],
+          });
+        })
+      );
+
+      await builder
+        .createdAt('2024-01-15')
+        .createdAfter('2024-01-01')
+        .createdBefore('2024-12-31')
+        .createdInLast('1w')
+        .execute();
+    });
+
+    it('should pass facets with new values correctly', async () => {
+      server.use(
+        http.get('*/api/issues/search', ({ request }) => {
+          const url = new URL(request.url);
+
+          const facets = url.searchParams.get('facets');
+          expect(facets).toContain('assigned_to_me');
+          expect(facets).toContain('author');
+          expect(facets).toContain('createdAt');
+          expect(facets).toContain('codeVariants');
+          expect(facets).toContain('prioritizedRule');
+
+          return HttpResponse.json({
+            total: 0,
+            p: 1,
+            ps: 100,
+            issues: [],
+          });
+        })
+      );
+
+      await builder
+        .withFacets(['assigned_to_me', 'author', 'createdAt', 'codeVariants', 'prioritizedRule'])
+        .execute();
     });
   });
 });

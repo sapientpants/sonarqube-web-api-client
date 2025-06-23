@@ -262,7 +262,7 @@ describe('IssuesClient', () => {
     });
 
     it('should validate maximum issues limit', async () => {
-      const manyIssues = Array.from({ length: 501 }, (_, i) => `issue-${i}`);
+      const manyIssues = Array.from({ length: 501 }, (_, i) => `issue-${String(i)}`);
       await expect(client.bulkChange({ issues: manyIssues })).rejects.toThrow(
         'Parameter "issues" cannot contain more than 500 issue keys'
       );
@@ -275,7 +275,7 @@ describe('IssuesClient', () => {
     });
 
     it('should validate tag limits', async () => {
-      const manyTags = Array.from({ length: 11 }, (_, i) => `tag-${i}`);
+      const manyTags = Array.from({ length: 11 }, (_, i) => `tag-${String(i)}`);
       await expect(client.bulkChange({ issues: ['issue-1'], add_tags: manyTags })).rejects.toThrow(
         'Parameter "add_tags" cannot contain more than 10 tags'
       );
@@ -427,7 +427,7 @@ describe('IssuesClient', () => {
     it('should validate OWASP ASVS level', async () => {
       const builder = client.search();
 
-      await expect(builder.withOwaspAsvsLevel(4 as any).execute()).rejects.toThrow(
+      await expect(builder.withOwaspAsvsLevel(4 as 1 | 2 | 3).execute()).rejects.toThrow(
         'Parameter "owaspAsvsLevel" must be 1, 2, or 3'
       );
     });
@@ -458,7 +458,7 @@ describe('IssuesClient', () => {
 
     it('should validate array parameter limits', async () => {
       const builder = client.search();
-      const manyComponents = Array.from({ length: 101 }, (_, i) => `component-${i}`);
+      const manyComponents = Array.from({ length: 101 }, (_, i) => `component-${String(i)}`);
 
       await expect(builder.withComponents(manyComponents).execute()).rejects.toThrow(
         'Parameter "components" cannot contain more than 100 items'
@@ -518,8 +518,6 @@ describe('IssuesClient', () => {
 
   describe('author parameter handling', () => {
     it('should handle multiple authors correctly', async () => {
-      const builder = client.search();
-
       // Mock the request to verify proper parameter handling
       server.use(
         http.get('*/api/issues/search', ({ request }) => {
@@ -528,10 +526,15 @@ describe('IssuesClient', () => {
           expect(authorParams).toEqual(['user1', 'user2']);
 
           return HttpResponse.json({
-            total: 0,
-            p: 1,
-            ps: 100,
             issues: [],
+            paging: {
+              pageIndex: 1,
+              pageSize: 100,
+              total: 0,
+            },
+            components: [],
+            rules: [],
+            users: [],
           });
         })
       );

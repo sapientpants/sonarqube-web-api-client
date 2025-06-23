@@ -390,7 +390,7 @@ export const handlers = [
     const allAuthors = ['john.doe', 'john.smith', 'jane.doe', 'alice.developer', 'bob.tester'];
 
     let filteredAuthors = allAuthors;
-    if (query) {
+    if (query !== null && query !== '') {
       filteredAuthors = allAuthors.filter((author) =>
         author.toLowerCase().includes(query.toLowerCase())
       );
@@ -403,25 +403,33 @@ export const handlers = [
 
   http.post('*/api/issues/bulk_change', async ({ request }) => {
     const body = await request.formData();
-    const issues = body.get('issues')?.toString().split(',') || [];
+    const issuesParam = body.get('issues');
+    const issues = typeof issuesParam === 'string' ? issuesParam.split(',') : [];
 
-    const updatedIssues = issues.map((issueKey, index) => ({
-      key: issueKey,
-      rule: 'typescript:S1234',
-      severity: body.get('set_severity')?.toString() || 'MAJOR',
-      component: `project:src/file${index + 1}.ts`,
-      project: 'project',
-      line: 42 + index,
-      message: `Updated issue ${index + 1}`,
-      type: body.get('set_type')?.toString() || 'BUG',
-      status: 'OPEN',
-      tags: body.get('add_tags')?.toString().split(',') || [],
-      assignee: body.get('assign')?.toString(),
-      creationDate: '2024-01-01T00:00:00+0000',
-      updateDate: new Date().toISOString(),
-      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
-      actions: ['assign', 'set_tags', 'comment'],
-    }));
+    const updatedIssues = issues.map((issueKey, index) => {
+      const setSeverityParam = body.get('set_severity');
+      const setTypeParam = body.get('set_type');
+      const addTagsParam = body.get('add_tags');
+      const assignParam = body.get('assign');
+
+      return {
+        key: issueKey,
+        rule: 'typescript:S1234',
+        severity: typeof setSeverityParam === 'string' ? setSeverityParam : 'MAJOR',
+        component: `project:src/file${String(Number(index) + 1)}.ts`,
+        project: 'project',
+        line: 42 + Number(index),
+        message: `Updated issue ${String(Number(index) + 1)}`,
+        type: typeof setTypeParam === 'string' ? setTypeParam : 'BUG',
+        status: 'OPEN',
+        tags: typeof addTagsParam === 'string' ? addTagsParam.split(',') : [],
+        assignee: typeof assignParam === 'string' ? assignParam : undefined,
+        creationDate: '2024-01-01T00:00:00+0000',
+        updateDate: new Date().toISOString(),
+        transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+        actions: ['assign', 'set_tags', 'comment'],
+      };
+    });
 
     return HttpResponse.json({
       total: issues.length,
@@ -434,7 +442,7 @@ export const handlers = [
 
   http.get('*/api/issues/changelog', ({ request }) => {
     const url = new URL(request.url);
-    const issueKey = url.searchParams.get('issue');
+    const _issueKey = url.searchParams.get('issue');
 
     return HttpResponse.json({
       changelog: [
@@ -472,7 +480,7 @@ export const handlers = [
   }),
 
   http.post('*/api/issues/delete_comment', async ({ request }) => {
-    const body = (await request.json()) as { comment: string };
+    const _body = (await request.json()) as { comment: string };
 
     const issue = {
       key: 'issue-1',
@@ -540,7 +548,7 @@ export const handlers = [
 
   http.get('*/api/issues/gitlab_sast_export', ({ request }) => {
     const url = new URL(request.url);
-    const project = url.searchParams.get('project');
+    const _project = url.searchParams.get('project');
 
     return HttpResponse.json({
       version: '15.0.0',
@@ -578,7 +586,7 @@ export const handlers = [
   }),
 
   http.post('*/api/issues/reindex', async ({ request }) => {
-    const body = (await request.json()) as { project: string };
+    const _body = (await request.json()) as { project: string };
 
     return HttpResponse.json({
       message: 'Issues reindexed successfully',
@@ -620,7 +628,7 @@ export const handlers = [
     const allTags = ['security', 'secure-coding', 'performance', 'maintainability', 'reliability'];
 
     let filteredTags = allTags;
-    if (query) {
+    if (query !== null && query !== '') {
       filteredTags = allTags.filter((tag) => tag.toLowerCase().includes(query.toLowerCase()));
     }
 

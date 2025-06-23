@@ -359,6 +359,7 @@ export class IssuesClient extends BaseClient {
 
     // Parameter name mapping for API compatibility
     const parameterMapping: Record<string, string> = {
+      authors: 'author', // Multiple authors are sent as separate 'author' parameters
       owaspTop10v2021: 'owaspTop10-2021',
       owaspAsvs40: 'owaspAsvs-4.0',
       owaspMobileTop102024: 'owaspMobileTop10-2024',

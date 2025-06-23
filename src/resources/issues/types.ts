@@ -454,13 +454,16 @@ export type IssueFacet =
   | 'rules'
   | 'tags'
   | 'types'
-  | 'authors'
+  | 'author' // Note: Documentation shows 'author', not 'authors'
+  | 'authors' // Keeping for backward compatibility
   | 'assignees'
+  | 'assigned_to_me' // New facet for issues assigned to current user
   | 'languages'
   | 'projects'
   | 'directories'
   | 'files'
   | 'cwe'
+  | 'createdAt' // New facet for creation date aggregation
   | 'owaspTop10'
   | 'owaspTop10-2021'
   | 'owaspAsvs-4.0'
@@ -471,10 +474,12 @@ export type IssueFacet =
   | 'sonarsourceSecurity'
   | 'stig-ASD_V5R3'
   | 'casa'
+  | 'codeVariants' // New facet for code variants
   | 'cleanCodeAttributeCategories'
   | 'impactSeverities'
   | 'impactSoftwareQualities'
   | 'issueStatuses'
+  | 'prioritizedRule' // New facet for prioritized rules
   | 'scopes';
 
 /**

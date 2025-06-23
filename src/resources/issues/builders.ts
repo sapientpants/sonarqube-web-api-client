@@ -37,14 +37,16 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by component keys (files, directories, projects)
    */
   withComponents(componentKeys: string[]): this {
-    return this.setParam('componentKeys', componentKeys);
+    return this.setParam('components', componentKeys);
   }
 
   /**
    * Filter by component keys (alias for withComponents)
+   * @deprecated Use withComponents() instead
    */
   componentKeys(componentKeys: string[]): this {
-    return this.withComponents(componentKeys);
+    this.setParam('componentKeys', componentKeys);
+    return this;
   }
 
   /**

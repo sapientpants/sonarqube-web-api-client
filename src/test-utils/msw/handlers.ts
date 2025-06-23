@@ -383,6 +383,252 @@ export const handlers = [
     });
   }),
 
+  http.get('*/api/issues/authors', ({ request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q');
+
+    const allAuthors = ['john.doe', 'john.smith', 'jane.doe', 'alice.developer', 'bob.tester'];
+
+    let filteredAuthors = allAuthors;
+    if (query) {
+      filteredAuthors = allAuthors.filter((author) =>
+        author.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    return HttpResponse.json({
+      authors: filteredAuthors,
+    });
+  }),
+
+  http.post('*/api/issues/bulk_change', async ({ request }) => {
+    const body = await request.formData();
+    const issues = body.get('issues')?.toString().split(',') || [];
+
+    const updatedIssues = issues.map((issueKey, index) => ({
+      key: issueKey,
+      rule: 'typescript:S1234',
+      severity: body.get('set_severity')?.toString() || 'MAJOR',
+      component: `project:src/file${index + 1}.ts`,
+      project: 'project',
+      line: 42 + index,
+      message: `Updated issue ${index + 1}`,
+      type: body.get('set_type')?.toString() || 'BUG',
+      status: 'OPEN',
+      tags: body.get('add_tags')?.toString().split(',') || [],
+      assignee: body.get('assign')?.toString(),
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    }));
+
+    return HttpResponse.json({
+      total: issues.length,
+      success: issues.length,
+      ignored: 0,
+      failures: 0,
+      issues: updatedIssues,
+    });
+  }),
+
+  http.get('*/api/issues/changelog', ({ request }) => {
+    const url = new URL(request.url);
+    const issueKey = url.searchParams.get('issue');
+
+    return HttpResponse.json({
+      changelog: [
+        {
+          user: 'john.doe',
+          userName: 'John Doe',
+          creationDate: '2024-01-01T00:00:00+0000',
+          diffs: [
+            {
+              key: 'status',
+              oldValue: 'OPEN',
+              newValue: 'CONFIRMED',
+            },
+            {
+              key: 'assignee',
+              oldValue: '',
+              newValue: 'john.doe',
+            },
+          ],
+        },
+        {
+          user: 'jane.doe',
+          userName: 'Jane Doe',
+          creationDate: '2024-01-02T00:00:00+0000',
+          diffs: [
+            {
+              key: 'tags',
+              oldValue: '',
+              newValue: 'security',
+            },
+          ],
+        },
+      ],
+    });
+  }),
+
+  http.post('*/api/issues/delete_comment', async ({ request }) => {
+    const body = (await request.json()) as { comment: string };
+
+    const issue = {
+      key: 'issue-1',
+      rule: 'typescript:S1234',
+      severity: 'MAJOR',
+      component: 'project:src/file.ts',
+      project: 'project',
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: 'OPEN',
+      tags: [],
+      comments: [], // Comment has been deleted
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
+    });
+  }),
+
+  http.post('*/api/issues/edit_comment', async ({ request }) => {
+    const body = (await request.json()) as { comment: string; text: string };
+
+    const issue = {
+      key: 'issue-1',
+      rule: 'typescript:S1234',
+      severity: 'MAJOR',
+      component: 'project:src/file.ts',
+      project: 'project',
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: 'OPEN',
+      tags: [],
+      comments: [
+        {
+          key: body.comment,
+          login: 'john.doe',
+          htmlText: body.text,
+          markdown: body.text,
+          updatable: true,
+          createdAt: '2024-01-01T00:00:00+0000',
+        },
+      ],
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
+    });
+  }),
+
+  http.get('*/api/issues/gitlab_sast_export', ({ request }) => {
+    const url = new URL(request.url);
+    const project = url.searchParams.get('project');
+
+    return HttpResponse.json({
+      version: '15.0.0',
+      vulnerabilities: [
+        {
+          id: 'issue-1',
+          category: 'sast',
+          name: 'Security vulnerability',
+          message: 'Potential security issue found',
+          description: 'This is a detailed description of the security vulnerability',
+          cve: 'CVE-2024-1234',
+          severity: 'High',
+          confidence: 'Medium',
+          solution: 'Apply the recommended fix',
+          scanner: {
+            id: 'sonarqube',
+            name: 'SonarQube',
+          },
+          location: {
+            file: 'src/file.ts',
+            start_line: 42,
+            end_line: 42,
+          },
+          identifiers: [
+            {
+              type: 'sonarqube_rule',
+              name: 'typescript:S1234',
+              value: 'typescript:S1234',
+              url: 'https://rules.sonarsource.com/typescript/RSPEC-1234',
+            },
+          ],
+        },
+      ],
+    });
+  }),
+
+  http.post('*/api/issues/reindex', async ({ request }) => {
+    const body = (await request.json()) as { project: string };
+
+    return HttpResponse.json({
+      message: 'Issues reindexed successfully',
+    });
+  }),
+
+  http.post('*/api/issues/set_severity', async ({ request }) => {
+    const body = (await request.json()) as { issue: string; severity: string };
+
+    const issue = {
+      key: body.issue,
+      rule: 'typescript:S1234',
+      severity: body.severity,
+      component: 'project:src/file.ts',
+      project: 'project',
+      line: 42,
+      message: 'Fix this issue',
+      type: 'BUG',
+      status: 'OPEN',
+      tags: [],
+      creationDate: '2024-01-01T00:00:00+0000',
+      updateDate: new Date().toISOString(),
+      transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      actions: ['assign', 'set_tags', 'comment'],
+    };
+
+    return HttpResponse.json({
+      issue,
+      users: [],
+      components: [{ key: 'project:src/file.ts', name: 'file.ts', qualifier: 'FIL' }],
+      rules: [{ key: 'typescript:S1234', name: 'Bug Rule', status: 'READY' }],
+    });
+  }),
+
+  http.get('*/api/issues/tags', ({ request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q');
+
+    const allTags = ['security', 'secure-coding', 'performance', 'maintainability', 'reliability'];
+
+    let filteredTags = allTags;
+    if (query) {
+      filteredTags = allTags.filter((tag) => tag.toLowerCase().includes(query.toLowerCase()));
+    }
+
+    return HttpResponse.json({
+      tags: filteredTags,
+    });
+  }),
+
   // ALM Integrations endpoints
   http.get('*/api/alm_integrations/list_bitbucketserver_projects', () => {
     return HttpResponse.json({

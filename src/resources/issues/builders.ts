@@ -276,6 +276,93 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   }
 
   /**
+   * Filter by CASA categories
+   * @since 10.7
+   */
+  withCasa(categories: string[]): this {
+    return this.setParam('casa', categories);
+  }
+
+  /**
+   * Filter by code variants
+   * @since 10.1
+   */
+  withCodeVariants(variants: string[]): this {
+    return this.setParam('codeVariants', variants);
+  }
+
+  /**
+   * Filter issues that would be fixed in a specific pull request
+   * @since 10.4
+   */
+  fixedInPullRequest(pullRequestId: string): this {
+    return this.setParam('fixedInPullRequest', pullRequestId);
+  }
+
+  /**
+   * Filter by OWASP ASVS v4.0 categories
+   * @since 9.7
+   */
+  withOwaspAsvs40(categories: string[]): this {
+    return this.setParam('owaspAsvs40', categories);
+  }
+
+  /**
+   * Set the level of OWASP ASVS categories (1, 2, or 3)
+   * @since 9.7
+   */
+  withOwaspAsvsLevel(level: 1 | 2 | 3): this {
+    return this.setParam('owaspAsvsLevel', level);
+  }
+
+  /**
+   * Filter by OWASP Mobile Top 10 2024 categories
+   * @since 2025.3
+   */
+  withOwaspMobileTop102024(categories: string[]): this {
+    return this.setParam('owaspMobileTop102024', categories);
+  }
+
+  /**
+   * Filter by PCI DSS v3.2 categories
+   * @since 9.6
+   */
+  withPciDss32(categories: string[]): this {
+    return this.setParam('pciDss32', categories);
+  }
+
+  /**
+   * Filter by PCI DSS v4.0 categories
+   * @since 9.6
+   */
+  withPciDss40(categories: string[]): this {
+    return this.setParam('pciDss40', categories);
+  }
+
+  /**
+   * Filter by prioritized rule status
+   */
+  withPrioritizedRule(prioritized: boolean): this {
+    return this.setParam('prioritizedRule', prioritized);
+  }
+
+  /**
+   * Filter by STIG V5R3 categories
+   * @since 10.7
+   */
+  withStigASDV5R3(categories: string[]): this {
+    return this.setParam('stigASDV5R3', categories);
+  }
+
+  /**
+   * Set timezone for date resolution and histogram computation
+   * @since 8.6
+   */
+  withTimeZone(timeZone: string): this {
+    return this.setParam('timeZone', timeZone);
+  }
+
+  /**
    * Filter by organization
    */
   inOrganization(organization: string): this {

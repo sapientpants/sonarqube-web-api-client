@@ -151,7 +151,9 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   author?: string;
   authors?: string[];
   branch?: string;
+  casa?: string[]; // since 10.7
   cleanCodeAttributeCategories?: CleanCodeAttributeCategory[];
+  codeVariants?: string[]; // since 10.1
   componentKeys?: string[];
   components?: string[];
   createdAfter?: string;
@@ -163,6 +165,7 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   facetMode?: FacetMode;
   facets?: string[];
   files?: string[];
+  fixedInPullRequest?: string; // since 10.4
   impactSeverities?: ImpactSeverity[];
   impactSoftwareQualities?: ImpactSoftwareQuality[];
   inNewCodePeriod?: boolean;
@@ -171,8 +174,14 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   languages?: string[];
   onComponentOnly?: boolean;
   organization?: string;
+  owaspAsvs40?: string[]; // Maps to 'owaspAsvs-4.0' in API, since 9.7
+  owaspAsvsLevel?: 1 | 2 | 3; // since 9.7
+  owaspMobileTop102024?: string[]; // Maps to 'owaspMobileTop10-2024' in API, since 2025.3
   owaspTop10?: string[];
   owaspTop10v2021?: string[]; // Maps to 'owaspTop10-2021' in API
+  pciDss32?: string[]; // Maps to 'pciDss-3.2' in API, since 9.6
+  pciDss40?: string[]; // Maps to 'pciDss-4.0' in API, since 9.6
+  prioritizedRule?: boolean;
   projects?: string[];
   pullRequest?: string;
   resolutions?: IssueResolution[]; // deprecated
@@ -186,7 +195,9 @@ export interface SearchIssuesRequest extends PaginatedRequest {
   sonarsourceSecurity?: string[];
   sonarsourceSecurityCategory?: string[];
   statuses?: IssueStatus[]; // deprecated
+  stigASDV5R3?: string[]; // Maps to 'stig-ASD_V5R3' in API, since 10.7
   tags?: string[];
+  timeZone?: string; // since 8.6
   types?: IssueType[]; // deprecated
 }
 
@@ -377,4 +388,263 @@ export interface SetTagsResponse {
     lang?: string;
     langName?: string;
   }>;
+}
+
+/**
+ * Request to search for SCM authors
+ */
+export interface SearchAuthorsRequest {
+  q?: string;
+  ps?: number;
+  project?: string;
+}
+
+/**
+ * Response from searching authors
+ */
+export interface SearchAuthorsResponse {
+  authors: string[];
+}
+
+/**
+ * Request to perform bulk changes on issues
+ */
+export interface BulkChangeRequest {
+  issues: string[];
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  add_tags?: string[];
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  remove_tags?: string[];
+  assign?: string;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  set_severity?: IssueSeverity;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  set_type?: IssueType;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  do_transition?: IssueTransition;
+  comment?: string;
+  sendNotifications?: boolean;
+}
+
+/**
+ * Response from bulk change operation
+ */
+export interface BulkChangeResponse {
+  total: number;
+  success: number;
+  ignored: number;
+  failures: number;
+  issues: Issue[];
+}
+
+/**
+ * Request to get issue changelog
+ */
+export interface GetChangelogRequest {
+  issue: string;
+}
+
+/**
+ * Changelog entry
+ */
+export interface ChangelogEntry {
+  user: string;
+  userName: string;
+  creationDate: string;
+  diffs: Array<{
+    key: string;
+    newValue?: string;
+    oldValue?: string;
+  }>;
+}
+
+/**
+ * Response from getting changelog
+ */
+export interface GetChangelogResponse {
+  changelog: ChangelogEntry[];
+}
+
+/**
+ * Request to delete a comment
+ */
+export interface DeleteCommentRequest {
+  comment: string;
+}
+
+/**
+ * Response from deleting a comment
+ */
+export interface DeleteCommentResponse {
+  issue: Issue;
+  users: Array<{
+    login: string;
+    name: string;
+    active: boolean;
+    avatar?: string;
+  }>;
+  components: Array<{
+    key: string;
+    uuid: string;
+    enabled: boolean;
+    qualifier: string;
+    name: string;
+    longName: string;
+    path?: string;
+  }>;
+  rules: Array<{
+    key: string;
+    name: string;
+    status: string;
+    lang?: string;
+    langName?: string;
+  }>;
+}
+
+/**
+ * Request to edit a comment
+ */
+export interface EditCommentRequest {
+  comment: string;
+  text: string;
+}
+
+/**
+ * Response from editing a comment
+ */
+export interface EditCommentResponse {
+  issue: Issue;
+  users: Array<{
+    login: string;
+    name: string;
+    active: boolean;
+    avatar?: string;
+  }>;
+  components: Array<{
+    key: string;
+    uuid: string;
+    enabled: boolean;
+    qualifier: string;
+    name: string;
+    longName: string;
+    path?: string;
+  }>;
+  rules: Array<{
+    key: string;
+    name: string;
+    status: string;
+    lang?: string;
+    langName?: string;
+  }>;
+}
+
+/**
+ * Request to export vulnerabilities in GitLab SAST format
+ */
+export interface GitLabSastExportRequest {
+  project: string;
+  branch?: string;
+  pullRequest?: string;
+}
+
+/**
+ * Response from GitLab SAST export (JSON format)
+ */
+export interface GitLabSastExportResponse {
+  version: string;
+  vulnerabilities: Array<{
+    id: string;
+    category: string;
+    name: string;
+    message: string;
+    description: string;
+    cve: string;
+    severity: string;
+    confidence: string;
+    solution?: string;
+    scanner: {
+      id: string;
+      name: string;
+    };
+    location: {
+      file: string;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      start_line: number;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      end_line: number;
+    };
+    identifiers: Array<{
+      type: string;
+      name: string;
+      value: string;
+      url?: string;
+    }>;
+  }>;
+}
+
+/**
+ * Request to reindex issues
+ */
+export interface ReindexRequest {
+  project: string;
+}
+
+/**
+ * Response from reindex operation
+ */
+export interface ReindexResponse {
+  message: string;
+}
+
+/**
+ * Request to set severity
+ */
+export interface SetSeverityRequest {
+  issue: string;
+  severity: IssueSeverity;
+}
+
+/**
+ * Response from setting severity
+ */
+export interface SetSeverityResponse {
+  issue: Issue;
+  users: Array<{
+    login: string;
+    name: string;
+    active: boolean;
+    avatar?: string;
+  }>;
+  components: Array<{
+    key: string;
+    uuid: string;
+    enabled: boolean;
+    qualifier: string;
+    name: string;
+    longName: string;
+    path?: string;
+  }>;
+  rules: Array<{
+    key: string;
+    name: string;
+    status: string;
+    lang?: string;
+    langName?: string;
+  }>;
+}
+
+/**
+ * Request to search for tags
+ */
+export interface SearchTagsRequest {
+  q?: string;
+  ps?: number;
+  organization?: string;
+}
+
+/**
+ * Response from searching tags
+ */
+export interface SearchTagsResponse {
+  tags: string[];
 }

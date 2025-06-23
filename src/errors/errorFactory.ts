@@ -75,9 +75,13 @@ export async function createErrorFromResponse(response: Response): Promise<Sonar
 
     case 503:
       // Handle specific case of issue indexing in progress
+      // SonarQube returns specific error messages for indexing operations
       if (
-        errorMessage.toLowerCase().includes('index') ||
-        errorMessage.toLowerCase().includes('indexing')
+        errorMessage.toLowerCase().includes('indexing in progress') ||
+        errorMessage.toLowerCase().includes('issues index') ||
+        errorMessage.toLowerCase().includes('index is not ready') ||
+        (errorMessage.toLowerCase().includes('index') &&
+          errorMessage.toLowerCase().includes('progress'))
       ) {
         return new IndexingInProgressError(errorMessage);
       }

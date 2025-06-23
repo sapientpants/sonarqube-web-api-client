@@ -132,7 +132,13 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   /**
    * Filter by a single author (alternative to byAuthors for single values)
    * @param author - Single author login to filter by
-   * @deprecated Use byAuthor() instead for consistency
+   * @deprecated Use byAuthor() instead for consistency. This method will be removed in version 1.0.0.
+   * @example
+   * // Old way (deprecated)
+   * builder.byAuthorSingle('john.doe')
+   *
+   * // New way
+   * builder.byAuthor('john.doe')
    */
   byAuthorSingle(author: string): this {
     return this.setParam('author', author);

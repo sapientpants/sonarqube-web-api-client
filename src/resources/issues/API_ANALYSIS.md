@@ -124,6 +124,21 @@ Many endpoints return similar response structures with:
 
 These could be consolidated into a common response type.
 
+## Deprecated Parameters Migration Guide
+
+| Deprecated Parameter | New Parameter | Notes |
+|---------------------|---------------|-------|
+| `componentKeys` | `components` | Use `components` for consistency with API |
+| `componentRootUuids` | `components` | Merged into unified `components` parameter |
+| `componentRoots` | `components` | Merged into unified `components` parameter |
+| `componentUuids` | `components` | Merged into unified `components` parameter |
+| `fileUuids` | `files` | Use file paths instead of UUIDs |
+| `moduleUuids` | N/A | Modules concept removed from SonarQube |
+| `projectUuids` | `projects` | Use project keys instead of UUIDs |
+| `severities` | `impactSeverities` | Part of Clean Code taxonomy |
+| `statuses` | `issueStatuses` | New issue workflow states |
+| `types` | `impactSoftwareQualities` | Part of Clean Code taxonomy |
+
 ## Recommendations
 
 1. **High Priority**: Add missing endpoints that are commonly used:

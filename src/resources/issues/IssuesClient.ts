@@ -314,10 +314,37 @@ export class IssuesClient extends BaseClient {
     // Validate parameter constraints
     this.validateSearchParameters(params);
 
-    const searchParams = new URLSearchParams();
+    const searchParams = this.buildSearchParams(params);
 
-    // Handle array parameters by joining with commas
-    const arrayParams: Array<keyof SearchIssuesRequest> = [
+    return this.request<SearchIssuesResponse>(`/api/issues/search?${searchParams.toString()}`);
+  }
+
+  /**
+   * Build URLSearchParams from request parameters
+   */
+  private buildSearchParams(params: SearchIssuesRequest): URLSearchParams {
+    const searchParams = new URLSearchParams();
+    const arrayParams = this.getArrayParams();
+    const multipleCallParams = this.getMultipleCallParams();
+    const parameterMapping = this.getParameterMapping();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      const apiKey = parameterMapping[key] ?? key;
+      this.appendParameter(searchParams, key, value, apiKey, arrayParams, multipleCallParams);
+    });
+
+    return searchParams;
+  }
+
+  /**
+   * Get array parameters that should be joined with commas
+   */
+  private getArrayParams(): Array<keyof SearchIssuesRequest> {
+    return [
       'additionalFields',
       'assignees',
       'casa',
@@ -353,12 +380,20 @@ export class IssuesClient extends BaseClient {
       'tags',
       'types',
     ];
+  }
 
-    // Parameters that need multiple calls instead of comma-separated values
-    const multipleCallParams: Array<keyof SearchIssuesRequest> = ['authors'];
+  /**
+   * Get parameters that need multiple calls instead of comma-separated values
+   */
+  private getMultipleCallParams(): Array<keyof SearchIssuesRequest> {
+    return ['authors'];
+  }
 
-    // Parameter name mapping for API compatibility
-    const parameterMapping: Record<string, string> = {
+  /**
+   * Get parameter name mapping for API compatibility
+   */
+  private getParameterMapping(): Record<string, string> {
+    return {
       authors: 'author', // Multiple authors are sent as separate 'author' parameters
       owaspTop10v2021: 'owaspTop10-2021',
       owaspAsvs40: 'owaspAsvs-4.0',
@@ -367,44 +402,58 @@ export class IssuesClient extends BaseClient {
       pciDss40: 'pciDss-4.0',
       stigASDV5R3: 'stig-ASD_V5R3',
     };
+  }
 
-    // Add parameters to search params
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        // Map camelCase parameter names to API parameter names
-        const apiKey = parameterMapping[key] ?? key;
-
-        // Handle parameters that need multiple calls (e.g., authors)
-        if (multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
-          if (value.length > 0) {
-            value.forEach((singleValue) => {
-              if (typeof singleValue === 'string') {
-                searchParams.append(apiKey, singleValue);
-              }
-            });
+  /**
+   * Append a parameter to URLSearchParams based on its type and configuration
+   */
+  private appendParameter(
+    searchParams: URLSearchParams,
+    key: string,
+    value: unknown,
+    apiKey: string,
+    arrayParams: Array<keyof SearchIssuesRequest>,
+    multipleCallParams: Array<keyof SearchIssuesRequest>
+  ): void {
+    // Handle parameters that need multiple calls (e.g., authors)
+    if (multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
+      if (value.length > 0) {
+        value.forEach((singleValue) => {
+          if (typeof singleValue === 'string') {
+            searchParams.append(apiKey, singleValue);
           }
-        }
-        // Handle normal array parameters (comma-separated)
-        else if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
-          if (value.length > 0) {
-            searchParams.append(apiKey, value.join(','));
-          }
-        } else if (typeof value === 'boolean') {
-          searchParams.append(apiKey, value.toString());
-        } else if (typeof value === 'number' || typeof value === 'string') {
-          searchParams.append(apiKey, value.toString());
-        }
+        });
       }
-    });
-
-    return this.request<SearchIssuesResponse>(`/api/issues/search?${searchParams.toString()}`);
+    }
+    // Handle normal array parameters (comma-separated)
+    else if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
+      if (value.length > 0) {
+        searchParams.append(apiKey, value.join(','));
+      }
+    } else if (typeof value === 'boolean') {
+      searchParams.append(apiKey, value.toString());
+    } else if (typeof value === 'number' || typeof value === 'string') {
+      searchParams.append(apiKey, value.toString());
+    }
   }
 
   /**
    * Validate search parameters for constraints and mutual exclusions
    */
   private validateSearchParameters(params: SearchIssuesRequest): void {
-    // fixedInPullRequest cannot be used with pullRequest
+    this.validateMutualExclusion(params);
+    this.validateRequiredDependencies(params);
+    this.validatePaginationParams(params);
+    this.validateDateParams(params);
+    this.validateArraySizeLimits(params);
+    this.validateCweFormat(params);
+    this.checkDeprecatedParameters(params);
+  }
+
+  /**
+   * Validate mutually exclusive parameters
+   */
+  private validateMutualExclusion(params: SearchIssuesRequest): void {
     if (
       params.fixedInPullRequest !== undefined &&
       params.fixedInPullRequest !== '' &&
@@ -415,8 +464,12 @@ export class IssuesClient extends BaseClient {
         'Parameters "fixedInPullRequest" and "pullRequest" cannot be used together. These parameters are mutually exclusive - use either one or the other to filter issues by pull request context.'
       );
     }
+  }
 
-    // fixedInPullRequest requires components to be specified
+  /**
+   * Validate parameters that require other parameters
+   */
+  private validateRequiredDependencies(params: SearchIssuesRequest): void {
     if (
       params.fixedInPullRequest !== undefined &&
       params.fixedInPullRequest !== '' &&
@@ -426,8 +479,12 @@ export class IssuesClient extends BaseClient {
         'Parameter "fixedInPullRequest" requires "components" to be specified. Please provide at least one component key to scope the search for issues that would be fixed in the pull request.'
       );
     }
+  }
 
-    // Validate page size limits
+  /**
+   * Validate pagination parameters
+   */
+  private validatePaginationParams(params: SearchIssuesRequest): void {
     if (params.ps !== undefined && (params.ps < 1 || params.ps > 500)) {
       throw new Error(
         `Parameter "ps" (page size) must be between 1 and 500. Current value: ${String(
@@ -436,60 +493,85 @@ export class IssuesClient extends BaseClient {
       );
     }
 
-    // Validate page number
     if (params.p !== undefined && params.p < 1) {
       throw new Error(
         'Parameter "p" (page number) must be greater than 0. Page numbers start from 1.'
       );
     }
 
-    // Validate OWASP ASVS level
     if (params.owaspAsvsLevel !== undefined && ![1, 2, 3].includes(params.owaspAsvsLevel)) {
       throw new Error(
         'Parameter "owaspAsvsLevel" must be 1, 2, or 3. These correspond to the three levels of verification requirements in OWASP ASVS v4.0.'
       );
     }
+  }
 
-    // Validate date formats (basic check for ISO 8601 date format)
+  /**
+   * Validate date format parameters
+   */
+  private validateDateParams(params: SearchIssuesRequest): void {
+    this.validateDateFormats(params);
+    this.validateCreatedInLastParam(params);
+    this.validateTimeZoneParam(params);
+  }
+
+  /**
+   * Validate date format fields
+   */
+  private validateDateFormats(params: SearchIssuesRequest): void {
     const dateParams = ['createdAfter', 'createdBefore', 'createdAt'] as const;
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
     dateParams.forEach((param) => {
       const value = params[param];
-      if (value !== undefined && value !== '') {
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateRegex.test(value)) {
-          throw new Error(
-            `Parameter "${param}" must be in YYYY-MM-DD format. Current value: "${value}". Example: "2023-01-15".`
-          );
-        }
+      if (value !== undefined && value !== '' && !dateRegex.test(value)) {
+        throw new Error(
+          `Parameter "${param}" must be in YYYY-MM-DD format. Current value: "${value}". Example: "2023-01-15".`
+        );
       }
     });
+  }
 
-    // Validate createdInLast format
-    if (params.createdInLast !== undefined && params.createdInLast !== '') {
-      const periodRegex = /^\d+[wdmyh]$/;
-      if (!periodRegex.test(params.createdInLast)) {
-        throw new Error(
-          `Parameter "createdInLast" must be in format like "1w", "30d", "6m", "1y", or "24h". Current value: "${
-            params.createdInLast
-          }".`
-        );
-      }
+  /**
+   * Validate createdInLast parameter format
+   */
+  private validateCreatedInLastParam(params: SearchIssuesRequest): void {
+    if (params.createdInLast === undefined || params.createdInLast === '') {
+      return;
     }
 
-    // Validate timeZone format (basic check)
-    if (params.timeZone !== undefined && params.timeZone !== '') {
-      // Accept common timezone formats: UTC, GMT, America/New_York, Europe/London, +01:00, -05:00
-      const timezoneRegex = /^(UTC|GMT|[A-Za-z_]+\/[A-Za-z_]+|[+-]\d{2}:\d{2})$/;
-      if (!timezoneRegex.test(params.timeZone)) {
-        throw new Error(
-          `Parameter "timeZone" must be a valid timezone identifier. Examples: "UTC", "America/New_York", "Europe/London", "+01:00". Current value: "${
-            params.timeZone
-          }".`
-        );
-      }
+    const periodRegex = /^\d+[wdmyh]$/;
+    if (!periodRegex.test(params.createdInLast)) {
+      throw new Error(
+        `Parameter "createdInLast" must be in format like "1w", "30d", "6m", "1y", or "24h". Current value: "${
+          params.createdInLast
+        }".`
+      );
+    }
+  }
+
+  /**
+   * Validate timeZone parameter format
+   */
+  private validateTimeZoneParam(params: SearchIssuesRequest): void {
+    if (params.timeZone === undefined || params.timeZone === '') {
+      return;
     }
 
-    // Validate array parameter limits
+    const timezoneRegex = /^(UTC|GMT|[A-Za-z_]+\/[A-Za-z_]+|[+-]\d{2}:\d{2})$/;
+    if (!timezoneRegex.test(params.timeZone)) {
+      throw new Error(
+        `Parameter "timeZone" must be a valid timezone identifier. Examples: "UTC", "America/New_York", "Europe/London", "+01:00". Current value: "${
+          params.timeZone
+        }".`
+      );
+    }
+  }
+
+  /**
+   * Validate array size limits
+   */
+  private validateArraySizeLimits(params: SearchIssuesRequest): void {
     const arrayLimits = {
       assignees: 50,
       authors: 50,
@@ -512,28 +594,41 @@ export class IssuesClient extends BaseClient {
         );
       }
     });
+  }
 
-    // Validate CWE format (should be numbers)
-    if (params.cwe !== undefined && params.cwe.length > 0) {
-      const invalidCwes = params.cwe.filter((cwe) => !/^\d+$/.test(cwe));
-      if (invalidCwes.length > 0) {
-        throw new Error(
-          `Parameter "cwe" must contain only numeric CWE identifiers. Invalid values: [${invalidCwes.join(
-            ', '
-          )}]. Example: ["79", "89", "200"].`
-        );
-      }
+  /**
+   * Validate CWE format
+   */
+  private validateCweFormat(params: SearchIssuesRequest): void {
+    if (params.cwe === undefined || params.cwe.length === 0) {
+      return;
     }
 
-    // Warn about deprecated parameters
-    this.checkDeprecatedParameters(params);
+    const invalidCwes = params.cwe.filter((cwe) => !/^\d+$/.test(cwe));
+    if (invalidCwes.length > 0) {
+      throw new Error(
+        `Parameter "cwe" must contain only numeric CWE identifiers. Invalid values: [${invalidCwes.join(
+          ', '
+        )}]. Example: ["79", "89", "200"].`
+      );
+    }
   }
 
   /**
    * Validate bulk change parameters
    */
   private validateBulkChangeParameters(params: BulkChangeRequest): void {
-    // Check issues array length
+    this.validateBulkChangeIssues(params);
+    this.validateBulkChangeActions(params);
+    this.validateBulkChangeTags(params);
+    this.validateBulkChangeAssignee(params);
+    this.validateBulkChangeComment(params);
+  }
+
+  /**
+   * Validate bulk change issues array
+   */
+  private validateBulkChangeIssues(params: BulkChangeRequest): void {
     if (params.issues.length === 0) {
       throw new Error('Parameter "issues" is required and must contain at least one issue key.');
     }
@@ -546,7 +641,6 @@ export class IssuesClient extends BaseClient {
       );
     }
 
-    // Validate issue key format (basic check)
     const invalidIssueKeys = params.issues.filter(
       (key) => !key || typeof key !== 'string' || key.trim() === ''
     );
@@ -557,8 +651,12 @@ export class IssuesClient extends BaseClient {
         )} invalid issue keys.`
       );
     }
+  }
 
-    // Check that at least one action is specified
+  /**
+   * Validate that at least one action is specified
+   */
+  private validateBulkChangeActions(params: BulkChangeRequest): void {
     const hasAction = Boolean(
       (params.add_tags !== undefined && params.add_tags.length > 0) ||
         (params.remove_tags !== undefined && params.remove_tags.length > 0) ||
@@ -574,8 +672,12 @@ export class IssuesClient extends BaseClient {
         'At least one action must be specified: add_tags, remove_tags, assign, set_severity, set_type, do_transition, or comment.'
       );
     }
+  }
 
-    // Validate tags if provided
+  /**
+   * Validate bulk change tag parameters
+   */
+  private validateBulkChangeTags(params: BulkChangeRequest): void {
     if (params.add_tags !== undefined && params.add_tags.length > 10) {
       throw new Error(
         `Parameter "add_tags" cannot contain more than 10 tags. Current count: ${String(
@@ -591,20 +693,34 @@ export class IssuesClient extends BaseClient {
         )}.`
       );
     }
+  }
 
-    // Validate assignee format
-    if (params.assign !== undefined && params.assign !== '' && params.assign !== '_me_') {
-      if (!/^[a-zA-Z0-9._-]+$/.test(params.assign)) {
-        throw new Error(
-          `Parameter "assign" must be a valid user login, "_me_", or empty string to unassign. Current value: "${
-            params.assign
-          }".`
-        );
-      }
+  /**
+   * Validate bulk change assignee parameter
+   */
+  private validateBulkChangeAssignee(params: BulkChangeRequest): void {
+    if (params.assign === undefined || params.assign === '' || params.assign === '_me_') {
+      return;
     }
 
-    // Validate comment length
-    if (params.comment !== undefined && params.comment.length > 1000) {
+    if (!/^[a-zA-Z0-9._-]+$/.test(params.assign)) {
+      throw new Error(
+        `Parameter "assign" must be a valid user login, "_me_", or empty string to unassign. Current value: "${
+          params.assign
+        }".`
+      );
+    }
+  }
+
+  /**
+   * Validate bulk change comment parameter
+   */
+  private validateBulkChangeComment(params: BulkChangeRequest): void {
+    if (params.comment === undefined) {
+      return;
+    }
+
+    if (params.comment.length > 1000) {
       throw new Error(
         `Parameter "comment" cannot exceed 1000 characters. Current length: ${String(
           params.comment.length

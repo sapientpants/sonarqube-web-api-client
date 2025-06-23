@@ -2,6 +2,7 @@ import {
   ApiError,
   AuthenticationError,
   AuthorizationError,
+  IndexingInProgressError,
   NetworkError,
   NotFoundError,
   RateLimitError,
@@ -71,6 +72,19 @@ export async function createErrorFromResponse(response: Response): Promise<Sonar
       }
       return new RateLimitError(errorMessage, retrySeconds);
     }
+
+    case 503:
+      // Handle specific case of issue indexing in progress
+      if (
+        errorMessage.toLowerCase().includes('index') ||
+        errorMessage.toLowerCase().includes('indexing')
+      ) {
+        return new IndexingInProgressError(errorMessage);
+      }
+      // Fall through to general server error handling
+      return new ServerError(errorMessage, status, {
+        headers: Object.fromEntries(response.headers.entries()),
+      });
 
     default:
       // Server errors (5xx)

@@ -13,6 +13,16 @@ import type {
   IssueStatusNew,
   FacetMode,
   IssueScope,
+  IssueFacet,
+  OwaspTop10Category,
+  OwaspTop10v2021Category,
+  OwaspAsvs40Category,
+  OwaspMobileTop102024Category,
+  PciDss32Category,
+  PciDss40Category,
+  SansTop25Category,
+  StigASDV5R3Category,
+  CasaCategory,
 } from './types';
 
 /**
@@ -220,14 +230,15 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   /**
    * Filter by OWASP Top 10 categories
    */
-  withOwaspTop10(categories: string[]): this {
+  withOwaspTop10(categories: OwaspTop10Category[]): this {
     return this.setParam('owaspTop10', categories);
   }
 
   /**
    * Filter by SANS Top 25 categories
+   * @deprecated Since SonarQube 10.0
    */
-  withSansTop25(categories: string[]): this {
+  withSansTop25(categories: SansTop25Category[]): this {
     return this.setParam('sansTop25', categories);
   }
 
@@ -276,7 +287,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
   /**
    * Filter by OWASP Top 10 2021 categories
    */
-  withOwaspTop10v2021(categories: string[]): this {
+  withOwaspTop10v2021(categories: OwaspTop10v2021Category[]): this {
     return this.setParam('owaspTop10v2021', categories);
   }
 
@@ -284,7 +295,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by CASA categories
    * @since 10.7
    */
-  withCasa(categories: string[]): this {
+  withCasa(categories: CasaCategory[]): this {
     return this.setParam('casa', categories);
   }
 
@@ -310,7 +321,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by OWASP ASVS v4.0 categories
    * @since 9.7
    */
-  withOwaspAsvs40(categories: string[]): this {
+  withOwaspAsvs40(categories: OwaspAsvs40Category[]): this {
     return this.setParam('owaspAsvs40', categories);
   }
 
@@ -326,7 +337,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by OWASP Mobile Top 10 2024 categories
    * @since 2025.3
    */
-  withOwaspMobileTop102024(categories: string[]): this {
+  withOwaspMobileTop102024(categories: OwaspMobileTop102024Category[]): this {
     return this.setParam('owaspMobileTop102024', categories);
   }
 
@@ -334,7 +345,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by PCI DSS v3.2 categories
    * @since 9.6
    */
-  withPciDss32(categories: string[]): this {
+  withPciDss32(categories: PciDss32Category[]): this {
     return this.setParam('pciDss32', categories);
   }
 
@@ -342,7 +353,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by PCI DSS v4.0 categories
    * @since 9.6
    */
-  withPciDss40(categories: string[]): this {
+  withPciDss40(categories: PciDss40Category[]): this {
     return this.setParam('pciDss40', categories);
   }
 
@@ -357,7 +368,7 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
    * Filter by STIG V5R3 categories
    * @since 10.7
    */
-  withStigASDV5R3(categories: string[]): this {
+  withStigASDV5R3(categories: StigASDV5R3Category[]): this {
     return this.setParam('stigASDV5R3', categories);
   }
 
@@ -456,8 +467,10 @@ export class SearchIssuesBuilder extends PaginatedBuilder<
 
   /**
    * Request facets for aggregated data
+   * @param facets - Array of facet names for aggregation
+   * @note Includes new security standard facets: pciDss-3.2, pciDss-4.0, owaspAsvs-4.0, owaspMobileTop10-2024, stig-ASD_V5R3, casa
    */
-  withFacets(facets: string[]): this {
+  withFacets(facets: IssueFacet[]): this {
     return this.setParam('facets', facets);
   }
 

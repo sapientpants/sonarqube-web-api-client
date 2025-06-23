@@ -117,3 +117,12 @@ export class ServerError extends SonarQubeError {
     super(message, 'SERVER_ERROR', statusCode, response);
   }
 }
+
+/**
+ * Error thrown when SonarQube is indexing issues and the operation is temporarily unavailable
+ */
+export class IndexingInProgressError extends SonarQubeError {
+  constructor(message = 'Issue indexing in progress, please try again later') {
+    super(message, 'INDEXING_IN_PROGRESS', 503);
+  }
+}

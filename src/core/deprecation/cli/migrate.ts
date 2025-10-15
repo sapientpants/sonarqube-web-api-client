@@ -72,7 +72,7 @@ class MigrationCLI {
     Object.entries(report.byApi).forEach(([api, count]) => {
       const metadata = DeprecationRegistry.get(api);
       console.log(
-        `   - ${api}: ${count} usage${count > 1 ? 's' : ''} (removes ${metadata?.removalDate ?? 'unknown'})`
+        `   - ${api}: ${count} usage${count > 1 ? 's' : ''} (removes ${metadata?.removalDate ?? 'unknown'})`,
       );
     });
 
@@ -148,7 +148,7 @@ class MigrationCLI {
             suggestion.file,
             suggestion.line,
             suggestion.column,
-            suggestion.automaticFix
+            suggestion.automaticFix,
           );
           successCount++;
           console.log(`   ✅ ${suggestion.file}:${suggestion.line}`);
@@ -168,7 +168,7 @@ class MigrationCLI {
     filePath: string,
     line: number,
     column: number,
-    _fix: string
+    _fix: string,
   ): Promise<void> {
     // In a real implementation, this would apply the code fix
     // using a proper AST transformation
@@ -207,7 +207,7 @@ class MigrationCLI {
       const metadata = DeprecationRegistry.get(s.deprecatedApi);
       if (metadata) {
         const daysLeft = Math.ceil(
-          (new Date(metadata.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          (new Date(metadata.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
         );
         if (daysLeft <= 30) {
           urgentApis.add(s.deprecatedApi);
@@ -221,7 +221,7 @@ class MigrationCLI {
         const metadata = DeprecationRegistry.get(api);
         if (metadata) {
           const daysLeft = Math.ceil(
-            (new Date(metadata.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            (new Date(metadata.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
           );
           console.log(`   - ${api} (${daysLeft} days left)`);
         }

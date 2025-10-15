@@ -59,7 +59,6 @@ export class ProjectDumpClient extends BaseClient {
     return this.request<undefined>('/api/project_dump/export', {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: formData.toString(),

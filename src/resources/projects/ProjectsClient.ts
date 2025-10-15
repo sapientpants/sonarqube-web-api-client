@@ -184,7 +184,7 @@ export class ProjectsClient extends BaseClient {
     // Validate that only one of branch or pullRequest is specified
     if ((params.branch ?? '') !== '' && (params.pullRequest ?? '') !== '') {
       throw new ValidationError(
-        'Cannot specify both branch and pullRequest. Please provide only one of them.'
+        'Cannot specify both branch and pullRequest. Please provide only one of them.',
       );
     }
     const query = new URLSearchParams();
@@ -222,7 +222,7 @@ export class ProjectsClient extends BaseClient {
       project: params.project,
     });
     return this.request<GetContainsAiCodeResponse>(
-      `/api/projects/get_contains_ai_code?${query.toString()}`
+      `/api/projects/get_contains_ai_code?${query.toString()}`,
     );
   }
 

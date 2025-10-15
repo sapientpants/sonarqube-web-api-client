@@ -389,7 +389,6 @@ export interface SPDXDocument {
   };
   name: string;
   packages: Array<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     SPDXID: string;
     name: string;
     versionInfo: string;

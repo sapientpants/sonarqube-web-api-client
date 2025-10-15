@@ -159,7 +159,7 @@ export class QualityGatesClient extends BaseClient {
    */
   async getProjects(params: GetProjectsRequest): Promise<GetProjectsResponse> {
     const query = new URLSearchParams({
-      gateId: params.gateId.toString(),
+      gateId: params.gateId,
     });
     if (params.p !== undefined) {
       query.append('p', params.p.toString());

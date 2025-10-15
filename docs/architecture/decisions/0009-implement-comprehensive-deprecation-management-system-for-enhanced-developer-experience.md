@@ -8,7 +8,8 @@ Accepted
 
 ## Context
 
-As a client library for SonarQube's Web API, we face the challenge of API evolution. SonarQube regularly deprecates and removes API endpoints as the platform evolves. This creates several problems:
+As a client library for SonarQube's Web API, we face the challenge of API evolution. SonarQube regularly deprecates
+and removes API endpoints as the platform evolves. This creates several problems:
 
 1. **Breaking Changes**: When APIs are removed, client applications break unexpectedly
 2. **Migration Burden**: Developers must manually find and update deprecated API usage
@@ -18,6 +19,7 @@ As a client library for SonarQube's Web API, we face the challenge of API evolut
 6. **Backward Compatibility**: Need to support multiple SonarQube versions simultaneously
 
 Traditional approaches (console warnings, documentation) are insufficient because:
+
 - Warnings are easily missed or ignored
 - Documentation is often not consulted until problems occur
 - Manual migration is error-prone and time-consuming
@@ -25,15 +27,18 @@ Traditional approaches (console warnings, documentation) are insufficient becaus
 
 ## Decision
 
-We will implement a comprehensive, multi-layered deprecation management system that transforms API deprecation from a breaking change problem into a guided migration experience. The system consists of five integrated components:
+We will implement a comprehensive, multi-layered deprecation management system that transforms API deprecation from
+a breaking change problem into a guided migration experience. The system consists of five integrated components:
 
 ### 1. Rich Metadata Decorators
+
 - `@Deprecated`: Captures method deprecations with timeline, replacement, examples
 - `@DeprecatedClass`: Marks entire classes as deprecated
 - `@DeprecatedParameter`: Tracks individual parameter deprecations
 - Automatic JSDoc integration for IDE warnings
 
 ### 2. Intelligent Warning System (DeprecationManager)
+
 - Contextual warnings with all migration information
 - Environment-aware behavior (dev/prod/CI)
 - Deduplication to prevent warning fatigue
@@ -41,12 +46,14 @@ We will implement a comprehensive, multi-layered deprecation management system t
 - Pluggable handlers for custom telemetry
 
 ### 3. Automatic Compatibility Bridge
+
 - Proxy-based transparent API translation
 - Parameter and result transformation
 - Zero code changes required for basic migrations
 - Preserves backward compatibility during transition
 
 ### 4. Migration Analysis Tools
+
 - Code scanning for deprecated API usage
 - Effort estimation for migration planning
 - Automatic fix generation for simple cases
@@ -54,6 +61,7 @@ We will implement a comprehensive, multi-layered deprecation management system t
 - Urgency indicators for expiring APIs
 
 ### 5. CLI Migration Tool
+
 - Automated code updates with dry-run mode
 - Interactive and batch operation modes
 - Progress tracking and reporting
@@ -91,28 +99,34 @@ We will implement a comprehensive, multi-layered deprecation management system t
 ## Alternatives Considered
 
 ### 1. Simple Console Warnings
+
 - **Pros**: Easy to implement, familiar pattern
 - **Cons**: Easily ignored, no migration help, poor DX
 
 ### 2. Breaking Changes with Version Bumps
+
 - **Pros**: Clean API, no legacy code
 - **Cons**: Forces immediate migration, poor user experience
 
 ### 3. Separate Legacy Package
+
 - **Pros**: Clean separation, opt-in compatibility
 - **Cons**: Maintenance overhead, fragmented ecosystem
 
 ### 4. Runtime Feature Detection
+
 - **Pros**: Automatic adaptation to API availability
 - **Cons**: Complex implementation, unpredictable behavior
 
 ### 5. Static Analysis Only
+
 - **Pros**: No runtime overhead
 - **Cons**: Requires build tool integration, misses dynamic usage
 
 ## Implementation Notes
 
 The system is designed with progressive disclosure:
+
 1. Basic warnings for awareness
 2. Detailed examples for understanding
 3. Automated tools for execution
@@ -120,6 +134,7 @@ The system is designed with progressive disclosure:
 This approach accommodates different developer preferences and project constraints while maintaining a consistent experience.
 
 The architecture follows SOLID principles:
+
 - Single Responsibility: Each component has a focused purpose
 - Open/Closed: Extensible through decorators and handlers
 - Liskov Substitution: Compatible implementations are interchangeable

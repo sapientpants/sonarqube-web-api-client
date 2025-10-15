@@ -61,7 +61,7 @@ export class WebservicesClient extends BaseClient {
     });
 
     return this.request<ResponseExampleResponse>(
-      `/api/webservices/response_example?${params.toString()}`
+      `/api/webservices/response_example?${params.toString()}`,
     );
   }
 }

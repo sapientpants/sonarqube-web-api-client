@@ -26,7 +26,7 @@ import {
 /**
  * Utility class for detecting DevOps platforms from URLs and extracting project information
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class PlatformDetector {
   /**
    * Detect DevOps platform from a repository URL
@@ -161,7 +161,7 @@ export class PlatformDetector {
       confidence: number;
       isEnterprise: boolean;
       enterpriseCheck?: (hostname: string) => boolean;
-    }
+    },
   ): PlatformDetectionResult | null {
     const { platform, pattern, confidence, isEnterprise, enterpriseCheck } = patternConfig;
     const match = url.match(pattern);
@@ -180,7 +180,7 @@ export class PlatformDetector {
       matchInfo.organization,
       matchInfo.repository,
       isEnterprise,
-      matchInfo.apiUrl
+      matchInfo.apiUrl,
     );
 
     return {
@@ -194,7 +194,7 @@ export class PlatformDetector {
     match: RegExpMatchArray,
     isEnterprise: boolean,
     enterpriseCheck: ((hostname: string) => boolean) | undefined,
-    platform: DevOpsPlatform
+    platform: DevOpsPlatform,
   ): { organization: string; repository: string; apiUrl?: string } | null {
     if (isEnterprise && match.length >= 4) {
       return this.extractEnterpriseInfo(match, enterpriseCheck, platform);
@@ -206,7 +206,7 @@ export class PlatformDetector {
   private static extractEnterpriseInfo(
     match: RegExpMatchArray,
     enterpriseCheck: ((hostname: string) => boolean) | undefined,
-    platform: DevOpsPlatform
+    platform: DevOpsPlatform,
   ): { organization: string; repository: string; apiUrl?: string } | null {
     const hostname = match[1] ?? '';
     const organization = match[2] ?? '';
@@ -228,7 +228,7 @@ export class PlatformDetector {
   }
 
   private static extractStandardInfo(
-    match: RegExpMatchArray
+    match: RegExpMatchArray,
   ): { organization: string; repository: string } | null {
     const organization = match[1] ?? '';
     const repository = match[2] ?? '';
@@ -248,7 +248,7 @@ export class PlatformDetector {
     organization: string,
     repository: string,
     isEnterprise: boolean,
-    apiUrl?: string
+    apiUrl?: string,
   ): ExtractedPlatformInfo {
     const extractedInfo: ExtractedPlatformInfo = {
       organization,
@@ -301,7 +301,7 @@ export class PlatformDetector {
 /**
  * Utility class for validating platform-specific configurations
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class ConfigurationValidator {
   /**
    * Validate GitHub configuration
@@ -507,7 +507,7 @@ export class ConfigurationValidator {
 /**
  * Utility class for mapping external project structures to SonarQube format
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class ProjectMapper {
   /**
    * Map GitHub project to SonarQube project configuration
@@ -576,7 +576,7 @@ export class ProjectMapper {
    * @returns Partial SonarQube project configuration
    */
   static mapBitbucketProject(
-    bitbucketProject: Record<string, unknown>
+    bitbucketProject: Record<string, unknown>,
   ): Partial<SonarQubeProjectConfig> {
     const workspace = bitbucketProject['workspace'] as Record<string, unknown> | undefined;
     const workspaceSlug = workspace?.['slug'] as string | undefined;
@@ -609,7 +609,7 @@ export class ProjectMapper {
    * @returns Partial SonarQube project configuration
    */
   static mapAzureDevOpsProject(
-    azureProject: Record<string, unknown>
+    azureProject: Record<string, unknown>,
   ): Partial<SonarQubeProjectConfig> {
     const organization = azureProject['organization'] as string | undefined;
     const name = azureProject['name'] as string | undefined;
@@ -644,7 +644,7 @@ export class ProjectMapper {
   static generateProjectKey(
     platform: DevOpsPlatform,
     organization: string,
-    repository: string
+    repository: string,
   ): string {
     const prefix = platform.toLowerCase().replace('-', '_');
     const cleanOrg = organization.replace(/\W/g, '_');
@@ -660,7 +660,7 @@ export class ProjectMapper {
 /**
  * Utility class for managing platform-specific authentication
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class AuthenticationHelper {
   /**
    * Validate GitHub authentication credentials
@@ -670,7 +670,7 @@ export class AuthenticationHelper {
    */
   static validateGitHubAuth(
     _config: GitHubConfig,
-    credentials: AuthenticationCredentials
+    credentials: AuthenticationCredentials,
   ): boolean {
     // This would typically make an API call to validate credentials
     // For now, we'll do basic validation
@@ -697,7 +697,7 @@ export class AuthenticationHelper {
    */
   static validateGitLabAuth(
     _config: GitLabConfig,
-    credentials: AuthenticationCredentials
+    credentials: AuthenticationCredentials,
   ): boolean {
     // Note: config parameter is available for future platform-specific validation
 
@@ -723,7 +723,7 @@ export class AuthenticationHelper {
    */
   static validateBitbucketAuth(
     _config: BitbucketConfig,
-    credentials: AuthenticationCredentials
+    credentials: AuthenticationCredentials,
   ): boolean {
     // Note: config parameter is available for future platform-specific validation
 
@@ -749,7 +749,7 @@ export class AuthenticationHelper {
    */
   static validateAzureDevOpsAuth(
     _config: AzureDevOpsConfig,
-    credentials: AuthenticationCredentials
+    credentials: AuthenticationCredentials,
   ): boolean {
     // Note: config parameter is available for future platform-specific validation
 
@@ -819,7 +819,7 @@ export class AuthenticationHelper {
 /**
  * Utility class for managing configuration templates
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class ConfigurationTemplates {
   /**
    * Get default configuration for a platform
@@ -831,7 +831,7 @@ export class ConfigurationTemplates {
   static getDefaultConfig(
     platform: DevOpsPlatform,
     organization: string,
-    repository: string
+    repository: string,
   ): GitHubConfig | GitLabConfig | BitbucketConfig | AzureDevOpsConfig {
     switch (platform) {
       case DevOpsPlatform.GITHUB:
@@ -877,7 +877,7 @@ export class ConfigurationTemplates {
    * @returns Partial SonarQube project configuration
    */
   static getSonarQubeTemplate(
-    type: 'minimal' | 'standard' | 'enterprise'
+    type: 'minimal' | 'standard' | 'enterprise',
   ): Partial<SonarQubeProjectConfig> {
     const templates = {
       minimal: {
@@ -893,9 +893,8 @@ export class ConfigurationTemplates {
         qualityGate: 'Enterprise Quality Gate',
         tags: ['automated', 'enterprise'],
         settings: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           'sonar.exclusions': '**/vendor/**,**/node_modules/**',
-          // eslint-disable-next-line @typescript-eslint/naming-convention
+
           'sonar.coverage.exclusions': '**/*test*/**,**/*spec*/**',
         },
       },

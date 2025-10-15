@@ -140,7 +140,7 @@ export namespace PlatformValidationService {
    */
   export function validate(
     config: PlatformConfig,
-    platformSpecific?: Record<string, unknown>
+    platformSpecific?: Record<string, unknown>,
   ): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
@@ -184,7 +184,7 @@ export namespace PlatformValidationService {
       identifier !== undefined
         ? { platform: DevOpsPlatform.GITHUB, identifier }
         : { platform: DevOpsPlatform.GITHUB },
-      config as unknown as Record<string, unknown>
+      config as unknown as Record<string, unknown>,
     );
   }
 
@@ -199,7 +199,7 @@ export namespace PlatformValidationService {
       identifier !== undefined
         ? { platform: DevOpsPlatform.GITLAB, identifier }
         : { platform: DevOpsPlatform.GITLAB },
-      config as unknown as Record<string, unknown>
+      config as unknown as Record<string, unknown>,
     );
   }
 
@@ -211,13 +211,13 @@ export namespace PlatformValidationService {
    */
   export function validateBitbucket(
     config: BitbucketConfig,
-    identifier?: string
+    identifier?: string,
   ): ValidationResult {
     return validate(
       identifier !== undefined
         ? { platform: DevOpsPlatform.BITBUCKET, identifier }
         : { platform: DevOpsPlatform.BITBUCKET },
-      config as unknown as Record<string, unknown>
+      config as unknown as Record<string, unknown>,
     );
   }
 
@@ -229,13 +229,13 @@ export namespace PlatformValidationService {
    */
   export function validateAzureDevOps(
     config: AzureDevOpsConfig,
-    identifier?: string
+    identifier?: string,
   ): ValidationResult {
     return validate(
       identifier !== undefined
         ? { platform: DevOpsPlatform.AzureDevops, identifier }
         : { platform: DevOpsPlatform.AzureDevops },
-      config as unknown as Record<string, unknown>
+      config as unknown as Record<string, unknown>,
     );
   }
 
@@ -248,7 +248,7 @@ export namespace PlatformValidationService {
    */
   export function buildIdentifier(
     platform: DevOpsPlatform,
-    config: Record<string, unknown>
+    config: Record<string, unknown>,
   ): string | undefined {
     switch (platform) {
       case DevOpsPlatform.GITHUB:
@@ -296,7 +296,7 @@ export namespace PlatformValidationService {
     platform: DevOpsPlatform,
     config: Record<string, unknown>,
     errors: ValidationError[],
-    warnings: ValidationWarning[]
+    warnings: ValidationWarning[],
   ): void {
     const rule = validationRules.find((r) => r.platform === platform);
     if (!rule) {
@@ -346,7 +346,7 @@ export namespace PlatformValidationService {
     platform: DevOpsPlatform,
     identifier: string,
     config: Record<string, unknown> | undefined,
-    warnings: ValidationWarning[]
+    warnings: ValidationWarning[],
   ): void {
     const rule = validationRules.find((r) => r.platform === platform);
     if (!rule) {
@@ -370,7 +370,7 @@ export namespace PlatformValidationService {
    */
   function validateGitHubSpecific(
     config: Record<string, unknown>,
-    warnings: ValidationWarning[]
+    warnings: ValidationWarning[],
   ): void {
     // Check for common GitHub naming issues
     if (config['owner'] !== undefined && config['owner'] !== null) {
@@ -402,7 +402,7 @@ export namespace PlatformValidationService {
    */
   function validateGitLabSpecific(
     config: Record<string, unknown>,
-    warnings: ValidationWarning[]
+    warnings: ValidationWarning[],
   ): void {
     // Check for common GitLab naming issues
     if (config['namespace'] !== undefined && config['namespace'] !== null) {
@@ -423,7 +423,7 @@ export namespace PlatformValidationService {
    */
   function validateBitbucketSpecific(
     config: Record<string, unknown>,
-    warnings: ValidationWarning[]
+    warnings: ValidationWarning[],
   ): void {
     // Check for common Bitbucket naming issues
     if (config['workspace'] !== undefined && config['workspace'] !== null) {
@@ -444,7 +444,7 @@ export namespace PlatformValidationService {
    */
   function validateAzureDevOpsSpecific(
     config: Record<string, unknown>,
-    warnings: ValidationWarning[]
+    warnings: ValidationWarning[],
   ): void {
     // Check for common Azure DevOps naming issues
     if (config['organization'] !== undefined && config['organization'] !== null) {

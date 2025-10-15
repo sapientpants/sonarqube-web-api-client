@@ -141,12 +141,12 @@ export class GetProjectsBuilder extends PaginatedBuilder<
 > {
   constructor(
     executor: (params: GetProjectsRequest) => Promise<GetProjectsResponse>,
-    gateId: string
+    gateId: string,
   ) {
     super(executor);
     this.setParam(
       'gateId' as keyof GetProjectsRequest,
-      gateId as GetProjectsRequest[keyof GetProjectsRequest]
+      gateId as GetProjectsRequest[keyof GetProjectsRequest],
     );
   }
 
@@ -156,7 +156,7 @@ export class GetProjectsBuilder extends PaginatedBuilder<
   withQuery(query: string): this {
     return this.setParam(
       'query' as keyof GetProjectsRequest,
-      query as GetProjectsRequest[keyof GetProjectsRequest]
+      query as GetProjectsRequest[keyof GetProjectsRequest],
     );
   }
 
@@ -166,7 +166,7 @@ export class GetProjectsBuilder extends PaginatedBuilder<
   withSelection(selected: 'all' | 'selected' | 'deselected'): this {
     return this.setParam(
       'selected' as keyof GetProjectsRequest,
-      selected as GetProjectsRequest[keyof GetProjectsRequest]
+      selected as GetProjectsRequest[keyof GetProjectsRequest],
     );
   }
 

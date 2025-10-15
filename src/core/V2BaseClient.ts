@@ -77,7 +77,8 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     }
 
     // Combine chunks into a single blob
-    return new Blob(chunks);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    return new Blob(chunks as any[]);
   }
 
   /**
@@ -89,7 +90,6 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
    */
   async requestText(url: string, options?: RequestInit): Promise<string> {
     const headers: Record<string, string> = {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       Accept: 'text/plain',
     };
 
@@ -182,14 +182,14 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
   protected async *iterateV2Pages<T>(
     endpoint: string,
     params: V2SearchParams = {},
-    pageSize = 100
+    pageSize = 100,
   ): AsyncIterableIterator<T> {
     let page = 1;
     let hasMore = true;
 
     while (hasMore) {
       const response = await this.requestV2<V2PaginatedResponse<T>>(
-        `${endpoint}?${this.buildV2Query({ ...params, page, pageSize })}`
+        `${endpoint}?${this.buildV2Query({ ...params, page, pageSize })}`,
       );
 
       for (const item of response.data) {
@@ -213,7 +213,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
   protected async getAllV2Items<T>(
     endpoint: string,
     params: V2SearchParams = {},
-    maxItems?: number
+    maxItems?: number,
   ): Promise<T[]> {
     const items: T[] = [];
     let count = 0;
@@ -240,7 +240,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
   private appendStandardV2Params(
     searchParams: URLSearchParams,
     params: Record<string, unknown>,
-    standardKeys: string[]
+    standardKeys: string[],
   ): void {
     for (const key of standardKeys) {
       if (key in params && params[key] !== undefined) {
@@ -259,7 +259,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
   private appendGenericParams(
     searchParams: URLSearchParams,
     params: Record<string, unknown>,
-    excludeKeys: string[]
+    excludeKeys: string[],
   ): void {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && !excludeKeys.includes(key)) {
@@ -324,7 +324,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
           status: response.status,
           statusText: response.statusText,
           headers: response.headers,
-        }
+        },
       );
 
       throw await createErrorFromResponse(enhancedResponse);

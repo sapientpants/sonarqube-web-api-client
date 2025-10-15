@@ -8,8 +8,8 @@ See [README.md](./README.md) for the complete project overview, features, and us
 
 ## Memories
 
-- Use puppeteer to read v1 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api
-- Use puppeteer to read v2 SonarQube Web API documentation at https://next.sonarqube.com/sonarqube/web_api_v2
+- Use puppeteer to read v1 SonarQube Web API documentation at <https://next.sonarqube.com/sonarqube/web_api>
+- Use puppeteer to read v2 SonarQube Web API documentation at <https://next.sonarqube.com/sonarqube/web_api_v2>
 - Do not try to run integration tests, they need to be run manually
 
 ## Development Commands
@@ -30,6 +30,7 @@ EDITOR=true adr-new "Title of the decision"
 ## Architecture
 
 ### Key Files
+
 - `src/index.ts` - Main entry point with the SonarQubeClient class
 - `src/__tests__/` - Test files
 - `dist/` - Built output (gitignored)
@@ -40,13 +41,17 @@ See the [Architecture section in README.md](./README.md#🏗️-architecture) fo
 
 ### Architectural Decisions
 
-All architectural decisions are documented in Architecture Decision Records (ADRs) located in `doc/architecture/decisions/`. These ADRs are the single source of truth for understanding the design and architecture of this library.
+All architectural decisions are documented in Architecture Decision Records (ADRs) located in
+`doc/architecture/decisions/`. These ADRs are the single source of truth for understanding the design and architecture
+of this library.
 
-Refer to the ADRs for detailed information about design rationale, implementation details, and consequences of each architectural decision.
+Refer to the ADRs for detailed information about design rationale, implementation details, and consequences of each
+architectural decision.
 
 ## Integration Testing
 
-See the [Integration Testing section in README.md](./README.md#🧪-integration-testing) for setup instructions and configuration options.
+See the [Integration Testing section in README.md](./README.md#🧪-integration-testing) for setup instructions and
+configuration options.
 
 For detailed implementation documentation, see `src/__integration__/README.md`.
 
@@ -62,7 +67,7 @@ Follow these conventions to maintain code quality:
    // ❌ Avoid repeated union types
    function foo(param: 'option1' | 'option2' | 'option3') {}
    function bar(param: 'option1' | 'option2' | 'option3') {}
-   
+
    // ✅ Use type alias
    type MyOptions = 'option1' | 'option2' | 'option3';
    function foo(param: MyOptions) {}
@@ -74,7 +79,7 @@ Follow these conventions to maintain code quality:
    ```typescript
    // ❌ Avoid logical OR for defaults (can fail with falsy values)
    const value = input || 'default';
-   
+
    // ✅ Use nullish coalescing (only replaces null/undefined)
    const value = input ?? 'default';
    ```
@@ -84,7 +89,7 @@ Follow these conventions to maintain code quality:
    ```typescript
    // ❌ Avoid Object.assign
    const merged = Object.assign({}, obj1, obj2);
-   
+
    // ✅ Use object spread
    const merged = { ...obj1, ...obj2 };
    ```
@@ -96,42 +101,42 @@ Follow these conventions to maintain code quality:
 
 ### Code Complexity
 
-5. **Keep Cognitive Complexity Low**
+1. **Keep Cognitive Complexity Low**
    - Maximum cognitive complexity: 15
    - Break complex functions into smaller, focused functions
    - Reduce nesting levels
    - Simplify conditional logic
 
-6. **Remove Redundant Code**
+2. **Remove Redundant Code**
    - Don't create type aliases for primitive types
    - Remove unused variable assignments
    - Eliminate dead code
 
 ### Regular Expressions
 
-7. **Make Regex Operator Precedence Explicit**
+1. **Make Regex Operator Precedence Explicit**
 
    ```typescript
    // ❌ Ambiguous precedence
    /abc|def+/
-   
+
    // ✅ Clear precedence with grouping
    /abc|(def+)/
    ```
 
 ### General Guidelines
 
-8. **Follow Existing Patterns**
+1. **Follow Existing Patterns**
    - Check how similar functionality is implemented in the codebase
    - Maintain consistency with existing code style
    - Use the same libraries and utilities as the rest of the project
 
-9. **Run Validation Before Committing**
+2. **Run Validation Before Committing**
 
    ```bash
    # Run all checks before committing
    pnpm run ci
-   
+
    # This includes:
    # - Format checking (prettier)
    # - Linting (eslint)

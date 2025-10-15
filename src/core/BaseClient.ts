@@ -26,7 +26,7 @@ export abstract class BaseClient {
   constructor(
     protected readonly baseUrl: string,
     authProviderOrToken: AuthProvider | string,
-    organizationOrOptions?: string | ClientOptions
+    organizationOrOptions?: string | ClientOptions,
   ) {
     // Handle backward compatibility: accept string token and convert to appropriate AuthProvider
     if (typeof authProviderOrToken === 'string') {
@@ -53,7 +53,7 @@ export abstract class BaseClient {
 
   protected async request<T>(
     url: string,
-    options?: RequestInit & { responseType?: ResponseType }
+    options?: RequestInit & { responseType?: ResponseType },
   ): Promise<T> {
     const responseType = options?.responseType ?? 'json';
 

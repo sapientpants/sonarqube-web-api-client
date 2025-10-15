@@ -108,7 +108,7 @@ export function buildV2Filters(
     field: string;
     operator: string;
     value: PrimitiveValue;
-  }>
+  }>,
 ): string {
   return filters
     .map((filter) => `${filter.field}:${filter.operator}:${String(filter.value)}`)

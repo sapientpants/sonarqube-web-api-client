@@ -23,7 +23,7 @@ export class ActivityBuilder extends PaginatedBuilder<
   ActivityTask
 > {
   constructor(
-    clientOrExecutor: CEClient | ((params: ActivityRequest) => Promise<ActivityResponse>)
+    clientOrExecutor: CEClient | ((params: ActivityRequest) => Promise<ActivityResponse>),
   ) {
     const executor =
       typeof clientOrExecutor === 'function'
@@ -59,7 +59,7 @@ export class ActivityBuilder extends PaginatedBuilder<
     // Validate that query is not already set
     if (this.params.q !== undefined) {
       throw new Error(
-        'Cannot set componentId when query is already set. These parameters are mutually exclusive.'
+        'Cannot set componentId when query is already set. These parameters are mutually exclusive.',
       );
     }
     return this.setParam('componentId', componentId);
@@ -127,7 +127,7 @@ export class ActivityBuilder extends PaginatedBuilder<
     // Validate that componentId is not already set
     if (this.params.componentId !== undefined) {
       throw new Error(
-        'Cannot set query when componentId is already set. These parameters are mutually exclusive.'
+        'Cannot set query when componentId is already set. These parameters are mutually exclusive.',
       );
     }
     return this.setParam('q', query);

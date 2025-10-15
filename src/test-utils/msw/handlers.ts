@@ -51,7 +51,7 @@ export const handlers = [
             'retry-after': '60',
             'content-type': 'application/json',
           },
-        }
+        },
       );
     }
     return undefined;
@@ -70,7 +70,7 @@ export const handlers = [
           headers: {
             'content-type': 'application/json',
           },
-        }
+        },
       );
     }
     return undefined;
@@ -186,14 +186,14 @@ export const handlers = [
     // Apply project filter if provided
     if (projectKeys !== null) {
       filteredIssues = filteredIssues.filter((issue) =>
-        projectKeys.split(',').includes(issue.project)
+        projectKeys.split(',').includes(issue.project),
       );
     }
 
     // Apply component filter if provided
     if (componentKeys !== null) {
       filteredIssues = filteredIssues.filter((issue) =>
-        componentKeys.split(',').some((key) => issue.component.includes(key))
+        componentKeys.split(',').some((key) => issue.component.includes(key)),
       );
     }
 
@@ -392,7 +392,7 @@ export const handlers = [
     let filteredAuthors = allAuthors;
     if (query !== null && query !== '') {
       filteredAuthors = allAuthors.filter((author) =>
-        author.toLowerCase().includes(query.toLowerCase())
+        author.toLowerCase().includes(query.toLowerCase()),
       );
     }
 
@@ -416,10 +416,10 @@ export const handlers = [
         key: issueKey,
         rule: 'typescript:S1234',
         severity: typeof setSeverityParam === 'string' ? setSeverityParam : 'MAJOR',
-        component: `project:src/file${String(Number(index) + 1)}.ts`,
+        component: `project:src/file${String(index + 1)}.ts`,
         project: 'project',
-        line: 42 + Number(index),
-        message: `Updated issue ${String(Number(index) + 1)}`,
+        line: 42 + index,
+        message: `Updated issue ${String(index + 1)}`,
         type: typeof setTypeParam === 'string' ? setTypeParam : 'BUG',
         status: 'OPEN',
         tags: typeof addTagsParam === 'string' ? addTagsParam.split(',') : [],
@@ -683,7 +683,7 @@ export const handlers = [
   // Metrics endpoints
   http.get('*/api/metrics/search', () => {
     return HttpResponse.json(
-      createMetricsSearchResponse([SAMPLE_METRICS.coverage, SAMPLE_METRICS.lines])
+      createMetricsSearchResponse([SAMPLE_METRICS.coverage, SAMPLE_METRICS.lines]),
     );
   }),
 
@@ -786,7 +786,7 @@ export const handlers = [
       components = components.filter(
         (comp) =>
           comp.name.toLowerCase().includes(q.toLowerCase()) ||
-          comp.key.toLowerCase().includes(q.toLowerCase())
+          comp.key.toLowerCase().includes(q.toLowerCase()),
       );
     }
 
@@ -860,7 +860,7 @@ export const handlers = [
       components = components.filter(
         (comp) =>
           comp.name.toLowerCase().includes(q.toLowerCase()) ||
-          comp.key.toLowerCase().includes(q.toLowerCase())
+          comp.key.toLowerCase().includes(q.toLowerCase()),
       );
     }
 
@@ -990,7 +990,7 @@ export const handlers = [
     if (files !== null) {
       const fileList = files.split(',');
       filteredHotspots = filteredHotspots.filter((h) =>
-        fileList.some((file) => h.component.includes(file))
+        fileList.some((file) => h.component.includes(file)),
       );
     }
 
@@ -1010,7 +1010,7 @@ export const handlers = [
         pageIndex: page,
         pageSize,
         total: filteredHotspots.length,
-      })
+      }),
     );
   }),
 
@@ -1021,7 +1021,7 @@ export const handlers = [
     if (hotspotKey === null || hotspotKey === '') {
       return new HttpResponse(
         JSON.stringify({ errors: [{ msg: 'The hotspot parameter is missing' }] }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
+        { status: 400, headers: { 'content-type': 'application/json' } },
       );
     }
 
@@ -1048,14 +1048,14 @@ export const handlers = [
     if (body.hotspot === '' || body.status === '') {
       return new HttpResponse(
         JSON.stringify({ errors: [{ msg: 'Missing required parameters' }] }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
+        { status: 400, headers: { 'content-type': 'application/json' } },
       );
     }
 
     if (body.status === 'REVIEWED' && (body.resolution === undefined || body.resolution === '')) {
       return new HttpResponse(
         JSON.stringify({ errors: [{ msg: 'Resolution is required when status is REVIEWED' }] }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
+        { status: 400, headers: { 'content-type': 'application/json' } },
       );
     }
 
@@ -1104,7 +1104,7 @@ export const handlers = [
     if (!body.project) {
       return HttpResponse.json(
         { errors: [{ msg: 'The project parameter is missing' }] },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -1138,7 +1138,7 @@ export const handlers = [
       filteredRepositories = filteredRepositories.filter(
         (repo) =>
           repo.key.toLowerCase().includes(q.toLowerCase()) ||
-          repo.name.toLowerCase().includes(q.toLowerCase())
+          repo.name.toLowerCase().includes(q.toLowerCase()),
       );
     }
 
@@ -1257,7 +1257,7 @@ export const handlers = [
     if (!body.key || !body.organization) {
       return new HttpResponse(
         JSON.stringify({ errors: [{ msg: 'Missing required parameters' }] }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
+        { status: 400, headers: { 'content-type': 'application/json' } },
       );
     }
 
@@ -1297,7 +1297,7 @@ export const handlers = [
           error: 'Rule key already exists',
           message: `A rule with key "${body.key}" already exists`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -1307,7 +1307,7 @@ export const handlers = [
           error: 'Template not found',
           message: `Template "${body.templateKey}" was not found`,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 

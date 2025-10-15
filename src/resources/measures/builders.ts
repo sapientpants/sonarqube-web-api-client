@@ -23,7 +23,7 @@ export class ComponentTreeBuilder extends PaginatedBuilder<
   constructor(
     executor: (params: ComponentTreeRequest) => Promise<ComponentTreeResponse>,
     component: string,
-    metricKeys: string[]
+    metricKeys: string[],
   ) {
     super(executor);
     this.setParam('component', component);
@@ -128,7 +128,7 @@ export class MeasuresHistoryBuilder extends PaginatedBuilder<
   constructor(
     executor: (params: MeasuresHistoryRequest) => Promise<MeasuresHistoryResponse>,
     component: string,
-    metrics: string[]
+    metrics: string[],
   ) {
     super(executor);
     this.setParam('component', component);

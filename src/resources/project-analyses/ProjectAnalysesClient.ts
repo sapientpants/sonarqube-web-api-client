@@ -179,7 +179,7 @@ export class ProjectAnalysesClient extends BaseClient {
       }
 
       return this.request<SearchAnalysesResponse>(
-        `/api/project_analyses/search?${query.toString()}`
+        `/api/project_analyses/search?${query.toString()}`,
       );
     });
   }

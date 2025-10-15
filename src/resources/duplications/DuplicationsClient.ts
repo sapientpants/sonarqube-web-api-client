@@ -45,7 +45,7 @@ export class DuplicationsClient extends BaseClient {
     }
 
     return this.request<ShowDuplicationsResponse>(
-      `/api/duplications/show?${searchParams.toString()}`
+      `/api/duplications/show?${searchParams.toString()}`,
     );
   }
 }

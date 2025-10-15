@@ -143,7 +143,7 @@ export class ApplicationsClient extends BaseClient {
     }
 
     return this.request<ShowApplicationResponse>(
-      `/api/applications/show?${searchParams.toString()}`
+      `/api/applications/show?${searchParams.toString()}`,
     );
   }
 

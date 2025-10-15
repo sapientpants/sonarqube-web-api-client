@@ -97,7 +97,7 @@ export class SearchUsersV2Builder extends BaseBuilder<SearchUsersV2Request, Sear
    */
   protected getNextPageParams(
     response: SearchUsersV2Response,
-    currentParams: SearchUsersV2Request
+    currentParams: SearchUsersV2Request,
   ): SearchUsersV2Request | null {
     const { page } = response;
     const currentPage = currentParams.page ?? 1;

@@ -99,7 +99,7 @@ export class ComponentsTreeBuilder extends PaginatedBuilder<
     if (query.length < 3) {
       throw new ValidationError(
         'Query parameter must be at least 3 characters long',
-        'INVALID_QUERY_LENGTH'
+        'INVALID_QUERY_LENGTH',
       );
     }
     return this.setParam('q', query);
@@ -214,7 +214,7 @@ export class ComponentsTreeBuilder extends PaginatedBuilder<
     if (this.params.component === undefined || this.params.component === '') {
       throw new ValidationError(
         'Component parameter is required for tree search',
-        'MISSING_COMPONENT'
+        'MISSING_COMPONENT',
       );
     }
 

@@ -51,7 +51,7 @@ export class NewCodePeriodsClient extends BaseClient {
     }
 
     const response = await this.request<ListNewCodePeriodsResponse>(
-      `/api/new_code_periods/list?${params.toString()}`
+      `/api/new_code_periods/list?${params.toString()}`,
     );
 
     return response;
@@ -95,7 +95,7 @@ export class NewCodePeriodsClient extends BaseClient {
     }
 
     const response = await this.request<ShowNewCodePeriodResponse>(
-      `/api/new_code_periods/show?${params.toString()}`
+      `/api/new_code_periods/show?${params.toString()}`,
     );
 
     return response;

@@ -39,13 +39,13 @@ export class WebhooksClient extends BaseClient {
    * ```
    */
   async create(request: CreateWebhookRequest): Promise<CreateWebhookResponse> {
-    if (!request.name || request.name.trim().length === 0) {
+    if (request.name.trim().length === 0) {
       throw new ValidationError('name is required');
     }
-    if (!request.organization || request.organization.trim().length === 0) {
+    if (request.organization.trim().length === 0) {
       throw new ValidationError('organization is required');
     }
-    if (!request.url || request.url.trim().length === 0) {
+    if (request.url.trim().length === 0) {
       throw new ValidationError('url is required');
     }
 
@@ -84,7 +84,7 @@ export class WebhooksClient extends BaseClient {
    * ```
    */
   async delete(request: DeleteWebhookRequest): Promise<void> {
-    if (!request.webhook || request.webhook.trim().length === 0) {
+    if (request.webhook.trim().length === 0) {
       throw new ValidationError('webhook is required');
     }
 
@@ -140,7 +140,7 @@ export class WebhooksClient extends BaseClient {
       }
 
       return this.request<GetWebhookDeliveriesResponse>(
-        `/api/webhooks/deliveries?${searchParams.toString()}`
+        `/api/webhooks/deliveries?${searchParams.toString()}`,
       );
     });
   }
@@ -162,7 +162,7 @@ export class WebhooksClient extends BaseClient {
    * ```
    */
   async delivery(request: GetWebhookDeliveryRequest): Promise<GetWebhookDeliveryResponse> {
-    if (!request.deliveryId || request.deliveryId.trim().length === 0) {
+    if (request.deliveryId.trim().length === 0) {
       throw new ValidationError('deliveryId is required');
     }
 
@@ -197,7 +197,7 @@ export class WebhooksClient extends BaseClient {
    */
   list(): ListWebhooksBuilder {
     return new ListWebhooksBuilder(async (params) => {
-      if (!params.organization || params.organization.trim().length === 0) {
+      if (params.organization.trim().length === 0) {
         throw new ValidationError('organization is required');
       }
 
@@ -233,13 +233,13 @@ export class WebhooksClient extends BaseClient {
    * ```
    */
   async update(request: UpdateWebhookRequest): Promise<void> {
-    if (!request.webhook || request.webhook.trim().length === 0) {
+    if (request.webhook.trim().length === 0) {
       throw new ValidationError('webhook is required');
     }
-    if (!request.name || request.name.trim().length === 0) {
+    if (request.name.trim().length === 0) {
       throw new ValidationError('name is required');
     }
-    if (!request.url || request.url.trim().length === 0) {
+    if (request.url.trim().length === 0) {
       throw new ValidationError('url is required');
     }
 

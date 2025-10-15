@@ -170,7 +170,7 @@ export interface Rule {
 /**
  * Request parameters for searching rules
  */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 export interface SearchRulesRequest {
   /**
    * Filter rules that are activated or deactivated on the selected Quality profile
@@ -297,7 +297,6 @@ export interface SearchRulesRequest {
    */
   types?: RuleType[];
 }
-/* eslint-enable @typescript-eslint/naming-convention */
 
 /**
  * Response for searching rules
@@ -375,7 +374,7 @@ export interface ListTagsResponse {
 /**
  * Request parameters for updating a rule
  */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 export interface UpdateRuleRequest {
   /**
    * Key of the rule to update
@@ -426,7 +425,6 @@ export interface UpdateRuleRequest {
    */
   tags?: string;
 }
-/* eslint-enable @typescript-eslint/naming-convention */
 
 /**
  * Response for updating a rule

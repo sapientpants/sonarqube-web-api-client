@@ -1,5 +1,6 @@
 import { BaseClient } from '../../core/BaseClient';
 import { ValidationError } from '../../errors';
+import { ActivityBuilder } from './builders';
 import type {
   ActivityRequest,
   ActivityResponse,
@@ -163,12 +164,7 @@ export class CEClient extends BaseClient {
    * ```
    */
   searchActivity(): ActivityBuilder {
-    // This import is deferred to avoid circular dependencies
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
-    const builders = require('./builders');
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    return new builders.ActivityBuilder(async (params: ActivityRequest) => this.activity(params));
+    return new ActivityBuilder(async (params: ActivityRequest) => this.activity(params));
   }
 
   /**
@@ -178,7 +174,7 @@ export class CEClient extends BaseClient {
   private validateActivityRequest(request: ActivityRequest): void {
     if (request.component !== undefined && request.componentId !== undefined) {
       throw new ValidationError(
-        'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.'
+        'Both `component` and `componentId` cannot be set simultaneously. Please provide only one.',
       );
     }
   }
@@ -223,6 +219,3 @@ export class CEClient extends BaseClient {
     }
   }
 }
-
-// Type-only import to avoid circular dependency
-import type { ActivityBuilder } from './builders';

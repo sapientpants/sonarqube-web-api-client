@@ -5,6 +5,7 @@ This guide helps you understand and validate integration test results for the So
 ## Quick Assessment
 
 If your integration tests show **120/144 passing tests (83% success rate)** with:
+
 - 6 expected 404s for v2 APIs
 - 3 real failures for enterprise APIs (license usage, AI code detection, invalid language filter)
 
@@ -26,6 +27,7 @@ pnpm run analyze-instance
 ```
 
 This tool will:
+
 - ✅ Test connectivity to your SonarQube instance
 - 🔍 Detect version, edition, and available features
 - 📊 Calculate expected test results for your configuration
@@ -40,6 +42,7 @@ pnpm run analyze-instance:examples
 ```
 
 This shows analysis for:
+
 - SonarQube Community 10.8 (latest with v2 APIs)
 - SonarQube Developer 10.8 (with branch features)
 - SonarQube Enterprise 10.8 (all features)
@@ -50,7 +53,9 @@ This shows analysis for:
 ### Expected Failure Categories
 
 #### 1. V2 API Failures (404 errors)
+
 **Expected for SonarQube < 10.6**
+
 - `/api/v2/system/info`
 - `/api/v2/system/health`
 - `/api/v2/system/status`
@@ -61,32 +66,37 @@ This shows analysis for:
 **Count**: 6 failures
 
 #### 2. Enterprise Features (403/404 errors)
+
 **Expected for Community/Developer editions**
+
 - `/api/projects/license_usage` (Enterprise only)
 - `/api/projects/get_contains_ai_code` (requires specific features)
 
 **Count**: 1-2 failures depending on edition
 
 #### 3. Invalid Parameters (400 errors)
+
 **Always expected - intentional validation tests**
+
 - `/api/issues/search?languages=unknownlang`
 
 **Count**: 1 failure
 
 ### Success Rate by Edition
 
-| Edition | Version | Expected Success Rate | Typical Results |
-|---------|---------|----------------------|----------------|
-| Community 10.8+ | Latest | 98% (141/144) | 3 failures |
-| Developer 10.8+ | Latest | 99% (142/144) | 2 failures |
-| Enterprise 10.8+ | Latest | 99% (143/144) | 1 failure |
-| Community 10.5 | Older | 94% (135/144) | 9 failures |
+| Edition          | Version | Expected Success Rate | Typical Results |
+| ---------------- | ------- | --------------------- | --------------- |
+| Community 10.8+  | Latest  | 98% (141/144)         | 3 failures      |
+| Developer 10.8+  | Latest  | 99% (142/144)         | 2 failures      |
+| Enterprise 10.8+ | Latest  | 99% (143/144)         | 1 failure       |
+| Community 10.5   | Older   | 94% (135/144)         | 9 failures      |
 
 ## Troubleshooting
 
 ### Your Results Show 120/144 Passing (83%)
 
 This suggests:
+
 - ✅ Community or Developer Edition
 - ✅ Some v2 APIs available (SonarQube 10.6+)
 - ✅ Enterprise features disabled (normal)
@@ -95,11 +105,13 @@ This suggests:
 ### Red Flags (Investigate Further)
 
 ❌ **Less than 80% success rate**
+
 - May indicate connectivity issues
 - Check authentication and permissions
 - Verify SonarQube instance is healthy
 
 ❌ **Unexpected API errors**
+
 - 401/403 on basic APIs like `/api/system/ping`
 - Network timeouts or connection failures
 - Invalid response formats
@@ -107,18 +119,21 @@ This suggests:
 ### Common Issues
 
 #### Authentication Problems
+
 ```bash
 # Verify your token works
 curl -H "Authorization: Bearer your-token" http://localhost:9000/api/system/ping
 ```
 
 #### Version Compatibility
+
 ```bash
 # Check SonarQube version
 curl http://localhost:9000/api/system/status
 ```
 
 #### Network Connectivity
+
 ```bash
 # Test basic connectivity
 curl http://localhost:9000/api/system/ping
@@ -126,14 +141,14 @@ curl http://localhost:9000/api/system/ping
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `SONARQUBE_URL` | SonarQube instance URL | ✅ Yes |
-| `SONARQUBE_TOKEN` | Authentication token | ✅ Yes |
-| `SONARQUBE_ORGANIZATION` | Organization key (SonarCloud only) | SonarCloud |
-| `INTEGRATION_TEST_ALLOW_DESTRUCTIVE` | Allow destructive tests | No (default: false) |
-| `INTEGRATION_TEST_RUN_ADMIN` | Include admin tests | No (default: false) |
-| `INTEGRATION_TEST_RUN_ENTERPRISE` | Include enterprise tests | No (default: false) |
+| Variable                             | Description                        | Required            |
+| ------------------------------------ | ---------------------------------- | ------------------- |
+| `SONARQUBE_URL`                      | SonarQube instance URL             | ✅ Yes              |
+| `SONARQUBE_TOKEN`                    | Authentication token               | ✅ Yes              |
+| `SONARQUBE_ORGANIZATION`             | Organization key (SonarCloud only) | SonarCloud          |
+| `INTEGRATION_TEST_ALLOW_DESTRUCTIVE` | Allow destructive tests            | No (default: false) |
+| `INTEGRATION_TEST_RUN_ADMIN`         | Include admin tests                | No (default: false) |
+| `INTEGRATION_TEST_RUN_ENTERPRISE`    | Include enterprise tests           | No (default: false) |
 
 ## Advanced Analysis
 
@@ -165,6 +180,7 @@ INTEGRATION_TEST_RUN_ENTERPRISE=true pnpm test:integration:sonarqube
 **Most test failures are expected and indicate proper API validation rather than actual problems.**
 
 Your **120/144 passing tests (83% success rate)** is:
+
 - ✅ Within normal range for Community/Developer editions
 - ✅ Indicates proper API boundaries and permissions
 - ✅ Shows the client correctly handles different SonarQube configurations

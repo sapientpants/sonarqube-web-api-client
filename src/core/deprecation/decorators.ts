@@ -37,7 +37,7 @@ export function Deprecated(metadata: Omit<DeprecationMetadata, 'api'>) {
 
       if (now >= removalDate) {
         console.error(
-          `❌ CRITICAL: ${api} was scheduled for removal on ${metadata.removalDate} and should no longer be used!`
+          `❌ CRITICAL: ${api} was scheduled for removal on ${metadata.removalDate} and should no longer be used!`,
         );
       }
 
@@ -121,7 +121,7 @@ export function DeprecatedClass(metadata: Omit<DeprecationMetadata, 'api'>) {
 export function DeprecatedParameter(
   parameterIndex: number,
   parameterName: string,
-  metadata: Partial<DeprecationMetadata>
+  metadata: Partial<DeprecationMetadata>,
 ) {
   return function <T extends AnyFunction>(target: T, context: ClassMethodDecoratorContext): T {
     const methodName = String(context.name);
@@ -137,7 +137,7 @@ export function DeprecatedParameter(
         console.warn(
           `⚠️  Parameter '${parameterName}' in ${className}.${methodName}() is deprecated. ${
             metadata.reason ?? ''
-          }`
+          }`,
         );
         if (metadata.replacement) {
           console.warn(`   Use '${metadata.replacement}' instead.`);

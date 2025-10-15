@@ -50,7 +50,7 @@ abstract class BaseGitHubBuilder<
   withWebhookSecret(webhookSecret: string): this {
     return this.setParam(
       'webhookSecret' as keyof TRequest,
-      webhookSecret as TRequest[keyof TRequest]
+      webhookSecret as TRequest[keyof TRequest],
     );
   }
 }
@@ -79,7 +79,7 @@ export class UpdateGitHubBuilder extends UpdatableAlmSettingsBuilderWithKey<Upda
   withAppId(appId: string): this {
     return this.setParam(
       'appId' as keyof UpdateGitHubRequest,
-      appId as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+      appId as UpdateGitHubRequest[keyof UpdateGitHubRequest],
     );
   }
 
@@ -89,7 +89,7 @@ export class UpdateGitHubBuilder extends UpdatableAlmSettingsBuilderWithKey<Upda
   withPrivateKey(privateKey: string): this {
     return this.setParam(
       'privateKey' as keyof UpdateGitHubRequest,
-      privateKey as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+      privateKey as UpdateGitHubRequest[keyof UpdateGitHubRequest],
     );
   }
 
@@ -99,7 +99,7 @@ export class UpdateGitHubBuilder extends UpdatableAlmSettingsBuilderWithKey<Upda
   withUrl(url: string): this {
     return this.setParam(
       'url' as keyof UpdateGitHubRequest,
-      url as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+      url as UpdateGitHubRequest[keyof UpdateGitHubRequest],
     );
   }
 
@@ -109,7 +109,7 @@ export class UpdateGitHubBuilder extends UpdatableAlmSettingsBuilderWithKey<Upda
   withWebhookSecret(webhookSecret: string): this {
     return this.setParam(
       'webhookSecret' as keyof UpdateGitHubRequest,
-      webhookSecret as UpdateGitHubRequest[keyof UpdateGitHubRequest]
+      webhookSecret as UpdateGitHubRequest[keyof UpdateGitHubRequest],
     );
   }
 
@@ -154,7 +154,7 @@ export class UpdateBitbucketCloudBuilder extends UpdatableAlmSettingsBuilderWith
   inWorkspace(workspace: string): this {
     return this.setParam(
       'workspace' as keyof UpdateBitbucketCloudRequest,
-      workspace as UpdateBitbucketCloudRequest[keyof UpdateBitbucketCloudRequest]
+      workspace as UpdateBitbucketCloudRequest[keyof UpdateBitbucketCloudRequest],
     );
   }
 

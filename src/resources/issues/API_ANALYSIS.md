@@ -2,15 +2,17 @@
 
 ## Summary
 
-This document outlines the differences between the documented SonarQube Issues API and the current implementation in this client library.
+This document outlines the differences between the documented SonarQube Issues API and the current implementation in
+this client library.
 
 ## Missing Endpoints
 
 The following endpoints are documented in the API but not implemented in the client:
 
 ### 1. `GET api/issues/authors` (since 5.1)
+
 - **Purpose**: Search SCM accounts which match a given query
-- **Parameters**: 
+- **Parameters**:
   - `q` (optional): Query string
   - `ps` (optional): Page size (default 10, max 100)
   - `project` (optional): Project key
@@ -18,6 +20,7 @@ The following endpoints are documented in the API but not implemented in the cli
 - **Note**: Returns 503 when issue indexing is in progress
 
 ### 2. `POST api/issues/bulk_change` (since 3.7)
+
 - **Purpose**: Bulk change on issues. Up to 500 issues can be updated
 - **Parameters**:
   - `issues` (required): Comma-separated list of issue keys
@@ -31,23 +34,27 @@ The following endpoints are documented in the API but not implemented in the cli
   - `sendNotifications` (optional): Send notifications (default false)
 
 ### 3. `GET api/issues/changelog` (since 4.1)
+
 - **Purpose**: Display changelog of an issue
 - **Parameters**:
   - `issue` (required): Issue key
 - **Returns**: List of changelog entries
 
 ### 4. `POST api/issues/delete_comment` (since 3.6)
+
 - **Purpose**: Delete a comment
 - **Parameters**:
   - `comment` (required): Comment key
 
 ### 5. `POST api/issues/edit_comment` (since 3.6)
+
 - **Purpose**: Edit a comment
 - **Parameters**:
   - `comment` (required): Comment key
   - `text` (required): New comment text
 
 ### 6. `GET api/issues/gitlab_sast_export` (since 10.2)
+
 - **Purpose**: Return vulnerabilities in GitLab SAST JSON format
 - **Parameters**:
   - `project` (required): Project key
@@ -55,12 +62,14 @@ The following endpoints are documented in the API but not implemented in the cli
   - `pullRequest` (optional): Pull request id
 
 ### 7. `POST api/issues/reindex` (since 9.8)
+
 - **Purpose**: Reindex issues for a project
 - **Parameters**:
   - `project` (required): Project key
 - **Requires**: Administer System permission
 
 ### 8. `POST api/issues/set_severity` (since 3.6)
+
 - **Purpose**: Change severity
 - **Parameters**:
   - `issue` (required): Issue key
@@ -68,6 +77,7 @@ The following endpoints are documented in the API but not implemented in the cli
 - **Requires**: Administer Issues permission
 
 ### 9. `GET api/issues/tags` (since 5.1)
+
 - **Purpose**: List tags matching a given query
 - **Parameters**:
   - `q` (optional): Query string (limit 2 chars min)
@@ -78,7 +88,8 @@ The following endpoints are documented in the API but not implemented in the cli
 
 The search endpoint is missing several parameters:
 
-### New in recent versions:
+### New in recent versions
+
 - `casa` (since 10.7): Comma-separated list of CASA categories
 - `codeVariants` (since 10.1): Comma-separated list of code variants
 - `fixedInPullRequest` (since 10.4): Pull request id to filter issues that would be fixed
@@ -91,7 +102,8 @@ The search endpoint is missing several parameters:
 - `stig-ASD_V5R3` (since 10.7): STIG V5R3 categories
 - `timeZone` (since 8.6): For date resolution and histogram computation
 
-### Deprecated parameters still in use:
+### Deprecated parameters still in use
+
 - `statuses` → should map to `issueStatuses`
 - `severities` → deprecated in favor of `impactSeverities`
 - `types` → deprecated in favor of Clean Code taxonomy
@@ -100,23 +112,31 @@ The search endpoint is missing several parameters:
 ## Implementation Issues
 
 ### 1. Multiple Parameter Values
+
 The API documentation shows that the `author` parameter should be called once for each value:
+
 ```
 author=torvalds@linux-foundation.org&author=linux@fondation.org
 ```
+
 But the current implementation joins arrays with commas.
 
 ### 2. Parameter Name Mapping
+
 Several parameters need special handling:
+
 - `owaspTop10-2021` (with hyphen in API)
 - `pciDss-3.2` and `pciDss-4.0` (with periods)
 - `owaspAsvs-4.0` (with hyphen and period)
 
 ### 3. Error Handling
+
 The API returns 503 when issue indexing is in progress. This should be handled specially.
 
 ### 4. Response Types
+
 Many endpoints return similar response structures with:
+
 - `issue`: The updated issue
 - `components`: Array of component information
 - `rules`: Array of rule information
@@ -126,18 +146,18 @@ These could be consolidated into a common response type.
 
 ## Deprecated Parameters Migration Guide
 
-| Deprecated Parameter | New Parameter | Notes |
-|---------------------|---------------|-------|
-| `componentKeys` | `components` | Use `components` for consistency with API |
-| `componentRootUuids` | `components` | Merged into unified `components` parameter |
-| `componentRoots` | `components` | Merged into unified `components` parameter |
-| `componentUuids` | `components` | Merged into unified `components` parameter |
-| `fileUuids` | `files` | Use file paths instead of UUIDs |
-| `moduleUuids` | N/A | Modules concept removed from SonarQube |
-| `projectUuids` | `projects` | Use project keys instead of UUIDs |
-| `severities` | `impactSeverities` | Part of Clean Code taxonomy |
-| `statuses` | `issueStatuses` | New issue workflow states |
-| `types` | `impactSoftwareQualities` | Part of Clean Code taxonomy |
+| Deprecated Parameter | New Parameter             | Notes                                      |
+| -------------------- | ------------------------- | ------------------------------------------ |
+| `componentKeys`      | `components`              | Use `components` for consistency with API  |
+| `componentRootUuids` | `components`              | Merged into unified `components` parameter |
+| `componentRoots`     | `components`              | Merged into unified `components` parameter |
+| `componentUuids`     | `components`              | Merged into unified `components` parameter |
+| `fileUuids`          | `files`                   | Use file paths instead of UUIDs            |
+| `moduleUuids`        | N/A                       | Modules concept removed from SonarQube     |
+| `projectUuids`       | `projects`                | Use project keys instead of UUIDs          |
+| `severities`         | `impactSeverities`        | Part of Clean Code taxonomy                |
+| `statuses`           | `issueStatuses`           | New issue workflow states                  |
+| `types`              | `impactSoftwareQualities` | Part of Clean Code taxonomy                |
 
 ## Recommendations
 
@@ -153,7 +173,7 @@ These could be consolidated into a common response type.
    - Fix parameter mapping for special cases
    - Update deprecated parameter handling
 
-3. **Low Priority**: 
+3. **Low Priority**:
    - Add specialized endpoints like `gitlab_sast_export`
    - Improve error handling for indexing state
    - Add comprehensive integration tests

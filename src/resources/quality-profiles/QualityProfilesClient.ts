@@ -174,7 +174,6 @@ export class QualityProfilesClient extends BaseClient {
       method: 'GET',
       responseType: 'text',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         Accept: 'application/xml',
       },
     });

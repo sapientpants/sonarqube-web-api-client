@@ -63,7 +63,7 @@ export interface DownloadCapable {
  */
 function initializeHeadersWithAuth(
   authProvider: AuthProvider,
-  initialHeaders?: Record<string, string>
+  initialHeaders?: Record<string, string>,
 ): Headers {
   let headers = new Headers();
 
@@ -89,9 +89,9 @@ function initializeHeadersWithAuth(
  * and protected properties. The functionality is implemented directly in V2BaseClient.
  * This export is kept for the test files that still use it.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 export function DownloadMixin<TBase extends Constructor<BaseClient>>(
-  base: TBase
+  base: TBase,
 ): TBase & Constructor<DownloadCapable> {
   return class extends base implements DownloadCapable {
     /**
@@ -103,7 +103,6 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      */
     async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
       const headers = initializeHeadersWithAuth(this.authProvider, {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         Accept: 'application/octet-stream',
       });
 
@@ -141,7 +140,6 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
       let loaded = 0;
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         while (true) {
           const result = await reader.read();
 
@@ -149,7 +147,7 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
             break;
           }
 
-          if (result.value !== undefined && result.value instanceof Uint8Array) {
+          if (result.value) {
             chunks.push(result.value);
             loaded += result.value.length;
           }
@@ -167,7 +165,8 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
       }
 
       // Combine chunks into a single blob
-      return new Blob(chunks);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return new Blob(chunks as any[]);
     }
 
     /**

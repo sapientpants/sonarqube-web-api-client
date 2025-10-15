@@ -16,11 +16,11 @@ export type FixStyle = 'minimal' | 'comprehensive' | 'defensive';
  */
 export interface IFixSuggestionsClient {
   getIssueAvailabilityV2: (
-    params: GetIssueAvailabilityV2Request
+    params: GetIssueAvailabilityV2Request,
   ) => Promise<FixSuggestionAvailabilityV2Response>;
 
   requestAiSuggestionsV2: (
-    params: RequestAiSuggestionsV2Request
+    params: RequestAiSuggestionsV2Request,
   ) => Promise<AiSuggestionResponseV2>;
 }
 

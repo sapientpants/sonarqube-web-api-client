@@ -8,7 +8,8 @@ Accepted
 
 ## Context
 
-When building a SonarQube API client, we'll need to handle several cross-cutting concerns that apply across multiple API calls:
+When building a SonarQube API client, we'll need to handle several cross-cutting concerns that apply across
+multiple API calls:
 
 - **Authentication**: Adding auth tokens/headers to every request
 - **Logging**: Recording request/response details for debugging
@@ -17,7 +18,9 @@ When building a SonarQube API client, we'll need to handle several cross-cutting
 - **Request/Response Transformation**: Converting data formats, adding metadata
 - **Metrics Collection**: Tracking API performance, success rates, and latency
 
-Without a proper abstraction, these concerns would need to be implemented directly in each API method or in the base request method, which would lead to:
+Without a proper abstraction, these concerns would need to be implemented directly in each API method or in the
+base request method, which would lead to:
+
 - Tight coupling between business logic and infrastructure concerns
 - Difficulty in enabling/disabling features per request
 - Code duplication across different API endpoints
@@ -25,7 +28,9 @@ Without a proper abstraction, these concerns would need to be implemented direct
 
 ## Decision
 
-We will implement an interceptor chain pattern that allows middleware-like functions to process requests and responses. This pattern provides a pluggable architecture where interceptors can be registered, ordered, and executed in sequence.
+We will implement an interceptor chain pattern that allows middleware-like functions to process requests and
+responses. This pattern provides a pluggable architecture where interceptors can be registered, ordered, and
+executed in sequence.
 
 ### Core Design
 
@@ -34,13 +39,13 @@ We will implement an interceptor chain pattern that allows middleware-like funct
 interface Interceptor {
   name: string;
   order?: number; // Lower numbers execute first
-  
+
   // Called before request is sent
   onRequest?: (config: RequestConfig) => Promise<RequestConfig> | RequestConfig;
-  
+
   // Called after response is received
   onResponse?: (response: Response) => Promise<Response> | Response;
-  
+
   // Called when request fails
   onError?: (error: Error) => Promise<Error> | Error;
 }
@@ -60,19 +65,19 @@ interface RequestConfig {
 ```typescript
 class SonarQubeClient {
   private interceptors: Interceptor[] = [];
-  
+
   // Register an interceptor
   use(interceptor: Interceptor): void {
     this.interceptors.push(interceptor);
     // Sort by order (lower numbers first)
     this.interceptors.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
   }
-  
+
   // Remove an interceptor by name
   eject(name: string): void {
-    this.interceptors = this.interceptors.filter(i => i.name !== name);
+    this.interceptors = this.interceptors.filter((i) => i.name !== name);
   }
-  
+
   private async executeRequest(config: RequestConfig): Promise<Response> {
     // Apply request interceptors
     let processedConfig = config;
@@ -81,15 +86,15 @@ class SonarQubeClient {
         processedConfig = await interceptor.onRequest(processedConfig);
       }
     }
-    
+
     try {
       // Make the actual HTTP request
       const response = await fetch(processedConfig.url, {
         method: processedConfig.method,
         headers: processedConfig.headers,
-        body: processedConfig.body
+        body: processedConfig.body,
       });
-      
+
       // Apply response interceptors in reverse order
       let processedResponse = response;
       for (let i = this.interceptors.length - 1; i >= 0; i--) {
@@ -98,7 +103,7 @@ class SonarQubeClient {
           processedResponse = await interceptor.onResponse(processedResponse);
         }
       }
-      
+
       return processedResponse;
     } catch (error) {
       // Apply error interceptors
@@ -126,7 +131,7 @@ const authInterceptor: Interceptor = {
       config.headers['Authorization'] = `Bearer ${this.token}`;
     }
     return config;
-  }
+  },
 };
 
 // Logging interceptor
@@ -146,7 +151,7 @@ const loggingInterceptor: Interceptor = {
   onError: (error) => {
     console.error('[API] Request failed:', error.message);
     return error;
-  }
+  },
 };
 
 // Retry interceptor
@@ -156,17 +161,17 @@ const retryInterceptor: Interceptor = {
   onError: async (error) => {
     const config = error.config;
     const retryCount = config.metadata?.retryCount || 0;
-    
+
     if (retryCount < 3 && isRetriableError(error)) {
       const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-      await new Promise(resolve => setTimeout(resolve, delay));
-      
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
       config.metadata = { ...config.metadata, retryCount: retryCount + 1 };
       return this.executeRequest(config); // Retry the request
     }
-    
+
     return error;
-  }
+  },
 };
 
 // Usage
@@ -203,11 +208,13 @@ client.eject('logging');
 
 1. **Good Logging**: Provide detailed logging options to trace request flow through interceptors
 2. **Bypass Mechanism**: Allow specific requests to bypass certain interceptors:
+
    ```typescript
-   client.request(url, { 
-     skipInterceptors: ['logging', 'retry'] 
+   client.request(url, {
+     skipInterceptors: ['logging', 'retry'],
    });
    ```
+
 3. **Documentation**: Clearly document interceptor ordering requirements and dependencies
 4. **Performance Monitoring**: Add metrics to track interceptor overhead
 5. **Error Boundaries**: Wrap interceptor execution in try-catch to prevent one interceptor from breaking the chain

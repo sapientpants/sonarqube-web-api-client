@@ -9,6 +9,7 @@ Accepted
 ## Context
 
 Many SonarQube API endpoints accept numerous optional parameters. For example, the issues search endpoint can accept:
+
 - Multiple project keys
 - Multiple component keys
 - Severity levels
@@ -20,6 +21,7 @@ Many SonarQube API endpoints accept numerous optional parameters. For example, t
 - Sorting options
 
 Using traditional method signatures with many optional parameters leads to:
+
 - Poor readability when many parameters are passed
 - Difficulty in understanding which parameters are being set
 - Potential for parameter order confusion
@@ -27,7 +29,8 @@ Using traditional method signatures with many optional parameters leads to:
 
 ## Decision
 
-We will implement a builder pattern for API endpoints that have more than 3-4 optional parameters. This will provide a fluent interface for constructing complex queries:
+We will implement a builder pattern for API endpoints that have more than 3-4 optional parameters. This will
+provide a fluent interface for constructing complex queries:
 
 ```typescript
 const issues = await client.issues
@@ -45,6 +48,7 @@ const issues = await client.issues
 ```
 
 For simple endpoints with few parameters, we'll provide direct methods:
+
 ```typescript
 // Simple endpoint - direct method
 const project = await client.projects.get('project-key');

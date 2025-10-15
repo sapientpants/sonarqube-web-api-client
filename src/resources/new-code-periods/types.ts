@@ -8,13 +8,12 @@
  * Available new code period types
  */
 export enum NewCodePeriodType {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   PREVIOUS_VERSION = 'PREVIOUS_VERSION',
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   NUMBER_OF_DAYS = 'NUMBER_OF_DAYS',
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   SPECIFIC_ANALYSIS = 'SPECIFIC_ANALYSIS',
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   REFERENCE_BRANCH = 'REFERENCE_BRANCH',
 }
 

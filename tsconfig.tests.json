@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.test.json",
+  "compilerOptions": {
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "exactOptionalPropertyTypes": false,
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "skipLibCheck": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "noImplicitThis": false,
+    "useUnknownInCatchVariables": false,
+    "rootDir": "."
+  },
+  "include": ["tests/**/*.ts", "src/test-utils/**/*.ts"],
+  "exclude": ["node_modules", "dist", "coverage"]
+}

@@ -58,7 +58,7 @@ export class CleanCodePolicyClient extends BaseClient {
    * ```
    */
   async createCustomRuleV2(
-    request: CreateCustomRuleV2Request
+    request: CreateCustomRuleV2Request,
   ): Promise<CreateCustomRuleV2Response> {
     try {
       const response = await this.request<CreateCustomRuleV2Response>(
@@ -69,7 +69,7 @@ export class CleanCodePolicyClient extends BaseClient {
             contentType: 'application/json',
           },
           body: JSON.stringify(request),
-        }
+        },
       );
 
       return response;
@@ -145,10 +145,10 @@ export class CleanCodePolicyClient extends BaseClient {
    */
   async validateRule(
     request: CreateCustomRuleV2Request,
-    options?: ValidateCustomRuleOptions
+    options?: ValidateCustomRuleOptions,
   ): Promise<RuleValidationResult> {
     const builder = new CreateCustomRuleV2Builder(async () =>
-      Promise.resolve({} as CreateCustomRuleV2Response)
+      Promise.resolve({} as CreateCustomRuleV2Response),
     );
 
     // Set all parameters from the request
@@ -198,8 +198,8 @@ export class CleanCodePolicyClient extends BaseClient {
     return Promise.reject(
       new Error(
         'Template listing is not yet available in the v2 API. ' +
-          'Use the v1 Rules API with is_template=true parameter.'
-      )
+          'Use the v1 Rules API with is_template=true parameter.',
+      ),
     );
   }
 
@@ -223,8 +223,8 @@ export class CleanCodePolicyClient extends BaseClient {
     return Promise.reject(
       new Error(
         'Template fetching is not yet available in the v2 API. ' +
-          'Use the v1 Rules API to fetch template details.'
-      )
+          'Use the v1 Rules API to fetch template details.',
+      ),
     );
   }
 
@@ -310,7 +310,7 @@ export class CleanCodePolicyClient extends BaseClient {
       skipExisting?: boolean;
       validateBeforeImport?: boolean;
       keyPrefix?: string;
-    }
+    },
   ): Promise<{
     imported: CreateCustomRuleV2Response[];
     skipped: string[];
@@ -371,7 +371,7 @@ export class CleanCodePolicyClient extends BaseClient {
 
   private addKeyPrefixToRules(
     rules: CreateCustomRuleV2Request[],
-    keyPrefix?: string
+    keyPrefix?: string,
   ): CreateCustomRuleV2Request[] {
     if (keyPrefix === undefined || keyPrefix === '') {
       return rules;
@@ -388,7 +388,7 @@ export class CleanCodePolicyClient extends BaseClient {
       const validation = await this.validateRule(rule);
       if (!validation.valid && validation.errors) {
         throw new Error(
-          `Validation failed for rule ${rule.key}: ${validation.errors.map((e) => e.message).join(', ')}`
+          `Validation failed for rule ${rule.key}: ${validation.errors.map((e) => e.message).join(', ')}`,
         );
       }
     }
@@ -396,7 +396,7 @@ export class CleanCodePolicyClient extends BaseClient {
 
   private async processRulesImport(
     rules: CreateCustomRuleV2Request[],
-    skipExisting?: boolean
+    skipExisting?: boolean,
   ): Promise<{
     imported: CreateCustomRuleV2Response[];
     skipped: string[];
@@ -423,7 +423,7 @@ export class CleanCodePolicyClient extends BaseClient {
     rule: CreateCustomRuleV2Request,
     skipExisting: boolean | undefined,
     skipped: string[],
-    failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>
+    failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>,
   ): void {
     const err = error as Error & { code?: string };
     const shouldSkipExisting =
@@ -455,7 +455,7 @@ export class CleanCodePolicyClient extends BaseClient {
       return this.createError(
         CleanCodePolicyErrorCode.RuleKeyExists,
         'A rule with this key already exists',
-        error
+        error,
       );
     }
 
@@ -463,7 +463,7 @@ export class CleanCodePolicyClient extends BaseClient {
       return this.createError(
         CleanCodePolicyErrorCode.TemplateNotFound,
         'The specified template was not found',
-        error
+        error,
       );
     }
 
@@ -476,7 +476,7 @@ export class CleanCodePolicyClient extends BaseClient {
       return this.createError(
         CleanCodePolicyErrorCode.InsufficientPermissions,
         'Insufficient permissions to create custom rules. Requires "Administer Quality Profiles" permission.',
-        error
+        error,
       );
     }
 
@@ -503,7 +503,7 @@ export class CleanCodePolicyClient extends BaseClient {
       return this.createError(
         CleanCodePolicyErrorCode.InvalidParameter,
         'Invalid parameter value provided',
-        error
+        error,
       );
     }
 
@@ -511,7 +511,7 @@ export class CleanCodePolicyClient extends BaseClient {
       return this.createError(
         CleanCodePolicyErrorCode.MissingParameter,
         'Required parameter is missing',
-        error
+        error,
       );
     }
 
@@ -549,7 +549,7 @@ export class CleanCodePolicyClient extends BaseClient {
   private createError(
     code: CleanCodePolicyErrorCode,
     message: string,
-    originalError?: Error
+    originalError?: Error,
   ): Error {
     const error = new Error(message) as Error & { code?: string; originalError?: Error };
     error.code = code;

@@ -57,7 +57,6 @@ export class AnalysisClient extends V2BaseClient {
    */
   async getEngineMetadataV2(): Promise<EngineMetadataV2> {
     return this.request<EngineMetadataV2>('/api/v2/analysis/engine', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       headers: { Accept: 'application/json' },
     });
   }
@@ -87,7 +86,7 @@ export class AnalysisClient extends V2BaseClient {
    * ```
    */
   async downloadEngineV2(
-    options?: Parameters<V2BaseClient['downloadWithProgress']>[1]
+    options?: Parameters<V2BaseClient['downloadWithProgress']>[1],
   ): Promise<Blob> {
     return this.downloadWithProgress('/api/v2/analysis/engine', options);
   }
@@ -128,7 +127,6 @@ export class AnalysisClient extends V2BaseClient {
    */
   async getJreMetadataV2(id: string): Promise<JreMetadataV2> {
     return this.request<JreMetadataV2>(`/api/v2/analysis/jres/${id}`, {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       headers: { Accept: 'application/json' },
     });
   }
@@ -153,7 +151,7 @@ export class AnalysisClient extends V2BaseClient {
    */
   async downloadJreV2(
     id: string,
-    options?: Parameters<V2BaseClient['downloadWithProgress']>[1]
+    options?: Parameters<V2BaseClient['downloadWithProgress']>[1],
   ): Promise<Blob> {
     return this.downloadWithProgress(`/api/v2/analysis/jres/${id}`, options);
   }

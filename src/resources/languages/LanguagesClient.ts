@@ -30,7 +30,7 @@ export class LanguagesClient extends BaseClient {
 
     const query = searchParams.toString();
     return await this.request<ListLanguagesResponse>(
-      query ? `/api/languages/list?${query}` : '/api/languages/list'
+      query ? `/api/languages/list?${query}` : '/api/languages/list',
     );
   }
 
@@ -49,7 +49,7 @@ export class LanguagesClient extends BaseClient {
    * ```
    */
   async *listAll(
-    params?: Omit<ListLanguagesParams, 'ps'>
+    params?: Omit<ListLanguagesParams, 'ps'>,
   ): AsyncGenerator<Language, void, unknown> {
     // For languages, we typically want all languages (ps=0) since
     // the total number is usually small

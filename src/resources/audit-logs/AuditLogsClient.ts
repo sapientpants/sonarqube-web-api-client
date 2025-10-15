@@ -109,7 +109,7 @@ export class AuditLogsClient extends BaseClient {
    * ```
    */
   async *searchAll(
-    request: Omit<SearchAuditLogsRequest, 'page' | 'pageSize'> = {}
+    request: Omit<SearchAuditLogsRequest, 'page' | 'pageSize'> = {},
   ): AsyncIterableIterator<AuditLogEntry> {
     let currentPage = 1;
     let hasMore = true;

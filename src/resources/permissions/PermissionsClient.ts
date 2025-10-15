@@ -393,7 +393,7 @@ export class PermissionsClient extends BaseClient {
    * ```
    */
   async removeProjectCreatorFromTemplate(
-    params: RemoveProjectCreatorFromTemplateRequest
+    params: RemoveProjectCreatorFromTemplateRequest,
   ): Promise<void> {
     const query = new URLSearchParams();
     query.append('permission', params.permission);
@@ -406,7 +406,7 @@ export class PermissionsClient extends BaseClient {
       `/api/permissions/remove_project_creator_from_template?${query.toString()}`,
       {
         method: 'POST',
-      }
+      },
     );
   }
 
@@ -445,7 +445,7 @@ export class PermissionsClient extends BaseClient {
       `/api/permissions/create_template?${query.toString()}`,
       {
         method: 'POST',
-      }
+      },
     );
   }
 
@@ -481,7 +481,7 @@ export class PermissionsClient extends BaseClient {
       `/api/permissions/update_template?${query.toString()}`,
       {
         method: 'POST',
-      }
+      },
     );
   }
 
@@ -628,7 +628,7 @@ export class PermissionsClient extends BaseClient {
         `/api/permissions/search_global_permissions?${query.toString()}`,
         {
           method: 'GET',
-        }
+        },
       );
     });
   }
@@ -690,7 +690,7 @@ export class PermissionsClient extends BaseClient {
         `/api/permissions/search_project_permissions?${query.toString()}`,
         {
           method: 'GET',
-        }
+        },
       );
     });
   }

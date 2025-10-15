@@ -28,7 +28,7 @@ export class DopTranslationClient extends V2BaseClient {
    * @returns Promise resolving to the created bound project
    */
   async createBoundProjectV2(
-    request: CreateBoundProjectV2Request
+    request: CreateBoundProjectV2Request,
   ): Promise<CreateBoundProjectV2Response> {
     const validated = this.validateProjectRequest(request);
 
@@ -133,7 +133,7 @@ export class DopTranslationClient extends V2BaseClient {
    * @returns Validated request (throws if invalid)
    */
   private validateProjectRequest(
-    request: CreateBoundProjectV2Request
+    request: CreateBoundProjectV2Request,
   ): CreateBoundProjectV2Request {
     // Basic validation
     if (!request.projectIdentifier) {
@@ -146,7 +146,7 @@ export class DopTranslationClient extends V2BaseClient {
         platform: request.dopPlatform,
         identifier: request.projectIdentifier,
       },
-      request.platformSpecific as Record<string, unknown> | undefined
+      request.platformSpecific as unknown as Record<string, unknown> | undefined,
     );
 
     if (!validation.valid) {

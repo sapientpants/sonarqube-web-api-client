@@ -67,7 +67,7 @@ interface IssuesResponse {
 /**
  * Main SonarQube API client
  */
-/* eslint-disable @typescript-eslint/member-ordering */
+
 export class SonarQubeClient {
   /**
    * Create a client with Bearer token authentication
@@ -89,7 +89,7 @@ export class SonarQubeClient {
     baseUrl: string,
     username: string,
     password?: string,
-    options?: ClientOptions
+    options?: ClientOptions,
   ): SonarQubeClient {
     const authProvider = new BasicAuthProvider(username, password ?? '');
     return new SonarQubeClient(baseUrl, authProvider, options);
@@ -109,7 +109,7 @@ export class SonarQubeClient {
   static withAuth(
     baseUrl: string,
     authProvider: AuthProvider,
-    options?: ClientOptions
+    options?: ClientOptions,
   ): SonarQubeClient {
     return new SonarQubeClient(baseUrl, authProvider, options);
   }
@@ -215,7 +215,7 @@ export class SonarQubeClient {
   constructor(
     baseUrl: string,
     authProviderOrToken: AuthProvider | string,
-    organizationOrOptions?: string | ClientOptions
+    organizationOrOptions?: string | ClientOptions,
   ) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
 
@@ -264,7 +264,7 @@ export class SonarQubeClient {
     this.projectPullRequests = new ProjectPullRequestsClient(
       this.baseUrl,
       this.authProvider,
-      this.options
+      this.options,
     );
     this.permissions = new PermissionsClient(this.baseUrl, this.authProvider, this.options);
     this.metrics = new MetricsClient(this.baseUrl, this.authProvider, this.options);
@@ -331,7 +331,6 @@ export class SonarQubeClient {
     return response.json() as Promise<T>;
   }
 }
-/* eslint-enable @typescript-eslint/member-ordering */
 
 export default SonarQubeClient;
 

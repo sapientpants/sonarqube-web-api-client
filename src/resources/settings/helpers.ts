@@ -15,7 +15,7 @@ export function isValidParam(value: string | undefined): value is string {
 export function addParamIfValid(
   params: URLSearchParams,
   key: string,
-  value: string | undefined
+  value: string | undefined,
 ): void {
   if (isValidParam(value)) {
     params.set(key, value);

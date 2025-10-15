@@ -3,9 +3,6 @@
  * @since 10.7
  */
 
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -28,7 +25,7 @@ import type {
 /**
  * Utility class for processing and analyzing AI fix suggestions
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class FixSuggestionUtils {
   /**
    * Validate that a fix suggestion can be safely applied to the current codebase
@@ -53,7 +50,7 @@ export class FixSuggestionUtils {
    */
   static validateFixApplication(
     suggestion: AiFixSuggestionV2,
-    options: FixApplicationOptions = {}
+    options: FixApplicationOptions = {},
   ): FixValidationResult {
     const result: FixValidationResult = {
       canApply: true,
@@ -122,7 +119,7 @@ export class FixSuggestionUtils {
         // Add warnings for low confidence changes
         if (lineChange.changeConfidence && lineChange.changeConfidence < 80) {
           result.warnings.push(
-            `Low confidence change at ${change.filePath}:${lineChange.startLine} (${lineChange.changeConfidence}%)`
+            `Low confidence change at ${change.filePath}:${lineChange.startLine} (${lineChange.changeConfidence}%)`,
           );
         }
       });
@@ -132,7 +129,7 @@ export class FixSuggestionUtils {
     const filesAffected = suggestion.changes.length;
     const linesChanged = suggestion.changes.reduce(
       (total, change) => total + change.lineChanges.length,
-      0
+      0,
     );
 
     result.impact = {
@@ -141,7 +138,7 @@ export class FixSuggestionUtils {
       riskLevel: this.calculateRiskLevel(
         suggestion.confidence,
         suggestion.complexity,
-        linesChanged
+        linesChanged,
       ),
       estimatedTime: this.estimateApplicationTime(suggestion.effortEstimate, linesChanged),
     };
@@ -171,7 +168,7 @@ export class FixSuggestionUtils {
    */
   static rankSuggestions(
     suggestions: AiFixSuggestionV2[],
-    criteria: FixRankingCriteria = {}
+    criteria: FixRankingCriteria = {},
   ): AiFixSuggestionV2[] {
     const weights = {
       confidenceWeight: criteria.confidenceWeight ?? 0.4,
@@ -216,7 +213,7 @@ export class FixSuggestionUtils {
 
     lines.push(`Fix: ${suggestion.explanation}`);
     lines.push(
-      `Confidence: ${suggestion.confidence}% | Complexity: ${suggestion.complexity} | Effort: ${suggestion.effortEstimate}`
+      `Confidence: ${suggestion.confidence}% | Complexity: ${suggestion.complexity} | Effort: ${suggestion.effortEstimate}`,
     );
     lines.push('');
 
@@ -347,7 +344,7 @@ export class FixSuggestionUtils {
       commonChanges: Array.from(commonChanges),
       suggestedBestPractices: Array.from(bestPractices),
       languageSpecificTips: Object.fromEntries(
-        Object.entries(languageTips).map(([lang, tips]) => [lang, Array.from(tips)])
+        Object.entries(languageTips).map(([lang, tips]) => [lang, Array.from(tips)]),
       ),
     };
   }
@@ -376,7 +373,7 @@ export class FixSuggestionUtils {
       confidenceBuckets,
       complexityBuckets,
       successRates,
-      patternCounts
+      patternCounts,
     );
 
     const successRateStats = this.calculateSuccessRateStats(successRates);
@@ -396,7 +393,7 @@ export class FixSuggestionUtils {
     confidenceBuckets: { high: number; medium: number; low: number },
     complexityBuckets: { low: number; medium: number; high: number },
     successRates: number[],
-    patternCounts: Map<string, number>
+    patternCounts: Map<string, number>,
   ): void {
     suggestions.forEach((suggestion) => {
       this.categorizeByConfidence(suggestion, confidenceBuckets);
@@ -408,7 +405,7 @@ export class FixSuggestionUtils {
 
   private static categorizeByConfidence(
     suggestion: AiFixSuggestionV2,
-    confidenceBuckets: { high: number; medium: number; low: number }
+    confidenceBuckets: { high: number; medium: number; low: number },
   ): void {
     if (suggestion.confidence >= 80) {
       confidenceBuckets.high++;
@@ -421,7 +418,7 @@ export class FixSuggestionUtils {
 
   private static countPatterns(
     suggestion: AiFixSuggestionV2,
-    patternCounts: Map<string, number>
+    patternCounts: Map<string, number>,
   ): void {
     suggestion.changes.forEach((change) => {
       change.lineChanges.forEach((lineChange) => {
@@ -472,7 +469,7 @@ export class FixSuggestionUtils {
 
   private static calculateCommonPatterns(
     suggestions: AiFixSuggestionV2[],
-    patternCounts: Map<string, number>
+    patternCounts: Map<string, number>,
   ): Array<{ pattern: string; frequency: number; averageConfidence: number }> {
     return Array.from(patternCounts.entries())
       .sort(([, a], [, b]) => b - a)
@@ -486,7 +483,7 @@ export class FixSuggestionUtils {
 
   private static calculatePatternAverageConfidence(
     suggestions: AiFixSuggestionV2[],
-    pattern: string
+    pattern: string,
   ): number {
     const matchingSuggestions = this.filterSuggestionsByPattern(suggestions, pattern);
 
@@ -500,12 +497,12 @@ export class FixSuggestionUtils {
 
   private static filterSuggestionsByPattern(
     suggestions: AiFixSuggestionV2[],
-    pattern: string
+    pattern: string,
   ): AiFixSuggestionV2[] {
     return suggestions.filter((suggestion) =>
       suggestion.changes.some((change) =>
-        change.lineChanges.some((lineChange) => lineChange.changeReason === pattern)
-      )
+        change.lineChanges.some((lineChange) => lineChange.changeReason === pattern),
+      ),
     );
   }
 
@@ -528,7 +525,7 @@ export class FixSuggestionUtils {
   private static calculateRiskLevel(
     confidence: number,
     complexity: 'low' | 'medium' | 'high',
-    linesChanged: number
+    linesChanged: number,
   ): 'low' | 'medium' | 'high' {
     const complexityScore = { low: 1, medium: 2, high: 3 }[complexity];
     const confidenceScore = confidence / 100;
@@ -551,7 +548,7 @@ export class FixSuggestionUtils {
    */
   private static estimateApplicationTime(
     effort: 'trivial' | 'easy' | 'moderate' | 'complex',
-    linesChanged: number
+    linesChanged: number,
   ): string {
     const baseTime = {
       trivial: 1,
@@ -588,7 +585,7 @@ export class FixSuggestionUtils {
       successRateWeight: number;
       complexityWeight: number;
       effortWeight: number;
-    }
+    },
   ): number {
     const confidenceScore = suggestion.confidence / 100;
     const successRateScore = suggestion.successRate / 100;
@@ -613,7 +610,7 @@ export class FixSuggestionUtils {
 /**
  * Integration helpers for working with the Issues API
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class FixSuggestionIntegration {
   /**
    * Find issues that are eligible for AI fix suggestions
@@ -640,7 +637,7 @@ export class FixSuggestionIntegration {
   static async findEligibleIssues(
     client: SonarQubeClient,
     projectKey: string,
-    options: IssueIntegrationOptions = {}
+    options: IssueIntegrationOptions = {},
   ): Promise<Array<{ issue: any; availability: FixSuggestionAvailabilityV2Response }>> {
     const { autoCheckAvailability = true, eligibilityCriteria = {} } = options;
 
@@ -695,7 +692,7 @@ export class FixSuggestionIntegration {
         ...eligibleIssues.map((issue: any) => ({
           issue,
           availability: { available: true } as FixSuggestionAvailabilityV2Response,
-        }))
+        })),
       );
     }
 
@@ -730,7 +727,7 @@ export class FixSuggestionIntegration {
   static async batchProcessIssues(
     client: SonarQubeClient,
     issueKeys: string[],
-    options: BatchProcessingOptions = {}
+    options: BatchProcessingOptions = {},
   ): Promise<BatchFixResult> {
     const { concurrency = 3, requestDelay = 100, continueOnError = true, onProgress } = options;
 

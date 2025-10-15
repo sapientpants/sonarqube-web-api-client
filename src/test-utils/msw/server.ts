@@ -20,6 +20,5 @@ export const server = setupServer(...handlers);
  * Log unhandled requests - helps identify missing handlers
  */
 server.events.on('request:unhandled', ({ request }) => {
-  // eslint-disable-next-line no-console
   console.warn('Found an unhandled %s request to %s', request.method, request.url);
 });

@@ -266,7 +266,7 @@ export const patternBuilder = {
    */
   stringContainingPattern(
     text: string,
-    quoteTypes: Array<'"' | "'" | '`'> = ['"', "'", '`']
+    quoteTypes: Array<'"' | "'" | '`'> = ['"', "'", '`'],
   ): string {
     const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const quotePatterns = quoteTypes.map((quote) => {
@@ -310,7 +310,7 @@ export const patternBuilder = {
    */
   todoCommentPattern(
     keywords: string[] = ['TODO', 'FIXME', 'HACK', 'XXX'],
-    caseSensitive = false
+    caseSensitive = false,
   ): string {
     const keywordPattern = keywords.join('|');
     const flags = caseSensitive ? '' : '(?i)';
@@ -406,7 +406,7 @@ export const ruleMigrationUtils = {
       status?: string;
       params?: unknown;
       parameters?: unknown;
-    } & Record<string, unknown>
+    } & Record<string, unknown>,
   ): CreateCustomRuleV2Request {
     // Map common v1 fields to v2 format
     return {
@@ -499,7 +499,7 @@ export const ruleMigrationUtils = {
     options?: {
       includeMetadata?: boolean;
       format?: 'json' | 'yaml';
-    }
+    },
   ): string {
     const exportData = rules.map((rule) => {
       const base: {

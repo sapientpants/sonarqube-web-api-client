@@ -8,7 +8,7 @@ function booleanMethodImpl<T extends BaseBuilder<any, any>>(
   this: T,
   paramName: string,
   defaultValue: boolean,
-  value = defaultValue
+  value = defaultValue,
 ): T {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return this.setParam(paramName as any, value as any);
@@ -21,7 +21,7 @@ function booleanMethodImpl<T extends BaseBuilder<any, any>>(
 function stringMethodImpl<T extends BaseBuilder<any, any>>(
   this: T,
   paramName: string,
-  value: string
+  value: string,
 ): T {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return this.setParam(paramName as any, value as any);
@@ -34,7 +34,7 @@ function stringMethodImpl<T extends BaseBuilder<any, any>>(
 function arrayMethodImpl<T extends BaseBuilder<any, any>>(
   this: T,
   paramName: string,
-  values: string[]
+  values: string[],
 ): T {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return this.setParam(paramName as any, values as any);
@@ -47,7 +47,7 @@ function arrayMethodImpl<T extends BaseBuilder<any, any>>(
 function optionalStringMethodImpl<T extends BaseBuilder<any, any>>(
   this: T,
   paramName: string,
-  value?: string
+  value?: string,
 ): T {
   if (value !== undefined) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,7 +69,7 @@ export namespace ParameterHelpers {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export function createBooleanMethod<T extends BaseBuilder<any, any>>(
     paramName: string,
-    defaultValue = true
+    defaultValue = true,
   ) {
     return function (this: T, value = defaultValue): T {
       return booleanMethodImpl.call(this, paramName, defaultValue, value) as T;

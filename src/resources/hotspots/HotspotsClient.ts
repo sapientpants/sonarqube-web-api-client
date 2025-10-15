@@ -20,7 +20,7 @@ export class HotspotsClient extends BaseClient {
    */
   search(): SearchHotspotsBuilder {
     return new SearchHotspotsBuilder(async (params: SearchHotspotsRequest) =>
-      this.searchExecutor(params)
+      this.searchExecutor(params),
     );
   }
 
@@ -91,7 +91,7 @@ export class HotspotsClient extends BaseClient {
   private appendNonEmptyStringParam(
     params: URLSearchParams,
     key: string,
-    value: string | undefined
+    value: string | undefined,
   ): void {
     if (value !== undefined && value !== '') {
       params.append(key, value);
@@ -105,7 +105,7 @@ export class HotspotsClient extends BaseClient {
   private appendArrayParam(
     params: URLSearchParams,
     key: string,
-    value: string[] | undefined
+    value: string[] | undefined,
   ): void {
     if (value !== undefined && value.length > 0) {
       params.append(key, value.join(','));
@@ -119,7 +119,7 @@ export class HotspotsClient extends BaseClient {
   private appendBooleanParam(
     params: URLSearchParams,
     key: string,
-    value: boolean | undefined
+    value: boolean | undefined,
   ): void {
     if (value !== undefined) {
       params.append(key, value.toString());
@@ -133,7 +133,7 @@ export class HotspotsClient extends BaseClient {
   private appendPositiveNumberParam(
     params: URLSearchParams,
     key: string,
-    value: number | undefined
+    value: number | undefined,
   ): void {
     if (value !== undefined && value > 0) {
       params.append(key, value.toString());

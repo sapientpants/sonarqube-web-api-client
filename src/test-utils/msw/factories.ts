@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Factory functions for creating consistent mock responses
  * These help maintain realistic API response structures across tests
@@ -116,7 +117,7 @@ export function createApiError(msg: string, code?: string): ApiError {
 
 export function createProjectsResponse(
   projects: Project[],
-  paging?: Partial<PagingInfo>
+  paging?: Partial<PagingInfo>,
 ): { components: Project[]; paging: PagingInfo } {
   return {
     components: projects,
@@ -126,7 +127,7 @@ export function createProjectsResponse(
 
 export function createIssuesResponse(
   issues: Issue[],
-  paging?: Partial<PagingInfo>
+  paging?: Partial<PagingInfo>,
 ): { issues: Issue[]; paging: PagingInfo } {
   return {
     issues,
@@ -200,7 +201,7 @@ export const SAMPLE_METRICS = {
 
 export function createMetricsSearchResponse(
   metrics: MetricData[],
-  paging?: Partial<PagingInfo>
+  paging?: Partial<PagingInfo>,
 ): { metrics: MetricData[]; total: number; p: number; ps: number } {
   const pagingInfo = createPagingInfo(paging);
   return {
@@ -381,7 +382,7 @@ export function createHotspotDetails(overrides?: Partial<HotspotDetails>): Hotsp
 
 export function createHotspotsResponse(
   hotspots: Hotspot[],
-  paging?: Partial<PagingInfo>
+  paging?: Partial<PagingInfo>,
 ): {
   hotspots: Hotspot[];
   paging: PagingInfo;

@@ -43,7 +43,7 @@ export class IssuesClient extends BaseClient {
    */
   search(): SearchIssuesBuilder {
     return new SearchIssuesBuilder(async (params: SearchIssuesRequest) =>
-      this.searchExecutor(params)
+      this.searchExecutor(params),
     );
   }
 
@@ -176,7 +176,6 @@ export class IssuesClient extends BaseClient {
       method: 'POST',
       body: formData,
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'content-type': 'application/x-www-form-urlencoded',
       },
     });
@@ -247,7 +246,7 @@ export class IssuesClient extends BaseClient {
     }
 
     return this.request<GitLabSastExportResponse>(
-      `/api/issues/gitlab_sast_export?${searchParams.toString()}`
+      `/api/issues/gitlab_sast_export?${searchParams.toString()}`,
     );
   }
 
@@ -413,7 +412,7 @@ export class IssuesClient extends BaseClient {
     value: unknown,
     apiKey: string,
     arrayParams: Array<keyof SearchIssuesRequest>,
-    multipleCallParams: Array<keyof SearchIssuesRequest>
+    multipleCallParams: Array<keyof SearchIssuesRequest>,
   ): void {
     // Handle parameters that need multiple calls (e.g., authors)
     if (multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
@@ -461,7 +460,7 @@ export class IssuesClient extends BaseClient {
       params.pullRequest !== ''
     ) {
       throw new Error(
-        'Parameters "fixedInPullRequest" and "pullRequest" cannot be used together. These parameters are mutually exclusive - use either one or the other to filter issues by pull request context.'
+        'Parameters "fixedInPullRequest" and "pullRequest" cannot be used together. These parameters are mutually exclusive - use either one or the other to filter issues by pull request context.',
       );
     }
   }
@@ -476,7 +475,7 @@ export class IssuesClient extends BaseClient {
       (!params.components || params.components.length === 0)
     ) {
       throw new Error(
-        'Parameter "fixedInPullRequest" requires "components" to be specified. Please provide at least one component key to scope the search for issues that would be fixed in the pull request.'
+        'Parameter "fixedInPullRequest" requires "components" to be specified. Please provide at least one component key to scope the search for issues that would be fixed in the pull request.',
       );
     }
   }
@@ -488,20 +487,20 @@ export class IssuesClient extends BaseClient {
     if (params.ps !== undefined && (params.ps < 1 || params.ps > 500)) {
       throw new Error(
         `Parameter "ps" (page size) must be between 1 and 500. Current value: ${String(
-          params.ps
-        )}. Use pagination to retrieve large result sets.`
+          params.ps,
+        )}. Use pagination to retrieve large result sets.`,
       );
     }
 
     if (params.p !== undefined && params.p < 1) {
       throw new Error(
-        'Parameter "p" (page number) must be greater than 0. Page numbers start from 1.'
+        'Parameter "p" (page number) must be greater than 0. Page numbers start from 1.',
       );
     }
 
     if (params.owaspAsvsLevel !== undefined && ![1, 2, 3].includes(params.owaspAsvsLevel)) {
       throw new Error(
-        'Parameter "owaspAsvsLevel" must be 1, 2, or 3. These correspond to the three levels of verification requirements in OWASP ASVS v4.0.'
+        'Parameter "owaspAsvsLevel" must be 1, 2, or 3. These correspond to the three levels of verification requirements in OWASP ASVS v4.0.',
       );
     }
   }
@@ -526,7 +525,7 @@ export class IssuesClient extends BaseClient {
       const value = params[param];
       if (value !== undefined && value !== '' && !dateRegex.test(value)) {
         throw new Error(
-          `Parameter "${param}" must be in YYYY-MM-DD format. Current value: "${value}". Example: "2023-01-15".`
+          `Parameter "${param}" must be in YYYY-MM-DD format. Current value: "${value}". Example: "2023-01-15".`,
         );
       }
     });
@@ -545,7 +544,7 @@ export class IssuesClient extends BaseClient {
       throw new Error(
         `Parameter "createdInLast" must be in format like "1w", "30d", "6m", "1y", or "24h". Current value: "${
           params.createdInLast
-        }".`
+        }".`,
       );
     }
   }
@@ -563,7 +562,7 @@ export class IssuesClient extends BaseClient {
       throw new Error(
         `Parameter "timeZone" must be a valid timezone identifier. Examples: "UTC", "America/New_York", "Europe/London", "+01:00". Current value: "${
           params.timeZone
-        }".`
+        }".`,
       );
     }
   }
@@ -590,7 +589,7 @@ export class IssuesClient extends BaseClient {
       const value = params[paramName as keyof typeof arrayLimits];
       if (Array.isArray(value) && value.length > limit) {
         throw new Error(
-          `Parameter "${paramName}" cannot contain more than ${String(limit)} items. Current count: ${String(value.length)}. Consider splitting your request into multiple calls or using more specific filters.`
+          `Parameter "${paramName}" cannot contain more than ${String(limit)} items. Current count: ${String(value.length)}. Consider splitting your request into multiple calls or using more specific filters.`,
         );
       }
     });
@@ -608,8 +607,8 @@ export class IssuesClient extends BaseClient {
     if (invalidCwes.length > 0) {
       throw new Error(
         `Parameter "cwe" must contain only numeric CWE identifiers. Invalid values: [${invalidCwes.join(
-          ', '
-        )}]. Example: ["79", "89", "200"].`
+          ', ',
+        )}]. Example: ["79", "89", "200"].`,
       );
     }
   }
@@ -636,19 +635,19 @@ export class IssuesClient extends BaseClient {
     if (params.issues.length > 500) {
       throw new Error(
         `Parameter "issues" cannot contain more than 500 issue keys. Current count: ${String(
-          params.issues.length
-        )}. Consider splitting your bulk change into multiple requests.`
+          params.issues.length,
+        )}. Consider splitting your bulk change into multiple requests.`,
       );
     }
 
     const invalidIssueKeys = params.issues.filter(
-      (key) => !key || typeof key !== 'string' || key.trim() === ''
+      (key) => !key || typeof key !== 'string' || key.trim() === '',
     );
     if (invalidIssueKeys.length > 0) {
       throw new Error(
         `All issue keys must be non-empty strings. Found ${String(
-          invalidIssueKeys.length
-        )} invalid issue keys.`
+          invalidIssueKeys.length,
+        )} invalid issue keys.`,
       );
     }
   }
@@ -657,19 +656,18 @@ export class IssuesClient extends BaseClient {
    * Validate that at least one action is specified
    */
   private validateBulkChangeActions(params: BulkChangeRequest): void {
-    const hasAction = Boolean(
+    const hasAction =
       (params.add_tags !== undefined && params.add_tags.length > 0) ||
-        (params.remove_tags !== undefined && params.remove_tags.length > 0) ||
-        params.assign !== undefined ||
-        params.set_severity !== undefined ||
-        params.set_type !== undefined ||
-        params.do_transition !== undefined ||
-        (params.comment !== undefined && params.comment !== '')
-    );
+      (params.remove_tags !== undefined && params.remove_tags.length > 0) ||
+      params.assign !== undefined ||
+      params.set_severity !== undefined ||
+      params.set_type !== undefined ||
+      params.do_transition !== undefined ||
+      (params.comment !== undefined && params.comment !== '');
 
     if (!hasAction) {
       throw new Error(
-        'At least one action must be specified: add_tags, remove_tags, assign, set_severity, set_type, do_transition, or comment.'
+        'At least one action must be specified: add_tags, remove_tags, assign, set_severity, set_type, do_transition, or comment.',
       );
     }
   }
@@ -681,16 +679,16 @@ export class IssuesClient extends BaseClient {
     if (params.add_tags !== undefined && params.add_tags.length > 10) {
       throw new Error(
         `Parameter "add_tags" cannot contain more than 10 tags. Current count: ${String(
-          params.add_tags.length
-        )}.`
+          params.add_tags.length,
+        )}.`,
       );
     }
 
     if (params.remove_tags !== undefined && params.remove_tags.length > 10) {
       throw new Error(
         `Parameter "remove_tags" cannot contain more than 10 tags. Current count: ${String(
-          params.remove_tags.length
-        )}.`
+          params.remove_tags.length,
+        )}.`,
       );
     }
   }
@@ -707,7 +705,7 @@ export class IssuesClient extends BaseClient {
       throw new Error(
         `Parameter "assign" must be a valid user login, "_me_", or empty string to unassign. Current value: "${
           params.assign
-        }".`
+        }".`,
       );
     }
   }
@@ -723,8 +721,8 @@ export class IssuesClient extends BaseClient {
     if (params.comment.length > 1000) {
       throw new Error(
         `Parameter "comment" cannot exceed 1000 characters. Current length: ${String(
-          params.comment.length
-        )}.`
+          params.comment.length,
+        )}.`,
       );
     }
   }
@@ -737,8 +735,8 @@ export class IssuesClient extends BaseClient {
     if (params.ps !== undefined && (params.ps < 1 || params.ps > 100)) {
       throw new Error(
         `Parameter "ps" (page size) must be between 1 and 100 for authors search. Current value: ${String(
-          params.ps
-        )}.`
+          params.ps,
+        )}.`,
       );
     }
 
@@ -746,8 +744,8 @@ export class IssuesClient extends BaseClient {
     if (params.q !== undefined && params.q !== '' && params.q.length < 2) {
       throw new Error(
         `Parameter "q" (query) must be at least 2 characters long when specified. Current length: ${String(
-          params.q.length
-        )}.`
+          params.q.length,
+        )}.`,
       );
     }
 
@@ -755,7 +753,7 @@ export class IssuesClient extends BaseClient {
     if (params.project !== undefined && params.project !== '') {
       if (!/^[a-zA-Z0-9._:-]+$/.test(params.project)) {
         throw new Error(
-          `Parameter "project" must be a valid project key. Current value: "${params.project}".`
+          `Parameter "project" must be a valid project key. Current value: "${params.project}".`,
         );
       }
     }
@@ -769,8 +767,8 @@ export class IssuesClient extends BaseClient {
     if (params.ps !== undefined && (params.ps < 1 || params.ps > 100)) {
       throw new Error(
         `Parameter "ps" (page size) must be between 1 and 100 for tags search. Current value: ${String(
-          params.ps
-        )}.`
+          params.ps,
+        )}.`,
       );
     }
 
@@ -778,8 +776,8 @@ export class IssuesClient extends BaseClient {
     if (params.q !== undefined && params.q !== '' && params.q.length < 2) {
       throw new Error(
         `Parameter "q" (query) must be at least 2 characters long when specified. Current length: ${String(
-          params.q.length
-        )}.`
+          params.q.length,
+        )}.`,
       );
     }
 
@@ -789,7 +787,7 @@ export class IssuesClient extends BaseClient {
         throw new Error(
           `Parameter "organization" must be a valid organization key. Current value: "${
             params.organization
-          }".`
+          }".`,
         );
       }
     }

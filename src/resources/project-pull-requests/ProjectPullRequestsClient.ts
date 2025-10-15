@@ -41,7 +41,7 @@ export class ProjectPullRequestsClient extends BaseClient {
         project: params.project,
       });
       return this.request<ListPullRequestsResponse>(
-        `/api/project_pull_requests/list?${query.toString()}`
+        `/api/project_pull_requests/list?${query.toString()}`,
       );
     });
   }
@@ -59,7 +59,7 @@ export class ProjectPullRequestsClient extends BaseClient {
       project: params.project,
     });
     return this.request<ListPullRequestsResponse>(
-      `/api/project_pull_requests/list?${query.toString()}`
+      `/api/project_pull_requests/list?${query.toString()}`,
     );
   }
 

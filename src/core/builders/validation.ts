@@ -28,7 +28,7 @@ export function validateRequired(value: unknown, fieldName: string): void {
 export function validateOAuth(
   clientId: unknown,
   clientSecret: unknown,
-  providerName = 'OAuth'
+  providerName = 'OAuth',
 ): void {
   if (!isRequired(clientId) || !isRequired(clientSecret)) {
     throw new ValidationError(`${providerName} client ID and secret are required`);

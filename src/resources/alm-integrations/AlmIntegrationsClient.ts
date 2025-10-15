@@ -86,7 +86,7 @@ export class AlmIntegrationsClient extends BaseClient {
    * @since 8.2
    */
   async listBitbucketServerProjects(
-    params: ListBitbucketServerProjectsRequest
+    params: ListBitbucketServerProjectsRequest,
   ): Promise<ListBitbucketServerProjectsResponse> {
     const query = new URLSearchParams({
       almSetting: params.almSetting,
@@ -103,7 +103,7 @@ export class AlmIntegrationsClient extends BaseClient {
    * @since 8.2
    */
   async searchBitbucketServerRepos(
-    params: SearchBitbucketServerReposRequest
+    params: SearchBitbucketServerReposRequest,
   ): Promise<SearchBitbucketServerReposResponse> {
     const query = new URLSearchParams({
       almSetting: params.almSetting,
@@ -135,7 +135,7 @@ export class AlmIntegrationsClient extends BaseClient {
    * @since 9.0
    */
   async searchBitbucketCloudRepos(
-    params: SearchBitbucketCloudReposRequest
+    params: SearchBitbucketCloudReposRequest,
   ): Promise<SearchBitbucketCloudReposResponse> {
     const query = new URLSearchParams({
       almSetting: params.almSetting,

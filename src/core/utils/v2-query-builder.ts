@@ -32,9 +32,9 @@ import type { PrimitiveValue } from '../types/primitive';
 export function buildV2Query(params: Record<string, unknown>): string {
   const query = new URLSearchParams();
 
-  Object.entries(params).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === null) {
-      return;
+      continue;
     }
 
     if (Array.isArray(value)) {
@@ -52,7 +52,7 @@ export function buildV2Query(params: Record<string, unknown>): string {
       // Skip other types that can't be properly stringified
       console.warn(`Skipping parameter '${key}' with unsupported type: ${typeof value}`);
     }
-  });
+  }
 
   return query.toString();
 }

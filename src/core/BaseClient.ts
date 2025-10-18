@@ -66,9 +66,9 @@ export abstract class BaseClient {
     // Merge with any headers from options
     if (options?.headers) {
       const optHeaders = new Headers(options.headers);
-      optHeaders.forEach((value, key) => {
+      for (const [key, value] of optHeaders) {
         headers.set(key, value);
-      });
+      }
     }
 
     // Append organization parameter if provided and not already in URL

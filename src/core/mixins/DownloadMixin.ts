@@ -69,9 +69,9 @@ function initializeHeadersWithAuth(
 
   // Apply initial headers if provided
   if (initialHeaders) {
-    Object.entries(initialHeaders).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(initialHeaders)) {
       headers.set(key, value);
-    });
+    }
   }
 
   // Apply authentication
@@ -129,7 +129,7 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
       }
 
       // Stream the response for progress tracking
-      const contentLength = parseInt(contentLengthHeader, 10);
+      const contentLength = Number.parseInt(contentLengthHeader, 10);
       const reader = response.body?.getReader();
 
       if (!reader) {
@@ -182,9 +182,9 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
       // Merge with any headers from options
       if (options?.headers) {
         const optHeaders = new Headers(options.headers);
-        optHeaders.forEach((value, key) => {
+        for (const [key, value] of optHeaders) {
           headers.set(key, value);
-        });
+        }
       }
 
       const requestOptions: RequestInit = { ...options, headers };
@@ -206,9 +206,9 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
     protected getAuthHeaders(): Record<string, string> {
       const headers = initializeHeadersWithAuth(this.authProvider);
       const result: Record<string, string> = {};
-      headers.forEach((value, key) => {
+      for (const [key, value] of headers) {
         result[key] = value;
-      });
+      }
       return result;
     }
   };

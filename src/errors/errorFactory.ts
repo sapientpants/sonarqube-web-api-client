@@ -64,8 +64,8 @@ function parseRetryAfter(retryAfter: string | null): number | undefined {
   if (retryAfter === null || retryAfter === '') {
     return undefined;
   }
-  const parsed = parseInt(retryAfter, 10);
-  return isNaN(parsed) ? undefined : parsed;
+  const parsed = Number.parseInt(retryAfter, 10);
+  return Number.isNaN(parsed) ? undefined : parsed;
 }
 
 /**

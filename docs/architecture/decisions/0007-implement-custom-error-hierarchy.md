@@ -30,13 +30,14 @@ We need to design structured error handling for different failure scenarios to i
 We will implement a custom error hierarchy with a base `SonarQubeError` class and specific error types for different scenarios:
 
 1. **Base error class** with common properties:
+
    ```typescript
    class SonarQubeError extends Error {
      constructor(
        message: string,
        public code: string,
        public statusCode?: number,
-       public details?: unknown
+       public details?: unknown,
      ) {
        super(message);
        this.name = this.constructor.name;
@@ -45,25 +46,26 @@ We will implement a custom error hierarchy with a base `SonarQubeError` class an
    ```
 
 2. **Specific error classes**:
+
    ```typescript
    class ApiError extends SonarQubeError {
      constructor(message: string, statusCode: number, response?: unknown) {
        super(message, 'API_ERROR', statusCode, response);
      }
    }
-   
+
    class ValidationError extends SonarQubeError {
      constructor(message: string, field?: string) {
        super(message, 'VALIDATION_ERROR', undefined, { field });
      }
    }
-   
+
    class RateLimitError extends SonarQubeError {
      constructor(message: string, retryAfter?: number) {
        super(message, 'RATE_LIMIT_ERROR', 429, { retryAfter });
      }
    }
-   
+
    class NetworkError extends SonarQubeError {
      constructor(message: string, cause?: Error) {
        super(message, 'NETWORK_ERROR', undefined, { cause });
@@ -72,6 +74,7 @@ We will implement a custom error hierarchy with a base `SonarQubeError` class an
    ```
 
 3. **Error handling in the client**:
+
    ```typescript
    try {
      const result = await client.issues.search();

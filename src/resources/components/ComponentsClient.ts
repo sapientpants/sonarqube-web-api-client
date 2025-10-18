@@ -50,7 +50,7 @@ export class ComponentsClient extends BaseClient {
     options: {
       branch?: string;
       pullRequest?: string;
-    } = {}
+    } = {},
   ): Promise<ComponentShowResponse> {
     const params = new URLSearchParams();
     params.set('component', component);
@@ -100,7 +100,7 @@ export class ComponentsClient extends BaseClient {
    */
   search(): ComponentsSearchBuilder {
     return new ComponentsSearchBuilder(async (params: ComponentGlobalSearchRequest) =>
-      this.executeGlobalSearchRequest(params)
+      this.executeGlobalSearchRequest(params),
     );
   }
 
@@ -136,7 +136,7 @@ export class ComponentsClient extends BaseClient {
       q?: string;
       p?: number;
       ps?: number;
-    } = {}
+    } = {},
   ): Promise<ComponentSearchResponse> {
     DeprecationManager.warn({
       api: 'components.searchLegacy()',
@@ -206,7 +206,7 @@ export class ComponentsClient extends BaseClient {
    */
   tree(componentKey?: string): ComponentsTreeBuilder {
     const builder = new ComponentsTreeBuilder(async (params: ComponentTreeRequest) =>
-      this.executeTreeRequest(params)
+      this.executeTreeRequest(params),
     );
 
     if (componentKey !== undefined) {
@@ -221,7 +221,7 @@ export class ComponentsClient extends BaseClient {
    * @private
    */
   private async executeGlobalSearchRequest(
-    params: ComponentGlobalSearchRequest
+    params: ComponentGlobalSearchRequest,
   ): Promise<ComponentSearchResponse> {
     // For global search, we'll use a different approach based on what's available
     // If no qualifiers are specified or TRK is included, search for projects first
@@ -246,11 +246,11 @@ export class ComponentsClient extends BaseClient {
   }
 
   private async searchWithOrganization(
-    params: ComponentGlobalSearchRequest
+    params: ComponentGlobalSearchRequest,
   ): Promise<ComponentSearchResponse> {
     const searchParams = this.buildOrganizationSearchParams(params);
     return this.request<ComponentSearchResponse>(
-      `/api/components/search?${searchParams.toString()}`
+      `/api/components/search?${searchParams.toString()}`,
     );
   }
 
@@ -328,7 +328,7 @@ export class ComponentsClient extends BaseClient {
   private appendNonEmptyStringParam(
     params: URLSearchParams,
     key: string,
-    value: string | undefined
+    value: string | undefined,
   ): void {
     if (value !== undefined && value !== '') {
       params.set(key, value);
@@ -342,7 +342,7 @@ export class ComponentsClient extends BaseClient {
   private appendArrayParam(
     params: URLSearchParams,
     key: string,
-    value: string[] | undefined
+    value: string[] | undefined,
   ): void {
     if (value !== undefined && value.length > 0) {
       params.set(key, value.join(','));
@@ -356,7 +356,7 @@ export class ComponentsClient extends BaseClient {
   private appendPositiveNumberParam(
     params: URLSearchParams,
     key: string,
-    value: number | undefined
+    value: number | undefined,
   ): void {
     if (value !== undefined && value > 0) {
       params.set(key, value.toString());

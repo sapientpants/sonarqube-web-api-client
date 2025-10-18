@@ -67,7 +67,7 @@ export class CompatibilityBridge {
   private static createCompatibilityWrapper<T extends object>(
     target: T,
     _prop: keyof T,
-    mapping: ApiMapping
+    mapping: ApiMapping,
   ): (...args: unknown[]) => unknown {
     return function (this: unknown, ...args: unknown[]): unknown {
       // Emit deprecation warning
@@ -103,7 +103,7 @@ export class CompatibilityBridge {
    */
   private static findMethod(
     obj: unknown,
-    path: string
+    path: string,
   ): ((...args: unknown[]) => unknown) | undefined {
     const parts = path.split('.');
     let current = obj;
@@ -124,7 +124,7 @@ export class CompatibilityBridge {
    */
   static withCompatibility<T extends object>(
     client: T,
-    mappings: ApiMapping[] = UserApiV1ToV2Mappings
+    mappings: ApiMapping[] = UserApiV1ToV2Mappings,
   ): T {
     // Register all mappings
     mappings.forEach((m) => {
@@ -140,7 +140,7 @@ export class CompatibilityBridge {
    */
   private static async transformResult(
     result: unknown,
-    transformer: ResultTransformerFunction
+    transformer: ResultTransformerFunction,
   ): Promise<unknown> {
     // Handle promises
     if (result instanceof Promise) {

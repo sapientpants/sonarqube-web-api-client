@@ -39,7 +39,7 @@ export class MetricsClient extends BaseClient {
       if (Array.isArray(params.f)) {
         searchParams.append('f', params.f.join(','));
       } else {
-        searchParams.append('f', String(params.f));
+        searchParams.append('f', params.f);
       }
     }
     if (params?.isCustom !== undefined) {
@@ -54,7 +54,7 @@ export class MetricsClient extends BaseClient {
 
     const query = searchParams.toString();
     return await this.request<SearchMetricsResponse>(
-      query ? `/api/metrics/search?${query}` : '/api/metrics/search'
+      query ? `/api/metrics/search?${query}` : '/api/metrics/search',
     );
   }
 
@@ -73,7 +73,7 @@ export class MetricsClient extends BaseClient {
    * ```
    */
   async *searchAll(
-    params?: Omit<SearchMetricsParams, 'p' | 'ps'>
+    params?: Omit<SearchMetricsParams, 'p' | 'ps'>,
   ): AsyncGenerator<Metric, void, unknown> {
     let page = 1;
     const pageSize = 500; // Max allowed page size

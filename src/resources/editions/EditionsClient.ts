@@ -102,7 +102,6 @@ export class EditionsClient extends BaseClient {
     return this.request<undefined>('/api/editions/set_license', {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: formData.toString(),

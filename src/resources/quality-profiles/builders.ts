@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
 import { ValidationError } from '../../errors';
 import type {
@@ -95,7 +94,7 @@ export class ActivateRulesBuilder extends BaseBuilder<ActivateRulesRequest, Acti
   /**
    * Comma-separated list of OWASP Top 10 2021 categories.
    */
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   owaspTop10_2021 = ParameterHelpers.createStringMethod<typeof this>('owaspTop10_2021');
 
   /**

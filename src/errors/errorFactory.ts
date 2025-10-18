@@ -75,7 +75,7 @@ function createErrorWithHeaders(
   errorClass: typeof ApiError | typeof ServerError | typeof SonarQubeError,
   errorMessage: string,
   status: number,
-  headers: Headers
+  headers: Headers,
 ): ApiError | ServerError | SonarQubeError {
   const headerObject = Object.fromEntries(headers.entries());
   if (errorClass === SonarQubeError) {

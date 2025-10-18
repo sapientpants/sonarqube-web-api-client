@@ -1,10 +1,12 @@
 # Enhanced Deprecation System
 
-This directory contains an enhanced deprecation management system that provides a superior developer experience when dealing with deprecated APIs.
+This directory contains an enhanced deprecation management system that provides a superior developer experience when
+dealing with deprecated APIs.
 
 ## Features
 
 ### 1. Enhanced Decorators
+
 - **`@Deprecated`**: Method-level decorator with rich metadata support
 - **`@DeprecatedClass`**: Class-level deprecation
 - **`@DeprecatedParameter`**: Parameter-level deprecation
@@ -13,24 +15,28 @@ This directory contains an enhanced deprecation management system that provides 
 - Critical errors for APIs past removal date
 
 ### 2. Compatibility Bridge
+
 - Automatic translation of old API calls to new ones
 - Parameter and result transformation
 - Transparent migration without code changes
 - Proxy-based interception
 
 ### 3. Migration Assistant
+
 - Code analysis and deprecation detection
 - Automatic fix generation
 - Migration effort estimation
 - Detailed migration reports
 
 ### 4. Deprecation Registry
+
 - Centralized metadata storage
 - Timeline reports
 - Tag-based filtering
 - Export for external tooling
 
 ### 5. CLI Migration Tool
+
 - Automatic code migration
 - Dry-run mode
 - Interactive and batch modes
@@ -49,11 +55,13 @@ class ApiClient {
     removalDate: '2025-12-31',
     replacement: 'newMethod()',
     reason: 'Performance improvements in new method',
-    examples: [{
-      before: 'client.oldMethod(param)',
-      after: 'client.newMethod(param)',
-      description: 'Simple parameter passing'
-    }]
+    examples: [
+      {
+        before: 'client.oldMethod(param)',
+        after: 'client.newMethod(param)',
+        description: 'Simple parameter passing',
+      },
+    ],
   })
   oldMethod(param: string): void {
     // Implementation
@@ -73,8 +81,8 @@ const compatibleClient = withCompatibility(client, [
     newApi: 'users.searchV2',
     transformer: (oldParams) => ({
       // Transform parameters
-    })
-  }
+    }),
+  },
 ]);
 
 // Old code continues to work
@@ -117,20 +125,20 @@ import { DeprecationManager } from '@sonarqube/deprecation';
 DeprecationManager.configure({
   // Suppress warnings in production
   suppressDeprecationWarnings: process.env.NODE_ENV === 'production',
-  
+
   // Fail on deprecated usage in CI
   strictMode: process.env.CI === 'true',
-  
+
   // Enable migration hints
   migrationMode: true,
-  
+
   // Custom handler for monitoring
   onDeprecationWarning: (context) => {
     telemetry.track('deprecated_api_usage', {
       api: context.api,
-      replacement: context.replacement
+      replacement: context.replacement,
     });
-  }
+  },
 });
 ```
 
@@ -176,12 +184,14 @@ When adding new deprecations:
 ## Examples
 
 See the `examples/` directory for real-world usage:
+
 - `UsersApiExample.ts`: V1 to V2 migration example
 - More examples coming soon...
 
 ## Testing
 
 Run the test suite:
+
 ```bash
 npm test src/core/deprecation
 ```

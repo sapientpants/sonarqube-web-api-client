@@ -1,1 +1,3 @@
-pnpm run ci
+#!/usr/bin/env sh
+
+pnpm precommit

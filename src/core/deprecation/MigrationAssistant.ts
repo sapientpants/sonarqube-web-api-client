@@ -76,7 +76,7 @@ export class MigrationAssistant {
         suggestion.automaticFix = this.generateAutomaticFix(
           usage.code,
           usage.api,
-          metadata.replacement
+          metadata.replacement,
         );
       }
 
@@ -164,7 +164,7 @@ export class MigrationAssistant {
     // Add urgency section
     const urgentApis = allMetadata.filter((m) => {
       const daysUntilRemoval = Math.ceil(
-        (new Date(m.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        (new Date(m.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
       );
       return daysUntilRemoval <= 30 && daysUntilRemoval > 0;
     });
@@ -174,7 +174,7 @@ export class MigrationAssistant {
       guide += 'These APIs will be removed within 30 days:\n\n';
       urgentApis.forEach((api) => {
         const days = Math.ceil(
-          (new Date(api.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          (new Date(api.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
         );
         guide += `- **${api.api}** - ${days} days remaining\n`;
       });

@@ -56,36 +56,36 @@ export interface ActivateRuleRequest {
 export interface ActivateRulesRequest {
   targetKey: string;
   activation?: boolean;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   active_severities?: string;
   asc?: boolean;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   available_since?: string;
   cwe?: string;
   inheritance?: string;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   is_template?: boolean;
   languages?: string;
   owaspTop10?: string;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   owaspTop10_2021?: string;
   p?: number;
   ps?: number;
   q?: string;
   qprofile?: string;
   repositories?: string;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   rule_key?: string;
   s?: string;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   sans_top25?: string;
   severities?: string;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   sonarsource_security?: string;
   statuses?: string;
   tags?: string;
   targetSeverity?: Severity;
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   template_key?: string;
   types?: string;
 }

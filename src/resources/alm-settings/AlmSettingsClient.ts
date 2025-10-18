@@ -338,7 +338,7 @@ export class AlmSettingsClient extends BaseClient {
   createBitbucketCloudBuilder(key: string): CreateBitbucketCloudBuilder {
     return new CreateBitbucketCloudBuilder(
       async (params) => this.createBitbucketCloud(params),
-      key
+      key,
     );
   }
 
@@ -350,7 +350,7 @@ export class AlmSettingsClient extends BaseClient {
   updateBitbucketCloudBuilder(key: string): UpdateBitbucketCloudBuilder {
     return new UpdateBitbucketCloudBuilder(
       async (params) => this.updateBitbucketCloud(params),
-      key
+      key,
     );
   }
 
@@ -364,7 +364,7 @@ export class AlmSettingsClient extends BaseClient {
     return new SetAzureBindingBuilder(
       async (params) => this.setAzureBinding(params),
       project,
-      almSetting
+      almSetting,
     );
   }
 
@@ -378,7 +378,7 @@ export class AlmSettingsClient extends BaseClient {
     return new SetBitbucketBindingBuilder(
       async (params) => this.setBitbucketBinding(params),
       project,
-      almSetting
+      almSetting,
     );
   }
 
@@ -390,12 +390,12 @@ export class AlmSettingsClient extends BaseClient {
    */
   setBitbucketCloudBindingBuilder(
     project: string,
-    almSetting: string
+    almSetting: string,
   ): SetBitbucketCloudBindingBuilder {
     return new SetBitbucketCloudBindingBuilder(
       async (params) => this.setBitbucketCloudBinding(params),
       project,
-      almSetting
+      almSetting,
     );
   }
 
@@ -409,7 +409,7 @@ export class AlmSettingsClient extends BaseClient {
     return new SetGitHubBindingBuilder(
       async (params) => this.setGitHubBinding(params),
       project,
-      almSetting
+      almSetting,
     );
   }
 
@@ -423,7 +423,7 @@ export class AlmSettingsClient extends BaseClient {
     return new SetGitLabBindingBuilder(
       async (params) => this.setGitLabBinding(params),
       project,
-      almSetting
+      almSetting,
     );
   }
 }

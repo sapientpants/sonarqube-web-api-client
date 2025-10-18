@@ -24,7 +24,7 @@ import {
  */
 interface BoundProjectCreator {
   createBoundProjectV2: (
-    request: CreateBoundProjectV2Request
+    request: CreateBoundProjectV2Request,
   ) => Promise<CreateBoundProjectV2Response>;
 }
 
@@ -313,7 +313,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!validation.valid) {
       throw new Error(
-        `Builder validation failed: ${validation.errors.map((e) => e.message).join(', ')}`
+        `Builder validation failed: ${validation.errors.map((e) => e.message).join(', ')}`,
       );
     }
 

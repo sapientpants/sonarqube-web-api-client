@@ -44,7 +44,7 @@ export class PluginsClient extends BaseClient {
    * ```
    */
   async getAvailable(
-    request: GetAvailablePluginsRequest = {}
+    request: GetAvailablePluginsRequest = {},
   ): Promise<GetAvailablePluginsResponse> {
     const params = new URLSearchParams();
 
@@ -134,7 +134,7 @@ export class PluginsClient extends BaseClient {
    * ```
    */
   async getInstalled(
-    request: GetInstalledPluginsRequest = {}
+    request: GetInstalledPluginsRequest = {},
   ): Promise<GetInstalledPluginsResponse> {
     const params = new URLSearchParams();
 

@@ -66,7 +66,7 @@ export class BulkDeleteProjectsBuilder extends BaseBuilder<BulkDeleteProjectsReq
       finalParams.q === undefined
     ) {
       throw new ValidationError(
-        'At least one parameter is required among analyzedBefore, projects and q'
+        'At least one parameter is required among analyzedBefore, projects and q',
       );
     }
 

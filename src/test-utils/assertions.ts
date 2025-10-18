@@ -56,6 +56,6 @@ export function assertQueryParams(request: Request, params: Record<string, strin
  * @param expectedBody - The expected request body
  */
 export async function assertRequestBody(request: Request, expectedBody: unknown): Promise<void> {
-  const body = (await request.json()) as unknown;
+  const body = await request.json();
   expect(body).toEqual(expectedBody);
 }

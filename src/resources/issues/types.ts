@@ -753,16 +753,16 @@ export interface SearchAuthorsResponse {
  */
 export interface BulkChangeRequest {
   issues: string[];
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   add_tags?: string[];
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   remove_tags?: string[];
   assign?: string;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   set_severity?: IssueSeverity;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   set_type?: IssueType;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   do_transition?: IssueTransition;
   comment?: string;
   sendNotifications?: boolean;
@@ -910,9 +910,9 @@ export interface GitLabSastExportResponse {
     };
     location: {
       file: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+
       start_line: number;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+
       end_line: number;
     };
     identifiers: Array<{

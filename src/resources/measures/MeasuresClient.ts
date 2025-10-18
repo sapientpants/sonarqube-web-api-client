@@ -52,7 +52,7 @@ export class MeasuresClient extends BaseClient {
     return new ComponentTreeBuilder(
       async (params: ComponentTreeRequest) => this.executeComponentTreeRequest(params),
       component,
-      metricKeys
+      metricKeys,
     );
   }
 
@@ -92,7 +92,7 @@ export class MeasuresClient extends BaseClient {
         return this.request(`/api/measures/search_history?${query.toString()}`);
       },
       component,
-      metrics
+      metrics,
     );
   }
 
@@ -101,7 +101,7 @@ export class MeasuresClient extends BaseClient {
    * @private
    */
   private async executeComponentTreeRequest(
-    params: ComponentTreeRequest
+    params: ComponentTreeRequest,
   ): Promise<ComponentTreeResponse> {
     const query = this.buildComponentTreeParams(params);
     return this.request(`/api/measures/component_tree?${query.toString()}`);
@@ -147,7 +147,7 @@ export class MeasuresClient extends BaseClient {
   private appendOptionalStringParam(
     params: URLSearchParams,
     key: string,
-    value: string | undefined
+    value: string | undefined,
   ): void {
     if (value !== undefined) {
       params.append(key, value);
@@ -161,7 +161,7 @@ export class MeasuresClient extends BaseClient {
   private appendOptionalArrayParam(
     params: URLSearchParams,
     key: string,
-    value: string[] | undefined
+    value: string[] | undefined,
   ): void {
     if (value !== undefined && value.length > 0) {
       params.append(key, value.join(','));
@@ -175,7 +175,7 @@ export class MeasuresClient extends BaseClient {
   private appendOptionalParam(
     params: URLSearchParams,
     key: string,
-    value: boolean | number | undefined
+    value: boolean | number | undefined,
   ): void {
     if (value !== undefined) {
       params.append(key, value.toString());

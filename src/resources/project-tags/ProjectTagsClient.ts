@@ -48,7 +48,7 @@ export class ProjectTagsClient extends BaseClient {
 
       const query = searchParams.toString();
       return this.request<SearchTagsResponse>(
-        query ? `/api/project_tags/search?${query}` : '/api/project_tags/search'
+        query ? `/api/project_tags/search?${query}` : '/api/project_tags/search',
       );
     });
   }
@@ -75,7 +75,7 @@ export class ProjectTagsClient extends BaseClient {
 
     const query = searchParams.toString();
     return this.request<SearchTagsResponse>(
-      query ? `/api/project_tags/search?${query}` : '/api/project_tags/search'
+      query ? `/api/project_tags/search?${query}` : '/api/project_tags/search',
     );
   }
 

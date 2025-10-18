@@ -56,7 +56,6 @@ export class ScaClient extends V2BaseClient {
 
     return this.request<SbomReportV2Response>(`/api/v2/sca/sbom-reports?${query}`, {
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         Accept: 'application/json',
       },
     });
@@ -96,7 +95,7 @@ export class ScaClient extends V2BaseClient {
    */
   async downloadSbomReportV2(
     params: GetSbomReportV2Request,
-    options?: SbomDownloadOptions
+    options?: SbomDownloadOptions,
   ): Promise<string | Blob> {
     const format = params.format ?? 'json';
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
@@ -108,7 +107,6 @@ export class ScaClient extends V2BaseClient {
       // Return as text for JSON-based formats
       return this.requestText(`/api/v2/sca/sbom-reports?${query}`, {
         headers: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           Accept: 'application/json',
         },
         ...(options?.signal !== undefined ? { signal: options.signal } : {}),
@@ -139,7 +137,7 @@ export class ScaClient extends V2BaseClient {
    * ```
    */
   async getSbomMetadataV2(
-    params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>
+    params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>,
   ): Promise<SbomMetadataV2> {
     const query = this.buildV2Query({
       ...params,
@@ -175,7 +173,7 @@ export class ScaClient extends V2BaseClient {
    */
   async streamSbomReportV2(
     params: GetSbomReportV2Request,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<ReadableStream<Uint8Array>> {
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
 
@@ -224,7 +222,7 @@ export class ScaClient extends V2BaseClient {
    * ```
    */
   async getVulnerabilitySummaryV2(
-    params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>
+    params: Pick<GetSbomReportV2Request, 'projectKey' | 'branch' | 'pullRequest'>,
   ): Promise<VulnerabilitySummaryV2> {
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
 

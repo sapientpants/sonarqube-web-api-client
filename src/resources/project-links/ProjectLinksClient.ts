@@ -114,7 +114,7 @@ export class ProjectLinksClient extends BaseClient {
       }
 
       return this.request<SearchProjectLinksResponse>(
-        `/api/project_links/search?${params.toString()}`
+        `/api/project_links/search?${params.toString()}`,
       );
     });
   }
@@ -141,7 +141,7 @@ export class ProjectLinksClient extends BaseClient {
     }
 
     return this.request<SearchProjectLinksResponse>(
-      `/api/project_links/search?${params.toString()}`
+      `/api/project_links/search?${params.toString()}`,
     );
   }
 }

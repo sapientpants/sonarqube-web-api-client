@@ -56,7 +56,7 @@ export interface StatusResponse {
  * Note: This endpoint might not be available in all versions
  * The property names match the API response format
  */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 export interface SystemInfo {
   /**
    * System date/time
@@ -103,7 +103,6 @@ export interface SystemInfo {
    */
   'System Properties'?: Record<string, string>;
 }
-/* eslint-enable @typescript-eslint/naming-convention */
 
 /**
  * Response from the info endpoint

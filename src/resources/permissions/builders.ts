@@ -279,13 +279,13 @@ export class BulkApplyTemplateBuilder extends BaseBuilder<BulkApplyTemplateReque
     const hasProvisionedOnly = this.params.onProvisionedOnly !== undefined;
 
     const selectionMethods = [hasProjects, hasQuery, hasAnalyzedBefore, hasProvisionedOnly].filter(
-      Boolean
+      Boolean,
     );
 
     if (selectionMethods.length === 0) {
       throw new ValidationError(
         'At least one project selection method must be specified (projects, query, analyzedBefore, or onProvisionedOnly)',
-        'projectSelection'
+        'projectSelection',
       );
     }
   }

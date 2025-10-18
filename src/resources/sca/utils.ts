@@ -19,7 +19,7 @@ import type {
 /**
  * Utility class for converting between SBOM formats
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class SbomFormatConverter {
   /**
    * Convert SonarQube SBOM to SPDX format
@@ -43,7 +43,6 @@ export class SbomFormatConverter {
       },
       name: sbom.document.primaryComponent.name,
       packages: sbom.components.map((component) => ({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         SPDXID: `SPDXRef-${this.sanitizeId(component.id)}`,
         name: component.name,
         versionInfo: component.version,
@@ -57,7 +56,7 @@ export class SbomFormatConverter {
           spdxElementId: `SPDXRef-${this.sanitizeId(dep.componentId)}`,
           relationshipType: 'DEPENDS_ON',
           relatedSpdxElement: [`SPDXRef-${this.sanitizeId(targetId)}`],
-        }))
+        })),
       ),
     };
   }
@@ -164,7 +163,7 @@ export class SbomFormatConverter {
 /**
  * Utility class for analyzing SBOM reports for security and compliance
  */
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+
 export class SbomAnalyzer {
   /**
    * Analyze SBOM for security risks and vulnerabilities
@@ -202,7 +201,7 @@ export class SbomAnalyzer {
       recommendations: this.generateSecurityRecommendations(
         criticalVulns,
         highVulns,
-        outdatedComponents
+        outdatedComponents,
       ),
     };
   }
@@ -245,7 +244,7 @@ export class SbomAnalyzer {
       recommendations: this.generateLicenseRecommendations(
         riskLicenses,
         copyleftLicenses,
-        proprietaryLicenses
+        proprietaryLicenses,
       ),
     };
   }
@@ -272,7 +271,7 @@ export class SbomAnalyzer {
    */
   static getMostVulnerableComponents(
     sbom: SbomReportV2Response,
-    limit = 10
+    limit = 10,
   ): Array<{
     component: SbomComponentV2;
     vulnerabilityCount: number;
@@ -316,15 +315,14 @@ export class SbomAnalyzer {
       .sort((a, b) => {
         // Sort by severity first, then by count
         const severityOrder = {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           CRITICAL: 4,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
+
           HIGH: 3,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
+
           MEDIUM: 2,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
+
           LOW: 1,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
+
           NONE: 0,
         };
         const severityDiff = severityOrder[b.highestSeverity] - severityOrder[a.highestSeverity];
@@ -415,7 +413,7 @@ export class SbomAnalyzer {
    */
   private static calculateRiskLevel(
     critical: number,
-    high: number
+    high: number,
   ): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
     if (critical !== 0) {
       return 'CRITICAL';
@@ -435,7 +433,7 @@ export class SbomAnalyzer {
    */
   private static calculateComplianceStatus(
     riskLicenses: SbomLicenseV2[],
-    proprietaryLicenses: SbomLicenseV2[]
+    proprietaryLicenses: SbomLicenseV2[],
   ): 'COMPLIANT' | 'AT_RISK' | 'NON_COMPLIANT' {
     if (riskLicenses.length !== 0 || proprietaryLicenses.length > 2) {
       return 'NON_COMPLIANT';
@@ -451,7 +449,7 @@ export class SbomAnalyzer {
    * @private
    */
   private static getHighestSeverity(
-    vulnerabilities: SbomVulnerabilityV2[]
+    vulnerabilities: SbomVulnerabilityV2[],
   ): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'NONE' {
     if (vulnerabilities.length === 0) {
       return 'NONE';
@@ -484,19 +482,19 @@ export class SbomAnalyzer {
   private static generateSecurityRecommendations(
     critical: SbomVulnerabilityV2[],
     high: SbomVulnerabilityV2[],
-    outdated: SbomComponentV2[]
+    outdated: SbomComponentV2[],
   ): string[] {
     const recommendations = [];
 
     if (critical.length > 0) {
       recommendations.push(
-        `🚨 URGENT: Address ${critical.length.toString()} critical vulnerabilities immediately`
+        `🚨 URGENT: Address ${critical.length.toString()} critical vulnerabilities immediately`,
       );
       const criticalComponents = new Set(
-        critical.flatMap((v) => v.affects.map((a) => a.componentId))
+        critical.flatMap((v) => v.affects.map((a) => a.componentId)),
       );
       recommendations.push(
-        `Critical components: ${Array.from(criticalComponents).slice(0, 3).join(', ')}${criticalComponents.size > 3 ? '...' : ''}`
+        `Critical components: ${Array.from(criticalComponents).slice(0, 3).join(', ')}${criticalComponents.size > 3 ? '...' : ''}`,
       );
     }
 
@@ -506,7 +504,7 @@ export class SbomAnalyzer {
 
     if (outdated.length > 0) {
       recommendations.push(
-        `📅 Update ${outdated.length.toString()} outdated components to latest versions`
+        `📅 Update ${outdated.length.toString()} outdated components to latest versions`,
       );
     }
 
@@ -518,7 +516,7 @@ export class SbomAnalyzer {
     critical.slice(0, 3).forEach((vuln) => {
       if (vuln.fixes && vuln.fixes.length > 0) {
         recommendations.push(
-          `Fix ${vuln.id}: Upgrade to version ${vuln.fixes[0]?.version ?? 'unknown'}`
+          `Fix ${vuln.id}: Upgrade to version ${vuln.fixes[0]?.version ?? 'unknown'}`,
         );
       }
     });
@@ -533,34 +531,34 @@ export class SbomAnalyzer {
   private static generateLicenseRecommendations(
     risk: SbomLicenseV2[],
     copyleft: SbomLicenseV2[],
-    proprietary: SbomLicenseV2[]
+    proprietary: SbomLicenseV2[],
   ): string[] {
     const recommendations = [];
 
     if (risk.length > 0) {
       recommendations.push(
-        `⚖️  Review ${risk.length.toString()} high-risk licenses for compliance`
+        `⚖️  Review ${risk.length.toString()} high-risk licenses for compliance`,
       );
       recommendations.push(
         `High-risk licenses: ${risk
           .map((l) => l.name)
           .slice(0, 3)
-          .join(', ')}`
+          .join(', ')}`,
       );
     }
 
     if (copyleft.length > 0) {
       recommendations.push(
-        `📋 Verify compliance requirements for ${copyleft.length.toString()} copyleft licenses`
+        `📋 Verify compliance requirements for ${copyleft.length.toString()} copyleft licenses`,
       );
       recommendations.push(
-        'Ensure source code disclosure obligations are met for copyleft dependencies'
+        'Ensure source code disclosure obligations are met for copyleft dependencies',
       );
     }
 
     if (proprietary.length > 0) {
       recommendations.push(
-        `💼 Review ${proprietary.length.toString()} proprietary licenses for usage rights`
+        `💼 Review ${proprietary.length.toString()} proprietary licenses for usage rights`,
       );
     }
 
@@ -571,7 +569,7 @@ export class SbomAnalyzer {
     // Specific license recommendations
     if (copyleft.length > 5) {
       recommendations.push(
-        'Consider reducing copyleft dependencies to minimize compliance overhead'
+        'Consider reducing copyleft dependencies to minimize compliance overhead',
       );
     }
 

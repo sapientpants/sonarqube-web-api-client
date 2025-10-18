@@ -135,7 +135,7 @@ export class DeprecationManager {
  * Decorator for deprecating methods
  */
 export function deprecated(
-  context: Omit<DeprecationContext, 'api'>
+  context: Omit<DeprecationContext, 'api'>,
 ): (target: any, propertyKey: string, descriptor?: PropertyDescriptor) => any {
   return function (target: any, propertyKey: string, descriptor?: PropertyDescriptor): any {
     // Handle both legacy and modern decorator usage

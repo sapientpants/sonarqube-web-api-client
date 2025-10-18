@@ -46,12 +46,12 @@ export class FixSuggestionsClient extends BaseClient implements IFixSuggestionsC
    * ```
    */
   async getIssueAvailabilityV2(
-    params: GetIssueAvailabilityV2Request
+    params: GetIssueAvailabilityV2Request,
   ): Promise<FixSuggestionAvailabilityV2Response> {
     const query = this.buildV2Query(params as unknown as Record<string, unknown>);
 
     return this.request<FixSuggestionAvailabilityV2Response>(
-      `/api/v2/fix-suggestions/issues?${query}`
+      `/api/v2/fix-suggestions/issues?${query}`,
     );
   }
 
@@ -82,12 +82,11 @@ export class FixSuggestionsClient extends BaseClient implements IFixSuggestionsC
    * ```
    */
   async requestAiSuggestionsV2(
-    params: RequestAiSuggestionsV2Request
+    params: RequestAiSuggestionsV2Request,
   ): Promise<AiSuggestionResponseV2> {
     return this.request<AiSuggestionResponseV2>('/api/v2/fix-suggestions/ai-suggestions', {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params),

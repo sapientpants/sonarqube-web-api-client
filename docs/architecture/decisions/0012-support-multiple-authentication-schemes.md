@@ -9,17 +9,21 @@ Accepted
 ## Context
 
 SonarQube supports multiple authentication methods for API access:
+
 - Bearer Token (most common)
 - HTTP Basic Authentication (username/password)
 - X-Sonar-Passcode header (for system passcode authentication)
 
-Our client library initially only supported Bearer token authentication, hardcoded throughout the codebase. This limitation prevented users from utilizing alternative authentication methods that might be required in their environments.
+Our client library initially only supported Bearer token authentication, hardcoded throughout the codebase. This
+limitation prevented users from utilizing alternative authentication methods that might be required in their
+environments.
 
 ## Decision
 
 We have implemented an authentication provider pattern that allows flexible authentication schemes:
 
 1. **AuthProvider Interface**: A simple interface that all authentication providers implement:
+
    ```typescript
    interface AuthProvider {
      applyAuth(headers: Headers): Headers;
@@ -38,7 +42,9 @@ We have implemented an authentication provider pattern that allows flexible auth
    - `SonarQubeClient.withPasscode(baseUrl, passcode, options?)`
    - `SonarQubeClient.withAuth(baseUrl, authProvider, options?)` for custom providers
 
-4. **Breaking Change**: Since we're not concerned with backward compatibility (as specified by the user), the constructor now accepts an `AuthProvider` as the second parameter. For convenience, it still accepts a string token which is automatically converted to a `BearerTokenAuthProvider`.
+4. **Breaking Change**: Since we're not concerned with backward compatibility (as specified by the user), the
+   constructor now accepts an `AuthProvider` as the second parameter. For convenience, it still accepts a string
+   token which is automatically converted to a `BearerTokenAuthProvider`.
 
 ## Consequences
 
@@ -80,7 +86,7 @@ const customAuth: AuthProvider = {
   },
   getAuthType(): 'none' {
     return 'none';
-  }
+  },
 };
 const client = SonarQubeClient.withAuth('https://sonar.example.com', customAuth);
 ```

@@ -8,14 +8,16 @@ Accepted
 
 ## Context
 
-We need to design a TypeScript client for the SonarQube Web API that will support dozens of different API endpoints across multiple resource domains (projects, issues, users, rules, quality gates, etc.). The client needs to be:
+We need to design a TypeScript client for the SonarQube Web API that will support dozens of different API endpoints across
+multiple resource domains (projects, issues, users, rules, quality gates, etc.). The client needs to be:
 
 - Easy to extend with new endpoints
 - Intuitive to use with good discoverability
 - Type-safe with proper TypeScript support
 - Maintainable as the API evolves
 
-The SonarQube API is organized around resources, with each resource having multiple operations (CRUD operations, search, bulk operations, etc.).
+The SonarQube API is organized around resources, with each resource having multiple operations (CRUD operations, search,
+bulk operations, etc.).
 
 ## Decision
 
@@ -27,6 +29,7 @@ We will organize the client using a modular resource-based design where:
 4. Resource modules inherit from a base class that provides common HTTP functionality
 
 Example structure:
+
 ```typescript
 const client = new SonarQubeClient(config);
 client.projects.search({ query: 'my-project' });

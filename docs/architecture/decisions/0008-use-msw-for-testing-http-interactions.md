@@ -23,22 +23,21 @@ We need a reliable way to test HTTP interactions without hitting real APIs while
 We will use Mock Service Worker (MSW) for intercepting and mocking HTTP requests in tests. MSW provides:
 
 1. **Request interception at the network level**:
+
    ```typescript
    import { setupServer } from 'msw/node';
    import { rest } from 'msw';
-   
+
    const server = setupServer(
      rest.get('https://sonarqube.example.com/api/projects/search', (req, res, ctx) => {
        return res(
          ctx.status(200),
          ctx.json({
-           components: [
-             { key: 'project1', name: 'Project 1' }
-           ],
-           paging: { pageIndex: 1, pageSize: 100, total: 1 }
-         })
+           components: [{ key: 'project1', name: 'Project 1' }],
+           paging: { pageIndex: 1, pageSize: 100, total: 1 },
+         }),
        );
-     })
+     }),
    );
    ```
 
@@ -48,18 +47,19 @@ We will use Mock Service Worker (MSW) for intercepting and mocking HTTP requests
    - Matches actual network behavior
 
 3. **Test organization**:
+
    ```typescript
    beforeAll(() => server.listen());
    afterEach(() => server.resetHandlers());
    afterAll(() => server.close());
-   
+
    test('handles API errors', async () => {
      server.use(
        rest.get('*/api/issues/search', (req, res, ctx) => {
          return res(ctx.status(500), ctx.json({ error: 'Internal Server Error' }));
-       })
+       }),
      );
-     
+
      await expect(client.issues.search()).rejects.toThrow(ApiError);
    });
    ```

@@ -17,7 +17,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
   CreateCustomRuleV2Response
 > {
   constructor(
-    executor: (request: CreateCustomRuleV2Request) => Promise<CreateCustomRuleV2Response>
+    executor: (request: CreateCustomRuleV2Request) => Promise<CreateCustomRuleV2Response>,
   ) {
     super(executor);
     // Initialize with empty request
@@ -163,7 +163,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
     const validation = await this.validate({ strict: true });
     if (!validation.valid && validation.errors) {
       throw new Error(
-        `Invalid rule configuration: ${validation.errors.map((e) => e.message).join(', ')}`
+        `Invalid rule configuration: ${validation.errors.map((e) => e.message).join(', ')}`,
       );
     }
 
@@ -191,7 +191,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
   }
 
   private validateTemplateKey(
-    errors: Array<{ field: string; message: string; code?: string }>
+    errors: Array<{ field: string; message: string; code?: string }>,
   ): void {
     if (this.params.templateKey === undefined || this.params.templateKey === '') {
       errors.push({
@@ -223,7 +223,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
 
   private validateDescription(
     errors: Array<{ field: string; message: string; code?: string }>,
-    warnings: Array<{ field: string; message: string; suggestion?: string }>
+    warnings: Array<{ field: string; message: string; suggestion?: string }>,
   ): void {
     if (this.params.markdownDescription === undefined || this.params.markdownDescription === '') {
       errors.push({
@@ -246,7 +246,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
 
   private validateParameters(
     errors: Array<{ field: string; message: string; code?: string }>,
-    warnings: Array<{ field: string; message: string; suggestion?: string }>
+    warnings: Array<{ field: string; message: string; suggestion?: string }>,
   ): void {
     if (!this.params.parameters) {
       return;
@@ -260,7 +260,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
   private validateSingleParameter(
     param: { key: string; value: string },
     errors: Array<{ field: string; message: string; code?: string }>,
-    warnings: Array<{ field: string; message: string; suggestion?: string }>
+    warnings: Array<{ field: string; message: string; suggestion?: string }>,
   ): void {
     if (param.key === '') {
       errors.push({
@@ -281,7 +281,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
 
   private buildValidationResult(
     errors: Array<{ field: string; message: string; code?: string }>,
-    warnings: Array<{ field: string; message: string; suggestion?: string }>
+    warnings: Array<{ field: string; message: string; suggestion?: string }>,
   ): RuleValidationResult {
     const result: RuleValidationResult = { valid: errors.length === 0 };
 

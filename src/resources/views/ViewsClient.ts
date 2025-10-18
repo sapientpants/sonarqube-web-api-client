@@ -68,7 +68,6 @@ export class ViewsClient extends BaseClient {
     await this.request('/api/views/add_application', {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: formData.toString(),
@@ -107,7 +106,6 @@ export class ViewsClient extends BaseClient {
     await this.request('/api/views/add_application_branch', {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: formData.toString(),
@@ -181,7 +179,6 @@ export class ViewsClient extends BaseClient {
     await this.request('/api/views/update', {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: formData.toString(),

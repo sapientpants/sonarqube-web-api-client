@@ -77,18 +77,18 @@ export class SetSettingBuilder extends BaseBuilder<SetRequest> {
     ) {
       throw new ValidationError(
         'Either value, values, or fieldValues must be provided',
-        'MISSING_VALUE'
+        'MISSING_VALUE',
       );
     }
 
     // Validate that only one value type is provided
     const valueTypes = [this.params.value, this.params.values, this.params.fieldValues].filter(
-      Boolean
+      Boolean,
     );
     if (valueTypes.length > 1) {
       throw new ValidationError(
         'Only one of value, values, or fieldValues can be provided',
-        'MULTIPLE_VALUE_TYPES'
+        'MULTIPLE_VALUE_TYPES',
       );
     }
 
@@ -166,7 +166,7 @@ export class ValuesBuilder extends BaseBuilder<ValuesRequest, ValuesResponse> {
     if (isValidParam(this.params.component) && isValidParam(this.params.organization)) {
       throw new ValidationError(
         'Both component and organization parameters cannot be used together',
-        'CONFLICTING_PARAMS'
+        'CONFLICTING_PARAMS',
       );
     }
 

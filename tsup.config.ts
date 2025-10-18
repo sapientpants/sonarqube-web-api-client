@@ -10,5 +10,5 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   target: 'es2020',
-  outDir: 'dist'
+  outDir: 'dist',
 });

@@ -45,7 +45,7 @@ export class RulesClient extends BaseClient {
    */
   search(): SearchRulesBuilder {
     return new SearchRulesBuilder(async (params: SearchRulesRequest) =>
-      this.searchExecutor(params)
+      this.searchExecutor(params),
     );
   }
 

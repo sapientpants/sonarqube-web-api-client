@@ -28,10 +28,11 @@ We need to design an elegant way to handle large result sets that is both develo
 We will implement async iterators (Symbol.asyncIterator) for automatic pagination handling. This approach will:
 
 1. **Provide a `searchAll()` method variant** for paginated endpoints:
+
    ```typescript
    // Regular method returns single page
    const page = await client.issues.search({ projectKey: 'my-project' });
-   
+
    // searchAll variant returns async iterator
    for await (const issue of client.issues.searchAll({ projectKey: 'my-project' })) {
      console.log(issue);
@@ -45,6 +46,7 @@ We will implement async iterators (Symbol.asyncIterator) for automatic paginatio
    - Stopping when all pages are consumed
 
 3. **Support early termination**:
+
    ```typescript
    for await (const issue of client.issues.searchAll()) {
      if (issue.severity === 'BLOCKER') {
@@ -54,10 +56,11 @@ We will implement async iterators (Symbol.asyncIterator) for automatic paginatio
    ```
 
 4. **Provide utility methods** for common operations:
+
    ```typescript
    // Convert to array (loads all pages)
    const allIssues = await client.issues.searchAll().toArray();
-   
+
    // Take first N items
    const first100 = await client.issues.searchAll().take(100).toArray();
    ```

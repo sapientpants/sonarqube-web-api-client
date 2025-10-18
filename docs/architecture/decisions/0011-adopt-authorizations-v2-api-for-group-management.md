@@ -8,9 +8,12 @@ Accepted
 
 ## Context
 
-SonarQube 10.5 introduced a new Authorizations v2 API that consolidates group management and permissions under a unified interface. This replaces the legacy `api/user_groups` endpoint with a modern REST-compliant API at `api/v2/authorizations`.
+SonarQube 10.5 introduced a new Authorizations v2 API that consolidates group management and permissions under a
+unified interface. This replaces the legacy `api/user_groups` endpoint with a modern REST-compliant API at
+`api/v2/authorizations`.
 
 The v2 API offers several improvements:
+
 - RESTful design with proper HTTP verbs (GET, POST, PATCH, DELETE)
 - UUID-based identification instead of keys/logins
 - Dedicated endpoints for group membership management
@@ -18,11 +21,13 @@ The v2 API offers several improvements:
 - Consistent pagination structure with other v2 APIs
 - Clearer separation between managed and non-managed groups
 
-Since the UserGroupsClient was not yet released (still in the Unreleased section of CHANGELOG), we had the opportunity to skip the v1 implementation entirely and go directly to v2.
+Since the UserGroupsClient was not yet released (still in the Unreleased section of CHANGELOG), we had the
+opportunity to skip the v1 implementation entirely and go directly to v2.
 
 ## Decision
 
-We will implement only the Authorizations v2 API for group management, skipping the legacy user_groups API entirely. This means:
+We will implement only the Authorizations v2 API for group management, skipping the legacy user_groups API entirely.
+This means:
 
 1. No UserGroupsClient will be released
 2. Users will use `client.authorizations` for all group management operations
@@ -55,19 +60,20 @@ The AuthorizationsClient provides:
 
 ```typescript
 // Group CRUD operations
-client.authorizations.searchGroupsV2()
-client.authorizations.createGroupV2(data)
-client.authorizations.getGroupV2(id)
-client.authorizations.updateGroupV2(id, data)
-client.authorizations.deleteGroupV2(id)
+client.authorizations.searchGroupsV2();
+client.authorizations.createGroupV2(data);
+client.authorizations.getGroupV2(id);
+client.authorizations.updateGroupV2(id, data);
+client.authorizations.deleteGroupV2(id);
 
 // Membership management
-client.authorizations.searchGroupMembershipsV2()
-client.authorizations.addGroupMembershipV2(data)
-client.authorizations.removeGroupMembershipV2(id)
+client.authorizations.searchGroupMembershipsV2();
+client.authorizations.addGroupMembershipV2(data);
+client.authorizations.removeGroupMembershipV2(id);
 ```
 
 All methods follow v2 conventions:
+
 - Builder pattern for search operations
 - UUID-based identification
 - Proper HTTP verbs
@@ -76,6 +82,6 @@ All methods follow v2 conventions:
 
 ## References
 
-- SonarQube Web API v2 Documentation: https://next.sonarqube.com/sonarqube/web_api_v2
+- SonarQube Web API v2 Documentation: <https://next.sonarqube.com/sonarqube/web_api_v2>
 - SonarQube 10.5 Release Notes
 - ADR-0010: Adopt Parallel v1/v2 API Pattern (related pattern)

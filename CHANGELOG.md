@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.11.3
+
+### Patch Changes
+
+- [#129](https://github.com/sapientpants/sonarqube-web-api-client/pull/129) [`c50d226`](https://github.com/sapientpants/sonarqube-web-api-client/commit/c50d2266e1c9b13e65d85e2f27fe57f679df21bb) - Improve code quality by fixing 172 SonarQube issues
+
+  Fixed all SonarQube code quality issues including:
+  - Replaced `.forEach()` with `for...of` loops for better performance
+  - Modernized to use `Number.parseInt` and `Number.isNaN`
+  - Improved promise handling patterns (replaced `Promise.resolve()`/`Promise.reject()` with direct returns/throws)
+  - Updated to `String.fromCodePoint` for Unicode safety
+  - Added type annotations for better type safety
+
+  All changes maintain existing behavior while improving code quality, performance, and maintainability.
+
 ## 0.11.2
 
 ### Patch Changes

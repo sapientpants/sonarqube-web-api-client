@@ -147,9 +147,8 @@ export class CleanCodePolicyClient extends BaseClient {
     request: CreateCustomRuleV2Request,
     options?: ValidateCustomRuleOptions,
   ): Promise<RuleValidationResult> {
-    const builder = new CreateCustomRuleV2Builder(async () =>
-      Promise.resolve({} as CreateCustomRuleV2Response),
-    );
+    // eslint-disable-next-line @typescript-eslint/require-await
+    const builder = new CreateCustomRuleV2Builder(async () => ({}) as CreateCustomRuleV2Response);
 
     // Set all parameters from the request
     if (request.key) {
@@ -192,14 +191,13 @@ export class CleanCodePolicyClient extends BaseClient {
    * });
    * ```
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async listTemplates(_options?: ListRuleTemplatesOptions): Promise<RuleTemplate[]> {
     // This is a placeholder for future API expansion
     // Currently, rule templates must be fetched through the v1 Rules API
-    return Promise.reject(
-      new Error(
-        'Template listing is not yet available in the v2 API. ' +
-          'Use the v1 Rules API with is_template=true parameter.',
-      ),
+    throw new Error(
+      'Template listing is not yet available in the v2 API. ' +
+        'Use the v1 Rules API with is_template=true parameter.',
     );
   }
 
@@ -218,13 +216,12 @@ export class CleanCodePolicyClient extends BaseClient {
    * const template = await client.cleanCodePolicy.getTemplate('javascript:S1234');
    * ```
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getTemplate(_templateKey: string): Promise<RuleTemplate> {
     // This is a placeholder for future API expansion
-    return Promise.reject(
-      new Error(
-        'Template fetching is not yet available in the v2 API. ' +
-          'Use the v1 Rules API to fetch template details.',
-      ),
+    throw new Error(
+      'Template fetching is not yet available in the v2 API. ' +
+        'Use the v1 Rules API to fetch template details.',
     );
   }
 

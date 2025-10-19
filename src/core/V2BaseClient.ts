@@ -37,7 +37,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     }
 
     const contentLength = response.headers.get('content-length');
-    const total = contentLength !== null ? parseInt(contentLength, 10) : 0;
+    const total = contentLength !== null ? Number.parseInt(contentLength, 10) : 0;
 
     if (!response.body) {
       throw new Error('Response body is null');
@@ -141,9 +141,9 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     // Merge with any headers from options
     if (options?.headers) {
       const optHeaders = new Headers(options.headers);
-      optHeaders.forEach((value, key) => {
+      for (const [key, value] of optHeaders) {
         headers.set(key, value);
-      });
+      }
     }
 
     try {
@@ -261,11 +261,11 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     params: Record<string, unknown>,
     excludeKeys: string[],
   ): void {
-    Object.entries(params).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null && !excludeKeys.includes(key)) {
         this.appendParameterValue(searchParams, key, value);
       }
-    });
+    }
   }
 
   /**

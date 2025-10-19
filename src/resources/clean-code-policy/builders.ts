@@ -134,7 +134,7 @@ export class CreateCustomRuleV2Builder extends BaseBuilder<
       this.validateParameters(errors, warnings);
     }
 
-    return Promise.resolve(this.buildValidationResult(errors, warnings));
+    return await Promise.resolve(this.buildValidationResult(errors, warnings));
   }
 
   /**

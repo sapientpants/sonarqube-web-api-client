@@ -8,7 +8,7 @@ export class BasicAuthProvider implements AuthProvider {
 
   constructor(username: string, password = '') {
     if (!username) {
-      throw new Error('Username is required for Basic authentication');
+      throw new TypeError('Username is required for Basic authentication');
     }
 
     const credentials = `${username}:${password}`;
@@ -16,7 +16,7 @@ export class BasicAuthProvider implements AuthProvider {
       this.encodedCredentials = Buffer.from(credentials).toString('base64');
     } else {
       const utf8Bytes = new TextEncoder().encode(credentials);
-      const binaryString = Array.from(utf8Bytes, (byte) => String.fromCharCode(byte)).join('');
+      const binaryString = Array.from(utf8Bytes, (byte) => String.fromCodePoint(byte)).join('');
       this.encodedCredentials = btoa(binaryString);
     }
   }

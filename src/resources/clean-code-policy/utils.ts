@@ -33,7 +33,7 @@ export const ruleKeyUtils = {
    */
   generateKey: (name: string, prefix?: string): string => {
     // Convert to lowercase and replace spaces/special chars with hyphens
-    let key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    let key: string = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
     // Remove leading and trailing hyphens
     // Find first non-hyphen character using search
@@ -247,14 +247,14 @@ export const patternBuilder = {
    * ```
    */
   methodCallPattern(objectName: string, methodName?: string, _flags?: string): string {
-    const escapedObject = objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedObject: string = objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     if (methodName !== undefined && methodName !== '') {
-      const escapedMethod = methodName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      return `\\b${escapedObject}\\s*\\.\\s*${escapedMethod}\\s*\\(`;
+      const escapedMethod: string = methodName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return String.raw`\b${escapedObject}\s*\.\s*${escapedMethod}\s*\(`;
     }
 
-    return `\\b${escapedObject}\\s*\\.\\s*\\w+\\s*\\(`;
+    return String.raw`\b${escapedObject}\s*\.\s*\w+\s*\(`;
   },
 
   /**
@@ -268,14 +268,14 @@ export const patternBuilder = {
     text: string,
     quoteTypes: Array<'"' | "'" | '`'> = ['"', "'", '`'],
   ): string {
-    const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedText: string = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const quotePatterns = quoteTypes.map((quote) => {
       if (quote === '`') {
         // Template literals can span multiple lines - use non-greedy matching
         return `${quote}[^${quote}]*?${escapedText}[^${quote}]*?${quote}`;
       }
       // Use non-greedy matching to prevent ReDoS
-      return `${quote}[^${quote}\\n]*?${escapedText}[^${quote}\\n]*?${quote}`;
+      return String.raw`${quote}[^${quote}\n]*?${escapedText}[^${quote}\n]*?${quote}`;
     });
 
     return `(${quotePatterns.join('|')})`;
@@ -317,7 +317,7 @@ export const patternBuilder = {
 
     // Match single-line and multi-line comments
     // Use atomic groups to prevent ReDoS
-    return `(\\/\\/.*?\\b${flags}(${keywordPattern})\\b.*)|(\\/\\*(?:[^*]|\\*(?!\\/))*?\\b${flags}(${keywordPattern})\\b(?:[^*]|\\*(?!\\/))*?\\*\\/)`;
+    return String.raw`(\/\/.*?\b${flags}(${keywordPattern})\b.*)|(\/\*(?:[^*]|\*(?!\/))*?\b${flags}(${keywordPattern})\b(?:[^*]|\*(?!\/))*?\*\/)`;
   },
 };
 

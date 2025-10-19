@@ -327,14 +327,14 @@ export class IssuesClient extends BaseClient {
     const multipleCallParams = this.getMultipleCallParams();
     const parameterMapping = this.getParameterMapping();
 
-    Object.entries(params).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(params)) {
       if (value === undefined || value === null) {
-        return;
+        continue;
       }
 
       const apiKey = parameterMapping[key] ?? key;
       this.appendParameter(searchParams, key, value, apiKey, arrayParams, multipleCallParams);
-    });
+    }
 
     return searchParams;
   }
@@ -415,23 +415,65 @@ export class IssuesClient extends BaseClient {
     multipleCallParams: Array<keyof SearchIssuesRequest>,
   ): void {
     // Handle parameters that need multiple calls (e.g., authors)
-    if (multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
-      if (value.length > 0) {
-        value.forEach((singleValue) => {
-          if (typeof singleValue === 'string') {
-            searchParams.append(apiKey, singleValue);
-          }
-        });
+    if (this.shouldAppendAsMultipleCalls(key, value, multipleCallParams)) {
+      this.appendMultipleValues(searchParams, apiKey, value as unknown[]);
+      return;
+    }
+
+    // Handle normal array parameters (comma-separated)
+    if (this.shouldAppendAsArray(key, value, arrayParams)) {
+      this.appendArrayValue(searchParams, apiKey, value as unknown[]);
+      return;
+    }
+
+    // Handle primitive types
+    this.appendPrimitiveValue(searchParams, apiKey, value);
+  }
+
+  private shouldAppendAsMultipleCalls(
+    key: string,
+    value: unknown,
+    multipleCallParams: Array<keyof SearchIssuesRequest>,
+  ): boolean {
+    return multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value);
+  }
+
+  private shouldAppendAsArray(
+    key: string,
+    value: unknown,
+    arrayParams: Array<keyof SearchIssuesRequest>,
+  ): boolean {
+    return arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value);
+  }
+
+  private appendMultipleValues(
+    searchParams: URLSearchParams,
+    apiKey: string,
+    values: unknown[],
+  ): void {
+    if (values.length === 0) {
+      return;
+    }
+
+    for (const singleValue of values) {
+      if (typeof singleValue === 'string') {
+        searchParams.append(apiKey, singleValue);
       }
     }
-    // Handle normal array parameters (comma-separated)
-    else if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
-      if (value.length > 0) {
-        searchParams.append(apiKey, value.join(','));
-      }
-    } else if (typeof value === 'boolean') {
-      searchParams.append(apiKey, value.toString());
-    } else if (typeof value === 'number' || typeof value === 'string') {
+  }
+
+  private appendArrayValue(searchParams: URLSearchParams, apiKey: string, values: unknown[]): void {
+    if (values.length > 0) {
+      searchParams.append(apiKey, values.join(','));
+    }
+  }
+
+  private appendPrimitiveValue(
+    searchParams: URLSearchParams,
+    apiKey: string,
+    value: unknown,
+  ): void {
+    if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
       searchParams.append(apiKey, value.toString());
     }
   }
@@ -521,14 +563,14 @@ export class IssuesClient extends BaseClient {
     const dateParams = ['createdAfter', 'createdBefore', 'createdAt'] as const;
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-    dateParams.forEach((param) => {
+    for (const param of dateParams) {
       const value = params[param];
       if (value !== undefined && value !== '' && !dateRegex.test(value)) {
         throw new Error(
           `Parameter "${param}" must be in YYYY-MM-DD format. Current value: "${value}". Example: "2023-01-15".`,
         );
       }
-    });
+    }
   }
 
   /**
@@ -585,14 +627,14 @@ export class IssuesClient extends BaseClient {
       languages: 20,
     } as const;
 
-    Object.entries(arrayLimits).forEach(([paramName, limit]) => {
+    for (const [paramName, limit] of Object.entries(arrayLimits)) {
       const value = params[paramName as keyof typeof arrayLimits];
       if (Array.isArray(value) && value.length > limit) {
         throw new Error(
           `Parameter "${paramName}" cannot contain more than ${String(limit)} items. Current count: ${String(value.length)}. Consider splitting your request into multiple calls or using more specific filters.`,
         );
       }
-    });
+    }
   }
 
   /**

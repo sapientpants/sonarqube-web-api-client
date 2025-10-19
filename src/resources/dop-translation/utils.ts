@@ -803,7 +803,7 @@ export class AuthenticationHelper {
     const requiredScopes: string[] = [];
     for (const operation of operations) {
       const scopes = platformScopes[operation];
-      if (scopes !== undefined) {
+      if (scopes) {
         requiredScopes.push(...scopes);
       }
     }

@@ -264,5 +264,8 @@ if (require.main === module) {
   };
 
   const cli = new MigrationCLI(options);
-  void cli.run().catch(console.error);
+  cli.run().catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
 }

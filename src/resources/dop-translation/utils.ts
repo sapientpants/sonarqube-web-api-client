@@ -646,9 +646,9 @@ export class ProjectMapper {
     organization: string,
     repository: string,
   ): string {
-    const prefix = platform.toLowerCase().replace(/-/g, '_');
-    const cleanOrg = organization.replace(/\W/g, '_');
-    const cleanRepo = repository.replace(/\W/g, '_');
+    const prefix = platform.toLowerCase().replaceAll('-', '_');
+    const cleanOrg = organization.replaceAll(/\W/g, '_');
+    const cleanRepo = repository.replaceAll(/\W/g, '_');
     return `${prefix}_${cleanOrg}_${cleanRepo}`;
   }
 }

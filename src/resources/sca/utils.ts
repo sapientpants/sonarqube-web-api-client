@@ -326,7 +326,7 @@ export class SbomAnalyzer {
           NONE: 0,
         };
         const severityDiff = severityOrder[b.highestSeverity] - severityOrder[a.highestSeverity];
-        return severityDiff ? severityDiff : b.vulnerabilityCount - a.vulnerabilityCount;
+        return severityDiff || b.vulnerabilityCount - a.vulnerabilityCount;
       })
       .slice(0, limit);
   }
@@ -457,7 +457,7 @@ export class SbomAnalyzer {
 
     const severities = vulnerabilities
       .map((v) => v.cvss?.severity)
-      .filter((s): s is NonNullable<typeof s> => Boolean(s));
+      .filter((s): s is NonNullable<typeof s> => s !== undefined);
 
     if (severities.includes('CRITICAL')) {
       return 'CRITICAL';

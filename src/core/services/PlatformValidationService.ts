@@ -354,7 +354,7 @@ export namespace PlatformValidationService {
     }
 
     if (!rule.identifierFormat.test(identifier)) {
-      const suggestion = config !== undefined ? buildIdentifier(platform, config) : undefined;
+      const suggestion = config === undefined ? undefined : buildIdentifier(platform, config);
       warnings.push({
         field: 'identifier',
         message: `${platform} identifier should be in format "${rule.identifierExample}"`,

@@ -172,54 +172,54 @@ export class MigrationAssistant {
     if (urgentApis.length > 0) {
       guide += '## ⚠️ Urgent Migrations\n\n';
       guide += 'These APIs will be removed within 30 days:\n\n';
-      urgentApis.forEach((api) => {
+      for (const api of urgentApis) {
         const days = Math.ceil(
           (new Date(api.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
         );
         guide += `- **${api.api}** - ${days} days remaining\n`;
-      });
+      }
       guide += '\n';
     }
 
     // Add detailed migration instructions
     guide += '## Migration Instructions\n\n';
 
-    Object.entries(byRemovalDate)
-      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-      .forEach(([date, apis]) => {
-        guide += `### APIs to be removed on ${date}\n\n`;
+    for (const [date, apis] of Object.entries(byRemovalDate).sort(
+      ([a], [b]) => new Date(a).getTime() - new Date(b).getTime(),
+    )) {
+      guide += `### APIs to be removed on ${date}\n\n`;
 
-        apis.forEach((api) => {
-          guide += `#### ${api.api}\n\n`;
-          guide += `**Deprecated since:** ${api.deprecatedSince}\n\n`;
-          guide += `**Reason:** ${api.reason}\n\n`;
+      for (const api of apis) {
+        guide += `#### ${api.api}\n\n`;
+        guide += `**Deprecated since:** ${api.deprecatedSince}\n\n`;
+        guide += `**Reason:** ${api.reason}\n\n`;
 
-          if (api.replacement) {
-            guide += `**Replacement:** \`${api.replacement}\`\n\n`;
+        if (api.replacement) {
+          guide += `**Replacement:** \`${api.replacement}\`\n\n`;
+        }
+
+        if (api.breakingChanges && api.breakingChanges.length > 0) {
+          guide += '**Breaking Changes:**\n';
+          for (const change of api.breakingChanges) {
+            guide += `- ${change}\n`;
           }
+          guide += '\n';
+        }
 
-          if (api.breakingChanges && api.breakingChanges.length > 0) {
-            guide += '**Breaking Changes:**\n';
-            api.breakingChanges.forEach((change) => {
-              guide += `- ${change}\n`;
-            });
-            guide += '\n';
+        if (api.examples && api.examples.length > 0) {
+          guide += '**Examples:**\n\n';
+          for (const [i, ex] of api.examples.entries()) {
+            guide += MigrationAssistant.formatExampleSection(ex, i + 1);
           }
+        }
 
-          if (api.examples && api.examples.length > 0) {
-            guide += '**Examples:**\n\n';
-            api.examples.forEach((ex, i) => {
-              guide += MigrationAssistant.formatExampleSection(ex, i + 1);
-            });
-          }
+        if (api.migrationGuide) {
+          guide += `📖 [Full Migration Guide](${api.migrationGuide})\n\n`;
+        }
 
-          if (api.migrationGuide) {
-            guide += `📖 [Full Migration Guide](${api.migrationGuide})\n\n`;
-          }
-
-          guide += '---\n\n';
-        });
-      });
+        guide += '---\n\n';
+      }
+    }
 
     return guide;
   }

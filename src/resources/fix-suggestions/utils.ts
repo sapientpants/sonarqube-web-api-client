@@ -59,7 +59,7 @@ export class FixSuggestionUtils {
     };
 
     // Validate each code change
-    suggestion.changes.forEach((change) => {
+    for (const change of suggestion.changes) {
       // Check if file exists and is accessible
       if (!this.isFileAccessible(change.filePath)) {
         result.blockers.push({
@@ -71,7 +71,7 @@ export class FixSuggestionUtils {
       }
 
       // Validate line ranges
-      change.lineChanges.forEach((lineChange) => {
+      for (const lineChange of change.lineChanges) {
         if (lineChange.startLine > lineChange.endLine) {
           result.blockers.push({
             type: 'syntax_error',
@@ -122,8 +122,8 @@ export class FixSuggestionUtils {
             `Low confidence change at ${change.filePath}:${lineChange.startLine} (${lineChange.changeConfidence}%)`,
           );
         }
-      });
-    });
+      }
+    }
 
     // Calculate impact
     const filesAffected = suggestion.changes.length;
@@ -217,10 +217,10 @@ export class FixSuggestionUtils {
     );
     lines.push('');
 
-    suggestion.changes.forEach((change, index) => {
+    for (const [index, change] of suggestion.changes.entries()) {
       lines.push(`File ${index + 1}: ${change.filePath}`);
 
-      change.lineChanges.forEach((lineChange) => {
+      for (const lineChange of change.lineChanges) {
         if (lineChange.startLine === lineChange.endLine) {
           lines.push(`  Line ${lineChange.startLine}:`);
         } else {
@@ -229,29 +229,29 @@ export class FixSuggestionUtils {
 
         // Show original content
         const originalLines = lineChange.originalContent.split('\n');
-        originalLines.forEach((line) => {
+        for (const line of originalLines) {
           lines.push(`  - ${line}`);
-        });
+        }
 
         // Show new content
         const newLines = lineChange.newContent.split('\n');
-        newLines.forEach((line) => {
+        for (const line of newLines) {
           lines.push(`  + ${line}`);
-        });
+        }
 
         if (lineChange.changeReason) {
           lines.push(`    (${lineChange.changeReason})`);
         }
         lines.push('');
-      });
-    });
+      }
+    }
 
     // Add notes if present
     if (suggestion.notes && suggestion.notes.length > 0) {
       lines.push('Notes:');
-      suggestion.notes.forEach((note) => {
+      for (const note of suggestion.notes) {
         lines.push(`  • ${note}`);
-      });
+      }
       lines.push('');
     }
 
@@ -260,15 +260,15 @@ export class FixSuggestionUtils {
       lines.push('Testing Guidance:');
       if (suggestion.testingGuidance.suggestedTests.length > 0) {
         lines.push('  Suggested Tests:');
-        suggestion.testingGuidance.suggestedTests.forEach((test) => {
+        for (const test of suggestion.testingGuidance.suggestedTests) {
           lines.push(`    • ${test}`);
-        });
+        }
       }
       if (suggestion.testingGuidance.riskAreas.length > 0) {
         lines.push('  Risk Areas:');
-        suggestion.testingGuidance.riskAreas.forEach((risk) => {
+        for (const risk of suggestion.testingGuidance.riskAreas) {
           lines.push(`    • ${risk}`);
-        });
+        }
       }
     }
 
@@ -297,15 +297,15 @@ export class FixSuggestionUtils {
     const bestPractices = new Set<string>();
     const languageTips: Record<string, Set<string>> = {};
 
-    suggestions.forEach((suggestion) => {
+    for (const suggestion of suggestions) {
       // Analyze common change patterns
-      suggestion.changes.forEach((change) => {
+      for (const change of suggestion.changes) {
         const language = change.fileMetadata?.language;
         if (language && !languageTips[language]) {
           languageTips[language] = new Set();
         }
 
-        change.lineChanges.forEach((lineChange) => {
+        for (const lineChange of change.lineChanges) {
           // Extract common patterns from changes
           if (lineChange.changeReason) {
             commonChanges.add(lineChange.changeReason);
@@ -317,15 +317,17 @@ export class FixSuggestionUtils {
               tips.add(lineChange.changeReason);
             }
           }
-        });
-      });
+        }
+      }
 
       // Extract best practices from references
-      suggestion.references?.forEach((ref) => {
-        if (ref.type === 'best_practice') {
-          bestPractices.add(ref.title);
+      if (suggestion.references) {
+        for (const ref of suggestion.references) {
+          if (ref.type === 'best_practice') {
+            bestPractices.add(ref.title);
+          }
         }
-      });
+      }
 
       // Extract patterns from explanations
       const explanation = suggestion.explanation.toLowerCase();
@@ -338,7 +340,7 @@ export class FixSuggestionUtils {
       if (explanation.includes('maintainability')) {
         commonChanges.add('Maintainability improvement');
       }
-    });
+    }
 
     return {
       commonChanges: Array.from(commonChanges),
@@ -395,12 +397,12 @@ export class FixSuggestionUtils {
     successRates: number[],
     patternCounts: Map<string, number>,
   ): void {
-    suggestions.forEach((suggestion) => {
+    for (const suggestion of suggestions) {
       this.categorizeByConfidence(suggestion, confidenceBuckets);
       complexityBuckets[suggestion.complexity]++;
       successRates.push(suggestion.successRate);
       this.countPatterns(suggestion, patternCounts);
-    });
+    }
   }
 
   private static categorizeByConfidence(
@@ -420,14 +422,14 @@ export class FixSuggestionUtils {
     suggestion: AiFixSuggestionV2,
     patternCounts: Map<string, number>,
   ): void {
-    suggestion.changes.forEach((change) => {
-      change.lineChanges.forEach((lineChange) => {
+    for (const change of suggestion.changes) {
+      for (const lineChange of change.lineChanges) {
         if (lineChange.changeReason) {
           const current = patternCounts.get(lineChange.changeReason) ?? 0;
           patternCounts.set(lineChange.changeReason, current + 1);
         }
-      });
-    });
+      }
+    }
   }
 
   private static calculateSuccessRateStats(successRates: number[]): {
@@ -775,7 +777,7 @@ export class FixSuggestionIntegration {
       await Promise.all(batchPromises);
 
       // Report progress
-      if (onProgress) {
+      if (onProgress && batch.length > 0) {
         const currentIssue = batch[batch.length - 1];
         onProgress({
           completed: successful.length + failed.length,

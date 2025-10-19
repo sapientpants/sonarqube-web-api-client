@@ -127,9 +127,9 @@ export class CompatibilityBridge {
     mappings: ApiMapping[] = UserApiV1ToV2Mappings,
   ): T {
     // Register all mappings
-    mappings.forEach((m) => {
+    for (const m of mappings) {
       CompatibilityBridge.register(m);
-    });
+    }
 
     // Return proxied client
     return CompatibilityBridge.createProxy(client);

@@ -104,15 +104,15 @@ export class SettingsClient extends BaseClient {
       }
 
       if (params.values) {
-        params.values.forEach((value) => {
+        for (const value of params.values) {
           body.append('values', value);
-        });
+        }
       }
 
       if (params.fieldValues) {
-        params.fieldValues.forEach((fieldValue) => {
+        for (const fieldValue of params.fieldValues) {
           body.append('fieldValues', JSON.stringify(fieldValue));
-        });
+        }
       }
 
       addParamIfValid(body, 'component', params.component);

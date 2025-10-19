@@ -569,10 +569,10 @@ export const ruleMigrationUtils = {
           lines.push(`  status: ${rule.status ?? 'READY'}`);
           if (rule.parameters && rule.parameters.length > 0) {
             lines.push(`  parameters:`);
-            rule.parameters.forEach((p) => {
+            for (const p of rule.parameters) {
               lines.push(`    - key: ${p.key}`);
               lines.push(`      value: "${p.value}"`);
-            });
+            }
           }
           return lines.join('\n');
         })

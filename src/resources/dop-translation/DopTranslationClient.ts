@@ -185,14 +185,14 @@ export class DopTranslationClient extends V2BaseClient {
 
     // Log warnings if any (in development only)
     if (validation.warnings.length > 0 && process.env['NODE_ENV'] !== 'production') {
-      validation.warnings.forEach((warning) => {
+      for (const warning of validation.warnings) {
         // eslint-disable-next-line no-console
         console.warn(`[DOP Translation] ${warning.field}: ${warning.message}`);
         if (warning.suggestion !== undefined && warning.suggestion !== '') {
           // eslint-disable-next-line no-console
           console.warn(`  Suggestion: ${warning.suggestion}`);
         }
-      });
+      }
     }
 
     return request;

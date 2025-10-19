@@ -45,9 +45,9 @@ export function assertNoAuthorizationHeader(request: Request): void {
  */
 export function assertQueryParams(request: Request, params: Record<string, string>): void {
   const url = new URL(request.url);
-  Object.entries(params).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(params)) {
     expect(url.searchParams.get(key)).toBe(value);
-  });
+  }
 }
 
 /**

@@ -167,7 +167,7 @@ export class RulesClient extends BaseClient {
     ];
 
     // Add parameters to search params
-    Object.entries(params).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) {
         // Assign key directly to apiKey
         const apiKey = key;
@@ -182,7 +182,7 @@ export class RulesClient extends BaseClient {
           searchParams.append(apiKey, value.toString());
         }
       }
-    });
+    }
 
     return this.request<SearchRulesResponse>(`/api/rules/search?${searchParams.toString()}`);
   }

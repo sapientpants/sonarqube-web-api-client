@@ -288,8 +288,8 @@ export class SbomAnalyzer {
     >();
 
     // Group vulnerabilities by component
-    vulnerabilities.forEach((vuln) => {
-      vuln.affects.forEach((affect) => {
+    for (const vuln of vulnerabilities) {
+      for (const affect of vuln.affects) {
         const component = sbom.components.find((c) => c.id === affect.componentId);
         if (component) {
           if (!componentVulns.has(affect.componentId)) {
@@ -303,8 +303,8 @@ export class SbomAnalyzer {
             componentData.vulnerabilities.push(vuln);
           }
         }
-      });
-    });
+      }
+    }
 
     return Array.from(componentVulns.values())
       .map(({ component, vulnerabilities: vulns }) => ({
@@ -513,13 +513,13 @@ export class SbomAnalyzer {
     }
 
     // Add specific CVE recommendations for critical vulnerabilities
-    critical.slice(0, 3).forEach((vuln) => {
+    for (const vuln of critical.slice(0, 3)) {
       if (vuln.fixes && vuln.fixes.length > 0) {
         recommendations.push(
           `Fix ${vuln.id}: Upgrade to version ${vuln.fixes[0]?.version ?? 'unknown'}`,
         );
       }
-    });
+    }
 
     return recommendations;
   }

@@ -6,8 +6,8 @@
  */
 
 import { DeprecationRegistry, MigrationAssistant } from '../index';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 interface MigrationOptions {
   projectPath: string;
@@ -69,12 +69,12 @@ class MigrationCLI {
     const report = MigrationAssistant.analyzeUsage(usageData);
     console.log(`\n📊 Found ${report.totalDeprecations} deprecated API calls:`);
 
-    Object.entries(report.byApi).forEach(([api, count]) => {
+    for (const [api, count] of Object.entries(report.byApi)) {
       const metadata = DeprecationRegistry.get(api);
       console.log(
         `   - ${api}: ${count} usage${count > 1 ? 's' : ''} (removes ${metadata?.removalDate ?? 'unknown'})`,
       );
-    });
+    }
 
     console.log(`\n⏱️  Estimated migration effort: ${report.estimatedEffort}`);
 
@@ -178,7 +178,7 @@ class MigrationCLI {
   private showMigrationPreview(report: Report): void {
     console.log('\n📝 Migration preview:');
 
-    report.suggestions.slice(0, 3).forEach((suggestion: Suggestion) => {
+    for (const suggestion of report.suggestions.slice(0, 3)) {
       console.log(`\n${suggestion.file}:${suggestion.line}`);
       console.log(`  ${suggestion.suggestion}`);
 
@@ -188,7 +188,7 @@ class MigrationCLI {
         console.log('\n  After:');
         console.log(`  ${suggestion.example.after.split('\n').join('\n  ')}`);
       }
-    });
+    }
 
     if (report.suggestions.length > 3) {
       console.log(`\n... and ${report.suggestions.length - 3} more`);
@@ -203,7 +203,7 @@ class MigrationCLI {
 
     // Check for urgent migrations
     const urgentApis = new Set<string>();
-    report.suggestions.forEach((s: Suggestion) => {
+    for (const s of report.suggestions) {
       const metadata = DeprecationRegistry.get(s.deprecatedApi);
       if (metadata) {
         const daysLeft = Math.ceil(
@@ -213,11 +213,11 @@ class MigrationCLI {
           urgentApis.add(s.deprecatedApi);
         }
       }
-    });
+    }
 
     if (urgentApis.size > 0) {
       console.log('\n⚠️  URGENT: The following APIs will be removed soon:');
-      urgentApis.forEach((api) => {
+      for (const api of urgentApis) {
         const metadata = DeprecationRegistry.get(api);
         if (metadata) {
           const daysLeft = Math.ceil(
@@ -225,7 +225,7 @@ class MigrationCLI {
           );
           console.log(`   - ${api} (${daysLeft} days left)`);
         }
-      });
+      }
     }
   }
 
@@ -264,7 +264,7 @@ if (require.main === module) {
   };
 
   const cli = new MigrationCLI(options);
-  cli.run().catch((error: unknown) => {
+  void cli.run().catch((error: unknown) => {
     console.error(error);
     process.exit(1);
   });

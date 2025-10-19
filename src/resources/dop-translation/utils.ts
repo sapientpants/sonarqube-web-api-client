@@ -74,7 +74,7 @@ export class PlatformDetector {
       {
         platform: DevOpsPlatform.GITHUB,
         pattern: /(?:https?:\/\/)?(?:www\.)?github\.com\/([^/\s?#]{1,100})\/([^/\s?#]{1,100})/,
-        confidence: 1.0,
+        confidence: 1,
         isEnterprise: false,
       },
       {
@@ -87,7 +87,7 @@ export class PlatformDetector {
       {
         platform: DevOpsPlatform.GITLAB,
         pattern: /(?:https?:\/\/)?(?:www\.)?gitlab\.com\/([^/\s?#]{1,100})\/([^/\s?#]{1,100})/,
-        confidence: 1.0,
+        confidence: 1,
         isEnterprise: false,
       },
       {
@@ -100,13 +100,13 @@ export class PlatformDetector {
       {
         platform: DevOpsPlatform.BITBUCKET,
         pattern: /(?:https?:\/\/)?(?:www\.)?bitbucket\.org\/([^/\s?#]{1,100})\/([^/\s?#]{1,100})/,
-        confidence: 1.0,
+        confidence: 1,
         isEnterprise: false,
       },
       {
         platform: DevOpsPlatform.AzureDevops,
         pattern: /(?:https?:\/\/)?dev\.azure\.com\/([^/\s]{1,100})\/([^/\s]{1,100})/,
-        confidence: 1.0,
+        confidence: 1,
         isEnterprise: false,
       },
       {
@@ -267,7 +267,7 @@ export class PlatformDetector {
   private static getDefaultResult(url: string): PlatformDetectionResult {
     return {
       platform: DevOpsPlatform.GITHUB,
-      confidence: 0.0,
+      confidence: 0,
       extractedInfo: { url },
     };
   }
@@ -646,9 +646,9 @@ export class ProjectMapper {
     organization: string,
     repository: string,
   ): string {
-    const prefix = platform.toLowerCase().replace('-', '_');
-    const cleanOrg = organization.replace(/\W/g, '_');
-    const cleanRepo = repository.replace(/\W/g, '_');
+    const prefix = platform.toLowerCase().replaceAll('-', '_');
+    const cleanOrg = organization.replaceAll(/\W/g, '_');
+    const cleanRepo = repository.replaceAll(/\W/g, '_');
     return `${prefix}_${cleanOrg}_${cleanRepo}`;
   }
 }
@@ -800,13 +800,7 @@ export class AuthenticationHelper {
 
     const platformScopes = scopeMap[platform];
 
-    const requiredScopes: string[] = [];
-    for (const operation of operations) {
-      const scopes = platformScopes[operation];
-      if (scopes) {
-        requiredScopes.push(...scopes);
-      }
-    }
+    const requiredScopes = operations.flatMap((operation) => platformScopes[operation] ?? []);
 
     return Array.from(new Set(requiredScopes));
   }

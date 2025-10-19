@@ -69,14 +69,14 @@ export function Deprecated(metadata: Omit<DeprecationMetadata, 'api'>) {
 
     // Copy over any properties from the original function
     Object.setPrototypeOf(wrapper, target);
-    Object.getOwnPropertyNames(target).forEach((prop) => {
+    for (const prop of Object.getOwnPropertyNames(target)) {
       if (prop !== 'length' && prop !== 'name' && prop !== 'prototype') {
         const descriptor = Object.getOwnPropertyDescriptor(target, prop);
         if (descriptor) {
           Object.defineProperty(wrapper, prop, descriptor);
         }
       }
-    });
+    }
 
     return wrapper;
   };

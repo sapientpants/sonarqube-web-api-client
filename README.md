@@ -3,7 +3,7 @@
 A modern TypeScript client library for the SonarQube/SonarCloud Web API with type-safe interfaces and comprehensive error
 handling.
 
-[![CI](https://github.com/sapientpants/sonarqube-web-api-client/actions/workflows/ci.yml/badge.svg)](https://github.com/sapientpants/sonarqube-web-api-client/actions/workflows/ci.yml)
+[![Main](https://github.com/sapientpants/sonarqube-web-api-client/actions/workflows/main.yml/badge.svg)](https://github.com/sapientpants/sonarqube-web-api-client/actions/workflows/main.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=bugs)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=sonarqube-web-api-client&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=sonarqube-web-api-client)

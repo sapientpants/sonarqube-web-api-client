@@ -315,7 +315,7 @@ export namespace PlatformValidationService {
         errors.push({
           field: `platformSpecific.${field}`,
           message: `${formatFieldName(field)} is required for ${platform}`,
-          code: `MISSING_${platform.toUpperCase()}_${field.toUpperCase().replace(/-/g, '_')}`,
+          code: `MISSING_${platform.toUpperCase()}_${field.toUpperCase()}`,
           platform,
         });
       }

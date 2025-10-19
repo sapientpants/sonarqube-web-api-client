@@ -29,7 +29,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
 
     const response = await fetch(`${this.baseUrl}${url}`, {
       headers,
-      ...(options?.signal !== undefined ? { signal: options.signal } : {}),
+      ...(options?.signal ? { signal: options.signal } : {}),
     });
 
     if (!response.ok) {

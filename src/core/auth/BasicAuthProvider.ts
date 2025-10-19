@@ -12,12 +12,12 @@ export class BasicAuthProvider implements AuthProvider {
     }
 
     const credentials = `${username}:${password}`;
-    if (typeof Buffer !== 'undefined') {
-      this.encodedCredentials = Buffer.from(credentials).toString('base64');
-    } else {
+    if (typeof Buffer === 'undefined') {
       const utf8Bytes = new TextEncoder().encode(credentials);
       const binaryString = Array.from(utf8Bytes, (byte) => String.fromCodePoint(byte)).join('');
       this.encodedCredentials = btoa(binaryString);
+    } else {
+      this.encodedCredentials = Buffer.from(credentials).toString('base64');
     }
   }
 

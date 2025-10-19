@@ -120,9 +120,8 @@ export class DeprecationManager {
       lines.push(`📖 Migration guide: ${context.migrationGuide}`);
     }
 
-    if (DeprecationManager.options.migrationMode === true) {
-      lines.push('');
-      lines.push('💡 Run `npx sonarqube-client-migrate` to automatically fix this usage');
+    if (DeprecationManager.options.migrationMode) {
+      lines.push('', '💡 Run `npx sonarqube-client-migrate` to automatically fix this usage');
     }
 
     lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

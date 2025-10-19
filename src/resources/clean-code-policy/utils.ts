@@ -33,7 +33,7 @@ export const ruleKeyUtils = {
    */
   generateKey: (name: string, prefix?: string): string => {
     // Convert to lowercase and replace spaces/special chars with hyphens
-    let key: string = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    let key: string = name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-');
 
     // Remove leading and trailing hyphens
     // Find first non-hyphen character using search
@@ -247,10 +247,10 @@ export const patternBuilder = {
    * ```
    */
   methodCallPattern(objectName: string, methodName?: string, _flags?: string): string {
-    const escapedObject: string = objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedObject: string = objectName.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     if (methodName !== undefined && methodName !== '') {
-      const escapedMethod: string = methodName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedMethod: string = methodName.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return String.raw`\b${escapedObject}\s*\.\s*${escapedMethod}\s*\(`;
     }
 
@@ -268,7 +268,7 @@ export const patternBuilder = {
     text: string,
     quoteTypes: Array<'"' | "'" | '`'> = ['"', "'", '`'],
   ): string {
-    const escapedText: string = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedText: string = text.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const quotePatterns = quoteTypes.map((quote) => {
       if (quote === '`') {
         // Template literals can span multiple lines - use non-greedy matching
@@ -365,7 +365,7 @@ export const messageTemplateUtils: {
    * ```
    */
   format(template: string, values: Record<string, string>): string {
-    return template.replace(/{(\w+)}/g, (match, key: string) => values[key] ?? match);
+    return template.replaceAll(/{(\w+)}/g, (match, key: string) => values[key] ?? match);
   },
 
   /**
@@ -563,7 +563,7 @@ export const ruleMigrationUtils = {
           lines.push(`  templateKey: ${rule.templateKey ?? ''}`);
           lines.push(`  name: ${rule.name}`);
           lines.push(`  markdownDescription: |`);
-          if (rule.markdownDescription !== undefined && rule.markdownDescription !== '') {
+          if (rule.markdownDescription && rule.markdownDescription !== '') {
             lines.push(...rule.markdownDescription.split('\n').map((l) => `    ${l}`));
           }
           lines.push(`  status: ${rule.status ?? 'READY'}`);

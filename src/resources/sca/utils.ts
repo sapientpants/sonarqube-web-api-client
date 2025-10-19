@@ -154,7 +154,7 @@ export class SbomFormatConverter {
    * @private
    */
   private static sanitizeId(id: string): string {
-    return id.replace(/[^a-zA-Z0-9.-]/g, '-');
+    return id.replaceAll(/[^a-zA-Z0-9.-]/g, '-');
   }
 }
 
@@ -326,7 +326,7 @@ export class SbomAnalyzer {
           NONE: 0,
         };
         const severityDiff = severityOrder[b.highestSeverity] - severityOrder[a.highestSeverity];
-        return severityDiff !== 0 ? severityDiff : b.vulnerabilityCount - a.vulnerabilityCount;
+        return severityDiff || b.vulnerabilityCount - a.vulnerabilityCount;
       })
       .slice(0, limit);
   }
@@ -538,8 +538,6 @@ export class SbomAnalyzer {
     if (risk.length > 0) {
       recommendations.push(
         `⚖️  Review ${risk.length.toString()} high-risk licenses for compliance`,
-      );
-      recommendations.push(
         `High-risk licenses: ${risk
           .map((l) => l.name)
           .slice(0, 3)
@@ -550,8 +548,6 @@ export class SbomAnalyzer {
     if (copyleft.length > 0) {
       recommendations.push(
         `📋 Verify compliance requirements for ${copyleft.length.toString()} copyleft licenses`,
-      );
-      recommendations.push(
         'Ensure source code disclosure obligations are met for copyleft dependencies',
       );
     }

@@ -122,8 +122,8 @@ export class MigrationAssistant {
    */
   private static apiToRegex(api: string): RegExp {
     // Handle method calls like "users.search()"
-    const escaped = api.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = escaped.replace(/\\(\\\(\\\))/g, '\\s*\\(');
+    const escaped = api.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = escaped.replaceAll(/\\(\\\(\\\))/g, '\\s*\\(');
     return new RegExp(pattern, 'g');
   }
 

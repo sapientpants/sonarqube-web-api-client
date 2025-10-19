@@ -314,11 +314,11 @@ export class FixSuggestionUtils {
    * @private
    */
   private static addPreviewHeader(suggestion: AiFixSuggestionV2, lines: string[]): void {
-    lines.push(`Fix: ${suggestion.explanation}`);
     lines.push(
+      `Fix: ${suggestion.explanation}`,
       `Confidence: ${suggestion.confidence}% | Complexity: ${suggestion.complexity} | Effort: ${suggestion.effortEstimate}`,
+      '',
     );
-    lines.push('');
   }
 
   /**
@@ -1043,7 +1043,7 @@ export class FixSuggestionIntegration {
         onProgress({
           completed: successful.length + failed.length,
           total: issueKeys.length,
-          ...(currentIssue && { current: currentIssue }),
+          ...(currentIssue !== undefined && { current: currentIssue }),
           errors: failed.length,
         });
       }

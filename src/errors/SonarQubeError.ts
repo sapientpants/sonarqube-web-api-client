@@ -45,7 +45,12 @@ export class ApiError extends SonarQubeError {
  */
 export class ValidationError extends SonarQubeError {
   constructor(message: string, field?: string) {
-    super(message, 'VALIDATION_ERROR', undefined, field !== undefined ? { field } : undefined);
+    super(
+      message,
+      'VALIDATION_ERROR',
+      undefined,
+      field !== undefined && field !== '' ? { field } : undefined,
+    );
   }
 }
 

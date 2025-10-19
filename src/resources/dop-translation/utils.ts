@@ -557,13 +557,13 @@ export class ProjectMapper {
       tags: tagList ?? [],
     };
 
-    if (pathWithNamespace !== undefined) {
-      result.key = pathWithNamespace.replace(/\//g, '_');
+    if (pathWithNamespace) {
+      result.key = pathWithNamespace.replaceAll('/', '_');
     }
-    if (name !== undefined) {
+    if (name) {
       result.name = name;
     }
-    if (description !== undefined && description !== null) {
+    if (description) {
       result.description = description;
     }
 

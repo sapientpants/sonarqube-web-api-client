@@ -264,11 +264,8 @@ if (require.main === module) {
   };
 
   const cli = new MigrationCLI(options);
-  void (async () => {
-    try {
-      await cli.run();
-    } catch (error) {
-      console.error(error);
-    }
-  })();
+  cli.run().catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
 }

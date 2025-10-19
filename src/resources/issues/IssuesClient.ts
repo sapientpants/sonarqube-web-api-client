@@ -415,21 +415,65 @@ export class IssuesClient extends BaseClient {
     multipleCallParams: Array<keyof SearchIssuesRequest>,
   ): void {
     // Handle parameters that need multiple calls (e.g., authors)
-    if (multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
-      if (value.length > 0) {
-        for (const singleValue of value) {
-          if (typeof singleValue === 'string') {
-            searchParams.append(apiKey, singleValue);
-          }
-        }
+    if (this.shouldAppendAsMultipleCalls(key, value, multipleCallParams)) {
+      this.appendMultipleValues(searchParams, apiKey, value as unknown[]);
+      return;
+    }
+
+    // Handle normal array parameters (comma-separated)
+    if (this.shouldAppendAsArray(key, value, arrayParams)) {
+      this.appendArrayValue(searchParams, apiKey, value as unknown[]);
+      return;
+    }
+
+    // Handle primitive types
+    this.appendPrimitiveValue(searchParams, apiKey, value);
+  }
+
+  private shouldAppendAsMultipleCalls(
+    key: string,
+    value: unknown,
+    multipleCallParams: Array<keyof SearchIssuesRequest>,
+  ): boolean {
+    return multipleCallParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value);
+  }
+
+  private shouldAppendAsArray(
+    key: string,
+    value: unknown,
+    arrayParams: Array<keyof SearchIssuesRequest>,
+  ): boolean {
+    return arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value);
+  }
+
+  private appendMultipleValues(
+    searchParams: URLSearchParams,
+    apiKey: string,
+    values: unknown[],
+  ): void {
+    if (values.length === 0) {
+      return;
+    }
+
+    for (const singleValue of values) {
+      if (typeof singleValue === 'string') {
+        searchParams.append(apiKey, singleValue);
       }
     }
-    // Handle normal array parameters (comma-separated)
-    else if (arrayParams.includes(key as keyof SearchIssuesRequest) && Array.isArray(value)) {
-      if (value.length > 0) {
-        searchParams.append(apiKey, value.join(','));
-      }
-    } else if (typeof value === 'boolean') {
+  }
+
+  private appendArrayValue(searchParams: URLSearchParams, apiKey: string, values: unknown[]): void {
+    if (values.length > 0) {
+      searchParams.append(apiKey, values.join(','));
+    }
+  }
+
+  private appendPrimitiveValue(
+    searchParams: URLSearchParams,
+    apiKey: string,
+    value: unknown,
+  ): void {
+    if (typeof value === 'boolean') {
       searchParams.append(apiKey, value.toString());
     } else if (typeof value === 'number' || typeof value === 'string') {
       searchParams.append(apiKey, value.toString());

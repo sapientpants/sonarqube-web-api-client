@@ -59,73 +59,166 @@ export class FixSuggestionUtils {
     };
 
     // Validate each code change
-    for (const change of suggestion.changes) {
-      // Check if file exists and is accessible
-      if (!this.isFileAccessible(change.filePath)) {
-        result.blockers.push({
-          type: 'permission',
-          message: `Cannot access file: ${change.filePath}`,
-          filePath: change.filePath,
-          severity: 'error',
-        });
-      }
-
-      // Validate line ranges
-      for (const lineChange of change.lineChanges) {
-        if (lineChange.startLine > lineChange.endLine) {
-          result.blockers.push({
-            type: 'syntax_error',
-            message: `Invalid line range: ${lineChange.startLine}-${lineChange.endLine}`,
-            filePath: change.filePath,
-            lineNumber: lineChange.startLine,
-            severity: 'error',
-          });
-        }
-
-        if (lineChange.startLine < 1) {
-          result.blockers.push({
-            type: 'syntax_error',
-            message: `Invalid start line: ${lineChange.startLine}`,
-            filePath: change.filePath,
-            lineNumber: lineChange.startLine,
-            severity: 'error',
-          });
-        }
-
-        // Check for potentially dangerous changes in strict mode
-        if (options.validationMode === 'strict') {
-          if (lineChange.newContent.includes('eval(') || lineChange.newContent.includes('exec(')) {
-            result.blockers.push({
-              type: 'validation_failed',
-              message: 'Code contains potentially dangerous functions',
-              filePath: change.filePath,
-              lineNumber: lineChange.startLine,
-              severity: 'error',
-            });
-          }
-        }
-
-        // Apply custom validation if provided
-        if (options.customValidation && !options.customValidation(change)) {
-          result.blockers.push({
-            type: 'validation_failed',
-            message: 'Custom validation failed',
-            filePath: change.filePath,
-            lineNumber: lineChange.startLine,
-            severity: 'error',
-          });
-        }
-
-        // Add warnings for low confidence changes
-        if (lineChange.changeConfidence && lineChange.changeConfidence < 80) {
-          result.warnings.push(
-            `Low confidence change at ${change.filePath}:${lineChange.startLine} (${lineChange.changeConfidence}%)`,
-          );
-        }
-      }
-    }
+    this.validateCodeChanges(suggestion.changes, options, result);
 
     // Calculate impact
+    this.calculateValidationImpact(suggestion, result);
+
+    result.canApply = result.blockers.length === 0;
+    return result;
+  }
+
+  /**
+   * Validate all code changes
+   * @private
+   */
+  private static validateCodeChanges(
+    changes: AiFixSuggestionV2['changes'],
+    options: FixApplicationOptions,
+    result: FixValidationResult,
+  ): void {
+    for (const change of changes) {
+      this.validateFileAccess(change.filePath, result);
+      this.validateLineChanges(change, options, result);
+    }
+  }
+
+  /**
+   * Validate file accessibility
+   * @private
+   */
+  private static validateFileAccess(filePath: string, result: FixValidationResult): void {
+    if (this.isFileAccessible(filePath)) {
+      return;
+    }
+
+    result.blockers.push({
+      type: 'permission',
+      message: `Cannot access file: ${filePath}`,
+      filePath,
+      severity: 'error',
+    });
+  }
+
+  /**
+   * Validate all line changes for a file
+   * @private
+   */
+  private static validateLineChanges(
+    change: AiFixSuggestionV2['changes'][number],
+    options: FixApplicationOptions,
+    result: FixValidationResult,
+  ): void {
+    for (const lineChange of change.lineChanges) {
+      this.validateLineRange(lineChange, change.filePath, result);
+      this.validateDangerousContent(lineChange, change.filePath, options, result);
+      this.validateCustomRules(lineChange, change, options, result);
+      this.checkConfidenceWarnings(lineChange, change.filePath, result);
+    }
+  }
+
+  /**
+   * Validate line range is valid
+   * @private
+   */
+  private static validateLineRange(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    filePath: string,
+    result: FixValidationResult,
+  ): void {
+    if (lineChange.startLine > lineChange.endLine) {
+      result.blockers.push({
+        type: 'syntax_error',
+        message: `Invalid line range: ${lineChange.startLine}-${lineChange.endLine}`,
+        filePath,
+        lineNumber: lineChange.startLine,
+        severity: 'error',
+      });
+    }
+
+    if (lineChange.startLine < 1) {
+      result.blockers.push({
+        type: 'syntax_error',
+        message: `Invalid start line: ${lineChange.startLine}`,
+        filePath,
+        lineNumber: lineChange.startLine,
+        severity: 'error',
+      });
+    }
+  }
+
+  /**
+   * Check for potentially dangerous content in strict mode
+   * @private
+   */
+  private static validateDangerousContent(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    filePath: string,
+    options: FixApplicationOptions,
+    result: FixValidationResult,
+  ): void {
+    if (options.validationMode !== 'strict') {
+      return;
+    }
+
+    if (lineChange.newContent.includes('eval(') || lineChange.newContent.includes('exec(')) {
+      result.blockers.push({
+        type: 'validation_failed',
+        message: 'Code contains potentially dangerous functions',
+        filePath,
+        lineNumber: lineChange.startLine,
+        severity: 'error',
+      });
+    }
+  }
+
+  /**
+   * Apply custom validation rules
+   * @private
+   */
+  private static validateCustomRules(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    change: AiFixSuggestionV2['changes'][number],
+    options: FixApplicationOptions,
+    result: FixValidationResult,
+  ): void {
+    if (!options.customValidation || options.customValidation(change)) {
+      return;
+    }
+
+    result.blockers.push({
+      type: 'validation_failed',
+      message: 'Custom validation failed',
+      filePath: change.filePath,
+      lineNumber: lineChange.startLine,
+      severity: 'error',
+    });
+  }
+
+  /**
+   * Check for low confidence warnings
+   * @private
+   */
+  private static checkConfidenceWarnings(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    filePath: string,
+    result: FixValidationResult,
+  ): void {
+    if (lineChange.changeConfidence && lineChange.changeConfidence < 80) {
+      result.warnings.push(
+        `Low confidence change at ${filePath}:${lineChange.startLine} (${lineChange.changeConfidence}%)`,
+      );
+    }
+  }
+
+  /**
+   * Calculate validation impact
+   * @private
+   */
+  private static calculateValidationImpact(
+    suggestion: AiFixSuggestionV2,
+    result: FixValidationResult,
+  ): void {
     const filesAffected = suggestion.changes.length;
     const linesChanged = suggestion.changes.reduce(
       (total, change) => total + change.lineChanges.length,
@@ -142,9 +235,6 @@ export class FixSuggestionUtils {
       ),
       estimatedTime: this.estimateApplicationTime(suggestion.effortEstimate, linesChanged),
     };
-
-    result.canApply = result.blockers.length === 0;
-    return result;
   }
 
   /**
@@ -211,68 +301,163 @@ export class FixSuggestionUtils {
   static generateChangePreview(suggestion: AiFixSuggestionV2): string {
     const lines: string[] = [];
 
+    this.addPreviewHeader(suggestion, lines);
+    this.addFileChanges(suggestion.changes, lines);
+    this.addNotes(suggestion.notes, lines);
+    this.addTestingGuidance(suggestion.testingGuidance, lines);
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Add preview header with summary
+   * @private
+   */
+  private static addPreviewHeader(suggestion: AiFixSuggestionV2, lines: string[]): void {
     lines.push(`Fix: ${suggestion.explanation}`);
     lines.push(
       `Confidence: ${suggestion.confidence}% | Complexity: ${suggestion.complexity} | Effort: ${suggestion.effortEstimate}`,
     );
     lines.push('');
+  }
 
-    for (const [index, change] of suggestion.changes.entries()) {
+  /**
+   * Add file changes to preview
+   * @private
+   */
+  private static addFileChanges(changes: AiFixSuggestionV2['changes'], lines: string[]): void {
+    for (const [index, change] of changes.entries()) {
       lines.push(`File ${index + 1}: ${change.filePath}`);
-
-      for (const lineChange of change.lineChanges) {
-        if (lineChange.startLine === lineChange.endLine) {
-          lines.push(`  Line ${lineChange.startLine}:`);
-        } else {
-          lines.push(`  Lines ${lineChange.startLine}-${lineChange.endLine}:`);
-        }
-
-        // Show original content
-        const originalLines = lineChange.originalContent.split('\n');
-        for (const line of originalLines) {
-          lines.push(`  - ${line}`);
-        }
-
-        // Show new content
-        const newLines = lineChange.newContent.split('\n');
-        for (const line of newLines) {
-          lines.push(`  + ${line}`);
-        }
-
-        if (lineChange.changeReason) {
-          lines.push(`    (${lineChange.changeReason})`);
-        }
-        lines.push('');
-      }
+      this.addLineChanges(change.lineChanges, lines);
     }
+  }
 
-    // Add notes if present
-    if (suggestion.notes && suggestion.notes.length > 0) {
-      lines.push('Notes:');
-      for (const note of suggestion.notes) {
-        lines.push(`  • ${note}`);
-      }
+  /**
+   * Add line changes to preview
+   * @private
+   */
+  private static addLineChanges(
+    lineChanges: AiFixSuggestionV2['changes'][number]['lineChanges'],
+    lines: string[],
+  ): void {
+    for (const lineChange of lineChanges) {
+      this.addLineRangeHeader(lineChange, lines);
+      this.addContentDiff(lineChange, lines);
+      this.addChangeReason(lineChange, lines);
       lines.push('');
     }
+  }
 
-    // Add testing guidance if present
-    if (suggestion.testingGuidance) {
-      lines.push('Testing Guidance:');
-      if (suggestion.testingGuidance.suggestedTests.length > 0) {
-        lines.push('  Suggested Tests:');
-        for (const test of suggestion.testingGuidance.suggestedTests) {
-          lines.push(`    • ${test}`);
-        }
-      }
-      if (suggestion.testingGuidance.riskAreas.length > 0) {
-        lines.push('  Risk Areas:');
-        for (const risk of suggestion.testingGuidance.riskAreas) {
-          lines.push(`    • ${risk}`);
-        }
-      }
+  /**
+   * Add line range header
+   * @private
+   */
+  private static addLineRangeHeader(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    lines: string[],
+  ): void {
+    if (lineChange.startLine === lineChange.endLine) {
+      lines.push(`  Line ${lineChange.startLine}:`);
+    } else {
+      lines.push(`  Lines ${lineChange.startLine}-${lineChange.endLine}:`);
+    }
+  }
+
+  /**
+   * Add content diff (before/after)
+   * @private
+   */
+  private static addContentDiff(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    lines: string[],
+  ): void {
+    // Show original content
+    const originalLines = lineChange.originalContent.split('\n');
+    for (const line of originalLines) {
+      lines.push(`  - ${line}`);
     }
 
-    return lines.join('\n');
+    // Show new content
+    const newLines = lineChange.newContent.split('\n');
+    for (const line of newLines) {
+      lines.push(`  + ${line}`);
+    }
+  }
+
+  /**
+   * Add change reason if present
+   * @private
+   */
+  private static addChangeReason(
+    lineChange: AiFixSuggestionV2['changes'][number]['lineChanges'][number],
+    lines: string[],
+  ): void {
+    if (lineChange.changeReason) {
+      lines.push(`    (${lineChange.changeReason})`);
+    }
+  }
+
+  /**
+   * Add notes section
+   * @private
+   */
+  private static addNotes(notes: string[] | undefined, lines: string[]): void {
+    if (!notes || notes.length === 0) {
+      return;
+    }
+
+    lines.push('Notes:');
+    for (const note of notes) {
+      lines.push(`  • ${note}`);
+    }
+    lines.push('');
+  }
+
+  /**
+   * Add testing guidance section
+   * @private
+   */
+  private static addTestingGuidance(
+    testingGuidance: AiFixSuggestionV2['testingGuidance'] | undefined,
+    lines: string[],
+  ): void {
+    if (!testingGuidance) {
+      return;
+    }
+
+    lines.push('Testing Guidance:');
+    this.addSuggestedTests(testingGuidance.suggestedTests, lines);
+    this.addRiskAreas(testingGuidance.riskAreas, lines);
+  }
+
+  /**
+   * Add suggested tests
+   * @private
+   */
+  private static addSuggestedTests(suggestedTests: string[], lines: string[]): void {
+    if (suggestedTests.length === 0) {
+      return;
+    }
+
+    lines.push('  Suggested Tests:');
+    for (const test of suggestedTests) {
+      lines.push(`    • ${test}`);
+    }
+  }
+
+  /**
+   * Add risk areas
+   * @private
+   */
+  private static addRiskAreas(riskAreas: string[], lines: string[]): void {
+    if (riskAreas.length === 0) {
+      return;
+    }
+
+    lines.push('  Risk Areas:');
+    for (const risk of riskAreas) {
+      lines.push(`    • ${risk}`);
+    }
   }
 
   /**
@@ -297,58 +482,134 @@ export class FixSuggestionUtils {
     const bestPractices = new Set<string>();
     const languageTips: Record<string, Set<string>> = {};
 
-    for (const suggestion of suggestions) {
-      // Analyze common change patterns
-      for (const change of suggestion.changes) {
-        const language = change.fileMetadata?.language;
-        if (language && !languageTips[language]) {
-          languageTips[language] = new Set();
-        }
-
-        for (const lineChange of change.lineChanges) {
-          // Extract common patterns from changes
-          if (lineChange.changeReason) {
-            commonChanges.add(lineChange.changeReason);
-          }
-
-          if (language && lineChange.changeReason) {
-            const tips = languageTips[language];
-            if (tips) {
-              tips.add(lineChange.changeReason);
-            }
-          }
-        }
-      }
-
-      // Extract best practices from references
-      if (suggestion.references) {
-        for (const ref of suggestion.references) {
-          if (ref.type === 'best_practice') {
-            bestPractices.add(ref.title);
-          }
-        }
-      }
-
-      // Extract patterns from explanations
-      const explanation = suggestion.explanation.toLowerCase();
-      if (explanation.includes('performance')) {
-        commonChanges.add('Performance improvement');
-      }
-      if (explanation.includes('security')) {
-        commonChanges.add('Security enhancement');
-      }
-      if (explanation.includes('maintainability')) {
-        commonChanges.add('Maintainability improvement');
-      }
-    }
+    this.extractPatternsFromSuggestions(suggestions, commonChanges, bestPractices, languageTips);
 
     return {
       commonChanges: Array.from(commonChanges),
       suggestedBestPractices: Array.from(bestPractices),
-      languageSpecificTips: Object.fromEntries(
-        Object.entries(languageTips).map(([lang, tips]) => [lang, Array.from(tips)]),
-      ),
+      languageSpecificTips: this.convertLanguageTipsToArray(languageTips),
     };
+  }
+
+  /**
+   * Extract patterns from all suggestions
+   * @private
+   */
+  private static extractPatternsFromSuggestions(
+    suggestions: AiFixSuggestionV2[],
+    commonChanges: Set<string>,
+    bestPractices: Set<string>,
+    languageTips: Record<string, Set<string>>,
+  ): void {
+    for (const suggestion of suggestions) {
+      this.analyzeChangePatterns(suggestion.changes, commonChanges, languageTips);
+      this.extractBestPractices(suggestion.references, bestPractices);
+      this.extractExplanationPatterns(suggestion.explanation, commonChanges);
+    }
+  }
+
+  /**
+   * Analyze change patterns from code changes
+   * @private
+   */
+  private static analyzeChangePatterns(
+    changes: AiFixSuggestionV2['changes'],
+    commonChanges: Set<string>,
+    languageTips: Record<string, Set<string>>,
+  ): void {
+    for (const change of changes) {
+      const language = change.fileMetadata?.language;
+      this.ensureLanguageTipsExists(language, languageTips);
+      this.processLineChanges(change.lineChanges, language, commonChanges, languageTips);
+    }
+  }
+
+  /**
+   * Ensure language tips set exists
+   * @private
+   */
+  private static ensureLanguageTipsExists(
+    language: string | undefined,
+    languageTips: Record<string, Set<string>>,
+  ): void {
+    if (language && !languageTips[language]) {
+      languageTips[language] = new Set();
+    }
+  }
+
+  /**
+   * Process line changes to extract patterns
+   * @private
+   */
+  private static processLineChanges(
+    lineChanges: AiFixSuggestionV2['changes'][number]['lineChanges'],
+    language: string | undefined,
+    commonChanges: Set<string>,
+    languageTips: Record<string, Set<string>>,
+  ): void {
+    for (const lineChange of lineChanges) {
+      if (!lineChange.changeReason) {
+        continue;
+      }
+
+      commonChanges.add(lineChange.changeReason);
+
+      if (language) {
+        const tips = languageTips[language];
+        if (tips) {
+          tips.add(lineChange.changeReason);
+        }
+      }
+    }
+  }
+
+  /**
+   * Extract best practices from references
+   * @private
+   */
+  private static extractBestPractices(
+    references: AiFixSuggestionV2['references'] | undefined,
+    bestPractices: Set<string>,
+  ): void {
+    if (!references) {
+      return;
+    }
+
+    for (const ref of references) {
+      if (ref.type === 'best_practice') {
+        bestPractices.add(ref.title);
+      }
+    }
+  }
+
+  /**
+   * Extract patterns from explanation text
+   * @private
+   */
+  private static extractExplanationPatterns(explanation: string, commonChanges: Set<string>): void {
+    const lowerExplanation = explanation.toLowerCase();
+
+    if (lowerExplanation.includes('performance')) {
+      commonChanges.add('Performance improvement');
+    }
+    if (lowerExplanation.includes('security')) {
+      commonChanges.add('Security enhancement');
+    }
+    if (lowerExplanation.includes('maintainability')) {
+      commonChanges.add('Maintainability improvement');
+    }
+  }
+
+  /**
+   * Convert language tips from Set to Array
+   * @private
+   */
+  private static convertLanguageTipsToArray(
+    languageTips: Record<string, Set<string>>,
+  ): Record<string, string[]> {
+    return Object.fromEntries(
+      Object.entries(languageTips).map(([lang, tips]) => [lang, Array.from(tips)]),
+    );
   }
 
   /**
@@ -593,10 +854,10 @@ export class FixSuggestionUtils {
     const successRateScore = suggestion.successRate / 100;
 
     // Complexity: lower is better (invert scale)
-    const complexityScore = { high: 0.2, medium: 0.6, low: 1.0 }[suggestion.complexity];
+    const complexityScore = { high: 0.2, medium: 0.6, low: 1 }[suggestion.complexity];
 
     // Effort: lower is better (invert scale)
-    const effortScore = { complex: 0.2, moderate: 0.4, easy: 0.7, trivial: 1.0 }[
+    const effortScore = { complex: 0.2, moderate: 0.4, easy: 0.7, trivial: 1 }[
       suggestion.effortEstimate
     ];
 

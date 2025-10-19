@@ -151,77 +151,169 @@ export class MigrationAssistant {
    */
   static generateMigrationGuide(): string {
     const allMetadata = DeprecationRegistry.getAll();
-    const byRemovalDate = allMetadata.reduce<Record<string, DeprecationMetadata[]>>((acc, m) => {
-      const date = m.removalDate;
-      acc[date] ??= [];
-      acc[date].push(m);
-      return acc;
-    }, {});
+    const byRemovalDate = this.groupMetadataByRemovalDate(allMetadata);
 
     let guide = '# API Migration Guide\n\n';
     guide += 'This guide helps you migrate from deprecated APIs to their replacements.\n\n';
 
     // Add urgency section
-    const urgentApis = allMetadata.filter((m) => {
-      const daysUntilRemoval = Math.ceil(
-        (new Date(m.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-      );
-      return daysUntilRemoval <= 30 && daysUntilRemoval > 0;
-    });
-
-    if (urgentApis.length > 0) {
-      guide += '## ⚠️ Urgent Migrations\n\n';
-      guide += 'These APIs will be removed within 30 days:\n\n';
-      for (const api of urgentApis) {
-        const days = Math.ceil(
-          (new Date(api.removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-        );
-        guide += `- **${api.api}** - ${days} days remaining\n`;
-      }
-      guide += '\n';
-    }
+    guide += this.generateUrgencySection(allMetadata);
 
     // Add detailed migration instructions
     guide += '## Migration Instructions\n\n';
+    guide += this.generateMigrationInstructions(byRemovalDate);
+
+    return guide;
+  }
+
+  /**
+   * Group metadata by removal date
+   * @private
+   */
+  private static groupMetadataByRemovalDate(
+    allMetadata: DeprecationMetadata[],
+  ): Record<string, DeprecationMetadata[]> {
+    return allMetadata.reduce<Record<string, DeprecationMetadata[]>>((acc, m) => {
+      const date = m.removalDate;
+      acc[date] ??= [];
+      acc[date].push(m);
+      return acc;
+    }, {});
+  }
+
+  /**
+   * Generate urgency section for APIs being removed soon
+   * @private
+   */
+  private static generateUrgencySection(allMetadata: DeprecationMetadata[]): string {
+    const urgentApis = this.findUrgentApis(allMetadata);
+
+    if (urgentApis.length === 0) {
+      return '';
+    }
+
+    let section = '## ⚠️ Urgent Migrations\n\n';
+    section += 'These APIs will be removed within 30 days:\n\n';
+
+    for (const api of urgentApis) {
+      const days = this.calculateDaysUntilRemoval(api.removalDate);
+      section += `- **${api.api}** - ${days} days remaining\n`;
+    }
+    section += '\n';
+
+    return section;
+  }
+
+  /**
+   * Find APIs that are being removed within 30 days
+   * @private
+   */
+  private static findUrgentApis(allMetadata: DeprecationMetadata[]): DeprecationMetadata[] {
+    return allMetadata.filter((m) => {
+      const daysUntilRemoval = this.calculateDaysUntilRemoval(m.removalDate);
+      return daysUntilRemoval <= 30 && daysUntilRemoval > 0;
+    });
+  }
+
+  /**
+   * Calculate days until removal
+   * @private
+   */
+  private static calculateDaysUntilRemoval(removalDate: string): number {
+    return Math.ceil((new Date(removalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  }
+
+  /**
+   * Generate migration instructions for all APIs
+   * @private
+   */
+  private static generateMigrationInstructions(
+    byRemovalDate: Record<string, DeprecationMetadata[]>,
+  ): string {
+    let instructions = '';
 
     for (const [date, apis] of Object.entries(byRemovalDate).sort(
       ([a], [b]) => new Date(a).getTime() - new Date(b).getTime(),
     )) {
-      guide += `### APIs to be removed on ${date}\n\n`;
-
-      for (const api of apis) {
-        guide += `#### ${api.api}\n\n`;
-        guide += `**Deprecated since:** ${api.deprecatedSince}\n\n`;
-        guide += `**Reason:** ${api.reason}\n\n`;
-
-        if (api.replacement) {
-          guide += `**Replacement:** \`${api.replacement}\`\n\n`;
-        }
-
-        if (api.breakingChanges && api.breakingChanges.length > 0) {
-          guide += '**Breaking Changes:**\n';
-          for (const change of api.breakingChanges) {
-            guide += `- ${change}\n`;
-          }
-          guide += '\n';
-        }
-
-        if (api.examples && api.examples.length > 0) {
-          guide += '**Examples:**\n\n';
-          for (const [i, ex] of api.examples.entries()) {
-            guide += MigrationAssistant.formatExampleSection(ex, i + 1);
-          }
-        }
-
-        if (api.migrationGuide) {
-          guide += `📖 [Full Migration Guide](${api.migrationGuide})\n\n`;
-        }
-
-        guide += '---\n\n';
-      }
+      instructions += `### APIs to be removed on ${date}\n\n`;
+      instructions += this.generateApiSections(apis);
     }
 
-    return guide;
+    return instructions;
+  }
+
+  /**
+   * Generate sections for each API
+   * @private
+   */
+  private static generateApiSections(apis: DeprecationMetadata[]): string {
+    let sections = '';
+
+    for (const api of apis) {
+      sections += this.generateApiSection(api);
+    }
+
+    return sections;
+  }
+
+  /**
+   * Generate a section for a single API
+   * @private
+   */
+  private static generateApiSection(api: DeprecationMetadata): string {
+    let section = `#### ${api.api}\n\n`;
+    section += `**Deprecated since:** ${api.deprecatedSince}\n\n`;
+    section += `**Reason:** ${api.reason}\n\n`;
+
+    if (api.replacement) {
+      section += `**Replacement:** \`${api.replacement}\`\n\n`;
+    }
+
+    section += this.formatBreakingChanges(api.breakingChanges);
+    section += this.formatExamples(api.examples);
+
+    if (api.migrationGuide) {
+      section += `📖 [Full Migration Guide](${api.migrationGuide})\n\n`;
+    }
+
+    section += '---\n\n';
+
+    return section;
+  }
+
+  /**
+   * Format breaking changes section
+   * @private
+   */
+  private static formatBreakingChanges(breakingChanges?: string[]): string {
+    if (!breakingChanges || breakingChanges.length === 0) {
+      return '';
+    }
+
+    let section = '**Breaking Changes:**\n';
+    for (const change of breakingChanges) {
+      section += `- ${change}\n`;
+    }
+    section += '\n';
+
+    return section;
+  }
+
+  /**
+   * Format examples section
+   * @private
+   */
+  private static formatExamples(examples?: MigrationExample[]): string {
+    if (!examples || examples.length === 0) {
+      return '';
+    }
+
+    let section = '**Examples:**\n\n';
+    for (const [i, ex] of examples.entries()) {
+      section += MigrationAssistant.formatExampleSection(ex, i + 1);
+    }
+
+    return section;
   }
 
   /**

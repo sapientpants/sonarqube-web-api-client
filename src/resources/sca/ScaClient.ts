@@ -109,7 +109,7 @@ export class ScaClient extends V2BaseClient {
         headers: {
           Accept: 'application/json',
         },
-        ...(options?.signal !== undefined ? { signal: options.signal } : {}),
+        ...(options?.signal ? { signal: options.signal } : {}),
       });
     } else {
       // Return as blob for binary formats (XML, RDF)

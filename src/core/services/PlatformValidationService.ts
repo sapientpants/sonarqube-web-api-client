@@ -181,7 +181,7 @@ export namespace PlatformValidationService {
    */
   export function validateGitHub(config: GitHubConfig, identifier?: string): ValidationResult {
     return validate(
-      identifier !== undefined
+      identifier !== undefined && identifier !== ''
         ? { platform: DevOpsPlatform.GITHUB, identifier }
         : { platform: DevOpsPlatform.GITHUB },
       config as unknown as Record<string, unknown>,
@@ -196,7 +196,7 @@ export namespace PlatformValidationService {
    */
   export function validateGitLab(config: GitLabConfig, identifier?: string): ValidationResult {
     return validate(
-      identifier !== undefined
+      identifier !== undefined && identifier !== ''
         ? { platform: DevOpsPlatform.GITLAB, identifier }
         : { platform: DevOpsPlatform.GITLAB },
       config as unknown as Record<string, unknown>,
@@ -214,7 +214,7 @@ export namespace PlatformValidationService {
     identifier?: string,
   ): ValidationResult {
     return validate(
-      identifier !== undefined
+      identifier !== undefined && identifier !== ''
         ? { platform: DevOpsPlatform.BITBUCKET, identifier }
         : { platform: DevOpsPlatform.BITBUCKET },
       config as unknown as Record<string, unknown>,
@@ -232,7 +232,7 @@ export namespace PlatformValidationService {
     identifier?: string,
   ): ValidationResult {
     return validate(
-      identifier !== undefined
+      identifier !== undefined && identifier !== ''
         ? { platform: DevOpsPlatform.AzureDevops, identifier }
         : { platform: DevOpsPlatform.AzureDevops },
       config as unknown as Record<string, unknown>,
@@ -354,7 +354,7 @@ export namespace PlatformValidationService {
     }
 
     if (!rule.identifierFormat.test(identifier)) {
-      const suggestion = config ? buildIdentifier(platform, config) : undefined;
+      const suggestion = config !== undefined ? buildIdentifier(platform, config) : undefined;
       warnings.push({
         field: 'identifier',
         message: `${platform} identifier should be in format "${rule.identifierExample}"`,

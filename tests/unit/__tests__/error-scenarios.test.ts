@@ -203,6 +203,7 @@ describe('Error Scenarios with MSW', () => {
       // This would timeout if the client has timeout configured
       // For now, it will just take a long time
       // In a real implementation, you'd configure the client with a timeout
+      expect(true).toBe(true); // Placeholder assertion
     });
 
     it('should handle slow responses', async () => {

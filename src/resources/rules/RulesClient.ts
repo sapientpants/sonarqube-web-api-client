@@ -169,17 +169,14 @@ export class RulesClient extends BaseClient {
     // Add parameters to search params
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) {
-        // Assign key directly to apiKey
-        const apiKey = key;
-
         if (arrayParams.includes(key as keyof SearchRulesRequest) && Array.isArray(value)) {
           if (value.length > 0) {
-            searchParams.append(apiKey, value.join(','));
+            searchParams.append(key, value.join(','));
           }
         } else if (typeof value === 'boolean') {
-          searchParams.append(apiKey, value.toString());
+          searchParams.append(key, value.toString());
         } else if (typeof value === 'number' || typeof value === 'string') {
-          searchParams.append(apiKey, value.toString());
+          searchParams.append(key, value.toString());
         }
       }
     }

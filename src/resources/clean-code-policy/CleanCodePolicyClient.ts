@@ -357,10 +357,10 @@ export class CleanCodePolicyClient extends BaseClient {
   private parseRulesFromJson(jsonData: string): CreateCustomRuleV2Request[] {
     try {
       const rules = JSON.parse(jsonData) as CreateCustomRuleV2Request[];
-      if (!Array.isArray(rules)) {
-        throw new Error('Expected an array of rules');
+      if (Array.isArray(rules)) {
+        return rules;
       }
-      return rules;
+      throw new TypeError('Expected an array of rules');
     } catch (error) {
       throw new Error(`Invalid JSON data: ${(error as Error).message}`);
     }

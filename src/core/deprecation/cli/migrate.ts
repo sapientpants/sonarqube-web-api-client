@@ -84,7 +84,10 @@ class MigrationCLI {
     }
 
     // Step 4: Apply migrations
-    if (!this.options.dryRun) {
+    if (this.options.dryRun) {
+      console.log('\n🔍 Dry run mode - no changes will be made.');
+      this.showMigrationPreview(report);
+    } else {
       if (this.options.interactive) {
         const proceed = await this.prompt('\n🤔 Apply automatic migrations? (y/n): ');
         if (proceed.toLowerCase() !== 'y') {
@@ -96,9 +99,6 @@ class MigrationCLI {
       console.log('\n🔧 Applying migrations...');
       await this.applyMigrations(report);
       console.log('✅ Migrations complete!');
-    } else {
-      console.log('\n🔍 Dry run mode - no changes will be made.');
-      this.showMigrationPreview(report);
     }
 
     // Step 5: Post-migration advice

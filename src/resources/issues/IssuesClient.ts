@@ -473,9 +473,7 @@ export class IssuesClient extends BaseClient {
     apiKey: string,
     value: unknown,
   ): void {
-    if (typeof value === 'boolean') {
-      searchParams.append(apiKey, value.toString());
-    } else if (typeof value === 'number' || typeof value === 'string') {
+    if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
       searchParams.append(apiKey, value.toString());
     }
   }

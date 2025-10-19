@@ -147,9 +147,8 @@ export class CleanCodePolicyClient extends BaseClient {
     request: CreateCustomRuleV2Request,
     options?: ValidateCustomRuleOptions,
   ): Promise<RuleValidationResult> {
-    const builder = new CreateCustomRuleV2Builder(async () =>
-      Promise.resolve({} as CreateCustomRuleV2Response),
-    );
+    // eslint-disable-next-line @typescript-eslint/require-await
+    const builder = new CreateCustomRuleV2Builder(async () => ({}) as CreateCustomRuleV2Response);
 
     // Set all parameters from the request
     if (request.key) {

@@ -1,6 +1,6 @@
 {
   "name": "sonarqube-web-api-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript client library for SonarQube Web API",
   "types": "dist/index.d.ts",
   "keywords": [

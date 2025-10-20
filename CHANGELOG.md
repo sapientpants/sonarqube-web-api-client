@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- [#138](https://github.com/sapientpants/sonarqube-web-api-client/pull/138) [`6248976`](https://github.com/sapientpants/sonarqube-web-api-client/commit/6248976c708049724c7cd7bef63a4711f2c99e79) - Update TypeScript module resolution to NodeNext
+
+  Updated TypeScript configuration to use `NodeNext` for both `module` and `moduleResolution` settings, aligning with the latest Node.js module resolution strategy. This change improves compatibility with modern Node.js ESM support.
+
 ## 1.0.0
 
 ### Major Changes

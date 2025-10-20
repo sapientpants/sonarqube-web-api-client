@@ -1,12 +1,12 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
 import type {
   SearchMetricsParams,
   SearchMetricsResponse,
   MetricTypesResponse,
   MetricDomainsResponse,
   Metric,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with SonarQube metrics endpoints

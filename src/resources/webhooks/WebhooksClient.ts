@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { ValidationError } from '../../errors';
-import { GetWebhookDeliveriesBuilder, ListWebhooksBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { ValidationError } from '../../errors/index.js';
+import { GetWebhookDeliveriesBuilder, ListWebhooksBuilder } from './builders.js';
 import type {
   CreateWebhookRequest,
   CreateWebhookResponse,
@@ -10,7 +10,7 @@ import type {
   GetWebhookDeliveryResponse,
   ListWebhooksResponse,
   UpdateWebhookRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Webhooks API.

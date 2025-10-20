@@ -12,7 +12,7 @@ import type {
   SbomComponentV2,
   SbomVulnerabilityV2,
   SbomLicenseV2,
-} from './types';
+} from './types.js';
 
 // ===== SBOM Format Converters =====
 

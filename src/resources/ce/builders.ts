@@ -1,12 +1,12 @@
-import { PaginatedBuilder } from '../../core/builders';
-import { DeprecationManager } from '../../core/deprecation';
+import { PaginatedBuilder } from '../../core/builders/index.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
 import type {
   ActivityRequest,
   ActivityResponse,
   ActivityTask,
   TaskStatus,
   TaskType,
-} from './types';
+} from './types.js';
 
 // Forward declaration to avoid circular dependency
 interface CEClient {

@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { AlmSettingsClient } from '../../../../src/resources/alm-settings/AlmSettingsClient';
-import { ValidationError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { AlmSettingsClient } from '../../../../src/resources/alm-settings/AlmSettingsClient.js';
+import { ValidationError } from '../../../../src/errors/index.js';
 
 describe('AlmSettings Builders', () => {
   let client: AlmSettingsClient;

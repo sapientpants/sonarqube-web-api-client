@@ -1,5 +1,5 @@
-import { BaseBuilder, ParameterHelpers } from '../../core/builders';
-import type { SearchTagsParams, SearchTagsResponse } from './types';
+import { BaseBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import type { SearchTagsParams, SearchTagsResponse } from './types.js';
 
 /**
  * Builder for searching project tags.

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { BearerTokenAuthProvider } from '../../../../src/core/auth/BearerTokenAuthProvider';
+import { BearerTokenAuthProvider } from '../../../../src/core/auth/BearerTokenAuthProvider.js';
 
 describe('BearerTokenAuthProvider', () => {
   it('should throw error if token is empty', () => {

@@ -5,7 +5,7 @@
  * integration tests don't leave artifacts behind.
  */
 
-import type { IntegrationTestClient } from './IntegrationTestClient';
+import type { IntegrationTestClient } from './IntegrationTestClient.js';
 
 export interface TestProject {
   key: string;

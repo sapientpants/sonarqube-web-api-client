@@ -1,4 +1,4 @@
-export { SourcesClient } from './SourcesClient';
+export { SourcesClient } from './SourcesClient.js';
 export type {
   GetRawSourceRequest,
   GetScmInfoRequest,
@@ -7,4 +7,4 @@ export type {
   ShowSourceRequest,
   ShowSourceResponse,
   SourceLine,
-} from './types';
+} from './types.js';

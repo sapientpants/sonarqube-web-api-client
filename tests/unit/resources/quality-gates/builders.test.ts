@@ -5,8 +5,8 @@ import {
   SetConditionBuilder,
   GetProjectsBuilder,
   AssociateProjectsBuilder,
-} from '../../../../src/resources/quality-gates/builders';
-import type { QualityGateProject as Project } from '../../../../src/resources/quality-gates/types';
+} from '../../../../src/resources/quality-gates/builders.js';
+import type { QualityGateProject as Project } from '../../../../src/resources/quality-gates/types.js';
 
 describe('Quality Gates Builders', () => {
   describe('SetConditionBuilder', () => {

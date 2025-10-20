@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { Mock, MockInstance } from 'vitest';
-import { IssuesClient } from '../../../../src/resources/issues/IssuesClient';
-import { SearchIssuesBuilder } from '../../../../src/resources/issues/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { IssuesClient } from '../../../../src/resources/issues/IssuesClient.js';
+import { SearchIssuesBuilder } from '../../../../src/resources/issues/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
-import type { IssueTransition } from '../../../../src/resources/issues/types';
-import { IndexingInProgressError } from '../../../../src/errors';
+import type { IssueTransition } from '../../../../src/resources/issues/types.js';
+import { IndexingInProgressError } from '../../../../src/errors/index.js';
 
 describe('IssuesClient', () => {
   const baseUrl = 'https://sonarqube.example.com';

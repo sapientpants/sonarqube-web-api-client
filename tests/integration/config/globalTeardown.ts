@@ -5,10 +5,10 @@
  * It performs cleanup and reports test completion status.
  */
 
-import { canRunIntegrationTests, getIntegrationTestConfig } from './environment';
-import { getTestConfiguration } from './testConfig';
-import { IntegrationTestClient } from '../setup/IntegrationTestClient';
-import { TestDataManager } from '../setup/TestDataManager';
+import { canRunIntegrationTests, getIntegrationTestConfig } from './environment.js';
+import { getTestConfiguration } from './testConfig.js';
+import { IntegrationTestClient } from '../setup/IntegrationTestClient.js';
+import { TestDataManager } from '../setup/TestDataManager.js';
 
 export default async function globalTeardown(): Promise<void> {
   console.log('🧹 Starting Integration Test Global Teardown...');

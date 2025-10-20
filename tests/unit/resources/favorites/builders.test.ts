@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { FavoritesClient } from '../../../../src/resources/favorites/FavoritesClient';
-import type { SearchFavoritesBuilder } from '../../../../src/resources/favorites/builders';
-import { server } from '../../../../src/test-utils/msw/server';
-import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/assertions';
-import { ComponentQualifier } from '../../../../src/resources/components/types';
-import type { SearchFavoritesResponse } from '../../../../src/resources/favorites/types';
+import { FavoritesClient } from '../../../../src/resources/favorites/FavoritesClient.js';
+import type { SearchFavoritesBuilder } from '../../../../src/resources/favorites/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/assertions.js';
+import { ComponentQualifier } from '../../../../src/resources/components/types.js';
+import type { SearchFavoritesResponse } from '../../../../src/resources/favorites/types.js';
 
 describe('Favorites Builders', () => {
   const baseUrl = 'http://localhost:9000';

@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { RulesClient } from '../../../../src/resources/rules/RulesClient';
-import { SearchRulesBuilder } from '../../../../src/resources/rules/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { RulesClient } from '../../../../src/resources/rules/RulesClient.js';
+import { SearchRulesBuilder } from '../../../../src/resources/rules/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
 
 describe('RulesClient', () => {

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { vi, describe, it, expect } from 'vitest';
-import * as permissionsModule from '../../../../src/index';
+import * as permissionsModule from '../../../../src/index.js';
 
 describe.skip('Permissions module exports', () => {
   it('should export PermissionsClient class', () => {

@@ -1,7 +1,7 @@
-import { createErrorFromResponse, createNetworkError } from '../errors';
-import type { DeprecationOptions } from './deprecation';
-import { buildV2Query } from './utils/v2-query-builder';
-import { type AuthProvider, BearerTokenAuthProvider, NoAuthProvider } from './auth';
+import { createErrorFromResponse, createNetworkError } from '../errors/index.js';
+import type { DeprecationOptions } from './deprecation/index.js';
+import { buildV2Query } from './utils/v2-query-builder.js';
+import { type AuthProvider, BearerTokenAuthProvider, NoAuthProvider } from './auth/index.js';
 
 /**
  * Response type options for BaseClient requests

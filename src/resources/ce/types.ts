@@ -1,4 +1,4 @@
-import type { PaginatedRequest, PaginatedResponse } from '../../core/builders';
+import type { PaginatedRequest, PaginatedResponse } from '../../core/builders/index.js';
 
 /**
  * Task status in Compute Engine

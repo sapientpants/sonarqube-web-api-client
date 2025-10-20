@@ -1,14 +1,14 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectBadgesClient } from '../../../../src/resources/project-badges/ProjectBadgesClient';
-import { server } from '../../../../src/test-utils/msw/server';
+import { ProjectBadgesClient } from '../../../../src/resources/project-badges/ProjectBadgesClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   AuthenticationError,
   NotFoundError,
   RateLimitError,
   ServerError,
-} from '../../../../src/errors';
-import { createApiError } from '../../../../src/test-utils/msw/factories';
+} from '../../../../src/errors/index.js';
+import { createApiError } from '../../../../src/test-utils/msw/factories.js';
 
 const SAMPLE_SVG_BADGE = `
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="20">

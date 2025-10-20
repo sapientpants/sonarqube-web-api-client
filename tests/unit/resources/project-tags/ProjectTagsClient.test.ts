@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectTagsClient } from '../../../../src/resources/project-tags/ProjectTagsClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import type { SearchTagsResponse } from '../../../../src/resources/project-tags/types';
+import { ProjectTagsClient } from '../../../../src/resources/project-tags/ProjectTagsClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import type { SearchTagsResponse } from '../../../../src/resources/project-tags/types.js';
 import {
   AuthenticationError,
   AuthorizationError,
@@ -10,8 +10,8 @@ import {
   RateLimitError,
   ServerError,
   NetworkError,
-} from '../../../../src/errors';
-import { createApiError, createErrorResponse } from '../../../../src/test-utils/msw/factories';
+} from '../../../../src/errors/index.js';
+import { createApiError, createErrorResponse } from '../../../../src/test-utils/msw/factories.js';
 
 const createSearchTagsResponse = (tags: string[]): SearchTagsResponse => ({
   tags,

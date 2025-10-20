@@ -31,7 +31,7 @@
  */
 
 // Export the client
-export { ProjectDumpClient } from './ProjectDumpClient';
+export { ProjectDumpClient } from './ProjectDumpClient.js';
 
 // Export all types
-export type { ExportProjectDumpRequest, ImportProjectDumpRequest } from './types';
+export type { ExportProjectDumpRequest, ImportProjectDumpRequest } from './types.js';

@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
-import { SearchHotspotsBuilder } from '../../../../src/resources/hotspots/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { SearchHotspotsBuilder } from '../../../../src/resources/hotspots/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
 import type {
   SearchHotspotsRequest,
   SearchHotspotsResponse,
-} from '../../../../src/resources/hotspots/types';
+} from '../../../../src/resources/hotspots/types.js';
 
 describe('SearchHotspotsBuilder', () => {
   let mockExecutor: Mock<Promise<SearchHotspotsResponse>, [SearchHotspotsRequest]>;

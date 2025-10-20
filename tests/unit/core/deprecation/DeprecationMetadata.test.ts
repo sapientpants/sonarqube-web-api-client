@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { DeprecationRegistry } from '../../../../src/core/deprecation/DeprecationMetadata';
-import type { DeprecationMetadata } from '../../../../src/core/deprecation/DeprecationMetadata';
+import { DeprecationRegistry } from '../../../../src/core/deprecation/DeprecationMetadata.js';
+import type { DeprecationMetadata } from '../../../../src/core/deprecation/DeprecationMetadata.js';
 
 describe('DeprecationRegistry', () => {
   beforeEach(() => {

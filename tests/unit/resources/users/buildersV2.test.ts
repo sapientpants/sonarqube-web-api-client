@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
-import { SearchUsersV2Builder } from '../../../../src/resources/users/buildersV2';
+import { SearchUsersV2Builder } from '../../../../src/resources/users/buildersV2.js';
 import type {
   SearchUsersV2Request,
   SearchUsersV2Response,
   UserV2,
-} from '../../../../src/resources/users/types';
+} from '../../../../src/resources/users/types.js';
 
 describe('SearchUsersV2Builder', () => {
   let mockExecutor: Mock;

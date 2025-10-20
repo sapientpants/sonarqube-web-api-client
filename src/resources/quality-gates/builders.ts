@@ -1,5 +1,5 @@
-import { BaseBuilder, PaginatedBuilder, validateRequired } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { BaseBuilder, PaginatedBuilder, validateRequired } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   SetConditionRequest,
   GetProjectsRequest,
@@ -7,7 +7,7 @@ import type {
   AssociateProjectsRequest,
   QualityGateOperator,
   QualityGateProject,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for setting conditions on a quality gate

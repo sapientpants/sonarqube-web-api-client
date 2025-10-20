@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse, delay } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { SonarQubeClient } from '../../../../src/index';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { SonarQubeClient } from '../../../../src/index.js';
 import type {
   SbomReportV2Response,
   SbomMetadataV2,
   VulnerabilitySummaryV2,
   DownloadProgress,
-} from '../../../../src/resources/sca/types';
+} from '../../../../src/resources/sca/types.js';
 
 describe('ScaClient', () => {
   const baseUrl = 'http://localhost:9000';

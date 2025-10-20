@@ -1,9 +1,14 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { NewCodePeriodsClient } from '../../../../src/resources/new-code-periods/NewCodePeriodsClient';
-import { NewCodePeriodType } from '../../../../src/resources/new-code-periods/types';
-import { AuthorizationError, NotFoundError, ApiError, NetworkError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { NewCodePeriodsClient } from '../../../../src/resources/new-code-periods/NewCodePeriodsClient.js';
+import { NewCodePeriodType } from '../../../../src/resources/new-code-periods/types.js';
+import {
+  AuthorizationError,
+  NotFoundError,
+  ApiError,
+  NetworkError,
+} from '../../../../src/errors/index.js';
 
 describe('NewCodePeriodsClient', () => {
   let client: NewCodePeriodsClient;

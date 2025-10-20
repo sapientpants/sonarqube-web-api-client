@@ -6,19 +6,19 @@
  * Covers token validation, user authentication status, and login validation.
  */
 
-import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
-import { TestDataManager } from '../../setup/TestDataManager';
-import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
-import { measureTime, withRetry } from '../../utils/testHelpers';
+import { IntegrationTestClient } from '../../setup/IntegrationTestClient.js';
+import { TestDataManager } from '../../setup/TestDataManager.js';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions.js';
+import { measureTime, withRetry } from '../../utils/testHelpers.js';
 import {
   getIntegrationTestConfig,
   canRunIntegrationTests,
   type IntegrationTestConfig as _IntegrationTestConfig,
-} from '../../config/environment';
+} from '../../config/environment.js';
 import {
   getTestConfiguration,
   type TestConfiguration as _TestConfiguration,
-} from '../../config/environment';
+} from '../../config/environment.js';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();

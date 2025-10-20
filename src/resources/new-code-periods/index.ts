@@ -28,7 +28,7 @@
  */
 
 // Export the client
-export { NewCodePeriodsClient } from './NewCodePeriodsClient';
+export { NewCodePeriodsClient } from './NewCodePeriodsClient.js';
 
 // Export all types
 export type {
@@ -39,7 +39,7 @@ export type {
   SetNewCodePeriodRequest,
   SetNewCodePeriodResponse,
   UnsetNewCodePeriodRequest,
-} from './types';
+} from './types.js';
 
 // Export enums
-export { NewCodePeriodType } from './types';
+export { NewCodePeriodType } from './types.js';

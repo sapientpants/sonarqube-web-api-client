@@ -1,5 +1,5 @@
-import { PaginatedBuilder, ParameterHelpers } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { PaginatedBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   SearchUsersRequest,
   SearchUsersResponse,
@@ -8,7 +8,7 @@ import type {
   GetUserGroupsResponse,
   UserGroup,
   GroupSelectionFilter,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing paginated user search requests.

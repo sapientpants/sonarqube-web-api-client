@@ -1,5 +1,5 @@
-import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   SearchGlobalPermissionsRequest,
   SearchGlobalPermissionsResponse,
@@ -10,7 +10,7 @@ import type {
   BulkApplyTemplateRequest,
   UserPermission,
   PermissionEntry,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing global permissions search requests.

@@ -1,10 +1,10 @@
-import { BaseBuilder } from './BaseBuilder';
+import { BaseBuilder } from './BaseBuilder.js';
 import {
   PaginatedBuilder,
   type PaginatedRequest,
   type PaginatedResponse,
-} from './PaginatedBuilder';
-import { ValidationError } from '../../errors';
+} from './PaginatedBuilder.js';
+import { ValidationError } from '../../errors/index.js';
 
 /**
  * Validates that an ALM setting is provided

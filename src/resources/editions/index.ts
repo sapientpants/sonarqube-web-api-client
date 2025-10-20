@@ -26,7 +26,11 @@
  */
 
 // Export the client
-export { EditionsClient } from './EditionsClient';
+export { EditionsClient } from './EditionsClient.js';
 
 // Export all types
-export type { ActivateGracePeriodRequest, SetLicenseRequest, EditionStatusResponse } from './types';
+export type {
+  ActivateGracePeriodRequest,
+  SetLicenseRequest,
+  EditionStatusResponse,
+} from './types.js';

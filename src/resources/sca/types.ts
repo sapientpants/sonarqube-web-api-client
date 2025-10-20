@@ -3,7 +3,7 @@
  * @since 10.6
  */
 
-import type { V2Resource } from '../../core/types/v2-common';
+import type { V2Resource } from '../../core/types/v2-common.js';
 
 export type SeverityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
@@ -331,7 +331,7 @@ export interface SbomLicenseV2 {
  * Options for downloading SBOM reports
  */
 // Re-import DownloadProgress from V2BaseClient
-import type { DownloadProgress } from '../../core/V2BaseClient';
+import type { DownloadProgress } from '../../core/V2BaseClient.js';
 
 export interface SbomDownloadOptions {
   /** Progress tracking callback for large reports */

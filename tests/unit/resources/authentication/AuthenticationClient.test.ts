@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
-} from '../../../../src/test-utils/assertions';
-import { AuthenticationClient } from '../../../../src/resources/authentication/AuthenticationClient';
-import { AuthenticationError, NetworkError } from '../../../../src/errors';
-import type { ValidateResponse } from '../../../../src/resources/authentication/types';
+} from '../../../../src/test-utils/assertions.js';
+import { AuthenticationClient } from '../../../../src/resources/authentication/AuthenticationClient.js';
+import { AuthenticationError, NetworkError } from '../../../../src/errors/index.js';
+import type { ValidateResponse } from '../../../../src/resources/authentication/types.js';
 
 describe('AuthenticationClient', () => {
   let client: AuthenticationClient;

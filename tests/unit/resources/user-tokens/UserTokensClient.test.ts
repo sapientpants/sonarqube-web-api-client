@@ -1,17 +1,21 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
-} from '../../../../src/test-utils/assertions';
-import { UserTokensClient } from '../../../../src/resources/user-tokens/UserTokensClient';
-import { AuthenticationError, AuthorizationError, NetworkError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { UserTokensClient } from '../../../../src/resources/user-tokens/UserTokensClient.js';
+import {
+  AuthenticationError,
+  AuthorizationError,
+  NetworkError,
+} from '../../../../src/errors/index.js';
 import type {
   GenerateTokenResponse,
   SearchTokensResponse,
   UserToken,
-} from '../../../../src/resources/user-tokens/types';
+} from '../../../../src/resources/user-tokens/types.js';
 
 describe('UserTokensClient', () => {
   let client: UserTokensClient;

@@ -6,18 +6,18 @@
  * This API allows users to configure how they receive notifications from SonarQube/SonarCloud.
  */
 
-import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
-import { TestDataManager } from '../../setup/TestDataManager';
-import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
+import { IntegrationTestClient } from '../../setup/IntegrationTestClient.js';
+import { TestDataManager } from '../../setup/TestDataManager.js';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions.js';
 import {
   measureTime,
   extractErrorInfo,
   isPermissionError,
   getIntegrationTestConfig,
   canRunIntegrationTests,
-} from '../../config/environment';
-import { TEST_TIMING } from '../../utils/testHelpers';
-import { getTestConfiguration } from '../../config/testConfig';
+} from '../../config/environment.js';
+import { TEST_TIMING } from '../../utils/testHelpers.js';
+import { getTestConfiguration } from '../../config/testConfig.js';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();

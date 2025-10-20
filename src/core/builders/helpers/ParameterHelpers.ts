@@ -1,4 +1,4 @@
-import type { BaseBuilder } from '../BaseBuilder';
+import type { BaseBuilder } from '../BaseBuilder.js';
 
 /**
  * Implementation function for boolean parameter methods

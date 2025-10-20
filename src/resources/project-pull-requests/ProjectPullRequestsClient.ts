@@ -1,10 +1,10 @@
-import { BaseClient } from '../../core/BaseClient';
-import { ProjectPullRequestsListBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { ProjectPullRequestsListBuilder } from './builders.js';
 import type {
   DeletePullRequestRequest,
   ListPullRequestsRequest,
   ListPullRequestsResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Project Pull Requests API.

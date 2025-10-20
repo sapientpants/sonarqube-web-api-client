@@ -1,7 +1,7 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
-import { SearchUsersBuilder, GetUserGroupsBuilder } from './builders';
-import { SearchUsersV2Builder } from './buildersV2';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
+import { SearchUsersBuilder, GetUserGroupsBuilder } from './builders.js';
+import { SearchUsersV2Builder } from './buildersV2.js';
 import type {
   UserWithDetails,
   SearchUsersResponse,
@@ -9,7 +9,7 @@ import type {
   UserGroup,
   SearchUsersV2Response,
   UserV2,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Users API.

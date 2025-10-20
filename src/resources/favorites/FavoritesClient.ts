@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { SearchFavoritesBuilder } from './builders';
-import type { AddFavoriteRequest, Favorite, RemoveFavoriteRequest } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import { SearchFavoritesBuilder } from './builders.js';
+import type { AddFavoriteRequest, Favorite, RemoveFavoriteRequest } from './types.js';
 
 /**
  * Client for interacting with the SonarQube Favorites API.

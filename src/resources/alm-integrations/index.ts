@@ -1,8 +1,8 @@
-export { AlmIntegrationsClient } from './AlmIntegrationsClient';
+export { AlmIntegrationsClient } from './AlmIntegrationsClient.js';
 export {
   AzureReposSearchBuilder,
   BitbucketServerReposSearchBuilder,
   BitbucketCloudReposSearchBuilder,
   GitLabReposSearchBuilder,
-} from './builders';
-export * from './types';
+} from './builders.js';
+export * from './types.js';

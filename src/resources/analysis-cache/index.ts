@@ -1,2 +1,2 @@
-export { AnalysisCacheClient } from './AnalysisCacheClient';
-export type * from './types';
+export { AnalysisCacheClient } from './AnalysisCacheClient.js';
+export type * from './types.js';

@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { QualityGatesClient } from '../../../../src/resources/quality-gates/QualityGatesClient';
+import { QualityGatesClient } from '../../../../src/resources/quality-gates/QualityGatesClient.js';
 import { http } from 'msw';
-import { server } from '../../../../src/test-utils';
+import { server } from '../../../../src/test-utils/index.js';
 
 describe('QualityGatesClient', () => {
   let client: QualityGatesClient;

@@ -1,11 +1,11 @@
-import { PaginatedBuilder, ParameterHelpers } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { PaginatedBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   EventCategory,
   ProjectAnalysis,
   SearchAnalysesRequest,
   SearchAnalysesResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing paginated project analyses search requests.

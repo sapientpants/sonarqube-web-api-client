@@ -1,19 +1,19 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectsClient } from '../../../../src/resources/projects/ProjectsClient';
-import { server } from '../../../../src/test-utils/msw/server';
+import { ProjectsClient } from '../../../../src/resources/projects/ProjectsClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertCommonHeaders,
   assertRequestBody,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
+} from '../../../../src/test-utils/assertions.js';
 import type {
   BulkUpdateProjectKeyResponse,
   CreateProjectResponse,
   Finding,
   GetContainsAiCodeResponse,
   LicenseUsageResponse,
-} from '../../../../src/resources/projects/types';
+} from '../../../../src/resources/projects/types.js';
 
 describe('ProjectsClient', () => {
   const baseUrl = 'http://localhost:9000';

@@ -1,4 +1,4 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   AddProjectRequest,
   CreateApplicationRequest,
@@ -12,7 +12,7 @@ import type {
   ShowApplicationResponse,
   UpdateApplicationRequest,
   UpdateBranchRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube applications

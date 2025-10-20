@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { MockInstance } from 'vitest';
-import { DeprecationManager } from '../../../../src/core/deprecation/DeprecationManager';
+import { DeprecationManager } from '../../../../src/core/deprecation/DeprecationManager.js';
 
 describe('DeprecationManager', () => {
   let consoleSpy: MockInstance;

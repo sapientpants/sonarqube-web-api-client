@@ -6,15 +6,15 @@ import {
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
-} from '../../../../src/resources/permissions/builders';
-import { ValidationError } from '../../../../src/errors';
+} from '../../../../src/resources/permissions/builders.js';
+import { ValidationError } from '../../../../src/errors/index.js';
 import type {
   SearchGlobalPermissionsResponse,
   SearchProjectPermissionsResponse,
   SearchTemplatesResponse,
   UserPermission,
   PermissionEntry,
-} from '../../../../src/resources/permissions/types';
+} from '../../../../src/resources/permissions/types.js';
 
 describe('Permissions Builders', () => {
   // ============================================================================

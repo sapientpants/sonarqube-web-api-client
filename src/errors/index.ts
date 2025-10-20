@@ -10,6 +10,6 @@ export {
   TimeoutError,
   ServerError,
   IndexingInProgressError,
-} from './SonarQubeError';
+} from './SonarQubeError.js';
 
-export { createErrorFromResponse, createNetworkError } from './errorFactory';
+export { createErrorFromResponse, createNetworkError } from './errorFactory.js';

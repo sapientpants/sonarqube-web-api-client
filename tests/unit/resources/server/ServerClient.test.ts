@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { ServerClient } from '../../../../src/resources/server/ServerClient';
-import { NetworkError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { ServerClient } from '../../../../src/resources/server/ServerClient.js';
+import { NetworkError } from '../../../../src/errors/index.js';
 
 describe('ServerClient', () => {
   let client: ServerClient;

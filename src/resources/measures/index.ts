@@ -1,5 +1,5 @@
-export { MeasuresClient } from './MeasuresClient';
-export { ComponentTreeBuilder, MeasuresHistoryBuilder } from './builders';
+export { MeasuresClient } from './MeasuresClient.js';
+export { ComponentTreeBuilder, MeasuresHistoryBuilder } from './builders.js';
 export type {
   MeasuresAdditionalField,
   ComponentTreeStrategy,
@@ -16,4 +16,4 @@ export type {
   ComponentMeasuresHistory,
   MeasuresHistoryRequest,
   MeasuresHistoryResponse,
-} from './types';
+} from './types.js';

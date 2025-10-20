@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
-import { ValidationError } from '../../../../src/errors';
-import { SearchProjectAnalysesBuilder } from '../../../../src/resources/project-analyses/builders';
-import type { SearchAnalysesResponse } from '../../../../src/resources/project-analyses/types';
+import { ValidationError } from '../../../../src/errors/index.js';
+import { SearchProjectAnalysesBuilder } from '../../../../src/resources/project-analyses/builders.js';
+import type { SearchAnalysesResponse } from '../../../../src/resources/project-analyses/types.js';
 
 describe('SearchProjectAnalysesBuilder', () => {
   let mockExecutor: Mock;

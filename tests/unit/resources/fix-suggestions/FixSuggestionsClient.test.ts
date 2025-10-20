@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { SonarQubeClient } from '../../../../src/index';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { SonarQubeClient } from '../../../../src/index.js';
 import type {
   FixSuggestionAvailabilityV2Response,
   AiSuggestionResponseV2,
-} from '../../../../src/resources/fix-suggestions/types';
+} from '../../../../src/resources/fix-suggestions/types.js';
 
 describe('FixSuggestionsClient', () => {
   const baseUrl = 'http://localhost:9000';

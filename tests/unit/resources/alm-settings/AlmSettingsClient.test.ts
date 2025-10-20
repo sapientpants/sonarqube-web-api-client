@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { AlmSettingsClient } from '../../../../src/resources/alm-settings/AlmSettingsClient';
-import { AuthenticationError } from '../../../../src/errors';
-import { server } from '../../../../src/test-utils/msw/server';
+import { AlmSettingsClient } from '../../../../src/resources/alm-settings/AlmSettingsClient.js';
+import { AuthenticationError } from '../../../../src/errors/index.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertQueryParams,
   assertRequestBody,
-} from '../../../../src/test-utils/assertions';
+} from '../../../../src/test-utils/assertions.js';
 
 describe('AlmSettingsClient', () => {
   let client: AlmSettingsClient;

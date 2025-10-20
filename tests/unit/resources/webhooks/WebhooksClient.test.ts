@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { WebhooksClient } from '../../../../src/resources/webhooks/WebhooksClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/assertions';
+import { WebhooksClient } from '../../../../src/resources/webhooks/WebhooksClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/assertions.js';
 import type {
   CreateWebhookResponse,
   GetWebhookDeliveriesResponse,
   GetWebhookDeliveryResponse,
   ListWebhooksResponse,
-} from '../../../../src/resources/webhooks/types';
-import { ValidationError } from '../../../../src/errors';
+} from '../../../../src/resources/webhooks/types.js';
+import { ValidationError } from '../../../../src/errors/index.js';
 
 describe('WebhooksClient', () => {
   const baseUrl = 'http://localhost:9000';

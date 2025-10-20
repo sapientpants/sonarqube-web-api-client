@@ -2,7 +2,7 @@
  * Shared validation utilities for builders
  */
 
-import { ValidationError } from '../../errors';
+import { ValidationError } from '../../errors/index.js';
 
 /**
  * Check if a value is a non-empty string

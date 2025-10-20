@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
-import { AlmIntegrationsClient } from '../../../../src/resources/alm-integrations/AlmIntegrationsClient';
-import { AuthenticationError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { AlmIntegrationsClient } from '../../../../src/resources/alm-integrations/AlmIntegrationsClient.js';
+import { AuthenticationError } from '../../../../src/errors/index.js';
 import type {
   ListAzureProjectsResponse,
   SearchAzureReposResponse,
@@ -14,7 +14,7 @@ import type {
   SearchBitbucketServerReposResponse,
   SearchBitbucketCloudReposResponse,
   SearchGitLabReposResponse,
-} from '../../../../src/resources/alm-integrations/types';
+} from '../../../../src/resources/alm-integrations/types.js';
 
 describe('AlmIntegrationsClient', () => {
   let client: AlmIntegrationsClient;

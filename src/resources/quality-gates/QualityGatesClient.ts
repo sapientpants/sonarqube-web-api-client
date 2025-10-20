@@ -1,4 +1,4 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   QualityGate,
   CreateQualityGateRequest,
@@ -17,8 +17,8 @@ import type {
   DissociateProjectsRequest,
   ProjectQualityGateStatus,
   GetProjectStatusRequest,
-} from './types';
-import { SetConditionBuilder, GetProjectsBuilder, AssociateProjectsBuilder } from './builders';
+} from './types.js';
+import { SetConditionBuilder, GetProjectsBuilder, AssociateProjectsBuilder } from './builders.js';
 
 /**
  * Client for managing Quality Gates

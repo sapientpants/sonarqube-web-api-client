@@ -1,4 +1,4 @@
-import { BaseBuilder } from '../../core/builders';
+import { BaseBuilder } from '../../core/builders/index.js';
 import type {
   CreateCustomRuleV2Request,
   CreateCustomRuleV2Response,
@@ -6,7 +6,7 @@ import type {
   ValidateCustomRuleOptions,
   RuleValidationResult,
   ImpactSeverity,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for creating custom rules with fluent API

@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import { ValidationError } from '../../../../src/errors';
-import type { FixSuggestionsClient } from '../../../../src/resources/fix-suggestions/FixSuggestionsClient';
+import { ValidationError } from '../../../../src/errors/index.js';
+import type { FixSuggestionsClient } from '../../../../src/resources/fix-suggestions/FixSuggestionsClient.js';
 import {
   GetIssueAvailabilityV2BuilderImpl,
   RequestAiSuggestionsV2BuilderImpl,
-} from '../../../../src/resources/fix-suggestions/builders';
+} from '../../../../src/resources/fix-suggestions/builders.js';
 
 // Mock the FixSuggestionsClient
 const mockClient = {

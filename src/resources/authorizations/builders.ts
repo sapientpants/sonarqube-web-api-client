@@ -1,4 +1,4 @@
-import { BaseBuilder } from '../../core/builders';
+import { BaseBuilder } from '../../core/builders/index.js';
 import type {
   SearchGroupsV2Request,
   SearchGroupsV2Response,
@@ -6,7 +6,7 @@ import type {
   SearchGroupMembershipsV2Request,
   SearchGroupMembershipsV2Response,
   GroupMembershipV2,
-} from './types';
+} from './types.js';
 
 /**
  * Base class for paginated builders with async iteration

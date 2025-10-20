@@ -11,7 +11,7 @@ import type {
   BitbucketConfig,
   AzureDevOpsConfig,
   ValidationResult,
-} from '../../core/services/PlatformValidationService';
+} from '../../core/services/PlatformValidationService.js';
 
 // Re-export platform configs for external consumers
 export type {
@@ -20,13 +20,13 @@ export type {
   BitbucketConfig,
   AzureDevOpsConfig,
   ValidationResult,
-} from '../../core/services/PlatformValidationService';
+} from '../../core/services/PlatformValidationService.js';
 
 /**
  * Supported DevOps platforms for integration
  * Re-exported from PlatformValidationService for consistency
  */
-export { DevOpsPlatform } from '../../core/services/PlatformValidationService';
+export { DevOpsPlatform } from '../../core/services/PlatformValidationService.js';
 
 /**
  * Project binding status after creation
@@ -179,7 +179,7 @@ export type PlatformSpecificConfig =
 export type {
   ValidationError,
   ValidationWarning,
-} from '../../core/services/PlatformValidationService';
+} from '../../core/services/PlatformValidationService.js';
 
 // ============================================================================
 // Authentication Types

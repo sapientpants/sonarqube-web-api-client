@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { ProjectTagsSearchBuilder } from './builders';
-import type { SearchTagsParams, SearchTagsResponse, SetProjectTagsParams } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import { ProjectTagsSearchBuilder } from './builders.js';
+import type { SearchTagsParams, SearchTagsResponse, SetProjectTagsParams } from './types.js';
 
 /**
  * Client for interacting with the SonarQube Project Tags API.

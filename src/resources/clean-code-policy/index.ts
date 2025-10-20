@@ -25,7 +25,7 @@
  */
 
 // Export the client
-export { CleanCodePolicyClient } from './CleanCodePolicyClient';
+export { CleanCodePolicyClient } from './CleanCodePolicyClient.js';
 
 // Export all types
 export type {
@@ -57,13 +57,13 @@ export type {
 
   // Error types
   CleanCodePolicyError,
-} from './types';
+} from './types.js';
 
 // Export error codes enum
-export { CleanCodePolicyErrorCode } from './types';
+export { CleanCodePolicyErrorCode } from './types.js';
 
 // Export builders
-export { CreateCustomRuleV2Builder, AdvancedCustomRuleBuilder } from './builders';
+export { CreateCustomRuleV2Builder, AdvancedCustomRuleBuilder } from './builders.js';
 
 // Export utilities
 export {
@@ -73,4 +73,4 @@ export {
   messageTemplateUtils,
   ruleMigrationUtils,
   cleanCodeAttributeUtils,
-} from './utils';
+} from './utils.js';

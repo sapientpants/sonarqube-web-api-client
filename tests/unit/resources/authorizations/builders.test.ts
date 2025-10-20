@@ -4,13 +4,13 @@ import type { Mock } from 'vitest';
 import {
   SearchGroupsV2Builder,
   SearchGroupMembershipsV2Builder,
-} from '../../../../src/resources/authorizations/builders';
+} from '../../../../src/resources/authorizations/builders.js';
 import type {
   SearchGroupsV2Request,
   SearchGroupsV2Response,
   SearchGroupMembershipsV2Request,
   SearchGroupMembershipsV2Response,
-} from '../../../../src/resources/authorizations/types';
+} from '../../../../src/resources/authorizations/types.js';
 
 describe('Authorizations Builders', () => {
   describe('SearchGroupsV2Builder', () => {

@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation/DeprecationManager';
-import { ComponentsTreeBuilder, ComponentsSearchBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/DeprecationManager.js';
+import { ComponentsTreeBuilder, ComponentsSearchBuilder } from './builders.js';
 import {
   ComponentQualifier,
   type ComponentShowResponse,
@@ -8,7 +8,7 @@ import {
   type ComponentTreeRequest,
   type ComponentTreeResponse,
   type ComponentGlobalSearchRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Components API.

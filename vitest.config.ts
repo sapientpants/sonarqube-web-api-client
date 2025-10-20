@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  resolve: {
+    // Allow Vite to resolve .js imports to .ts files for testing
+    extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
+  },
   test: {
     environment: 'node',
     globals: true,

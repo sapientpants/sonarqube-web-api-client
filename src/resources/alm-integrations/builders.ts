@@ -1,5 +1,5 @@
-import { RepositorySearchBuilder, validateRequired } from '../../core/builders';
-import { DeprecationManager } from '../../core/deprecation';
+import { RepositorySearchBuilder, validateRequired } from '../../core/builders/index.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
 import type {
   SearchAzureReposRequest,
   SearchAzureReposResponse,
@@ -13,7 +13,7 @@ import type {
   SearchGitLabReposRequest,
   SearchGitLabReposResponse,
   GitLabProject,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for searching Azure repositories

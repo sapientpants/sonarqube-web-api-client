@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import { CreateCustomRuleV2Builder, AdvancedCustomRuleBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { CreateCustomRuleV2Builder, AdvancedCustomRuleBuilder } from './builders.js';
 import {
   CleanCodePolicyErrorCode,
   type CreateCustomRuleV2Request,
@@ -8,7 +8,7 @@ import {
   type RuleValidationResult,
   type ListRuleTemplatesOptions,
   type RuleTemplate,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Clean Code Policy API v2

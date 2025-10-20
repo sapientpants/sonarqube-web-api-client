@@ -2,7 +2,7 @@
  * Hotspots API types
  */
 
-import type { PaginatedRequest, PaginatedResponse } from '../../core/builders';
+import type { PaginatedRequest, PaginatedResponse } from '../../core/builders/index.js';
 
 /**
  * Security Hotspot status values

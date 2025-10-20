@@ -4,7 +4,7 @@
  * @since 10.4
  */
 
-import type { PrimitiveValue } from './primitive';
+import type { PrimitiveValue } from './primitive.js';
 
 /**
  * Base interface for all v2 resources

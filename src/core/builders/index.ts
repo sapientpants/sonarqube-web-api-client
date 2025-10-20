@@ -1,13 +1,13 @@
-export { BaseBuilder } from './BaseBuilder';
-export { PaginatedBuilder } from './PaginatedBuilder';
-export type { PaginatedRequest, PaginatedResponse } from './PaginatedBuilder';
-export { isRequired, validateRequired, validateOAuth } from './validation';
-export { AlmIntegrationBuilder, RepositorySearchBuilder } from './AlmIntegrationBuilder';
+export { BaseBuilder } from './BaseBuilder.js';
+export { PaginatedBuilder } from './PaginatedBuilder.js';
+export type { PaginatedRequest, PaginatedResponse } from './PaginatedBuilder.js';
+export { isRequired, validateRequired, validateOAuth } from './validation.js';
+export { AlmIntegrationBuilder, RepositorySearchBuilder } from './AlmIntegrationBuilder.js';
 export {
   AlmSettingsBuilderWithOAuth,
   AlmSettingsBuilderWithKey,
   UpdatableAlmSettingsBuilder,
   UpdatableAlmSettingsBuilderWithKey,
   ProjectBindingBuilder,
-} from './AlmSettingsBuilder';
-export { ParameterHelpers } from './helpers/ParameterHelpers';
+} from './AlmSettingsBuilder.js';
+export { ParameterHelpers } from './helpers/ParameterHelpers.js';

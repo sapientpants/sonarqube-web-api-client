@@ -4,7 +4,7 @@ import {
   ProjectBindingBuilder,
   validateRequired,
   validateOAuth,
-} from '../../core/builders';
+} from '../../core/builders/index.js';
 import type {
   CreateGitHubRequest,
   UpdateGitHubRequest,
@@ -15,7 +15,7 @@ import type {
   SetBitbucketCloudBindingRequest,
   SetGitHubBindingRequest,
   SetGitLabBindingRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Base builder for GitHub ALM settings operations

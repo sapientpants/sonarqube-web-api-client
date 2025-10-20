@@ -1,5 +1,5 @@
-import { BaseBuilder } from '../../core/builders';
-import type { SearchUsersV2Request, SearchUsersV2Response, UserV2 } from './types';
+import { BaseBuilder } from '../../core/builders/index.js';
+import type { SearchUsersV2Request, SearchUsersV2Response, UserV2 } from './types.js';
 
 /**
  * Builder for v2 users search API

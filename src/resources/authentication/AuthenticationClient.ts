@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { ValidateResponse } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import type { ValidateResponse } from './types.js';
 
 /**
  * Client for handling authentication operations

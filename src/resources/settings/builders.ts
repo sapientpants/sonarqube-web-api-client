@@ -1,8 +1,8 @@
-import { BaseBuilder } from '../../core/builders';
-import { ValidationError } from '../../errors';
-import { ParameterHelpers } from '../../core/builders/helpers/ParameterHelpers';
-import { isValidParam, splitKeys } from './helpers';
-import type { SetRequest, ResetRequest, ValuesRequest, ValuesResponse } from './types';
+import { BaseBuilder } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
+import { ParameterHelpers } from '../../core/builders/helpers/ParameterHelpers.js';
+import { isValidParam, splitKeys } from './helpers.js';
+import type { SetRequest, ResetRequest, ValuesRequest, ValuesResponse } from './types.js';
 
 /**
  * Builder for setting values

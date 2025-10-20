@@ -6,12 +6,12 @@
  * These tests should work on both SonarQube and SonarCloud.
  */
 
-import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment';
-import { getTestConfiguration } from '../../config/testConfig';
-import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
-import { TestDataManager } from '../../setup/TestDataManager';
-import { withRetry, measureTime, TEST_TIMING } from '../../utils/testHelpers';
-import { INTEGRATION_ASSERTIONS } from '../../utils/assertions';
+import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment.js';
+import { getTestConfiguration } from '../../config/testConfig.js';
+import { IntegrationTestClient } from '../../setup/IntegrationTestClient.js';
+import { TestDataManager } from '../../setup/TestDataManager.js';
+import { withRetry, measureTime, TEST_TIMING } from '../../utils/testHelpers.js';
+import { INTEGRATION_ASSERTIONS } from '../../utils/assertions.js';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();

@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectBranchesClient } from '../../../../src/resources/project-branches/ProjectBranchesClient';
-import { server } from '../../../../src/test-utils/msw/server';
+import { ProjectBranchesClient } from '../../../../src/resources/project-branches/ProjectBranchesClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   type Branch,
   ProjectBranchType,
   QualityGateStatus,
-} from '../../../../src/resources/project-branches/types';
+} from '../../../../src/resources/project-branches/types.js';
 
 describe('ProjectBranchesClient', () => {
   let client: ProjectBranchesClient;

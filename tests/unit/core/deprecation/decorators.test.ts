@@ -5,9 +5,9 @@ import {
   Deprecated,
   DeprecatedClass,
   DeprecatedParameter,
-} from '../../../../src/core/deprecation/decorators';
-import { DeprecationManager } from '../../../../src/core/deprecation/DeprecationManager';
-import { DeprecationRegistry } from '../../../../src/core/deprecation/DeprecationMetadata';
+} from '../../../../src/core/deprecation/decorators.js';
+import { DeprecationManager } from '../../../../src/core/deprecation/DeprecationManager.js';
+import { DeprecationRegistry } from '../../../../src/core/deprecation/DeprecationMetadata.js';
 
 describe('Deprecation Decorators', () => {
   let consoleSpy: MockInstance;

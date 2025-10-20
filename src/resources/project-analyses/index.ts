@@ -1,5 +1,5 @@
-export { ProjectAnalysesClient } from './ProjectAnalysesClient';
-export { SearchProjectAnalysesBuilder } from './builders';
+export { ProjectAnalysesClient } from './ProjectAnalysesClient.js';
+export { SearchProjectAnalysesBuilder } from './builders.js';
 export type {
   AnalysisEvent,
   CreateEventRequest,
@@ -15,4 +15,4 @@ export type {
   UnsetBaselineRequest,
   UpdateEventRequest,
   UpdateEventResponse,
-} from './types';
+} from './types.js';

@@ -1,9 +1,9 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   ListWebservicesResponse,
   ResponseExampleRequest,
   ResponseExampleResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with webservices endpoints

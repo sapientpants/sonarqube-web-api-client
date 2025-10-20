@@ -1,5 +1,5 @@
-export { IssuesClient } from './IssuesClient';
-export { SearchIssuesBuilder } from './builders';
+export { IssuesClient } from './IssuesClient.js';
+export { SearchIssuesBuilder } from './builders.js';
 export type {
   // Core types
   Issue,
@@ -35,4 +35,4 @@ export type {
   DoTransitionResponse,
   SetTagsRequest,
   SetTagsResponse,
-} from './types';
+} from './types.js';

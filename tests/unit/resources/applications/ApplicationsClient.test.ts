@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertCommonHeaders,
   assertRequestBody,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
-import { ApplicationsClient } from '../../../../src/resources/applications/ApplicationsClient';
-import { NotFoundError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { ApplicationsClient } from '../../../../src/resources/applications/ApplicationsClient.js';
+import { NotFoundError } from '../../../../src/errors/index.js';
 import type {
   AddProjectRequest,
   CreateApplicationRequest,
@@ -21,7 +21,7 @@ import type {
   ShowApplicationResponse,
   UpdateApplicationRequest,
   UpdateBranchRequest,
-} from '../../../../src/resources/applications/types';
+} from '../../../../src/resources/applications/types.js';
 
 describe('ApplicationsClient', () => {
   let client: ApplicationsClient;

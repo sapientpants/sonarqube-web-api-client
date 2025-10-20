@@ -6,13 +6,13 @@ import {
   DeactivateRulesBuilder,
   ProjectsBuilder,
   SearchBuilder,
-} from '../../../../src/resources/quality-profiles/builders';
+} from '../../../../src/resources/quality-profiles/builders.js';
 import type {
   ActivateRulesResponse,
   ChangelogResponse,
   ProjectsResponse,
   SearchResponse,
-} from '../../../../src/resources/quality-profiles/types';
+} from '../../../../src/resources/quality-profiles/types.js';
 
 describe('Quality Profiles Builders', () => {
   describe('ActivateRulesBuilder', () => {

@@ -12,7 +12,7 @@ import type {
   SoftwareQuality,
   ImpactSeverity,
   CleanCodeAttribute,
-} from './types';
+} from './types.js';
 
 /**
  * Rule key utilities

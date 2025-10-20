@@ -1,11 +1,11 @@
-import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   BulkDeleteProjectsRequest,
   ProjectSearchResult,
   SearchProjectsRequest,
   SearchProjectsResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing bulk delete projects requests.

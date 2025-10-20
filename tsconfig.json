@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
-    "module": "commonjs",
-    "lib": ["ES2021"],
+    "target": "ES2022",
+    "module": "Node16",
+    "lib": ["ES2022"],
     "types": ["vitest/globals"],
     "declaration": true,
     "declarationMap": true,
@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

@@ -3,7 +3,7 @@ import {
   buildV2Query,
   parseV2Filter,
   buildV2Filters,
-} from '../../../../src/core/utils/v2-query-builder';
+} from '../../../../src/core/utils/v2-query-builder.js';
 
 describe('v2-query-builder', () => {
   describe('buildV2Query', () => {

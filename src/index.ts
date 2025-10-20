@@ -1,58 +1,58 @@
-import { AlmIntegrationsClient } from './resources/alm-integrations';
-import { AlmSettingsClient } from './resources/alm-settings';
-import { AnalysisCacheClient } from './resources/analysis-cache';
-import { AnalysisClient } from './resources/analysis';
-import { ScaClient } from './resources/sca';
-import { FixSuggestionsClient } from './resources/fix-suggestions';
-import { CleanCodePolicyClient } from './resources/clean-code-policy';
-import { DopTranslationClient } from './resources/dop-translation';
-import { createErrorFromResponse, createNetworkError } from './errors';
-import { DeprecationManager } from './core/deprecation';
-import { type ClientOptions } from './core/BaseClient';
+import { AlmIntegrationsClient } from './resources/alm-integrations/index.js';
+import { AlmSettingsClient } from './resources/alm-settings/index.js';
+import { AnalysisCacheClient } from './resources/analysis-cache/index.js';
+import { AnalysisClient } from './resources/analysis/index.js';
+import { ScaClient } from './resources/sca/index.js';
+import { FixSuggestionsClient } from './resources/fix-suggestions/index.js';
+import { CleanCodePolicyClient } from './resources/clean-code-policy/index.js';
+import { DopTranslationClient } from './resources/dop-translation/index.js';
+import { createErrorFromResponse, createNetworkError } from './errors/index.js';
+import { DeprecationManager } from './core/deprecation/index.js';
+import { type ClientOptions } from './core/BaseClient.js';
 import {
   type AuthProvider,
   BearerTokenAuthProvider,
   BasicAuthProvider,
   PasscodeAuthProvider,
-} from './core/auth';
-import { ApplicationsClient } from './resources/applications';
-import { AuthenticationClient } from './resources/authentication';
-import { AuthorizationsClient } from './resources/authorizations';
-import { CEClient } from './resources/ce';
-import { ComponentsClient } from './resources/components';
-import { DuplicationsClient } from './resources/duplications';
-import { FavoritesClient } from './resources/favorites';
-import { LanguagesClient } from './resources/languages';
-import { NotificationsClient } from './resources/notifications';
-import { ProjectsClient } from './resources/projects';
-import { ProjectBadgesClient } from './resources/project-badges';
-import { ProjectAnalysesClient } from './resources/project-analyses';
-import { ProjectLinksClient } from './resources/project-links';
-import { MetricsClient } from './resources/metrics';
-import { MeasuresClient } from './resources/measures';
-import { NewCodePeriodsClient } from './resources/new-code-periods';
-import { AuditLogsClient } from './resources/audit-logs';
-import { PluginsClient } from './resources/plugins';
-import { ServerClient } from './resources/server';
-import { EditionsClient } from './resources/editions';
-import { ProjectDumpClient } from './resources/project-dump';
-import { IssuesClient } from './resources/issues';
-import { QualityGatesClient } from './resources/quality-gates';
-import { SourcesClient } from './resources/sources';
-import { SystemClient } from './resources/system';
-import { HotspotsClient } from './resources/hotspots';
-import { ProjectBranchesClient } from './resources/project-branches';
-import { ProjectPullRequestsClient } from './resources/project-pull-requests';
-import { ProjectTagsClient } from './resources/project-tags';
-import { QualityProfilesClient } from './resources/quality-profiles';
-import { RulesClient } from './resources/rules';
-import { SettingsClient } from './resources/settings';
-import { UsersClient } from './resources/users';
-import { UserTokensClient } from './resources/user-tokens';
-import { PermissionsClient } from './resources/permissions';
-import { WebhooksClient } from './resources/webhooks';
-import { WebservicesClient } from './resources/webservices';
-import { ViewsClient } from './resources/views';
+} from './core/auth/index.js';
+import { ApplicationsClient } from './resources/applications/index.js';
+import { AuthenticationClient } from './resources/authentication/index.js';
+import { AuthorizationsClient } from './resources/authorizations/index.js';
+import { CEClient } from './resources/ce/index.js';
+import { ComponentsClient } from './resources/components/index.js';
+import { DuplicationsClient } from './resources/duplications/index.js';
+import { FavoritesClient } from './resources/favorites/index.js';
+import { LanguagesClient } from './resources/languages/index.js';
+import { NotificationsClient } from './resources/notifications/index.js';
+import { ProjectsClient } from './resources/projects/index.js';
+import { ProjectBadgesClient } from './resources/project-badges/index.js';
+import { ProjectAnalysesClient } from './resources/project-analyses/index.js';
+import { ProjectLinksClient } from './resources/project-links/index.js';
+import { MetricsClient } from './resources/metrics/index.js';
+import { MeasuresClient } from './resources/measures/index.js';
+import { NewCodePeriodsClient } from './resources/new-code-periods/index.js';
+import { AuditLogsClient } from './resources/audit-logs/index.js';
+import { PluginsClient } from './resources/plugins/index.js';
+import { ServerClient } from './resources/server/index.js';
+import { EditionsClient } from './resources/editions/index.js';
+import { ProjectDumpClient } from './resources/project-dump/index.js';
+import { IssuesClient } from './resources/issues/index.js';
+import { QualityGatesClient } from './resources/quality-gates/index.js';
+import { SourcesClient } from './resources/sources/index.js';
+import { SystemClient } from './resources/system/index.js';
+import { HotspotsClient } from './resources/hotspots/index.js';
+import { ProjectBranchesClient } from './resources/project-branches/index.js';
+import { ProjectPullRequestsClient } from './resources/project-pull-requests/index.js';
+import { ProjectTagsClient } from './resources/project-tags/index.js';
+import { QualityProfilesClient } from './resources/quality-profiles/index.js';
+import { RulesClient } from './resources/rules/index.js';
+import { SettingsClient } from './resources/settings/index.js';
+import { UsersClient } from './resources/users/index.js';
+import { UserTokensClient } from './resources/user-tokens/index.js';
+import { PermissionsClient } from './resources/permissions/index.js';
+import { WebhooksClient } from './resources/webhooks/index.js';
+import { WebservicesClient } from './resources/webservices/index.js';
+import { ViewsClient } from './resources/views/index.js';
 
 interface ProjectsResponse {
   [key: string]: unknown;
@@ -335,7 +335,7 @@ export class SonarQubeClient {
 export default SonarQubeClient;
 
 // Re-export types from ALM integrations
-export * from './resources/alm-integrations/types';
+export * from './resources/alm-integrations/types.js';
 
 // Re-export types from ALM settings
 export type {
@@ -392,13 +392,13 @@ export type {
 
   // Validation types
   AlmSettingValidationError,
-} from './resources/alm-settings/types';
+} from './resources/alm-settings/types.js';
 
 // Re-export types from analysis cache
 export type {
   GetAnalysisCacheRequest,
   GetAnalysisCacheResponse,
-} from './resources/analysis-cache/types';
+} from './resources/analysis-cache/types.js';
 
 // Re-export types from analysis v2
 export type {
@@ -414,16 +414,16 @@ export type {
   // Data types
   ActiveRuleV2,
   JreMetadataV2,
-} from './resources/analysis/types';
+} from './resources/analysis/types.js';
 
 // Re-export download types from analysis
 export type {
   DownloadOptions,
   DownloadProgress as AnalysisDownloadProgress,
-} from './resources/analysis';
+} from './resources/analysis/index.js';
 
 // Re-export types from authentication
-export type { ValidateResponse } from './resources/authentication/types';
+export type { ValidateResponse } from './resources/authentication/types.js';
 
 // Re-export types from authorizations
 export type {
@@ -454,7 +454,7 @@ export type {
   GetGroupPermissionsV2Response,
   GetUserPermissionsV2Response,
   SearchPermissionTemplatesV2Response,
-} from './resources/authorizations/types';
+} from './resources/authorizations/types.js';
 
 // Re-export types from duplications
 export type {
@@ -463,7 +463,7 @@ export type {
   DuplicationBlock,
   DuplicatedFile,
   Duplication,
-} from './resources/duplications/types';
+} from './resources/duplications/types.js';
 
 // Re-export types from favorites
 export type {
@@ -472,7 +472,7 @@ export type {
   RemoveFavoriteRequest,
   SearchFavoritesRequest,
   SearchFavoritesResponse,
-} from './resources/favorites/types';
+} from './resources/favorites/types.js';
 
 // Re-export types from CE (Compute Engine)
 export type {
@@ -489,7 +489,7 @@ export type {
   ComponentTasksResponse,
   TaskRequest,
   TaskResponse,
-} from './resources/ce/types';
+} from './resources/ce/types.js';
 
 // Re-export types from applications
 export type {
@@ -509,7 +509,7 @@ export type {
   UpdateApplicationRequest,
   UpdateBranchRequest,
   SetTagsRequest as ApplicationSetTagsRequest,
-} from './resources/applications/types';
+} from './resources/applications/types.js';
 
 // Re-export types from projects
 export type {
@@ -536,7 +536,7 @@ export type {
   SetContainsAiCodeRequest,
   UpdateProjectKeyRequest,
   UpdateProjectVisibilityRequest,
-} from './resources/projects/types';
+} from './resources/projects/types.js';
 
 // Re-export types from components
 export type {
@@ -548,12 +548,12 @@ export type {
   ComponentTreeRequest as ComponentsTreeRequest,
   ComponentTreeResponse as ComponentsTreeResponse,
   BooleanString,
-} from './resources/components/types';
+} from './resources/components/types.js';
 export {
   ComponentQualifier as ComponentsQualifier,
   ComponentTreeStrategy as ComponentsTreeStrategy,
   ComponentSortField,
-} from './resources/components/types';
+} from './resources/components/types.js';
 
 // Re-export types from metrics
 export type {
@@ -566,7 +566,7 @@ export type {
   SearchMetricsResponse,
   MetricTypesResponse,
   MetricDomainsResponse,
-} from './resources/metrics/types';
+} from './resources/metrics/types.js';
 
 // Re-export types from measures
 export type {
@@ -584,7 +584,7 @@ export type {
   ComponentMeasuresHistory,
   MeasuresHistoryRequest,
   MeasuresHistoryResponse,
-} from './resources/measures/types';
+} from './resources/measures/types.js';
 
 // Re-export types from issues
 export type {
@@ -613,7 +613,7 @@ export type {
   DoTransitionResponse,
   SetTagsRequest,
   SetTagsResponse,
-} from './resources/issues/types';
+} from './resources/issues/types.js';
 
 // Re-export types from hotspots
 export type {
@@ -627,14 +627,14 @@ export type {
   ShowHotspotResponse,
   ChangeHotspotStatusRequest,
   ChangeHotspotStatusResponse,
-} from './resources/hotspots/types';
+} from './resources/hotspots/types.js';
 
 // Re-export types from languages
 export type {
   Language,
   ListLanguagesParams,
   ListLanguagesResponse,
-} from './resources/languages/types';
+} from './resources/languages/types.js';
 
 // Re-export types from project branches
 export type {
@@ -644,9 +644,9 @@ export type {
   ListBranchesResponse,
   DeleteBranchParams,
   RenameMainBranchParams,
-} from './resources/project-branches/types';
+} from './resources/project-branches/types.js';
 
-export { ProjectBranchType, QualityGateStatus } from './resources/project-branches/types';
+export { ProjectBranchType, QualityGateStatus } from './resources/project-branches/types.js';
 
 // Re-export types from notifications
 export type {
@@ -657,13 +657,13 @@ export type {
   NotificationRemoveRequest,
   Notification,
   NotificationType,
-} from './resources/notifications/types';
+} from './resources/notifications/types.js';
 
 export {
   NotificationChannel,
   GlobalNotificationType,
   ProjectNotificationType,
-} from './resources/notifications/types';
+} from './resources/notifications/types.js';
 
 // Re-export types from project badges
 export type {
@@ -672,7 +672,7 @@ export type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-} from './resources/project-badges/types';
+} from './resources/project-badges/types.js';
 
 // Re-export types from project analyses
 export type {
@@ -689,7 +689,7 @@ export type {
   UnsetBaselineRequest,
   UpdateEventRequest,
   UpdateEventResponse,
-} from './resources/project-analyses/types';
+} from './resources/project-analyses/types.js';
 
 // Re-export types from project links
 export type {
@@ -699,7 +699,7 @@ export type {
   DeleteProjectLinkRequest,
   SearchProjectLinksRequest,
   SearchProjectLinksResponse,
-} from './resources/project-links/types';
+} from './resources/project-links/types.js';
 
 // Re-export types from project pull requests
 export type {
@@ -707,7 +707,7 @@ export type {
   ListPullRequestsRequest,
   ListPullRequestsResponse,
   PullRequest,
-} from './resources/project-pull-requests/types';
+} from './resources/project-pull-requests/types.js';
 
 // Re-export types from permissions
 export type {
@@ -745,7 +745,7 @@ export type {
   SearchGlobalPermissionsResponse,
   SearchProjectPermissionsResponse,
   SearchTemplatesResponse,
-} from './resources/permissions/types';
+} from './resources/permissions/types.js';
 
 // Re-export types from quality gates
 export type {
@@ -771,7 +771,7 @@ export type {
   ProjectQualityGateStatus,
   QualityGateConditionStatus,
   GetProjectStatusRequest,
-} from './resources/quality-gates/types';
+} from './resources/quality-gates/types.js';
 
 // Re-export types from sources
 export type {
@@ -782,7 +782,7 @@ export type {
   ShowSourceRequest,
   ShowSourceResponse,
   SourceLine,
-} from './resources/sources/types';
+} from './resources/sources/types.js';
 
 // Re-export types from system
 export type {
@@ -792,7 +792,7 @@ export type {
   StatusResponse,
   SystemInfo,
   InfoResponse,
-} from './resources/system/types';
+} from './resources/system/types.js';
 
 // Re-export types from system v2
 export type {
@@ -803,14 +803,14 @@ export type {
   SystemFeature,
   SystemStatusV2,
   HealthStatus as SystemHealthStatus,
-} from './resources/system/types-v2';
+} from './resources/system/types-v2.js';
 
 // Re-export types from project tags
 export type {
   SearchTagsParams,
   SearchTagsResponse,
   SetProjectTagsParams,
-} from './resources/project-tags/types';
+} from './resources/project-tags/types.js';
 
 // Re-export types from quality profiles
 export type {
@@ -856,7 +856,7 @@ export type {
   SearchRequest as SearchQualityProfilesRequest,
   SearchResponse as SearchQualityProfilesResponse,
   SetDefaultRequest as SetDefaultQualityProfileRequest,
-} from './resources/quality-profiles/types';
+} from './resources/quality-profiles/types.js';
 
 // Re-export types from rules
 export type {
@@ -885,7 +885,7 @@ export type {
   ListTagsResponse as ListRuleTagsResponse,
   UpdateRuleRequest,
   UpdateRuleResponse,
-} from './resources/rules/types';
+} from './resources/rules/types.js';
 
 // Re-export types from settings
 export type {
@@ -903,7 +903,7 @@ export type {
   SettingDefinition,
   SettingField,
   SettingValue,
-} from './resources/settings/types';
+} from './resources/settings/types.js';
 
 // Re-export types from users
 export type {
@@ -920,7 +920,7 @@ export type {
   UserV2,
   SearchUsersV2Request,
   SearchUsersV2Response,
-} from './resources/users/types';
+} from './resources/users/types.js';
 
 // Re-export types from user tokens
 export type {
@@ -930,7 +930,7 @@ export type {
   SearchTokensRequest,
   SearchTokensResponse,
   UserToken,
-} from './resources/user-tokens/types';
+} from './resources/user-tokens/types.js';
 
 // Re-export types from webhooks
 export type {
@@ -946,7 +946,7 @@ export type {
   GetWebhookDeliveriesResponse,
   GetWebhookDeliveryRequest,
   GetWebhookDeliveryResponse,
-} from './resources/webhooks/types';
+} from './resources/webhooks/types.js';
 
 // Re-export types from webservices
 export type {
@@ -955,7 +955,7 @@ export type {
   WebService,
   ListWebservicesResponse,
   ResponseExampleResponse,
-} from './resources/webservices/types';
+} from './resources/webservices/types.js';
 
 // Re-export error classes
 export {
@@ -969,7 +969,7 @@ export {
   NetworkError,
   TimeoutError,
   ServerError,
-} from './errors';
+} from './errors/index.js';
 
 // Re-export types from SCA (Software Composition Analysis) v2 API
 export type {
@@ -1004,13 +1004,13 @@ export type {
 
   // Cache types
   SbomCacheOptions,
-} from './resources/sca/types';
+} from './resources/sca/types.js';
 
 // Re-export DownloadProgress from sca
-export type { DownloadProgress } from './resources/sca';
+export type { DownloadProgress } from './resources/sca/index.js';
 
 // Re-export SCA utilities
-export { SbomFormatConverter, SbomAnalyzer } from './resources/sca/utils';
+export { SbomFormatConverter, SbomAnalyzer } from './resources/sca/utils.js';
 
 // Re-export types from Fix Suggestions v2 API
 export type {
@@ -1054,10 +1054,10 @@ export type {
   ConflictResolution,
   Priority,
   RiskLevel,
-} from './resources/fix-suggestions/types';
+} from './resources/fix-suggestions/types.js';
 
 // Re-export Fix Suggestions utilities
-export { FixSuggestionUtils, FixSuggestionIntegration } from './resources/fix-suggestions/utils';
+export { FixSuggestionUtils, FixSuggestionIntegration } from './resources/fix-suggestions/utils.js';
 
 // Re-export types from DOP Translation v2 API
 export type {
@@ -1121,7 +1121,7 @@ export type {
   PlatformAuthenticationError,
   RepositoryNotFoundError,
   InsufficientPermissionsError,
-} from './resources/dop-translation/types';
+} from './resources/dop-translation/types.js';
 
 // Re-export DOP Translation enums
 export {
@@ -1131,7 +1131,7 @@ export {
   SyncStatus,
   ProjectVisibility as DopProjectVisibility,
   AuthenticationType,
-} from './resources/dop-translation/types';
+} from './resources/dop-translation/types.js';
 
 // Re-export DOP Translation utilities
 export {
@@ -1140,7 +1140,7 @@ export {
   ProjectMapper,
   AuthenticationHelper,
   ConfigurationTemplates,
-} from './resources/dop-translation/utils';
+} from './resources/dop-translation/utils.js';
 
 // Re-export New Code Periods types and enums
 export type {
@@ -1151,9 +1151,9 @@ export type {
   SetNewCodePeriodRequest,
   SetNewCodePeriodResponse,
   UnsetNewCodePeriodRequest,
-} from './resources/new-code-periods/types';
+} from './resources/new-code-periods/types.js';
 
-export { NewCodePeriodType } from './resources/new-code-periods/types';
+export { NewCodePeriodType } from './resources/new-code-periods/types.js';
 
 // Re-export Audit Logs types
 export type {
@@ -1164,7 +1164,7 @@ export type {
   SearchAuditLogsResponse,
   DownloadAuditLogsRequest,
   DownloadAuditLogsResponse,
-} from './resources/audit-logs/types';
+} from './resources/audit-logs/types.js';
 
 // Re-export Plugins types
 export type {
@@ -1183,16 +1183,16 @@ export type {
   UninstallPluginRequest,
   UpdatePluginRequest,
   GetPluginUpdatesResponse,
-} from './resources/plugins/types';
+} from './resources/plugins/types.js';
 
 // Re-export Editions types
-export type { ActivateGracePeriodRequest, SetLicenseRequest } from './resources/editions/types';
+export type { ActivateGracePeriodRequest, SetLicenseRequest } from './resources/editions/types.js';
 
 // Re-export Project Dump types
 export type {
   ExportProjectDumpRequest,
   ImportProjectDumpRequest,
-} from './resources/project-dump/types';
+} from './resources/project-dump/types.js';
 
 // Re-export Views types
 export type {
@@ -1202,18 +1202,18 @@ export type {
   ShowPortfolioResponse,
   UpdatePortfolioRequest,
   PortfolioComponent,
-} from './resources/views/types';
+} from './resources/views/types.js';
 
 // Re-export deprecation management
-export { DeprecationManager, deprecated } from './core/deprecation';
-export type { DeprecationContext, DeprecationOptions } from './core/deprecation';
-export type { ClientOptions } from './core/BaseClient';
+export { DeprecationManager, deprecated } from './core/deprecation/index.js';
+export type { DeprecationContext, DeprecationOptions } from './core/deprecation/index.js';
+export type { ClientOptions } from './core/BaseClient.js';
 
 // Re-export authentication
-export type { AuthProvider } from './core/auth';
+export type { AuthProvider } from './core/auth/index.js';
 export {
   BearerTokenAuthProvider,
   BasicAuthProvider,
   PasscodeAuthProvider,
   NoAuthProvider,
-} from './core/auth';
+} from './core/auth/index.js';

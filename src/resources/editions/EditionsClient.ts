@@ -1,5 +1,9 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { ActivateGracePeriodRequest, SetLicenseRequest, EditionStatusResponse } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import type {
+  ActivateGracePeriodRequest,
+  SetLicenseRequest,
+  EditionStatusResponse,
+} from './types.js';
 
 /**
  * Client for SonarQube Editions API

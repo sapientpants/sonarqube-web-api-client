@@ -3,4 +3,4 @@
  * @since 10.3
  */
 
-export * from './PlatformValidationService';
+export * from './PlatformValidationService.js';

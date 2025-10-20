@@ -1,5 +1,5 @@
-import { BaseBuilder, ParameterHelpers } from '../../core/builders';
-import type { ListBranchesParams, ListBranchesResponse } from './types';
+import { BaseBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import type { ListBranchesParams, ListBranchesResponse } from './types.js';
 
 /**
  * Builder for listing project branches.

@@ -1,4 +1,4 @@
-import type { AuthProvider } from './AuthProvider';
+import type { AuthProvider } from './AuthProvider.js';
 
 /**
  * Bearer token authentication provider

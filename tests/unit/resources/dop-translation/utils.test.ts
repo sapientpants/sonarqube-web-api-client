@@ -10,7 +10,7 @@ import {
   ProjectMapper,
   AuthenticationHelper,
   ConfigurationTemplates,
-} from '../../../../src/resources/dop-translation/utils';
+} from '../../../../src/resources/dop-translation/utils.js';
 import {
   DevOpsPlatform,
   ProjectVisibility,
@@ -18,7 +18,7 @@ import {
   type GitLabConfig,
   type BitbucketConfig,
   type AzureDevOpsConfig,
-} from '../../../../src/resources/dop-translation/types';
+} from '../../../../src/resources/dop-translation/types.js';
 
 describe('PlatformDetector', () => {
   describe('detectFromUrl', () => {

@@ -5,15 +5,15 @@ import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
  * Testing fluent builder patterns for creating bound projects
  */
 
-import { CreateBoundProjectV2BuilderImpl } from '../../../../src/resources/dop-translation/builders';
-import { DopTranslationClient } from '../../../../src/resources/dop-translation/DopTranslationClient';
+import { CreateBoundProjectV2BuilderImpl } from '../../../../src/resources/dop-translation/builders.js';
+import { DopTranslationClient } from '../../../../src/resources/dop-translation/DopTranslationClient.js';
 import {
   DevOpsPlatform,
   ProjectVisibility,
   ProjectBindingStatus,
   SyncStatus,
   type CreateBoundProjectV2Response,
-} from '../../../../src/resources/dop-translation/types';
+} from '../../../../src/resources/dop-translation/types.js';
 
 // Mock DopTranslationClient
 vi.mock('../../../../src/resources/dop-translation/DopTranslationClient', () => ({

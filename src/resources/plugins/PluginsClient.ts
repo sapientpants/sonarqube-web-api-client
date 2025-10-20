@@ -1,4 +1,4 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   GetAvailablePluginsRequest,
   GetAvailablePluginsResponse,
@@ -9,7 +9,7 @@ import type {
   UninstallPluginRequest,
   UpdatePluginRequest,
   GetPluginUpdatesResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube plugins

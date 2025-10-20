@@ -1,5 +1,5 @@
-import { PaginatedBuilder } from '../../core/builders';
-import type { Favorite, SearchFavoritesRequest, SearchFavoritesResponse } from './types';
+import { PaginatedBuilder } from '../../core/builders/index.js';
+import type { Favorite, SearchFavoritesRequest, SearchFavoritesResponse } from './types.js';
 
 /**
  * Builder for searching favorites

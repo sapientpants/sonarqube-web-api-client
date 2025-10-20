@@ -5,7 +5,7 @@
  * types of integration tests.
  */
 
-import type { IntegrationTestConfig } from './environment';
+import type { IntegrationTestConfig } from './environment.js';
 
 export interface TestConfiguration {
   /** Default timeout for API calls (ms) */

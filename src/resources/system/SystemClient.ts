@@ -1,7 +1,7 @@
-import { BaseClient } from '../../core/BaseClient';
-import { Deprecated } from '../../core/deprecation';
-import type { HealthResponse, StatusResponse, InfoResponse } from './types';
-import type { SystemHealthV2 } from './types-v2';
+import { BaseClient } from '../../core/BaseClient.js';
+import { Deprecated } from '../../core/deprecation/index.js';
+import type { HealthResponse, StatusResponse, InfoResponse } from './types.js';
+import type { SystemHealthV2 } from './types-v2.js';
 
 /**
  * Client for interacting with system endpoints

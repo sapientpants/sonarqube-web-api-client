@@ -1,3 +1,3 @@
-export type * from './types';
-export * from './builders';
-export { QualityProfilesClient } from './QualityProfilesClient';
+export type * from './types.js';
+export * from './builders.js';
+export { QualityProfilesClient } from './QualityProfilesClient.js';

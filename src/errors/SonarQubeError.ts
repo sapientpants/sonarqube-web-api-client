@@ -97,11 +97,17 @@ export class NotFoundError extends SonarQubeError {
  * Error thrown when there's a network issue
  */
 export class NetworkError extends SonarQubeError {
-  public readonly cause: Error | undefined;
-
   constructor(message: string, cause?: Error) {
     super(message, 'NETWORK_ERROR', undefined, { cause });
-    this.cause = cause;
+    // Store cause using the native Error.cause mechanism (ES2022+)
+    if (cause) {
+      Object.defineProperty(this, 'cause', {
+        value: cause,
+        writable: false,
+        configurable: false,
+        enumerable: false,
+      });
+    }
   }
 }
 

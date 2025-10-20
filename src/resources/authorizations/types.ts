@@ -3,7 +3,7 @@
  * @since 10.5
  */
 
-import type { V2Resource, V2SearchParams, V2AuditFields } from '../../core/types/v2-common';
+import type { V2Resource, V2SearchParams, V2AuditFields } from '../../core/types/v2-common.js';
 
 /**
  * Permission types in v2

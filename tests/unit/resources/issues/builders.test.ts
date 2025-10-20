@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { IssuesClient } from '../../../../src/resources/issues/IssuesClient';
-import { SearchIssuesBuilder } from '../../../../src/resources/issues/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { IssuesClient } from '../../../../src/resources/issues/IssuesClient.js';
+import { SearchIssuesBuilder } from '../../../../src/resources/issues/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
-import type { Issue } from '../../../../src/resources/issues/types';
+import type { Issue } from '../../../../src/resources/issues/types.js';
 
 describe('SearchIssuesBuilder', () => {
   const baseUrl = 'https://sonarqube.example.com';

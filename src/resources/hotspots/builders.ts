@@ -1,11 +1,11 @@
-import { PaginatedBuilder } from '../../core/builders';
+import { PaginatedBuilder } from '../../core/builders/index.js';
 import type {
   SearchHotspotsRequest,
   SearchHotspotsResponse,
   Hotspot,
   HotspotStatus,
   HotspotResolution,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing complex Security Hotspot search queries

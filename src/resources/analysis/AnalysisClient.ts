@@ -1,4 +1,4 @@
-import { V2BaseClient } from '../../core/V2BaseClient';
+import { V2BaseClient } from '../../core/V2BaseClient.js';
 import type {
   GetActiveRulesV2Request,
   GetActiveRulesV2Response,
@@ -6,7 +6,7 @@ import type {
   GetJresV2Response,
   JreMetadataV2,
   VersionV2Response,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Analysis API v2.

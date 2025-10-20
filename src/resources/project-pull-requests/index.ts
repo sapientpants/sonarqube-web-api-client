@@ -1,7 +1,7 @@
-export { ProjectPullRequestsClient } from './ProjectPullRequestsClient';
+export { ProjectPullRequestsClient } from './ProjectPullRequestsClient.js';
 export type {
   DeletePullRequestRequest,
   ListPullRequestsRequest,
   ListPullRequestsResponse,
   PullRequest,
-} from './types';
+} from './types.js';

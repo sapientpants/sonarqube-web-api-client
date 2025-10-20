@@ -1,18 +1,18 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
-} from '../../../../src/test-utils/assertions';
-import { DuplicationsClient } from '../../../../src/resources/duplications/DuplicationsClient';
+} from '../../../../src/test-utils/assertions.js';
+import { DuplicationsClient } from '../../../../src/resources/duplications/DuplicationsClient.js';
 import {
   AuthenticationError,
   AuthorizationError,
   NetworkError,
   NotFoundError,
-} from '../../../../src/errors';
-import type { ShowDuplicationsResponse } from '../../../../src/resources/duplications/types';
+} from '../../../../src/errors/index.js';
+import type { ShowDuplicationsResponse } from '../../../../src/resources/duplications/types.js';
 
 describe('DuplicationsClient', () => {
   let client: DuplicationsClient;

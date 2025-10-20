@@ -1,5 +1,5 @@
-export { HotspotsClient } from './HotspotsClient';
-export { SearchHotspotsBuilder } from './builders';
+export { HotspotsClient } from './HotspotsClient.js';
+export { SearchHotspotsBuilder } from './builders.js';
 export type {
   // Core types
   Hotspot,
@@ -19,4 +19,4 @@ export type {
   ShowHotspotResponse,
   ChangeHotspotStatusRequest,
   ChangeHotspotStatusResponse,
-} from './types';
+} from './types.js';

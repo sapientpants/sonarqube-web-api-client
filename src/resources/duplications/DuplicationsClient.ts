@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { ShowDuplicationsRequest, ShowDuplicationsResponse } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import type { ShowDuplicationsRequest, ShowDuplicationsResponse } from './types.js';
 
 /**
  * Client for interacting with duplication endpoints

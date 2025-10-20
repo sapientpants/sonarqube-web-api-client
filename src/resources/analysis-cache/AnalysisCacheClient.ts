@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { GetAnalysisCacheRequest, GetAnalysisCacheResponse } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import type { GetAnalysisCacheRequest, GetAnalysisCacheResponse } from './types.js';
 
 /**
  * Client for interacting with the analysis cache endpoints

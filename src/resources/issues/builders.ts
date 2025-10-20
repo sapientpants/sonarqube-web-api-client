@@ -1,4 +1,4 @@
-import { PaginatedBuilder } from '../../core/builders';
+import { PaginatedBuilder } from '../../core/builders/index.js';
 import type {
   SearchIssuesRequest,
   SearchIssuesResponse,
@@ -23,7 +23,7 @@ import type {
   SansTop25Category,
   StigASDV5R3Category,
   CasaCategory,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing complex issue search queries

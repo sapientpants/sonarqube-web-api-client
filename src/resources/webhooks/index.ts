@@ -1,5 +1,5 @@
-export { WebhooksClient } from './WebhooksClient';
-export { GetWebhookDeliveriesBuilder, ListWebhooksBuilder } from './builders';
+export { WebhooksClient } from './WebhooksClient.js';
+export { GetWebhookDeliveriesBuilder, ListWebhooksBuilder } from './builders.js';
 export type {
   Webhook,
   WebhookDelivery,
@@ -13,4 +13,4 @@ export type {
   GetWebhookDeliveriesResponse,
   GetWebhookDeliveryRequest,
   GetWebhookDeliveryResponse,
-} from './types';
+} from './types.js';

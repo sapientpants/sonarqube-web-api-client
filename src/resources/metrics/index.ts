@@ -1,4 +1,4 @@
-export { MetricsClient } from './MetricsClient';
+export { MetricsClient } from './MetricsClient.js';
 
 // Re-export all types for better compatibility
 export type {
@@ -11,4 +11,4 @@ export type {
   SearchMetricsResponse,
   MetricTypesResponse,
   MetricDomainsResponse,
-} from './types';
+} from './types.js';

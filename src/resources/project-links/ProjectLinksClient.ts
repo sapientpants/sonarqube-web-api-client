@@ -1,12 +1,12 @@
-import { BaseClient } from '../../core/BaseClient';
-import { ProjectLinksSearchBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { ProjectLinksSearchBuilder } from './builders.js';
 import type {
   CreateProjectLinkRequest,
   CreateProjectLinkResponse,
   DeleteProjectLinkRequest,
   SearchProjectLinksRequest,
   SearchProjectLinksResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing project links in SonarQube

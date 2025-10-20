@@ -1,4 +1,4 @@
-export { ProjectBadgesClient } from './ProjectBadgesClient';
+export { ProjectBadgesClient } from './ProjectBadgesClient.js';
 
 // Re-export all types for better compatibility
 export type {
@@ -7,4 +7,4 @@ export type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-} from './types';
+} from './types.js';

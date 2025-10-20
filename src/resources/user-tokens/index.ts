@@ -1,4 +1,4 @@
-export { UserTokensClient } from './UserTokensClient';
+export { UserTokensClient } from './UserTokensClient.js';
 export type {
   GenerateTokenRequest,
   GenerateTokenResponse,
@@ -6,4 +6,4 @@ export type {
   SearchTokensRequest,
   SearchTokensResponse,
   UserToken,
-} from './types';
+} from './types.js';

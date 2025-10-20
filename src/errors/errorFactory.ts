@@ -9,7 +9,7 @@ import {
   ServerError,
   SonarQubeError,
   TimeoutError,
-} from './SonarQubeError';
+} from './SonarQubeError.js';
 
 /**
  * SonarQube error response format

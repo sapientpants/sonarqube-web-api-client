@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { HotspotsClient } from '../../../../src/resources/hotspots/HotspotsClient';
-import { SearchHotspotsBuilder } from '../../../../src/resources/hotspots/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { HotspotsClient } from '../../../../src/resources/hotspots/HotspotsClient.js';
+import { SearchHotspotsBuilder } from '../../../../src/resources/hotspots/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
 
 describe('HotspotsClient', () => {

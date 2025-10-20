@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { SetSettingBuilder, ResetSettingBuilder, ValuesBuilder } from './builders';
-import { addParamIfValid } from './helpers';
+import { BaseClient } from '../../core/BaseClient.js';
+import { SetSettingBuilder, ResetSettingBuilder, ValuesBuilder } from './builders.js';
+import { addParamIfValid } from './helpers.js';
 import type {
   ListDefinitionsRequest,
   ListDefinitionsResponse,
@@ -8,7 +8,7 @@ import type {
   ResetRequest,
   ValuesRequest,
   ValuesResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube settings

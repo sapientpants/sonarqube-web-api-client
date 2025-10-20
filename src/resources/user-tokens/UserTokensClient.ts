@@ -1,11 +1,11 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   GenerateTokenRequest,
   GenerateTokenResponse,
   RevokeTokenRequest,
   SearchTokensRequest,
   SearchTokensResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing user access tokens

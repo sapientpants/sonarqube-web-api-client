@@ -1,3 +1,3 @@
-export { RulesClient } from './RulesClient';
-export { SearchRulesBuilder } from './builders';
-export type * from './types';
+export { RulesClient } from './RulesClient.js';
+export { SearchRulesBuilder } from './builders.js';
+export type * from './types.js';

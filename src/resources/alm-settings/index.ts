@@ -1,4 +1,4 @@
-export { AlmSettingsClient } from './AlmSettingsClient';
+export { AlmSettingsClient } from './AlmSettingsClient.js';
 
 // Export builders
 export {
@@ -11,7 +11,7 @@ export {
   SetBitbucketCloudBindingBuilder,
   SetGitHubBindingBuilder,
   SetGitLabBindingBuilder,
-} from './builders';
+} from './builders.js';
 
 // Re-export all types explicitly for better compatibility
 export type {
@@ -68,4 +68,4 @@ export type {
 
   // Validation types
   AlmSettingValidationError,
-} from './types';
+} from './types.js';

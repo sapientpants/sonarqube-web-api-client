@@ -1,4 +1,4 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   CountBindingRequest,
   CountBindingResponse,
@@ -26,7 +26,7 @@ import type {
   SetGitLabBindingRequest,
   ValidateAlmSettingRequest,
   ValidateAlmSettingResponse,
-} from './types';
+} from './types.js';
 import {
   CreateGitHubBuilder,
   UpdateGitHubBuilder,
@@ -37,7 +37,7 @@ import {
   SetBitbucketCloudBindingBuilder,
   SetGitHubBindingBuilder,
   SetGitLabBindingBuilder,
-} from './builders';
+} from './builders.js';
 
 /**
  * Client for managing DevOps Platform Settings (ALM Settings)

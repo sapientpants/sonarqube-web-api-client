@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { MeasuresClient } from '../../../../src/resources/measures/MeasuresClient';
+import { MeasuresClient } from '../../../../src/resources/measures/MeasuresClient.js';
 import { http } from 'msw';
-import { server } from '../../../../src/test-utils';
+import { server } from '../../../../src/test-utils/index.js';
 
 describe('MeasuresClient', () => {
   let client: MeasuresClient;

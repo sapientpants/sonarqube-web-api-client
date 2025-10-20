@@ -1,14 +1,14 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { MetricsClient } from '../../../../src/resources/metrics/MetricsClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import type { MetricDomainsResponse, Metric } from '../../../../src/resources/metrics/types';
+import { MetricsClient } from '../../../../src/resources/metrics/MetricsClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import type { MetricDomainsResponse, Metric } from '../../../../src/resources/metrics/types.js';
 import {
   AuthenticationError,
   NotFoundError,
   RateLimitError,
   ServerError,
-} from '../../../../src/errors';
+} from '../../../../src/errors/index.js';
 import {
   SAMPLE_METRICS,
   createMetric,
@@ -16,7 +16,7 @@ import {
   createMetricTypesResponse,
   createApiError,
   createErrorResponse,
-} from '../../../../src/test-utils/msw/factories';
+} from '../../../../src/test-utils/msw/factories.js';
 
 describe('MetricsClient', () => {
   let client: MetricsClient;

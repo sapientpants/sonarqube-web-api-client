@@ -1,4 +1,4 @@
-import { BaseBuilder } from './BaseBuilder';
+import { BaseBuilder } from './BaseBuilder.js';
 
 /**
  * Base builder for ALM settings operations with OAuth capabilities

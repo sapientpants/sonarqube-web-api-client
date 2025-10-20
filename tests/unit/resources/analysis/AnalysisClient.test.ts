@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { http, HttpResponse, delay } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { SonarQubeClient, NoAuthProvider } from '../../../../src/index';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { SonarQubeClient, NoAuthProvider } from '../../../../src/index.js';
 import type {
   GetActiveRulesV2Response,
   EngineMetadataV2,
@@ -9,7 +9,7 @@ import type {
   JreMetadataV2,
   VersionV2Response,
   DownloadProgress,
-} from '../../../../src/resources/analysis/types';
+} from '../../../../src/resources/analysis/types.js';
 
 describe('AnalysisClient', () => {
   const baseUrl = 'http://localhost:9000';

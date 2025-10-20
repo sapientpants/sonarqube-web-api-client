@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
-import { SearchIssuesBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
+import { SearchIssuesBuilder } from './builders.js';
 import type {
   SearchIssuesRequest,
   SearchIssuesResponse,
@@ -30,7 +30,7 @@ import type {
   SetSeverityResponse,
   SearchTagsRequest,
   SearchTagsResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube issues

@@ -1,7 +1,7 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation/DeprecationManager';
-import { ValidationError } from '../../errors';
-import { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/DeprecationManager.js';
+import { ValidationError } from '../../errors/index.js';
+import { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders.js';
 import type {
   BulkUpdateProjectKeyRequest,
   BulkUpdateProjectKeyResponse,
@@ -18,7 +18,7 @@ import type {
   SetContainsAiCodeRequest,
   UpdateProjectKeyRequest,
   UpdateProjectVisibilityRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Projects API.

@@ -10,7 +10,7 @@ import {
   SonarQubeError,
   TimeoutError,
   ValidationError,
-} from '../../../src/errors/SonarQubeError';
+} from '../../../src/errors/SonarQubeError.js';
 
 describe('SonarQubeError', () => {
   it('should create base error with all properties', () => {

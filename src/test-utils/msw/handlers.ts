@@ -7,7 +7,7 @@ import {
   createHotspot,
   createHotspotDetails,
   createHotspotsResponse,
-} from './factories';
+} from './factories.js';
 
 /**
  * Default MSW request handlers for common scenarios.

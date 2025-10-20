@@ -1,2 +1,2 @@
-export { AuthenticationClient } from './AuthenticationClient';
-export type { ValidateResponse } from './types';
+export { AuthenticationClient } from './AuthenticationClient.js';
+export type { ValidateResponse } from './types.js';

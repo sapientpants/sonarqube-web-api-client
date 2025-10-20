@@ -3,7 +3,7 @@
  * @since 10.4
  */
 
-import type { PrimitiveValue } from '../types/primitive';
+import type { PrimitiveValue } from '../types/primitive.js';
 
 /**
  * Build a query string from parameters for v2 APIs

@@ -247,10 +247,10 @@ export const patternBuilder = {
    * ```
    */
   methodCallPattern(objectName: string, methodName?: string, _flags?: string): string {
-    const escapedObject: string = objectName.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedObject: string = objectName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
     if (methodName !== undefined && methodName !== '') {
-      const escapedMethod: string = methodName.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedMethod: string = methodName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
       return String.raw`\b${escapedObject}\s*\.\s*${escapedMethod}\s*\(`;
     }
 
@@ -268,7 +268,7 @@ export const patternBuilder = {
     text: string,
     quoteTypes: Array<'"' | "'" | '`'> = ['"', "'", '`'],
   ): string {
-    const escapedText: string = text.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedText: string = text.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
     const quotePatterns = quoteTypes.map((quote) => {
       if (quote === '`') {
         // Template literals can span multiple lines - use non-greedy matching
@@ -559,10 +559,12 @@ export const ruleMigrationUtils = {
       // Simple YAML-like format (for demonstration)
       return exportData
         .map((rule) => {
-          const lines = [`- key: ${rule.key}`];
-          lines.push(`  templateKey: ${rule.templateKey ?? ''}`);
-          lines.push(`  name: ${rule.name}`);
-          lines.push(`  markdownDescription: |`);
+          const lines = [
+            `- key: ${rule.key}`,
+            `  templateKey: ${rule.templateKey ?? ''}`,
+            `  name: ${rule.name}`,
+            `  markdownDescription: |`,
+          ];
           if (rule.markdownDescription && rule.markdownDescription !== '') {
             lines.push(...rule.markdownDescription.split('\n').map((l) => `    ${l}`));
           }
@@ -570,8 +572,7 @@ export const ruleMigrationUtils = {
           if (rule.parameters && rule.parameters.length > 0) {
             lines.push(`  parameters:`);
             for (const p of rule.parameters) {
-              lines.push(`    - key: ${p.key}`);
-              lines.push(`      value: "${p.value}"`);
+              lines.push(`    - key: ${p.key}`, `      value: "${p.value}"`);
             }
           }
           return lines.join('\n');

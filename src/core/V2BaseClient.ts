@@ -37,7 +37,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     }
 
     const contentLength = response.headers.get('content-length');
-    const total = contentLength !== null ? Number.parseInt(contentLength, 10) : 0;
+    const total = contentLength === null ? 0 : Number.parseInt(contentLength, 10);
 
     if (!response.body) {
       throw new Error('Response body is null');

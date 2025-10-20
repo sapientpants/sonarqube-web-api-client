@@ -3,7 +3,7 @@
  * Handles DevOps platform integration and project binding
  */
 
-// Import DevOpsPlatform enum for use in this file
+// Import types for use in this file
 import type {
   DevOpsPlatform,
   GitHubConfig,
@@ -11,8 +11,15 @@ import type {
   BitbucketConfig,
   AzureDevOpsConfig,
   ValidationResult,
-  ValidationError,
-  ValidationWarning,
+} from '../../core/services/PlatformValidationService';
+
+// Re-export platform configs for external consumers
+export type {
+  GitHubConfig,
+  GitLabConfig,
+  BitbucketConfig,
+  AzureDevOpsConfig,
+  ValidationResult,
 } from '../../core/services/PlatformValidationService';
 
 /**
@@ -168,9 +175,11 @@ export type PlatformSpecificConfig =
   | BitbucketConfig
   | AzureDevOpsConfig;
 
-// Re-export for convenience
-export type { GitHubConfig, GitLabConfig, BitbucketConfig, AzureDevOpsConfig };
-export type { ValidationResult, ValidationError, ValidationWarning };
+// Re-export validation types for convenience
+export type {
+  ValidationError,
+  ValidationWarning,
+} from '../../core/services/PlatformValidationService';
 
 // ============================================================================
 // Authentication Types

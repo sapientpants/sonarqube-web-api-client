@@ -146,7 +146,7 @@ export class RulesClient extends BaseClient {
     const searchParams = new URLSearchParams();
 
     // Handle array parameters by joining with commas
-    const arrayParams: Array<keyof SearchRulesRequest> = [
+    const arrayParams = new Set<keyof SearchRulesRequest>([
       'active_severities',
       'cleanCodeAttributeCategories',
       'cwe',
@@ -164,12 +164,12 @@ export class RulesClient extends BaseClient {
       'statuses',
       'tags',
       'types',
-    ];
+    ]);
 
     // Add parameters to search params
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) {
-        if (arrayParams.includes(key as keyof SearchRulesRequest) && Array.isArray(value)) {
+        if (arrayParams.has(key as keyof SearchRulesRequest) && Array.isArray(value)) {
           if (value.length > 0) {
             searchParams.append(key, value.join(','));
           }

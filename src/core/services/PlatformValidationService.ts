@@ -358,7 +358,7 @@ export namespace PlatformValidationService {
       warnings.push({
         field: 'identifier',
         message: `${platform} identifier should be in format "${rule.identifierExample}"`,
-        ...(suggestion !== undefined ? { suggestion } : {}),
+        ...(suggestion === undefined ? {} : { suggestion }),
         platform,
       });
     }

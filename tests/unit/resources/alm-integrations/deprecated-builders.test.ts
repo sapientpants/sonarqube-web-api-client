@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { Mock, MockInstance } from 'vitest';
-import { DeprecationManager } from '../../../../src/core/deprecation';
-import { BitbucketCloudReposSearchBuilder } from '../../../../src/resources/alm-integrations/builders';
+import { DeprecationManager } from '../../../../src/core/deprecation/index.js';
+import { BitbucketCloudReposSearchBuilder } from '../../../../src/resources/alm-integrations/builders.js';
 
 describe('ALM Integration Deprecated Builders', () => {
   let consoleSpy: MockInstance;

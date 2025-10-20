@@ -2,8 +2,8 @@
  * Components API
  */
 
-export { ComponentsClient } from './ComponentsClient';
-export { ComponentsTreeBuilder, ComponentsSearchBuilder } from './builders';
+export { ComponentsClient } from './ComponentsClient.js';
+export { ComponentsTreeBuilder, ComponentsSearchBuilder } from './builders.js';
 export type {
   Component,
   ComponentShowRequest,
@@ -14,5 +14,5 @@ export type {
   ComponentTreeRequest,
   ComponentTreeResponse,
   BooleanString,
-} from './types';
-export { ComponentQualifier, ComponentTreeStrategy, ComponentSortField } from './types';
+} from './types.js';
+export { ComponentQualifier, ComponentTreeStrategy, ComponentSortField } from './types.js';

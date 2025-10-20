@@ -3,8 +3,8 @@
  * Handles DevOps platform integration and project binding
  */
 
-import { V2BaseClient } from '../../core/V2BaseClient';
-import { PlatformValidationService } from '../../core/services/PlatformValidationService';
+import { V2BaseClient } from '../../core/V2BaseClient.js';
+import { PlatformValidationService } from '../../core/services/PlatformValidationService.js';
 import {
   DevOpsPlatform,
   type CreateBoundProjectV2Request,
@@ -14,8 +14,8 @@ import {
   type BatchCreateRequest,
   type BatchCreateResponse,
   type BatchProjectResult,
-} from './types';
-import { CreateBoundProjectV2BuilderImpl } from './builders';
+} from './types.js';
+import { CreateBoundProjectV2BuilderImpl } from './builders.js';
 
 /**
  * Client for DOP Translation API v2 operations

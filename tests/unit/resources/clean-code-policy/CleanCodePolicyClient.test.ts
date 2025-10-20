@@ -1,11 +1,11 @@
 // @ts-nocheck
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
-import { CleanCodePolicyClient } from '../../../../src/resources/clean-code-policy/CleanCodePolicyClient';
+import { CleanCodePolicyClient } from '../../../../src/resources/clean-code-policy/CleanCodePolicyClient.js';
 import type {
   CreateCustomRuleV2Request,
   CreateCustomRuleV2Response,
-} from '../../../../src/resources/clean-code-policy/types';
+} from '../../../../src/resources/clean-code-policy/types.js';
 
 describe('CleanCodePolicyClient', () => {
   const baseUrl = 'https://sonarqube.example.com';

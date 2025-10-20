@@ -1,4 +1,4 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   ListNewCodePeriodsRequest,
   ListNewCodePeriodsResponse,
@@ -7,7 +7,7 @@ import type {
   ShowNewCodePeriodRequest,
   ShowNewCodePeriodResponse,
   UnsetNewCodePeriodRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube new code periods

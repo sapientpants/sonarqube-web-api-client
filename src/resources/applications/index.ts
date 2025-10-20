@@ -1,4 +1,4 @@
-export { ApplicationsClient } from './ApplicationsClient';
+export { ApplicationsClient } from './ApplicationsClient.js';
 export type {
   Application,
   ApplicationBranch,
@@ -16,4 +16,4 @@ export type {
   ShowApplicationResponse,
   UpdateApplicationRequest,
   UpdateBranchRequest,
-} from './types';
+} from './types.js';

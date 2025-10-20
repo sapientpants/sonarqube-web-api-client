@@ -1,11 +1,11 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   NotificationAddRequest,
   NotificationListRequest,
   NotificationListResponse,
   NotificationModifyRequest,
   NotificationRemoveRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing notifications of the authenticated user

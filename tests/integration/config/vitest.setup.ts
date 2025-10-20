@@ -5,7 +5,7 @@
  */
 
 import { expect } from 'vitest';
-import { canRunIntegrationTests, getIntegrationTestConfig } from './environment';
+import { canRunIntegrationTests, getIntegrationTestConfig } from './environment.js';
 
 // Skip all tests if integration test environment is not configured
 if (!canRunIntegrationTests()) {

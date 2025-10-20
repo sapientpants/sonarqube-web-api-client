@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { QualityProfilesClient } from '../../../../src/resources/quality-profiles/QualityProfilesClient';
-import { server } from '../../../../src/test-utils/msw/server';
+import { QualityProfilesClient } from '../../../../src/resources/quality-profiles/QualityProfilesClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertCommonHeaders,
   assertRequestBody,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
+} from '../../../../src/test-utils/assertions.js';
 import type {
   CompareResponse,
   CopyResponse,
@@ -17,7 +17,7 @@ import type {
   InheritanceResponse,
   ProjectsResponse,
   RestoreResponse,
-} from '../../../../src/resources/quality-profiles/types';
+} from '../../../../src/resources/quality-profiles/types.js';
 
 describe('QualityProfilesClient', () => {
   const baseUrl = 'http://localhost:9000';

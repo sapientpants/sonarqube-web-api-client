@@ -38,7 +38,7 @@
  */
 
 // Export the client
-export { AuditLogsClient } from './AuditLogsClient';
+export { AuditLogsClient } from './AuditLogsClient.js';
 
 // Export all types
 export type {
@@ -49,4 +49,4 @@ export type {
   SearchAuditLogsResponse,
   DownloadAuditLogsRequest,
   DownloadAuditLogsResponse,
-} from './types';
+} from './types.js';

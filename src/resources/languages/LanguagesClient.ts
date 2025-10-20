@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { ListLanguagesParams, ListLanguagesResponse, Language } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import type { ListLanguagesParams, ListLanguagesResponse, Language } from './types.js';
 
 /**
  * Client for interacting with SonarQube languages endpoints

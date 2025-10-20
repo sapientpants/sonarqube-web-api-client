@@ -6,8 +6,8 @@ import {
   messageTemplateUtils,
   ruleMigrationUtils,
   cleanCodeAttributeUtils,
-} from '../../../../src/resources/clean-code-policy/utils';
-import type { CreateCustomRuleV2Response } from '../../../../src/resources/clean-code-policy/types';
+} from '../../../../src/resources/clean-code-policy/utils.js';
+import type { CreateCustomRuleV2Response } from '../../../../src/resources/clean-code-policy/types.js';
 
 describe('ruleKeyUtils', () => {
   describe('generateKey', () => {

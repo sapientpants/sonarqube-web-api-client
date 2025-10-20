@@ -4,7 +4,7 @@ import {
   BearerTokenAuthProvider,
   BasicAuthProvider,
   PasscodeAuthProvider,
-} from '../../../src/index';
+} from '../../../src/index.js';
 
 describe('SonarQubeClient Factory Methods', () => {
   const baseUrl = 'https://sonarqube.example.com';

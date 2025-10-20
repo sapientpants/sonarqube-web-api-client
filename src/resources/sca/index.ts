@@ -1,5 +1,5 @@
-export { ScaClient } from './ScaClient';
-export { SbomFormatConverter, SbomAnalyzer } from './utils';
+export { ScaClient } from './ScaClient.js';
+export { SbomFormatConverter, SbomAnalyzer } from './utils.js';
 export type {
   // Request types
   GetSbomReportV2Request,
@@ -32,7 +32,7 @@ export type {
 
   // Cache types
   SbomCacheOptions,
-} from './types';
+} from './types.js';
 
 // Re-export from V2BaseClient
-export type { DownloadProgress } from '../../core/V2BaseClient';
+export type { DownloadProgress } from '../../core/V2BaseClient.js';

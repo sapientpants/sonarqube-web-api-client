@@ -1,4 +1,4 @@
-import { BaseBuilder } from './BaseBuilder';
+import { BaseBuilder } from './BaseBuilder.js';
 
 /**
  * Common interface for paginated requests

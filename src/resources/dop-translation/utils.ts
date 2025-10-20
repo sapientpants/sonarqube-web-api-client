@@ -17,7 +17,7 @@ import {
   type AzureDevOpsConfig,
   type SonarQubeProjectConfig,
   type AuthenticationCredentials,
-} from './types';
+} from './types.js';
 
 // ============================================================================
 // Platform Detection Utility

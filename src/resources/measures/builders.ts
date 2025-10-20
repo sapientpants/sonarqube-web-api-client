@@ -1,5 +1,5 @@
-import { PaginatedBuilder, validateRequired } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { PaginatedBuilder, validateRequired } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   ComponentTreeRequest,
   ComponentTreeResponse,
@@ -10,7 +10,7 @@ import type {
   MeasuresAdditionalField,
   ComponentTreeStrategy,
   ComponentQualifier,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for component tree search with measures

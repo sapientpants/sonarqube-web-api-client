@@ -1,13 +1,17 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectPullRequestsClient } from '../../../../src/resources/project-pull-requests/ProjectPullRequestsClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import { AuthenticationError, AuthorizationError, NotFoundError } from '../../../../src/errors';
-import { createApiError } from '../../../../src/test-utils/msw/factories';
+import { ProjectPullRequestsClient } from '../../../../src/resources/project-pull-requests/ProjectPullRequestsClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import {
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+} from '../../../../src/errors/index.js';
+import { createApiError } from '../../../../src/test-utils/msw/factories.js';
 import type {
   ListPullRequestsResponse,
   PullRequest,
-} from '../../../../src/resources/project-pull-requests/types';
+} from '../../../../src/resources/project-pull-requests/types.js';
 
 describe('ProjectPullRequestsClient', () => {
   let client: ProjectPullRequestsClient;

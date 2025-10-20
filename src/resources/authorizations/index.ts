@@ -1,5 +1,5 @@
-export { AuthorizationsClient } from './AuthorizationsClient';
-export { SearchGroupsV2Builder, SearchGroupMembershipsV2Builder } from './builders';
+export { AuthorizationsClient } from './AuthorizationsClient.js';
+export { SearchGroupsV2Builder, SearchGroupMembershipsV2Builder } from './builders.js';
 export type {
   // Permission types
   PermissionTypeV2,
@@ -25,4 +25,4 @@ export type {
   AddGroupMembershipV2Request,
   SearchGroupMembershipsV2Request,
   SearchGroupMembershipsV2Response,
-} from './types';
+} from './types.js';

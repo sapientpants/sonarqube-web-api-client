@@ -1,11 +1,11 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   GetRawSourceRequest,
   GetScmInfoRequest,
   GetScmInfoResponse,
   ShowSourceRequest,
   ShowSourceResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with source code endpoints

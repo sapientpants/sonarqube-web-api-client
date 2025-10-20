@@ -17,7 +17,7 @@ import {
   type ValidationResult,
   type ValidationError as DopValidationError,
   type ValidationWarning,
-} from './types';
+} from './types.js';
 
 /**
  * Interface for clients that can create bound projects

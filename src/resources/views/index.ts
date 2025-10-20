@@ -35,7 +35,7 @@
  */
 
 // Export the client
-export { ViewsClient } from './ViewsClient';
+export { ViewsClient } from './ViewsClient.js';
 
 // Export all types
 export type {
@@ -45,4 +45,4 @@ export type {
   ShowPortfolioResponse,
   UpdatePortfolioRequest,
   PortfolioComponent,
-} from './types';
+} from './types.js';

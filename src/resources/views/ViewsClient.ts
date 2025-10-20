@@ -1,11 +1,11 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   AddApplicationRequest,
   AddApplicationBranchRequest,
   ShowPortfolioRequest,
   ShowPortfolioResponse,
   UpdatePortfolioRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for SonarQube Views API

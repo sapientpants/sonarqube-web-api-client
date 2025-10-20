@@ -4,9 +4,9 @@
  */
 
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { BaseClient } from '../../../../src/core/BaseClient';
-import { DownloadMixin } from '../../../../src/core/mixins/DownloadMixin';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { BaseClient } from '../../../../src/core/BaseClient.js';
+import { DownloadMixin } from '../../../../src/core/mixins/DownloadMixin.js';
 
 // Create a test class using the mixin
 class TestClient extends DownloadMixin(BaseClient) {

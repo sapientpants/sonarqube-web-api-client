@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { DeleteBranchParams, RenameMainBranchParams } from './types';
-import { ProjectBranchesListBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import type { DeleteBranchParams, RenameMainBranchParams } from './types.js';
+import { ProjectBranchesListBuilder } from './builders.js';
 
 /**
  * Client for interacting with the SonarQube Project Branches API.

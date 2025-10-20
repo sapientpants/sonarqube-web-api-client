@@ -1,5 +1,5 @@
 // @ts-nocheck
-import * as componentExports from '../../../../src/index';
+import * as componentExports from '../../../../src/index.js';
 
 describe.skip('components module exports', () => {
   it('should export ComponentsClient', () => {

@@ -5,9 +5,9 @@
  * It performs environment validation and global initialization.
  */
 
-import { canRunIntegrationTests, getIntegrationTestConfig } from './environment';
-import { getTestConfiguration } from './testConfig';
-import { IntegrationTestClient } from '../setup/IntegrationTestClient';
+import { canRunIntegrationTests, getIntegrationTestConfig } from './environment.js';
+import { getTestConfiguration } from './testConfig.js';
+import { IntegrationTestClient } from '../setup/IntegrationTestClient.js';
 
 export default async function globalSetup(): Promise<void> {
   console.log(`\n┌${'─'.repeat(78)}┐`);

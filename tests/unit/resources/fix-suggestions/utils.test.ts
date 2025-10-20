@@ -5,12 +5,12 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   FixSuggestionUtils,
   FixSuggestionIntegration,
-} from '../../../../src/resources/fix-suggestions/utils';
+} from '../../../../src/resources/fix-suggestions/utils.js';
 import type {
   AiFixSuggestionV2,
   AiCodeChangeV2,
   FixApplicationOptions,
-} from '../../../../src/resources/fix-suggestions/types';
+} from '../../../../src/resources/fix-suggestions/types.js';
 
 describe('FixSuggestionUtils', () => {
   const mockSuggestion: AiFixSuggestionV2 = {

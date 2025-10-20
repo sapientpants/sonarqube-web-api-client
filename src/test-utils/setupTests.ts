@@ -1,5 +1,5 @@
 import { beforeAll, afterEach, afterAll } from 'vitest';
-import { server } from './msw/server';
+import { server } from './msw/server.js';
 
 // Start MSW server before all tests
 beforeAll(() => {

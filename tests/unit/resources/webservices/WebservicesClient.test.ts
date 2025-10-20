@@ -1,16 +1,16 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
-} from '../../../../src/test-utils/assertions';
-import { WebservicesClient } from '../../../../src/resources/webservices/WebservicesClient';
-import { AuthorizationError, AuthenticationError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { WebservicesClient } from '../../../../src/resources/webservices/WebservicesClient.js';
+import { AuthorizationError, AuthenticationError } from '../../../../src/errors/index.js';
 import type {
   ListWebservicesResponse,
   ResponseExampleResponse,
-} from '../../../../src/resources/webservices/types';
+} from '../../../../src/resources/webservices/types.js';
 
 describe('WebservicesClient', () => {
   let client: WebservicesClient;

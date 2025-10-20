@@ -3,13 +3,13 @@ import { vi, describe, it, expect } from 'vitest';
 import {
   GetWebhookDeliveriesBuilder,
   ListWebhooksBuilder,
-} from '../../../../src/resources/webhooks/builders';
+} from '../../../../src/resources/webhooks/builders.js';
 import type {
   GetWebhookDeliveriesRequest,
   GetWebhookDeliveriesResponse,
   ListWebhooksRequest,
   ListWebhooksResponse,
-} from '../../../../src/resources/webhooks/types';
+} from '../../../../src/resources/webhooks/types.js';
 
 describe('Webhooks Builders', () => {
   describe('GetWebhookDeliveriesBuilder', () => {

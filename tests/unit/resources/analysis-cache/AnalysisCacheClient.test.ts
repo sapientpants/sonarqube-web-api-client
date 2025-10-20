@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
-import { AnalysisCacheClient } from '../../../../src/resources/analysis-cache/AnalysisCacheClient';
-import { AuthorizationError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { AnalysisCacheClient } from '../../../../src/resources/analysis-cache/AnalysisCacheClient.js';
+import { AuthorizationError } from '../../../../src/errors/index.js';
 
 describe('AnalysisCacheClient', () => {
   let client: AnalysisCacheClient;

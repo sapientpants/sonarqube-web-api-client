@@ -1,5 +1,5 @@
-import { BaseBuilder, ParameterHelpers } from '../../core/builders';
-import type { QualityGateBadgeParams, MeasureBadgeParams } from './types';
+import { BaseBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import type { QualityGateBadgeParams, MeasureBadgeParams } from './types.js';
 
 /**
  * Builder for generating quality gate badges.

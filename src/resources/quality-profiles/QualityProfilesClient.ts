@@ -1,13 +1,13 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
-import { ValidationError } from '../../errors';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
+import { ValidationError } from '../../errors/index.js';
 import {
   ActivateRulesBuilder,
   ChangelogBuilder,
   DeactivateRulesBuilder,
   ProjectsBuilder,
   SearchBuilder,
-} from './builders';
+} from './builders.js';
 import type {
   ActivateRuleRequest,
   AddProjectRequest,
@@ -32,7 +32,7 @@ import type {
   RestoreRequest,
   RestoreResponse,
   SetDefaultRequest,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Quality Profiles API.

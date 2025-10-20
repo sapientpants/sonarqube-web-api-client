@@ -5,7 +5,7 @@
  * Usage: npx sonarqube-client-migrate [options]
  */
 
-import { DeprecationRegistry, MigrationAssistant } from '../index';
+import { DeprecationRegistry, MigrationAssistant } from '../index.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 

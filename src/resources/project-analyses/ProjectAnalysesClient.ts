@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { ValidationError } from '../../errors';
-import { SearchProjectAnalysesBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { ValidationError } from '../../errors/index.js';
+import { SearchProjectAnalysesBuilder } from './builders.js';
 import type {
   CreateEventRequest,
   CreateEventResponse,
@@ -12,7 +12,7 @@ import type {
   UnsetBaselineRequest,
   UpdateEventRequest,
   UpdateEventResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Project Analyses API.

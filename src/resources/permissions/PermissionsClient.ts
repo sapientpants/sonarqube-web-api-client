@@ -1,12 +1,12 @@
-import { BaseClient } from '../../core/BaseClient';
-import { DeprecationManager } from '../../core/deprecation';
+import { BaseClient } from '../../core/BaseClient.js';
+import { DeprecationManager } from '../../core/deprecation/index.js';
 import {
   SearchGlobalPermissionsBuilder,
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
-} from './builders';
-import { addParamIfValid } from './helpers';
+} from './builders.js';
+import { addParamIfValid } from './helpers.js';
 import type {
   AddUserPermissionRequest,
   RemoveUserPermissionRequest,
@@ -26,7 +26,7 @@ import type {
   SearchGlobalPermissionsResponse,
   CreateTemplateResponse,
   UpdateTemplateResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Permissions API.

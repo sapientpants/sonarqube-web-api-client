@@ -1,18 +1,18 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
-} from '../../../../src/test-utils/assertions';
-import { SystemClient } from '../../../../src/resources/system/SystemClient';
-import { AuthorizationError, AuthenticationError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { SystemClient } from '../../../../src/resources/system/SystemClient.js';
+import { AuthorizationError, AuthenticationError } from '../../../../src/errors/index.js';
 import type {
   HealthResponse,
   StatusResponse,
   InfoResponse,
-} from '../../../../src/resources/system/types';
-import type { SystemHealthV2 } from '../../../../src/types-v2';
+} from '../../../../src/resources/system/types.js';
+import type { SystemHealthV2 } from '../../../../src/types-v2.js';
 
 describe('SystemClient', () => {
   let client: SystemClient;

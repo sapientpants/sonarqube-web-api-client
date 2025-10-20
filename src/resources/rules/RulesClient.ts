@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import { SearchRulesBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { SearchRulesBuilder } from './builders.js';
 import type {
   ListRepositoriesRequest,
   ListRepositoriesResponse,
@@ -11,7 +11,7 @@ import type {
   ListTagsResponse,
   UpdateRuleRequest,
   UpdateRuleResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube rules

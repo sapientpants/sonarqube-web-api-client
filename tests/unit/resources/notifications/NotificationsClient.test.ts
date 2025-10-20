@@ -1,15 +1,19 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { assertAuthorizationHeader } from '../../../../src/test-utils/assertions';
-import { NotificationsClient } from '../../../../src/resources/notifications/NotificationsClient';
-import { AuthenticationError, AuthorizationError, NotFoundError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { assertAuthorizationHeader } from '../../../../src/test-utils/assertions.js';
+import { NotificationsClient } from '../../../../src/resources/notifications/NotificationsClient.js';
+import {
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+} from '../../../../src/errors/index.js';
 import {
   type NotificationListResponse,
   GlobalNotificationType,
   NotificationChannel,
   ProjectNotificationType,
-} from '../../../../src/resources/notifications/types';
+} from '../../../../src/resources/notifications/types.js';
 
 describe('NotificationsClient', () => {
   let client: NotificationsClient;

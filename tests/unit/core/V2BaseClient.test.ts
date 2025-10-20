@@ -4,9 +4,9 @@
  */
 
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../src/test-utils/msw/server';
-import { V2BaseClient } from '../../../src/core/V2BaseClient';
-import type { V2PaginatedResponse } from '../../../src/core/types/v2-common';
+import { server } from '../../../src/test-utils/msw/server.js';
+import { V2BaseClient } from '../../../src/core/V2BaseClient.js';
+import type { V2PaginatedResponse } from '../../../src/core/types/v2-common.js';
 
 // Create a test implementation
 class TestV2Client extends V2BaseClient {

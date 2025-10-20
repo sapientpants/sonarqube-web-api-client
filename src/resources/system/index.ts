@@ -1,4 +1,4 @@
-export { SystemClient } from './SystemClient';
+export { SystemClient } from './SystemClient.js';
 export type {
   HealthStatus,
   SystemStatus,
@@ -6,7 +6,7 @@ export type {
   StatusResponse,
   SystemInfo,
   InfoResponse,
-} from './types';
+} from './types.js';
 export type {
   SystemEdition,
   SystemFeature,
@@ -15,4 +15,4 @@ export type {
   SystemInfoV2,
   SystemHealthV2,
   SystemStatusV2Response,
-} from './types-v2';
+} from './types-v2.js';

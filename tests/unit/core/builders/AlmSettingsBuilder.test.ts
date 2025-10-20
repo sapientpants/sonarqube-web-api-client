@@ -7,7 +7,7 @@ import {
   UpdatableAlmSettingsBuilder,
   UpdatableAlmSettingsBuilderWithKey,
   ProjectBindingBuilder,
-} from '../../../../src/core/builders/AlmSettingsBuilder';
+} from '../../../../src/core/builders/AlmSettingsBuilder.js';
 
 // Test implementation of AlmSettingsBuilderWithOAuth
 interface TestOAuthRequest {

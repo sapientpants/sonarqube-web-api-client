@@ -1,5 +1,5 @@
-import { BaseBuilder, ParameterHelpers } from '../../core/builders';
-import type { SearchProjectLinksRequest, SearchProjectLinksResponse } from './types';
+import { BaseBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import type { SearchProjectLinksRequest, SearchProjectLinksResponse } from './types.js';
 
 /**
  * Builder for searching project links.

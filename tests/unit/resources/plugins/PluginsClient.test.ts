@@ -1,14 +1,14 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { PluginsClient } from '../../../../src/resources/plugins/PluginsClient';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { PluginsClient } from '../../../../src/resources/plugins/PluginsClient.js';
 import type {
   GetAvailablePluginsResponse,
   GetInstalledPluginsResponse,
   GetPendingPluginsResponse,
   GetPluginUpdatesResponse,
-} from '../../../../src/resources/plugins/types';
-import { AuthorizationError, ApiError, NetworkError } from '../../../../src/errors';
+} from '../../../../src/resources/plugins/types.js';
+import { AuthorizationError, ApiError, NetworkError } from '../../../../src/errors/index.js';
 
 describe('PluginsClient', () => {
   let client: PluginsClient;

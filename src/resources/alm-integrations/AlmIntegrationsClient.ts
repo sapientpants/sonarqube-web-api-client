@@ -1,4 +1,4 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   SetPatRequest,
   ListAzureProjectsRequest,
@@ -13,14 +13,14 @@ import type {
   SearchBitbucketCloudReposResponse,
   SearchGitLabReposRequest,
   SearchGitLabReposResponse,
-} from './types';
+} from './types.js';
 
 import {
   AzureReposSearchBuilder,
   BitbucketServerReposSearchBuilder,
   BitbucketCloudReposSearchBuilder,
   GitLabReposSearchBuilder,
-} from './builders';
+} from './builders.js';
 
 export class AlmIntegrationsClient extends BaseClient {
   /**

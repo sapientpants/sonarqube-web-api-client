@@ -1,17 +1,17 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectsClient } from '../../../../src/resources/projects/ProjectsClient';
+import { ProjectsClient } from '../../../../src/resources/projects/ProjectsClient.js';
 import type {
   BulkDeleteProjectsBuilder,
   SearchProjectsBuilder,
-} from '../../../../src/resources/projects/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+} from '../../../../src/resources/projects/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertCommonHeaders,
   assertRequestBody,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
-import type { SearchProjectsResponse } from '../../../../src/resources/projects/types';
+} from '../../../../src/test-utils/assertions.js';
+import type { SearchProjectsResponse } from '../../../../src/resources/projects/types.js';
 
 describe('Projects Builders', () => {
   const baseUrl = 'http://localhost:9000';

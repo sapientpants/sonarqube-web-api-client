@@ -1,4 +1,4 @@
-export { AnalysisClient } from './AnalysisClient';
+export { AnalysisClient } from './AnalysisClient.js';
 export type {
   // Request types
   GetActiveRulesV2Request,
@@ -12,7 +12,7 @@ export type {
   // Data types
   ActiveRuleV2,
   JreMetadataV2,
-} from './types';
+} from './types.js';
 
 // Re-export from V2BaseClient/mixins
-export type { DownloadOptions, DownloadProgress } from '../../core/mixins/DownloadMixin';
+export type { DownloadOptions, DownloadProgress } from '../../core/mixins/DownloadMixin.js';

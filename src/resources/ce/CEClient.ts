@@ -1,6 +1,6 @@
-import { BaseClient } from '../../core/BaseClient';
-import { ValidationError } from '../../errors';
-import { ActivityBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { ValidationError } from '../../errors/index.js';
+import { ActivityBuilder } from './builders.js';
 import type {
   ActivityRequest,
   ActivityResponse,
@@ -10,7 +10,7 @@ import type {
   ComponentTasksResponse,
   TaskRequest,
   TaskResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with SonarQube Compute Engine (CE) API

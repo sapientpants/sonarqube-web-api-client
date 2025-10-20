@@ -3,8 +3,8 @@
  * @since 10.3
  */
 
-import type { BaseClient } from '../BaseClient';
-import type { AuthProvider } from '../auth/AuthProvider';
+import type { BaseClient } from '../BaseClient.js';
+import type { AuthProvider } from '../auth/AuthProvider.js';
 
 /**
  * Download options for binary content
@@ -113,12 +113,12 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
           signal: options?.signal ?? null,
         });
       } catch (networkError: unknown) {
-        const { createNetworkError } = await import('../../errors');
+        const { createNetworkError } = await import('../../errors/index.js');
         throw createNetworkError(networkError);
       }
 
       if (!response.ok) {
-        const { createErrorFromResponse } = await import('../../errors');
+        const { createErrorFromResponse } = await import('../../errors/index.js');
         throw await createErrorFromResponse(response);
       }
 
@@ -192,7 +192,7 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
       const response = await fetch(`${this.baseUrl}${url}`, requestOptions);
 
       if (!response.ok) {
-        const { createErrorFromResponse } = await import('../../errors');
+        const { createErrorFromResponse } = await import('../../errors/index.js');
         throw await createErrorFromResponse(response);
       }
 

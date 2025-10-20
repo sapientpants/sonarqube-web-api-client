@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PasscodeAuthProvider } from '../../../../src/core/auth/PasscodeAuthProvider';
+import { PasscodeAuthProvider } from '../../../../src/core/auth/PasscodeAuthProvider.js';
 
 describe('PasscodeAuthProvider', () => {
   it('should throw error if passcode is empty', () => {

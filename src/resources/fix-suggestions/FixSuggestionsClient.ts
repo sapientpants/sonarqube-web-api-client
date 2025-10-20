@@ -1,5 +1,8 @@
-import { BaseClient } from '../../core/BaseClient';
-import { GetIssueAvailabilityV2BuilderImpl, RequestAiSuggestionsV2BuilderImpl } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import {
+  GetIssueAvailabilityV2BuilderImpl,
+  RequestAiSuggestionsV2BuilderImpl,
+} from './builders.js';
 import type {
   IFixSuggestionsClient,
   GetIssueAvailabilityV2Request,
@@ -8,7 +11,7 @@ import type {
   AiSuggestionResponseV2,
   GetIssueAvailabilityV2Builder,
   RequestAiSuggestionsV2Builder,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Fix Suggestions API v2.

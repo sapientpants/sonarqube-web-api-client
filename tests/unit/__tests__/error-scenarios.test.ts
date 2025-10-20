@@ -1,14 +1,14 @@
 // @ts-nocheck
 import { describe, it, expect, beforeEach } from 'vitest';
 import { http, HttpResponse, delay } from 'msw';
-import { SonarQubeClient } from '../../../src/index';
+import { SonarQubeClient } from '../../../src/index.js';
 import {
   AuthenticationError,
   RateLimitError,
   NetworkError,
   ServerError,
-} from '../../../src/errors';
-import { server } from '../../../src/test-utils/msw/server';
+} from '../../../src/errors/index.js';
+import { server } from '../../../src/test-utils/msw/server.js';
 
 describe('Error Scenarios with MSW', () => {
   let client: SonarQubeClient;

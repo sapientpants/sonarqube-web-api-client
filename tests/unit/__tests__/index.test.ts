@@ -1,17 +1,17 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { SonarQubeClient } from '../../../src/index';
-import { AuthenticationError } from '../../../src/errors';
-import { server } from '../../../src/test-utils/msw/server';
+import { SonarQubeClient } from '../../../src/index.js';
+import { AuthenticationError } from '../../../src/errors/index.js';
+import { server } from '../../../src/test-utils/msw/server.js';
 import {
   createProjectsResponse,
   createIssuesResponse,
-} from '../../../src/test-utils/msw/factories';
+} from '../../../src/test-utils/msw/factories.js';
 import {
   assertAuthorizationHeader,
   assertContentTypeHeader,
-} from '../../../src/test-utils/assertions';
+} from '../../../src/test-utils/assertions.js';
 
 describe('SonarQubeClient', () => {
   describe('constructor', () => {

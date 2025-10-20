@@ -3,4 +3,4 @@
  * @since 10.3
  */
 
-export * from './DownloadMixin';
+export * from './DownloadMixin.js';

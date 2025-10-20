@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { CEClient } from '../../../../src/resources/ce/CEClient';
-import { TaskStatus, TaskType } from '../../../../src/resources/ce/types';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { CEClient } from '../../../../src/resources/ce/CEClient.js';
+import { TaskStatus, TaskType } from '../../../../src/resources/ce/types.js';
 
 const SONARQUBE_URL = 'http://localhost:9000';
 const TOKEN = 'test-token';

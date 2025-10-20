@@ -6,11 +6,11 @@
  * This API provides operations for creating, viewing, and managing portfolios (Enterprise feature).
  */
 
-import { IntegrationTestClient } from '../../setup/IntegrationTestClient';
-import { TestDataManager } from '../../setup/TestDataManager';
-import { TEST_TIMING } from '../../utils/testHelpers';
-import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment';
-import { getTestConfiguration } from '../../config/testConfig';
+import { IntegrationTestClient } from '../../setup/IntegrationTestClient.js';
+import { TestDataManager } from '../../setup/TestDataManager.js';
+import { TEST_TIMING } from '../../utils/testHelpers.js';
+import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment.js';
+import { getTestConfiguration } from '../../config/testConfig.js';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();

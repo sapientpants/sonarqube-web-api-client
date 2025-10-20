@@ -4,11 +4,11 @@
  * @since 10.3
  */
 
-import { BaseClient } from './BaseClient';
-import { createErrorFromResponse } from '../errors';
-import type { DownloadCapable, DownloadOptions, DownloadProgress } from './mixins/DownloadMixin';
-import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './types/v2-common';
-import type { PrimitiveValue } from './types/primitive';
+import { BaseClient } from './BaseClient.js';
+import { createErrorFromResponse } from '../errors/index.js';
+import type { DownloadCapable, DownloadOptions, DownloadProgress } from './mixins/DownloadMixin.js';
+import type { V2SearchParams, V2PaginatedResponse, V2ErrorResponse } from './types/v2-common.js';
+import type { PrimitiveValue } from './types/primitive.js';
 
 /**
  * Base class for all v2 API clients
@@ -304,7 +304,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     }
 
     // Import error factory dynamically to avoid circular dependencies
-    const { createErrorFromResponse } = await import('../errors');
+    const { createErrorFromResponse } = await import('../errors/index.js');
 
     // If we have v2 error structure, enhance the error message
     if (errorData?.error) {
@@ -336,5 +336,5 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
 }
 
 // Re-export types for convenience
-export type { DownloadOptions, DownloadProgress } from './mixins/DownloadMixin';
-export type { PrimitiveValue } from './types/primitive';
+export type { DownloadOptions, DownloadProgress } from './mixins/DownloadMixin.js';
+export type { PrimitiveValue } from './types/primitive.js';

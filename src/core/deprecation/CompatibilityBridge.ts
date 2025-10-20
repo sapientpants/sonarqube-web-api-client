@@ -2,7 +2,7 @@
  * Compatibility bridge for smooth migration from deprecated APIs to new ones
  */
 
-import { DeprecationManager } from './DeprecationManager';
+import { DeprecationManager } from './DeprecationManager.js';
 
 type TransformerFunction<TOld = unknown, TNew = unknown> = (oldParams: TOld) => TNew;
 type ResultTransformerFunction<T = unknown> = (result: T) => T;

@@ -3,7 +3,7 @@
  * @since 10.3
  */
 
-import type { V2Resource } from '../../core/types/v2-common';
+import type { V2Resource } from '../../core/types/v2-common.js';
 
 /**
  * Request parameters for getting active rules

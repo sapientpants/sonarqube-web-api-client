@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import type { ExportProjectDumpRequest, ImportProjectDumpRequest } from './types';
+import { BaseClient } from '../../core/BaseClient.js';
+import type { ExportProjectDumpRequest, ImportProjectDumpRequest } from './types.js';
 
 /**
  * Client for SonarQube Project Dump API

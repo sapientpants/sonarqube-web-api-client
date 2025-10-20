@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import { SearchHotspotsBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { SearchHotspotsBuilder } from './builders.js';
 import type {
   SearchHotspotsRequest,
   SearchHotspotsResponse,
@@ -7,7 +7,7 @@ import type {
   ShowHotspotResponse,
   ChangeHotspotStatusRequest,
   ChangeHotspotStatusResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube Security Hotspots

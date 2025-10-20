@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { SbomFormatConverter, SbomAnalyzer } from '../../../../src/resources/sca/utils';
-import type { SbomReportV2Response } from '../../../../src/resources/sca/types';
+import { SbomFormatConverter, SbomAnalyzer } from '../../../../src/resources/sca/utils.js';
+import type { SbomReportV2Response } from '../../../../src/resources/sca/types.js';
 
 describe('SbomFormatConverter', () => {
   const createMockSbom = (overrides?: Partial<SbomReportV2Response>): SbomReportV2Response => ({

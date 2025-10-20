@@ -6,7 +6,7 @@
 import {
   PlatformValidationService,
   DevOpsPlatform,
-} from '../../../../src/core/services/PlatformValidationService';
+} from '../../../../src/core/services/PlatformValidationService.js';
 
 describe('PlatformValidationService', () => {
   describe('validate', () => {

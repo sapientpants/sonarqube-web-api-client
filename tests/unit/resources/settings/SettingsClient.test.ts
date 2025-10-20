@@ -1,13 +1,17 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { assertAuthorizationHeader } from '../../../../src/test-utils/assertions';
-import { SettingsClient } from '../../../../src/resources/settings/SettingsClient';
-import { AuthenticationError, AuthorizationError, NetworkError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { assertAuthorizationHeader } from '../../../../src/test-utils/assertions.js';
+import { SettingsClient } from '../../../../src/resources/settings/SettingsClient.js';
+import {
+  AuthenticationError,
+  AuthorizationError,
+  NetworkError,
+} from '../../../../src/errors/index.js';
 import type {
   ListDefinitionsResponse,
   ValuesResponse,
-} from '../../../../src/resources/settings/types';
+} from '../../../../src/resources/settings/types.js';
 
 describe('SettingsClient', () => {
   let client: SettingsClient;

@@ -5,8 +5,8 @@
  * Includes SonarQube-specific features and excludes SonarCloud-only APIs.
  */
 
-import { getIntegrationTestConfig, canRunIntegrationTests } from '../config/environment';
-import { getTestConfiguration, getEnabledTestCategories } from '../config/testConfig';
+import { getIntegrationTestConfig, canRunIntegrationTests } from '../config/environment.js';
+import { getTestConfiguration, getEnabledTestCategories } from '../config/testConfig.js';
 
 // Skip entire suite if integration tests are not configured or if not SonarQube
 const skipSuite =

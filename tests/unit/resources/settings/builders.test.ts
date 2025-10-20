@@ -1,14 +1,14 @@
 // @ts-nocheck
-import { SettingsClient } from '../../../../src/resources/settings/SettingsClient';
+import { SettingsClient } from '../../../../src/resources/settings/SettingsClient.js';
 import {
   SetSettingBuilder,
   ResetSettingBuilder,
   ValuesBuilder,
-} from '../../../../src/resources/settings/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+} from '../../../../src/resources/settings/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
-import { ValidationError } from '../../../../src/errors';
-import type { ValuesResponse } from '../../../../src/resources/settings/types';
+import { ValidationError } from '../../../../src/errors/index.js';
+import type { ValuesResponse } from '../../../../src/resources/settings/types.js';
 
 describe('Settings Builders', () => {
   const baseUrl = 'https://sonarqube.example.com';

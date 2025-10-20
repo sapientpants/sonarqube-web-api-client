@@ -3,11 +3,11 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   CreateCustomRuleV2Builder,
   AdvancedCustomRuleBuilder,
-} from '../../../../src/resources/clean-code-policy/builders';
+} from '../../../../src/resources/clean-code-policy/builders.js';
 import type {
   CreateCustomRuleV2Request,
   CreateCustomRuleV2Response,
-} from '../../../../src/resources/clean-code-policy/types';
+} from '../../../../src/resources/clean-code-policy/types.js';
 
 describe('CreateCustomRuleV2Builder', () => {
   const mockExecutor = vi.fn<Promise<CreateCustomRuleV2Response>, [CreateCustomRuleV2Request]>();

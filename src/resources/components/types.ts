@@ -2,7 +2,7 @@
  * Types for the SonarQube Components API
  */
 
-import type { PaginatedRequest, PaginatedResponse } from '../../core/builders';
+import type { PaginatedRequest, PaginatedResponse } from '../../core/builders/index.js';
 
 /**
  * Component qualifiers

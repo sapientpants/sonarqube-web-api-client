@@ -2,7 +2,7 @@
  * Issues API types
  */
 
-import type { PaginatedRequest, PaginatedResponse } from '../../core/builders';
+import type { PaginatedRequest, PaginatedResponse } from '../../core/builders/index.js';
 
 /**
  * Issue severity levels

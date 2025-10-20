@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createErrorFromResponse, createNetworkError } from '../../../src/errors/errorFactory';
+import { createErrorFromResponse, createNetworkError } from '../../../src/errors/errorFactory.js';
 import {
   ApiError,
   AuthenticationError,
@@ -10,7 +10,7 @@ import {
   ServerError,
   SonarQubeError,
   TimeoutError,
-} from '../../../src/errors/SonarQubeError';
+} from '../../../src/errors/SonarQubeError.js';
 
 describe('createErrorFromResponse', () => {
   const createMockResponse = (

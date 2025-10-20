@@ -1,5 +1,5 @@
-import { PaginatedBuilder } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { PaginatedBuilder } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import {
   type ComponentTreeRequest,
   type ComponentTreeResponse,
@@ -9,7 +9,7 @@ import {
   ComponentQualifier,
   ComponentSortField,
   ComponentTreeStrategy,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for searching components across all projects

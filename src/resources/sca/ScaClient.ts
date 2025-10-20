@@ -1,12 +1,12 @@
-import { V2BaseClient } from '../../core/V2BaseClient';
-import { createErrorFromResponse } from '../../errors';
+import { V2BaseClient } from '../../core/V2BaseClient.js';
+import { createErrorFromResponse } from '../../errors/index.js';
 import type {
   GetSbomReportV2Request,
   SbomReportV2Response,
   SbomMetadataV2,
   VulnerabilitySummaryV2,
   SbomDownloadOptions,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube SCA (Software Composition Analysis) API v2.

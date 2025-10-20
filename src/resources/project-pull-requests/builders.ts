@@ -1,5 +1,5 @@
-import { BaseBuilder, ParameterHelpers } from '../../core/builders';
-import type { ListPullRequestsRequest, ListPullRequestsResponse } from './types';
+import { BaseBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import type { ListPullRequestsRequest, ListPullRequestsResponse } from './types.js';
 
 /**
  * Builder for listing project pull requests.

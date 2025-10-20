@@ -1,16 +1,16 @@
 // @ts-nocheck
-import { ComponentsClient } from '../../../../src/resources/components/ComponentsClient';
-import { ComponentsTreeBuilder } from '../../../../src/resources/components/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { ComponentsClient } from '../../../../src/resources/components/ComponentsClient.js';
+import { ComponentsTreeBuilder } from '../../../../src/resources/components/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
-import { ValidationError } from '../../../../src/errors';
+import { ValidationError } from '../../../../src/errors/index.js';
 import {
   type ComponentTreeResponse,
   type Component,
   ComponentQualifier,
   ComponentTreeStrategy,
   ComponentSortField,
-} from '../../../../src/resources/components/types';
+} from '../../../../src/resources/components/types.js';
 
 describe('ComponentsTreeBuilder', () => {
   const baseUrl = 'https://sonarqube.example.com';

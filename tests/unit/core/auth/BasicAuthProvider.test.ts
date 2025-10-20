@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { BasicAuthProvider } from '../../../../src/core/auth/BasicAuthProvider';
+import { BasicAuthProvider } from '../../../../src/core/auth/BasicAuthProvider.js';
 
 describe('BasicAuthProvider', () => {
   it('should throw error if username is empty', () => {

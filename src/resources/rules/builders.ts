@@ -1,4 +1,4 @@
-import { PaginatedBuilder } from '../../core/builders';
+import { PaginatedBuilder } from '../../core/builders/index.js';
 import type {
   SearchRulesRequest,
   SearchRulesResponse,
@@ -10,7 +10,7 @@ import type {
   SoftwareQuality,
   ImpactSeverity,
   RuleInheritance,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing complex rule search queries

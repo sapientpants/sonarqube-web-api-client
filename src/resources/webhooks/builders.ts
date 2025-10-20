@@ -1,10 +1,10 @@
-import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
+import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders/index.js';
 import type {
   GetWebhookDeliveriesRequest,
   GetWebhookDeliveriesResponse,
   ListWebhooksRequest,
   ListWebhooksResponse,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for constructing webhook deliveries requests.

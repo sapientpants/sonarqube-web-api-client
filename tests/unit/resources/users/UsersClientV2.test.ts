@@ -2,10 +2,10 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { Mock, MockInstance } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { UsersClient } from '../../../../src/resources/users/UsersClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import { DeprecationManager } from '../../../../src/core/deprecation';
-import type { SearchUsersV2Response, UserV2 } from '../../../../src/resources/users/types';
+import { UsersClient } from '../../../../src/resources/users/UsersClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { DeprecationManager } from '../../../../src/core/deprecation/index.js';
+import type { SearchUsersV2Response, UserV2 } from '../../../../src/resources/users/types.js';
 
 describe('UsersClient V2 API', () => {
   let client: UsersClient;

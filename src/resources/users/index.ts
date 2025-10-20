@@ -1,6 +1,6 @@
-export { UsersClient } from './UsersClient';
-export { SearchUsersBuilder, GetUserGroupsBuilder } from './builders';
-export { SearchUsersV2Builder } from './buildersV2';
+export { UsersClient } from './UsersClient.js';
+export { SearchUsersBuilder, GetUserGroupsBuilder } from './builders.js';
+export { SearchUsersV2Builder } from './buildersV2.js';
 export type {
   // V1 API (deprecated)
   User,
@@ -15,4 +15,4 @@ export type {
   UserV2,
   SearchUsersV2Request,
   SearchUsersV2Response,
-} from './types';
+} from './types.js';

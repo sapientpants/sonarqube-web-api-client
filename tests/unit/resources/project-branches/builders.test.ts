@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { ProjectBranchesListBuilder } from '../../../../src/resources/project-branches/builders';
+import { ProjectBranchesListBuilder } from '../../../../src/resources/project-branches/builders.js';
 import {
   type Branch,
   ProjectBranchType,
   QualityGateStatus,
-} from '../../../../src/resources/project-branches/types';
+} from '../../../../src/resources/project-branches/types.js';
 
 describe('Project Branches Builders', () => {
   const mockRequest = vi.fn();

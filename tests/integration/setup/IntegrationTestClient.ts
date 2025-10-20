@@ -5,9 +5,9 @@
  * with real API calls and proper error handling.
  */
 
-import { SonarQubeClient } from '../../../src/index';
-import type { IntegrationTestConfig } from '../config/environment';
-import type { TestConfiguration } from '../config/testConfig';
+import { SonarQubeClient } from '../../../src/index.js';
+import type { IntegrationTestConfig } from '../config/environment.js';
+import type { TestConfiguration } from '../config/testConfig.js';
 
 /**
  * Enhanced client for integration testing

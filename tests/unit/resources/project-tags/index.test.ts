@@ -4,7 +4,7 @@ import {
   type SearchTagsParams,
   type SearchTagsResponse,
   type SetProjectTagsParams,
-} from '../../../../src/index';
+} from '../../../../src/index.js';
 
 describe.skip('Project Tags Index', () => {
   it('should export ProjectTagsClient', () => {

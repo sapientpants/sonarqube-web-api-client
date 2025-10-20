@@ -2,9 +2,9 @@
  * Settings API
  */
 
-export { SettingsClient } from './SettingsClient';
-export { SetSettingBuilder, ResetSettingBuilder, ValuesBuilder } from './builders';
-export { isValidParam, addParamIfValid, splitKeys } from './helpers';
+export { SettingsClient } from './SettingsClient.js';
+export { SetSettingBuilder, ResetSettingBuilder, ValuesBuilder } from './builders.js';
+export { isValidParam, addParamIfValid, splitKeys } from './helpers.js';
 export type {
   // Request types
   ListDefinitionsRequest,
@@ -20,4 +20,4 @@ export type {
   SettingDefinition,
   SettingField,
   SettingValue,
-} from './types';
+} from './types.js';

@@ -2,8 +2,8 @@
  * Migration assistant for helping developers migrate from deprecated APIs
  */
 
-import type { MigrationExample, DeprecationMetadata } from './DeprecationMetadata';
-import { DeprecationRegistry } from './DeprecationMetadata';
+import type { MigrationExample, DeprecationMetadata } from './DeprecationMetadata.js';
+import { DeprecationRegistry } from './DeprecationMetadata.js';
 
 export interface MigrationSuggestion {
   file: string;

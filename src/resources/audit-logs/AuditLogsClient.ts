@@ -1,10 +1,10 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   SearchAuditLogsRequest,
   SearchAuditLogsResponse,
   DownloadAuditLogsRequest,
   AuditLogEntry,
-} from './types';
+} from './types.js';
 
 /**
  * Client for managing SonarQube audit logs

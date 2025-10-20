@@ -4,7 +4,7 @@
  */
 
 // Main client
-export { DopTranslationClient } from './DopTranslationClient';
+export { DopTranslationClient } from './DopTranslationClient.js';
 
 // Type definitions
 export type {
@@ -68,7 +68,7 @@ export type {
   PlatformAuthenticationError,
   RepositoryNotFoundError,
   InsufficientPermissionsError,
-} from './types';
+} from './types.js';
 
 // Enums
 export {
@@ -78,10 +78,10 @@ export {
   SyncStatus,
   ProjectVisibility,
   AuthenticationType,
-} from './types';
+} from './types.js';
 
 // Builder implementations
-export { CreateBoundProjectV2BuilderImpl } from './builders';
+export { CreateBoundProjectV2BuilderImpl } from './builders.js';
 
 // Utility classes
 export {
@@ -90,4 +90,4 @@ export {
   ProjectMapper,
   AuthenticationHelper,
   ConfigurationTemplates,
-} from './utils';
+} from './utils.js';

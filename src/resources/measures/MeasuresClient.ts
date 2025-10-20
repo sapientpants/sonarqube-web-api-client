@@ -1,12 +1,12 @@
-import { BaseClient } from '../../core/BaseClient';
+import { BaseClient } from '../../core/BaseClient.js';
 import type {
   ComponentMeasuresRequest,
   ComponentMeasuresResponse,
   ComponentTreeRequest,
   ComponentTreeResponse,
   MeasuresHistoryRequest,
-} from './types';
-import { ComponentTreeBuilder, MeasuresHistoryBuilder } from './builders';
+} from './types.js';
+import { ComponentTreeBuilder, MeasuresHistoryBuilder } from './builders.js';
 
 /**
  * Client for managing measures and metrics

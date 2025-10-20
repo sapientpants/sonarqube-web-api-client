@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
-import { PaginatedBuilder } from '../../../../src/core/builders/PaginatedBuilder';
+import { PaginatedBuilder } from '../../../../src/core/builders/PaginatedBuilder.js';
 
 // Test types
 interface TestItem {

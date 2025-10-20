@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { MockInstance } from 'vitest';
-import { CompatibilityBridge } from '../../../../src/core/deprecation/CompatibilityBridge';
-import { DeprecationManager } from '../../../../src/core/deprecation/DeprecationManager';
+import { CompatibilityBridge } from '../../../../src/core/deprecation/CompatibilityBridge.js';
+import { DeprecationManager } from '../../../../src/core/deprecation/DeprecationManager.js';
 
 describe('CompatibilityBridge', () => {
   let consoleSpy: MockInstance;

@@ -1,17 +1,17 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import {
   assertAuthorizationHeader,
   assertNoAuthorizationHeader,
   assertQueryParams,
-} from '../../../../src/test-utils/assertions';
-import { SourcesClient } from '../../../../src/resources/sources/SourcesClient';
-import { AuthorizationError } from '../../../../src/errors';
+} from '../../../../src/test-utils/assertions.js';
+import { SourcesClient } from '../../../../src/resources/sources/SourcesClient.js';
+import { AuthorizationError } from '../../../../src/errors/index.js';
 import type {
   GetScmInfoResponse,
   ShowSourceResponse,
-} from '../../../../src/resources/sources/types';
+} from '../../../../src/resources/sources/types.js';
 
 describe('SourcesClient', () => {
   let client: SourcesClient;

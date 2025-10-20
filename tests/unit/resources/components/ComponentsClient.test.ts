@@ -1,16 +1,16 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ComponentsClient } from '../../../../src/resources/components/ComponentsClient';
-import { ComponentsTreeBuilder } from '../../../../src/resources/components/builders';
-import { server } from '../../../../src/test-utils/msw/server';
-import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/assertions';
+import { ComponentsClient } from '../../../../src/resources/components/ComponentsClient.js';
+import { ComponentsTreeBuilder } from '../../../../src/resources/components/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/assertions.js';
 import {
   type ComponentShowResponse,
   type ComponentSearchResponse,
   type ComponentTreeResponse,
   type Component,
   ComponentQualifier,
-} from '../../../../src/resources/components/types';
+} from '../../../../src/resources/components/types.js';
 
 describe('ComponentsClient', () => {
   const baseUrl = 'http://localhost:9000';

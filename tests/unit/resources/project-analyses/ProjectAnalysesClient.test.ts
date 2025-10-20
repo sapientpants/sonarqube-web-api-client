@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { ProjectAnalysesClient } from '../../../../src/resources/project-analyses/ProjectAnalysesClient';
-import { ValidationError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { ProjectAnalysesClient } from '../../../../src/resources/project-analyses/ProjectAnalysesClient.js';
+import { ValidationError } from '../../../../src/errors/index.js';
 import type {
   CreateEventResponse,
   SearchAnalysesResponse,
   UpdateEventResponse,
-} from '../../../../src/resources/project-analyses/types';
+} from '../../../../src/resources/project-analyses/types.js';
 
 describe('ProjectAnalysesClient', () => {
   let client: ProjectAnalysesClient;

@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-console */
 
-import type { SonarQubeClient } from '../../index';
+import type { SonarQubeClient } from '../../index.js';
 import type {
   AiFixSuggestionV2,
   FixApplicationOptions,
@@ -20,7 +20,7 @@ import type {
   BatchFixResult,
   IssueIntegrationOptions,
   FixSuggestionAvailabilityV2Response,
-} from './types';
+} from './types.js';
 
 /**
  * Utility class for processing and analyzing AI fix suggestions

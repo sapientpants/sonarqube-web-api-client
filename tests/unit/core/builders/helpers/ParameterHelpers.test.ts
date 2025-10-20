@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
-import { ParameterHelpers } from '../../../../../src/core/builders/helpers/ParameterHelpers';
-import { BaseBuilder } from '../../../../../src/core/builders/BaseBuilder';
+import { ParameterHelpers } from '../../../../../src/core/builders/helpers/ParameterHelpers.js';
+import { BaseBuilder } from '../../../../../src/core/builders/BaseBuilder.js';
 
 // Test implementation of BaseBuilder
 class TestBuilder extends BaseBuilder<{

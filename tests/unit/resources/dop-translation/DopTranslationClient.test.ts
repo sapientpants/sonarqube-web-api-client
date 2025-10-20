@@ -5,7 +5,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
  * Comprehensive testing of DevOps platform integration functionality
  */
 
-import { DopTranslationClient } from '../../../../src/resources/dop-translation/DopTranslationClient';
+import { DopTranslationClient } from '../../../../src/resources/dop-translation/DopTranslationClient.js';
 import {
   DevOpsPlatform,
   ProjectBindingStatus,
@@ -16,7 +16,7 @@ import {
   type CreateBoundProjectV2Response,
   type DopSettingsV2Response,
   type BatchCreateRequest,
-} from '../../../../src/resources/dop-translation/types';
+} from '../../../../src/resources/dop-translation/types.js';
 
 // Mock BaseClient
 vi.mock('../../../core/BaseClient');

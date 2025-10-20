@@ -2,8 +2,11 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 
-import { SearchUsersBuilder, GetUserGroupsBuilder } from '../../../../src/resources/users/builders';
-import { ValidationError } from '../../../../src/errors';
+import {
+  SearchUsersBuilder,
+  GetUserGroupsBuilder,
+} from '../../../../src/resources/users/builders.js';
+import { ValidationError } from '../../../../src/errors/index.js';
 
 describe('Users Builders', () => {
   describe('SearchUsersBuilder', () => {

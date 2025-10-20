@@ -4,11 +4,11 @@ import type { Mock } from 'vitest';
 import {
   ComponentTreeBuilder,
   MeasuresHistoryBuilder,
-} from '../../../../src/resources/measures/builders';
+} from '../../../../src/resources/measures/builders.js';
 import type {
   ComponentMeasures,
   ComponentMeasuresHistory,
-} from '../../../../src/resources/measures/types';
+} from '../../../../src/resources/measures/types.js';
 
 describe('Measures Builders', () => {
   describe('ComponentTreeBuilder', () => {

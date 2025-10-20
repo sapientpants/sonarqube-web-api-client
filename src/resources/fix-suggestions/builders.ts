@@ -1,5 +1,5 @@
-import { BaseBuilder } from '../../core/builders/BaseBuilder';
-import { ValidationError } from '../../errors';
+import { BaseBuilder } from '../../core/builders/BaseBuilder.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   IFixSuggestionsClient,
   GetIssueAvailabilityV2Request,
@@ -8,7 +8,7 @@ import type {
   AiSuggestionResponseV2,
   GetIssueAvailabilityV2Builder,
   RequestAiSuggestionsV2Builder,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for checking AI fix suggestion availability

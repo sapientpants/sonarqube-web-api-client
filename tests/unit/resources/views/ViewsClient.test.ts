@@ -1,9 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { ViewsClient } from '../../../../src/resources/views/ViewsClient';
-import type { ShowPortfolioResponse } from '../../../../src/resources/views/types';
-import { AuthenticationError, AuthorizationError, NetworkError } from '../../../../src/errors';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { ViewsClient } from '../../../../src/resources/views/ViewsClient.js';
+import type { ShowPortfolioResponse } from '../../../../src/resources/views/types.js';
+import {
+  AuthenticationError,
+  AuthorizationError,
+  NetworkError,
+} from '../../../../src/errors/index.js';
 
 describe('ViewsClient', () => {
   let client: ViewsClient;

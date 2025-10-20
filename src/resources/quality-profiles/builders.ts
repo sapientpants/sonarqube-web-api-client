@@ -1,5 +1,5 @@
-import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders';
-import { ValidationError } from '../../errors';
+import { BaseBuilder, PaginatedBuilder, ParameterHelpers } from '../../core/builders/index.js';
+import { ValidationError } from '../../errors/index.js';
 import type {
   ActivateRulesRequest,
   ActivateRulesResponse,
@@ -14,7 +14,7 @@ import type {
   SearchRequest,
   SearchResponse,
   Severity,
-} from './types';
+} from './types.js';
 
 /**
  * Builder for activating rules in bulk on a quality profile.

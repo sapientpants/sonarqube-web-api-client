@@ -1,17 +1,17 @@
 // @ts-nocheck
-import { PermissionsClient } from '../../../../src/resources/permissions/PermissionsClient';
+import { PermissionsClient } from '../../../../src/resources/permissions/PermissionsClient.js';
 import {
   SearchGlobalPermissionsBuilder,
   SearchProjectPermissionsBuilder,
   SearchTemplatesBuilder,
   BulkApplyTemplateBuilder,
-} from '../../../../src/resources/permissions/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+} from '../../../../src/resources/permissions/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
 import type {
   CreateTemplateResponse,
   UpdateTemplateResponse,
-} from '../../../../src/resources/permissions/types';
+} from '../../../../src/resources/permissions/types.js';
 
 const mockBaseUrl = 'https://sonarqube.example.com';
 const mockToken = 'test-token';

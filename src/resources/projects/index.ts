@@ -1,5 +1,5 @@
-export { ProjectsClient } from './ProjectsClient';
-export { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders';
+export { ProjectsClient } from './ProjectsClient.js';
+export { BulkDeleteProjectsBuilder, SearchProjectsBuilder } from './builders.js';
 export type {
   BulkDeleteProjectsRequest,
   CreateProjectRequest,
@@ -22,4 +22,4 @@ export type {
   SetContainsAiCodeRequest,
   UpdateProjectKeyRequest,
   UpdateProjectVisibilityRequest,
-} from './types';
+} from './types.js';

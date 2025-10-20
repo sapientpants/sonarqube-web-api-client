@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
-import { SearchRulesBuilder } from '../../../../src/resources/rules/builders';
+import { SearchRulesBuilder } from '../../../../src/resources/rules/builders.js';
 import type {
   SearchRulesRequest,
   SearchRulesResponse,
-} from '../../../../src/resources/rules/types';
+} from '../../../../src/resources/rules/types.js';
 
 describe('SearchRulesBuilder', () => {
   let builder: SearchRulesBuilder;

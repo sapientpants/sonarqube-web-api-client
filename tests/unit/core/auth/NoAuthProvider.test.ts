@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { NoAuthProvider } from '../../../../src/core/auth/NoAuthProvider';
+import { NoAuthProvider } from '../../../../src/core/auth/NoAuthProvider.js';
 
 describe('NoAuthProvider', () => {
   it('should not add any authentication headers', () => {

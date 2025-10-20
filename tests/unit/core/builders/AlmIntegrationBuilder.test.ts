@@ -4,8 +4,8 @@ import type { Mock } from 'vitest';
 import {
   AlmIntegrationBuilder,
   RepositorySearchBuilder,
-} from '../../../../src/core/builders/AlmIntegrationBuilder';
-import { ValidationError } from '../../../../src/errors';
+} from '../../../../src/core/builders/AlmIntegrationBuilder.js';
+import { ValidationError } from '../../../../src/errors/index.js';
 
 // Test implementation of AlmIntegrationBuilder
 interface TestAlmIntegrationRequest {

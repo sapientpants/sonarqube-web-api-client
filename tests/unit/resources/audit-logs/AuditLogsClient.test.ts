@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../../src/test-utils/msw/server';
-import { AuditLogsClient } from '../../../../src/resources/audit-logs/AuditLogsClient';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { AuditLogsClient } from '../../../../src/resources/audit-logs/AuditLogsClient.js';
 import type {
   SearchAuditLogsResponse,
   AuditLogEntry,
-} from '../../../../src/resources/audit-logs/types';
-import { AuthorizationError, ApiError, NetworkError } from '../../../../src/errors';
+} from '../../../../src/resources/audit-logs/types.js';
+import { AuthorizationError, ApiError, NetworkError } from '../../../../src/errors/index.js';
 
 describe('AuditLogsClient', () => {
   let client: AuditLogsClient;

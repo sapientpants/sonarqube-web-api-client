@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { LanguagesClient } from '../../../../src/resources/languages/LanguagesClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import type { Language } from '../../../../src/resources/languages/types';
+import { LanguagesClient } from '../../../../src/resources/languages/LanguagesClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import type { Language } from '../../../../src/resources/languages/types.js';
 import {
   AuthenticationError,
   NotFoundError,
   RateLimitError,
   ServerError,
-} from '../../../../src/errors';
-import { createApiError, createErrorResponse } from '../../../../src/test-utils/msw/factories';
+} from '../../../../src/errors/index.js';
+import { createApiError, createErrorResponse } from '../../../../src/test-utils/msw/factories.js';
 
 const createLanguage = (overrides: Partial<Language> = {}): Language => ({
   key: 'java',

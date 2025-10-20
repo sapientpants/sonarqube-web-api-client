@@ -22,4 +22,4 @@
  */
 
 // Export the client
-export { ServerClient } from './ServerClient';
+export { ServerClient } from './ServerClient.js';

@@ -1,4 +1,4 @@
-export { NotificationsClient } from './NotificationsClient';
+export { NotificationsClient } from './NotificationsClient.js';
 export type {
   NotificationAddRequest,
   NotificationListRequest,
@@ -7,5 +7,5 @@ export type {
   NotificationRemoveRequest,
   Notification,
   NotificationType,
-} from './types';
-export { NotificationChannel, GlobalNotificationType, ProjectNotificationType } from './types';
+} from './types.js';
+export { NotificationChannel, GlobalNotificationType, ProjectNotificationType } from './types.js';

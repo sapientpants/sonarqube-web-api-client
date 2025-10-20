@@ -1,5 +1,5 @@
-export { QualityGatesClient } from './QualityGatesClient';
-export { SetConditionBuilder, GetProjectsBuilder, AssociateProjectsBuilder } from './builders';
+export { QualityGatesClient } from './QualityGatesClient.js';
+export { SetConditionBuilder, GetProjectsBuilder, AssociateProjectsBuilder } from './builders.js';
 export type {
   QualityGate,
   QualityGateCondition,
@@ -22,4 +22,4 @@ export type {
   ProjectQualityGateStatus,
   QualityGateConditionStatus,
   GetProjectStatusRequest,
-} from './types';
+} from './types.js';

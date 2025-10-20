@@ -2,8 +2,8 @@
  * Types for the SonarQube Favorites API
  */
 
-import type { PaginatedRequest, PaginatedResponse } from '../../core/builders';
-import type { Component } from '../components/types';
+import type { PaginatedRequest, PaginatedResponse } from '../../core/builders/index.js';
+import type { Component } from '../components/types.js';
 
 /**
  * A favorite component

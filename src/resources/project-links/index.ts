@@ -1,2 +1,2 @@
-export { ProjectLinksClient } from './ProjectLinksClient';
-export type * from './types';
+export { ProjectLinksClient } from './ProjectLinksClient.js';
+export type * from './types.js';

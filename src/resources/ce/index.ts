@@ -1,3 +1,3 @@
-export { CEClient } from './CEClient';
-export { ActivityBuilder } from './builders';
-export * from './types';
+export { CEClient } from './CEClient.js';
+export { ActivityBuilder } from './builders.js';
+export * from './types.js';

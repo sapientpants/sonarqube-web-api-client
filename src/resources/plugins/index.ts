@@ -37,7 +37,7 @@
  */
 
 // Export the client
-export { PluginsClient } from './PluginsClient';
+export { PluginsClient } from './PluginsClient.js';
 
 // Export all types
 export type {
@@ -56,4 +56,4 @@ export type {
   UninstallPluginRequest,
   UpdatePluginRequest,
   GetPluginUpdatesResponse,
-} from './types';
+} from './types.js';

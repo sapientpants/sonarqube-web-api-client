@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { ProjectLinksClient } from '../../../../src/resources/project-links/ProjectLinksClient';
-import { server } from '../../../../src/test-utils/msw/server';
-import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils';
+import { ProjectLinksClient } from '../../../../src/resources/project-links/ProjectLinksClient.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
+import { assertCommonHeaders, assertQueryParams } from '../../../../src/test-utils/index.js';
 
 describe('ProjectLinksClient', () => {
   const baseUrl = 'http://localhost';

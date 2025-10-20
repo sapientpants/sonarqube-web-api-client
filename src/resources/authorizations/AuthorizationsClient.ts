@@ -1,5 +1,5 @@
-import { BaseClient } from '../../core/BaseClient';
-import { SearchGroupsV2Builder, SearchGroupMembershipsV2Builder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { SearchGroupsV2Builder, SearchGroupMembershipsV2Builder } from './builders.js';
 import type {
   GroupV2,
   CreateGroupV2Request,
@@ -8,7 +8,7 @@ import type {
   AddGroupMembershipV2Request,
   SearchGroupsV2Response,
   SearchGroupMembershipsV2Response,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with the SonarQube Authorizations API v2.

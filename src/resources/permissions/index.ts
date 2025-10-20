@@ -1,3 +1,3 @@
-export { PermissionsClient } from './PermissionsClient';
-export type * from './types';
-export * from './builders';
+export { PermissionsClient } from './PermissionsClient.js';
+export type * from './types.js';
+export * from './builders.js';

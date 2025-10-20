@@ -3,7 +3,7 @@ import {
   isRequired,
   validateRequired,
   validateOAuth,
-} from '../../../../src/core/builders/validation';
+} from '../../../../src/core/builders/validation.js';
 
 describe('validation utilities', () => {
   describe('isRequired', () => {

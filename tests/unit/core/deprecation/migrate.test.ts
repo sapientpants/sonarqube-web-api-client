@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { DeprecationRegistry } from '../../../../src/core/deprecation/DeprecationMetadata';
+import { DeprecationRegistry } from '../../../../src/core/deprecation/DeprecationMetadata.js';
 import {
   MigrationCLI,
   registerAllDeprecations,
-} from '../../../../src/core/deprecation/cli/migrate';
-import { MigrationAssistant } from '../../../../src/core/deprecation/MigrationAssistant';
+} from '../../../../src/core/deprecation/cli/migrate.js';
+import { MigrationAssistant } from '../../../../src/core/deprecation/MigrationAssistant.js';
 import * as fs from 'fs';
 import * as path from 'path';
 

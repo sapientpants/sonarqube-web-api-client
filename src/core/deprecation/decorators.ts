@@ -2,9 +2,9 @@
  * Enhanced decorators for deprecation management
  */
 
-import { DeprecationManager } from './DeprecationManager';
-import type { DeprecationMetadata } from './DeprecationMetadata';
-import { DeprecationRegistry } from './DeprecationMetadata';
+import { DeprecationManager } from './DeprecationManager.js';
+import type { DeprecationMetadata } from './DeprecationMetadata.js';
+import { DeprecationRegistry } from './DeprecationMetadata.js';
 
 type AnyFunction = (...args: any[]) => any;
 type Constructor = new (...args: any[]) => any;

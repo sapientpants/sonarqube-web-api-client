@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { Mock, MockInstance } from 'vitest';
-import { DeprecationManager } from '../../../../src/core/deprecation';
-import { ActivityBuilder } from '../../../../src/resources/ce/builders';
+import { DeprecationManager } from '../../../../src/core/deprecation/index.js';
+import { ActivityBuilder } from '../../../../src/resources/ce/builders.js';
 
 describe('CE Deprecated Builders', () => {
   let consoleSpy: MockInstance;

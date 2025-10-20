@@ -9,7 +9,7 @@ import {
   CompatibilityBridge,
   MigrationAssistant,
   withCompatibility,
-} from '../../../../src/index';
+} from '../../../../src/index.js';
 
 describe.skip('Enhanced Deprecation System', () => {
   let consoleSpy: MockInstance;

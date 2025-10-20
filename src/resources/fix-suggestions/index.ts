@@ -6,13 +6,16 @@
  */
 
 // Re-export all types
-export type * from './types';
+export type * from './types.js';
 
 // Re-export client class
-export { FixSuggestionsClient } from './FixSuggestionsClient';
+export { FixSuggestionsClient } from './FixSuggestionsClient.js';
 
 // Re-export builders
-export { GetIssueAvailabilityV2BuilderImpl, RequestAiSuggestionsV2BuilderImpl } from './builders';
+export {
+  GetIssueAvailabilityV2BuilderImpl,
+  RequestAiSuggestionsV2BuilderImpl,
+} from './builders.js';
 
 // Re-export utilities
-export { FixSuggestionUtils, FixSuggestionIntegration } from './utils';
+export { FixSuggestionUtils, FixSuggestionIntegration } from './utils.js';

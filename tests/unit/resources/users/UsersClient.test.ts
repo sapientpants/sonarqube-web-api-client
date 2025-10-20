@@ -1,10 +1,13 @@
 // @ts-nocheck
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { UsersClient } from '../../../../src/resources/users/UsersClient';
-import { SearchUsersBuilder, GetUserGroupsBuilder } from '../../../../src/resources/users/builders';
-import { server } from '../../../../src/test-utils/msw/server';
+import { UsersClient } from '../../../../src/resources/users/UsersClient.js';
+import {
+  SearchUsersBuilder,
+  GetUserGroupsBuilder,
+} from '../../../../src/resources/users/builders.js';
+import { server } from '../../../../src/test-utils/msw/server.js';
 import { http, HttpResponse } from 'msw';
-// import { ValidationError } from '../../../../src/errors';
+// import { ValidationError } from '../../../../src/errors/index.js';
 
 const mockBaseUrl = 'https://sonarqube.example.com';
 const mockToken = 'test-token';

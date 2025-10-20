@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { http, HttpResponse } from 'msw';
-import { AuthorizationsClient } from '../../../../src/resources/authorizations/AuthorizationsClient';
+import { AuthorizationsClient } from '../../../../src/resources/authorizations/AuthorizationsClient.js';
 import { setupServer } from 'msw/node';
 import type {
   GroupV2,
   SearchGroupsV2Response,
   GroupMembershipV2,
   SearchGroupMembershipsV2Response,
-} from '../../../../src/resources/authorizations/types';
+} from '../../../../src/resources/authorizations/types.js';
 
 const server = setupServer();
 

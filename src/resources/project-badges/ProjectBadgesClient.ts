@@ -1,10 +1,10 @@
-import { BaseClient } from '../../core/BaseClient';
-import { QualityGateBadgeBuilder, MeasureBadgeBuilder } from './builders';
+import { BaseClient } from '../../core/BaseClient.js';
+import { QualityGateBadgeBuilder, MeasureBadgeBuilder } from './builders.js';
 import type {
   AiCodeAssuranceBadgeParams,
   MeasureBadgeParams,
   QualityGateBadgeParams,
-} from './types';
+} from './types.js';
 
 /**
  * Client for interacting with SonarQube project badges endpoints

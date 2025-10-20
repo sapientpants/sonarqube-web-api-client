@@ -13,8 +13,14 @@ import type {
   ValidationResult,
 } from '../../core/services/PlatformValidationService';
 
-// Re-export platform configs for convenience
-export type { GitHubConfig, GitLabConfig, BitbucketConfig, AzureDevOpsConfig, ValidationResult };
+// Re-export platform configs for external consumers
+export type {
+  GitHubConfig,
+  GitLabConfig,
+  BitbucketConfig,
+  AzureDevOpsConfig,
+  ValidationResult,
+} from '../../core/services/PlatformValidationService';
 
 /**
  * Supported DevOps platforms for integration

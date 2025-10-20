@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.11.6
+
+### Patch Changes
+
+- [#133](https://github.com/sapientpants/sonarqube-web-api-client/pull/133) [`8ccc961`](https://github.com/sapientpants/sonarqube-web-api-client/commit/8ccc96160f6c1520eeb43a6a1cd9c0e3ab0174de) - Fix final SonarQube code quality issues
+
+  Fixed 21 remaining SonarQube code quality issues to achieve zero technical debt:
+
+  **S7735 (Negated Conditions) - 2 issues:**
+  - Reversed negated conditional logic for improved readability
+
+  **S7780 (String.raw for Escaping) - 5 issues:**
+  - Used `String.raw` to avoid escaping backslashes in regex patterns
+
+  **S7778 (Array.push() Calls) - 3 issues:**
+  - Consolidated multiple `Array.push()` calls into single operations
+
+  **S7763 (Export from Re-export) - 6 issues:**
+  - Refactored type re-exports to use `export...from` syntax
+
+  **S7776 (Set Usage) - 2 issues:**
+  - Converted arrays to Sets for better performance with `.has()` checks
+
+  All changes are internal refactorings that maintain 100% backward compatibility with no breaking changes or API modifications.
+
 ## 0.11.5
 
 ### Patch Changes

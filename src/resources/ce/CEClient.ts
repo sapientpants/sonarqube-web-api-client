@@ -193,6 +193,12 @@ export class CEClient extends BaseClient {
     this.appendStringParam(params, 'q', request.q);
     this.appendStringParam(params, 'type', request.type);
 
+    this.appendActivityOptionsParams(params, request);
+
+    return params;
+  }
+
+  private appendActivityOptionsParams(params: URLSearchParams, request: ActivityRequest): void {
     if (request.onlyCurrents !== undefined) {
       params.append('onlyCurrents', String(request.onlyCurrents));
     }
@@ -205,8 +211,6 @@ export class CEClient extends BaseClient {
     if (request.p !== undefined) {
       params.append('p', String(request.p));
     }
-
-    return params;
   }
 
   /**

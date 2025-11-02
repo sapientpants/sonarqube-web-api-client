@@ -10,6 +10,7 @@ import type {
   SecurityRiskAnalysis,
   LicenseComplianceAnalysis,
   SbomComponentV2,
+  SbomDependencyV2,
   SbomVulnerabilityV2,
   SbomLicenseV2,
 } from './types.js';
@@ -83,70 +84,104 @@ export class SbomFormatConverter {
       specVersion: '1.4',
       serialNumber: `urn:uuid:${sbom.document.id}`,
       version: 1,
-      metadata: {
-        timestamp: sbom.document.createdAt,
-        tools: [
-          {
-            vendor: sbom.document.creator.vendor,
-            name: sbom.document.creator.tool,
-            version: sbom.document.creator.version,
-          },
-        ],
-        component: {
-          type: 'application',
-          name: sbom.document.primaryComponent.name,
-          version: sbom.document.primaryComponent.version,
-        },
-      },
-      components: sbom.components.map((component) => ({
-        type: component.type,
-        name: component.name,
-        version: component.version,
-        ...(component.purl !== undefined && component.purl.length > 0 && { purl: component.purl }),
-        ...(component.licenses && {
-          licenses: component.licenses.map((license) => ({ license: { id: license } })),
-        }),
-        ...(component.source && {
-          externalReferences: [
-            {
-              type: 'website',
-              url: component.source.homepage ?? component.source.repository ?? '',
-            },
-          ].filter((ref) => ref.url.length > 0),
-        }),
-      })),
-      dependencies: sbom.dependencies.map((dep) => ({
-        ref: dep.componentId,
-        dependsOn: dep.dependsOn,
-      })),
+      metadata: this.buildCycloneDxMetadata(sbom),
+      components: this.buildCycloneDxComponents(sbom.components),
+      dependencies: this.buildCycloneDxDependencies(sbom.dependencies),
       ...(sbom.vulnerabilities && {
-        vulnerabilities: sbom.vulnerabilities.map((vuln) => ({
-          id: vuln.id,
-          source: { name: vuln.source },
-          ...(vuln.cvss && {
-            ratings: [
-              {
-                source: { name: vuln.source },
-                score: vuln.cvss.score,
-                severity: vuln.cvss.severity.toLowerCase(),
-                method: `CVSSv${vuln.cvss.version}`,
-                ...(vuln.cvss.vector !== undefined &&
-                  vuln.cvss.vector.length > 0 && { vector: vuln.cvss.vector }),
-              },
-            ],
-          }),
-          ...(vuln.description !== undefined &&
-            vuln.description.length > 0 && { description: vuln.description }),
-          ...(vuln.dates.published.length > 0 && { published: vuln.dates.published }),
-          ...(vuln.dates.updated !== undefined &&
-            vuln.dates.updated.length > 0 && { updated: vuln.dates.updated }),
-          affects: vuln.affects.map((affect) => ({
-            ref: affect.componentId,
-            versions: [{ version: affect.versionRange }],
-          })),
-        })),
+        vulnerabilities: this.buildCycloneDxVulnerabilities(sbom.vulnerabilities),
       }),
     };
+  }
+
+  /**
+   * Build CycloneDX metadata section
+   * @private
+   */
+  private static buildCycloneDxMetadata(sbom: SbomReportV2Response) {
+    return {
+      timestamp: sbom.document.createdAt,
+      tools: [
+        {
+          vendor: sbom.document.creator.vendor,
+          name: sbom.document.creator.tool,
+          version: sbom.document.creator.version,
+        },
+      ],
+      component: {
+        type: 'application',
+        name: sbom.document.primaryComponent.name,
+        version: sbom.document.primaryComponent.version,
+      },
+    };
+  }
+
+  /**
+   * Build CycloneDX components section
+   * @private
+   */
+  private static buildCycloneDxComponents(components: SbomComponentV2[]) {
+    return components.map((component) => ({
+      type: component.type,
+      name: component.name,
+      version: component.version,
+      ...(component.purl !== undefined && component.purl.length > 0 && { purl: component.purl }),
+      ...(component.licenses && {
+        licenses: component.licenses.map((license) => ({ license: { id: license } })),
+      }),
+      ...(component.source && {
+        externalReferences: [
+          {
+            type: 'website',
+            url: component.source.homepage ?? component.source.repository ?? '',
+          },
+        ].filter((ref) => ref.url.length > 0),
+      }),
+    }));
+  }
+
+  /**
+   * Build CycloneDX dependencies section
+   * @private
+   */
+  private static buildCycloneDxDependencies(
+    dependencies: SbomDependencyV2[],
+  ): Array<{ ref: string; dependsOn: string[] }> {
+    return dependencies.map((dep) => ({
+      ref: dep.componentId,
+      dependsOn: dep.dependsOn,
+    }));
+  }
+
+  /**
+   * Build CycloneDX vulnerabilities section
+   * @private
+   */
+  private static buildCycloneDxVulnerabilities(vulnerabilities: SbomVulnerabilityV2[]) {
+    return vulnerabilities.map((vuln) => ({
+      id: vuln.id,
+      source: { name: vuln.source },
+      ...(vuln.cvss && {
+        ratings: [
+          {
+            source: { name: vuln.source },
+            score: vuln.cvss.score,
+            severity: vuln.cvss.severity.toLowerCase(),
+            method: `CVSSv${vuln.cvss.version}`,
+            ...(vuln.cvss.vector !== undefined &&
+              vuln.cvss.vector.length > 0 && { vector: vuln.cvss.vector }),
+          },
+        ],
+      }),
+      ...(vuln.description !== undefined &&
+        vuln.description.length > 0 && { description: vuln.description }),
+      ...(vuln.dates.published.length > 0 && { published: vuln.dates.published }),
+      ...(vuln.dates.updated !== undefined &&
+        vuln.dates.updated.length > 0 && { updated: vuln.dates.updated }),
+      affects: vuln.affects.map((affect) => ({
+        ref: affect.componentId,
+        versions: [{ version: affect.versionRange }],
+      })),
+    }));
   }
 
   /**
@@ -278,7 +313,24 @@ export class SbomAnalyzer {
     highestSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'NONE';
   }> {
     const vulnerabilities = sbom.vulnerabilities ?? [];
+    const componentVulns = this.groupVulnerabilitiesByComponent(vulnerabilities, sbom.components);
+    return this.sortAndLimitVulnerableComponents(componentVulns, limit);
+  }
 
+  /**
+   * Group vulnerabilities by component
+   * @private
+   */
+  private static groupVulnerabilitiesByComponent(
+    vulnerabilities: SbomVulnerabilityV2[],
+    components: SbomComponentV2[],
+  ): Map<
+    string,
+    {
+      component: SbomComponentV2;
+      vulnerabilities: SbomVulnerabilityV2[];
+    }
+  > {
     const componentVulns = new Map<
       string,
       {
@@ -287,48 +339,69 @@ export class SbomAnalyzer {
       }
     >();
 
-    // Group vulnerabilities by component
     for (const vuln of vulnerabilities) {
       for (const affect of vuln.affects) {
-        const component = sbom.components.find((c) => c.id === affect.componentId);
-        if (component) {
-          if (!componentVulns.has(affect.componentId)) {
-            componentVulns.set(affect.componentId, {
-              component,
-              vulnerabilities: [],
-            });
-          }
-          const componentData = componentVulns.get(affect.componentId);
-          if (componentData) {
-            componentData.vulnerabilities.push(vuln);
-          }
+        const component = components.find((c) => c.id === affect.componentId);
+        if (!component) {
+          continue;
         }
+
+        if (!componentVulns.has(affect.componentId)) {
+          componentVulns.set(affect.componentId, {
+            component,
+            vulnerabilities: [],
+          });
+        }
+        componentVulns.get(affect.componentId)?.vulnerabilities.push(vuln);
       }
     }
 
+    return componentVulns;
+  }
+
+  /**
+   * Sort and limit vulnerable components
+   * @private
+   */
+  private static sortAndLimitVulnerableComponents(
+    componentVulns: Map<
+      string,
+      {
+        component: SbomComponentV2;
+        vulnerabilities: SbomVulnerabilityV2[];
+      }
+    >,
+    limit: number,
+  ) {
     return Array.from(componentVulns.values())
       .map(({ component, vulnerabilities: vulns }) => ({
         component,
         vulnerabilityCount: vulns.length,
         highestSeverity: this.getHighestSeverity(vulns),
       }))
-      .sort((a, b) => {
-        // Sort by severity first, then by count
-        const severityOrder = {
-          CRITICAL: 4,
-
-          HIGH: 3,
-
-          MEDIUM: 2,
-
-          LOW: 1,
-
-          NONE: 0,
-        };
-        const severityDiff = severityOrder[b.highestSeverity] - severityOrder[a.highestSeverity];
-        return severityDiff || b.vulnerabilityCount - a.vulnerabilityCount;
-      })
+      .sort((a, b) => this.compareBySeverityAndCount(a, b))
       .slice(0, limit);
+  }
+
+  /**
+   * Compare components by severity and count
+   * @private
+   */
+  private static compareBySeverityAndCount(
+    a: { highestSeverity: string; vulnerabilityCount: number },
+    b: { highestSeverity: string; vulnerabilityCount: number },
+  ): number {
+    const severityOrder = {
+      CRITICAL: 4,
+      HIGH: 3,
+      MEDIUM: 2,
+      LOW: 1,
+      NONE: 0,
+    };
+    const severityDiff =
+      severityOrder[b.highestSeverity as keyof typeof severityOrder] -
+      severityOrder[a.highestSeverity as keyof typeof severityOrder];
+    return severityDiff || b.vulnerabilityCount - a.vulnerabilityCount;
   }
 
   /**
@@ -486,8 +559,25 @@ export class SbomAnalyzer {
     high: SbomVulnerabilityV2[],
     outdated: SbomComponentV2[],
   ): string[] {
-    const recommendations = [];
+    const recommendations: string[] = [];
 
+    this.addCriticalRecommendations(recommendations, critical);
+    this.addHighSeverityRecommendations(recommendations, high);
+    this.addOutdatedComponentRecommendations(recommendations, outdated);
+    this.addNoVulnerabilitiesMessage(recommendations, critical, high);
+    this.addCveRecommendations(recommendations, critical);
+
+    return recommendations;
+  }
+
+  /**
+   * Add critical vulnerability recommendations
+   * @private
+   */
+  private static addCriticalRecommendations(
+    recommendations: string[],
+    critical: SbomVulnerabilityV2[],
+  ): void {
     if (critical.length > 0) {
       recommendations.push(
         `🚨 URGENT: Address ${critical.length.toString()} critical vulnerabilities immediately`,
@@ -499,22 +589,58 @@ export class SbomAnalyzer {
         `Critical components: ${Array.from(criticalComponents).slice(0, 3).join(', ')}${criticalComponents.size > 3 ? '...' : ''}`,
       );
     }
+  }
 
+  /**
+   * Add high severity recommendations
+   * @private
+   */
+  private static addHighSeverityRecommendations(
+    recommendations: string[],
+    high: SbomVulnerabilityV2[],
+  ): void {
     if (high.length > 0) {
       recommendations.push(`⚠️  Fix ${high.length.toString()} high-severity vulnerabilities`);
     }
+  }
 
+  /**
+   * Add outdated component recommendations
+   * @private
+   */
+  private static addOutdatedComponentRecommendations(
+    recommendations: string[],
+    outdated: SbomComponentV2[],
+  ): void {
     if (outdated.length > 0) {
       recommendations.push(
         `📅 Update ${outdated.length.toString()} outdated components to latest versions`,
       );
     }
+  }
 
+  /**
+   * Add no vulnerabilities message if applicable
+   * @private
+   */
+  private static addNoVulnerabilitiesMessage(
+    recommendations: string[],
+    critical: SbomVulnerabilityV2[],
+    high: SbomVulnerabilityV2[],
+  ): void {
     if (critical.length === 0 && high.length === 0) {
       recommendations.push('✅ No critical or high-severity vulnerabilities found');
     }
+  }
 
-    // Add specific CVE recommendations for critical vulnerabilities
+  /**
+   * Add CVE-specific recommendations
+   * @private
+   */
+  private static addCveRecommendations(
+    recommendations: string[],
+    critical: SbomVulnerabilityV2[],
+  ): void {
     for (const vuln of critical.slice(0, 3)) {
       if (vuln.fixes && vuln.fixes.length > 0) {
         recommendations.push(
@@ -522,8 +648,6 @@ export class SbomAnalyzer {
         );
       }
     }
-
-    return recommendations;
   }
 
   /**

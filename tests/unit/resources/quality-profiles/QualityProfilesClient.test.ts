@@ -19,6 +19,7 @@ import type {
   RestoreResponse,
 } from '../../../../src/resources/quality-profiles/types.js';
 
+/* eslint-disable max-lines-per-function */
 describe('QualityProfilesClient', () => {
   const baseUrl = 'http://localhost:9000';
   const token = 'test-token';

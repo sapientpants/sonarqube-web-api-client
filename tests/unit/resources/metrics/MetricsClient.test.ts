@@ -72,7 +72,7 @@ describe('MetricsClient', () => {
       expect(capturedUrl).toBeDefined();
       expect(capturedUrl).not.toBeNull();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('f')).toBe('key,name,type');
       expect(params.get('isCustom')).toBe('true');
       expect(params.get('p')).toBe('2');

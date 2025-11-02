@@ -36,42 +36,75 @@ export const ruleKeyUtils = {
     let key: string = name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-');
 
     // Remove leading and trailing hyphens
-    // Find first non-hyphen character using search
+    key = ruleKeyUtils.trimHyphens(key);
+
+    // Add prefix if provided
+    key = ruleKeyUtils.addPrefix(key, prefix);
+
+    // Ensure it starts with a letter
+    key = ruleKeyUtils.ensureStartsWithLetter(key);
+
+    // Truncate if too long (max 200 chars is a safe limit)
+    key = ruleKeyUtils.truncateKey(key, 200);
+
+    return key;
+  },
+
+  /**
+   * Trims leading and trailing hyphens from a string
+   * @private
+   */
+  trimHyphens: (key: string): string => {
     const start = key.search(/[^-]/);
 
     if (start === -1) {
-      // String contains only hyphens
-      key = '';
-    } else {
-      // Find last non-hyphen character
-      let end = key.length - 1;
-      while (end >= 0 && key[end] === '-') {
-        end--;
-      }
-
-      key = key.slice(start, end + 1);
+      return '';
     }
 
-    // Add prefix if provided
+    let end = key.length - 1;
+    while (end >= 0 && key[end] === '-') {
+      end--;
+    }
+
+    return key.slice(start, end + 1);
+  },
+
+  /**
+   * Adds a prefix to the key if provided
+   * @private
+   */
+  addPrefix: (key: string, prefix?: string): string => {
     if (prefix !== undefined && prefix !== '') {
-      key = `${prefix}-${key}`;
+      return `${prefix}-${key}`;
     }
-
-    // Ensure it starts with a letter
-    if (key === '' || !/^[a-z]/.test(key)) {
-      key = `rule-${key}`;
-    }
-
-    // Truncate if too long (max 200 chars is a safe limit)
-    if (key.length > 200) {
-      key = key.substring(0, 200);
-      // Remove trailing hyphens efficiently
-      while (key.endsWith('-')) {
-        key = key.slice(0, -1);
-      }
-    }
-
     return key;
+  },
+
+  /**
+   * Ensures the key starts with a letter
+   * @private
+   */
+  ensureStartsWithLetter: (key: string): string => {
+    if (key === '' || !/^[a-z]/.test(key)) {
+      return `rule-${key}`;
+    }
+    return key;
+  },
+
+  /**
+   * Truncates the key to the specified max length and removes trailing hyphens
+   * @private
+   */
+  truncateKey: (key: string, maxLength: number): string => {
+    if (key.length <= maxLength) {
+      return key;
+    }
+
+    let truncated = key.substring(0, maxLength);
+    while (truncated.endsWith('-')) {
+      truncated = truncated.slice(0, -1);
+    }
+    return truncated;
   },
 
   /**
@@ -408,25 +441,55 @@ export const ruleMigrationUtils = {
       parameters?: unknown;
     } & Record<string, unknown>,
   ): CreateCustomRuleV2Request {
-    // Map common v1 fields to v2 format
     return {
-      key: v1Rule.key ?? v1Rule.customKey ?? (v1Rule['custom_key'] as string | undefined) ?? '',
-      templateKey:
-        v1Rule.templateKey ??
-        v1Rule.templateKeyAlias ??
-        (v1Rule['template_key'] as string | undefined) ??
-        '',
+      key: ruleMigrationUtils.extractRuleKey(v1Rule),
+      templateKey: ruleMigrationUtils.extractTemplateKey(v1Rule),
       name: v1Rule.name,
-      markdownDescription:
-        v1Rule.markdownDescription ??
-        v1Rule.htmlDesc ??
-        v1Rule.description ??
-        (v1Rule['markdown_description'] as string | undefined) ??
-        (v1Rule['html_desc'] as string | undefined) ??
-        '',
+      markdownDescription: ruleMigrationUtils.extractDescription(v1Rule),
       status: ruleMigrationUtils.mapV1Status(v1Rule.status),
       parameters: ruleMigrationUtils.mapV1Parameters(v1Rule.params ?? v1Rule.parameters),
     };
+  },
+
+  /**
+   * Extract rule key from v1 rule format
+   */
+  extractRuleKey(v1Rule: { key?: string; customKey?: string } & Record<string, unknown>): string {
+    return v1Rule.key ?? v1Rule.customKey ?? (v1Rule['custom_key'] as string | undefined) ?? '';
+  },
+
+  /**
+   * Extract template key from v1 rule format
+   */
+  extractTemplateKey(
+    v1Rule: { templateKey?: string; templateKeyAlias?: string } & Record<string, unknown>,
+  ): string {
+    return (
+      v1Rule.templateKey ??
+      v1Rule.templateKeyAlias ??
+      (v1Rule['template_key'] as string | undefined) ??
+      ''
+    );
+  },
+
+  /**
+   * Extract description from v1 rule format
+   */
+  extractDescription(
+    v1Rule: {
+      markdownDescription?: string;
+      htmlDesc?: string;
+      description?: string;
+    } & Record<string, unknown>,
+  ): string {
+    return (
+      v1Rule.markdownDescription ??
+      v1Rule.htmlDesc ??
+      v1Rule.description ??
+      (v1Rule['markdown_description'] as string | undefined) ??
+      (v1Rule['html_desc'] as string | undefined) ??
+      ''
+    );
   },
 
   /**
@@ -501,87 +564,169 @@ export const ruleMigrationUtils = {
       format?: 'json' | 'yaml';
     },
   ): string {
-    const exportData = rules.map((rule) => {
-      const base: {
-        key: string;
-        templateKey?: string;
-        name: string;
-        markdownDescription?: string;
-        status?: RuleStatus;
-        parameters?: Array<{ key: string; value: string }>;
-        metadata?: {
-          createdAt?: string;
-          updatedAt?: string;
-          language?: string;
-          tags?: string[];
-          impacts?: Array<{ softwareQuality: SoftwareQuality; severity: ImpactSeverity }>;
-        };
-      } = {
-        key: rule.key,
-        name: rule.name,
-      };
-
-      if (rule.templateKey !== undefined) {
-        base.templateKey = rule.templateKey;
-      }
-      if (rule.markdownDescription !== undefined) {
-        base.markdownDescription = rule.markdownDescription;
-      }
-      base.status = rule.status;
-      if (rule.parameters !== undefined) {
-        base.parameters = rule.parameters.map((p) => ({
-          key: p.key,
-          value: p.defaultValue ?? '',
-        }));
-      }
-
-      if (options?.includeMetadata === true) {
-        base.metadata = {};
-        if (rule.createdAt !== undefined) {
-          base.metadata.createdAt = rule.createdAt;
-        }
-        if (rule.updatedAt !== undefined) {
-          base.metadata.updatedAt = rule.updatedAt;
-        }
-        if (rule.language !== undefined) {
-          base.metadata.language = rule.language;
-        }
-        if (rule.tags !== undefined) {
-          base.metadata.tags = rule.tags;
-        }
-        base.metadata.impacts = rule.impacts;
-      }
-
-      return base;
-    });
+    const exportData = rules.map((rule) => ruleMigrationUtils.mapRuleForExport(rule, options));
 
     if (options?.format === 'yaml') {
-      // Simple YAML-like format (for demonstration)
-      return exportData
-        .map((rule) => {
-          const lines = [
-            `- key: ${rule.key}`,
-            `  templateKey: ${rule.templateKey ?? ''}`,
-            `  name: ${rule.name}`,
-            `  markdownDescription: |`,
-          ];
-          if (rule.markdownDescription && rule.markdownDescription !== '') {
-            lines.push(...rule.markdownDescription.split('\n').map((l) => `    ${l}`));
-          }
-          lines.push(`  status: ${rule.status ?? 'READY'}`);
-          if (rule.parameters && rule.parameters.length > 0) {
-            lines.push(`  parameters:`);
-            for (const p of rule.parameters) {
-              lines.push(`    - key: ${p.key}`, `      value: "${p.value}"`);
-            }
-          }
-          return lines.join('\n');
-        })
-        .join('\n\n');
+      return ruleMigrationUtils.formatAsYaml(exportData);
     }
 
     // Default to JSON
     return JSON.stringify(exportData, null, 2);
+  },
+
+  /**
+   * Map a rule to export format
+   */
+  mapRuleForExport(
+    rule: CreateCustomRuleV2Response,
+    options?: { includeMetadata?: boolean },
+  ): {
+    key: string;
+    templateKey?: string;
+    name: string;
+    markdownDescription?: string;
+    status?: RuleStatus;
+    parameters?: Array<{ key: string; value: string }>;
+    metadata?: {
+      createdAt?: string;
+      updatedAt?: string;
+      language?: string;
+      tags?: string[];
+      impacts?: Array<{ softwareQuality: SoftwareQuality; severity: ImpactSeverity }>;
+    };
+  } {
+    const base = ruleMigrationUtils.buildBaseExportData(rule);
+
+    if (options?.includeMetadata === true) {
+      base.metadata = ruleMigrationUtils.buildMetadata(rule);
+    }
+
+    return base;
+  },
+
+  /**
+   * Build base export data for a rule
+   */
+  buildBaseExportData(rule: CreateCustomRuleV2Response): {
+    key: string;
+    templateKey?: string;
+    name: string;
+    markdownDescription?: string;
+    status?: RuleStatus;
+    parameters?: Array<{ key: string; value: string }>;
+    metadata?: {
+      createdAt?: string;
+      updatedAt?: string;
+      language?: string;
+      tags?: string[];
+      impacts?: Array<{ softwareQuality: SoftwareQuality; severity: ImpactSeverity }>;
+    };
+  } {
+    const base: {
+      key: string;
+      templateKey?: string;
+      name: string;
+      markdownDescription?: string;
+      status?: RuleStatus;
+      parameters?: Array<{ key: string; value: string }>;
+      metadata?: {
+        createdAt?: string;
+        updatedAt?: string;
+        language?: string;
+        tags?: string[];
+        impacts?: Array<{ softwareQuality: SoftwareQuality; severity: ImpactSeverity }>;
+      };
+    } = {
+      key: rule.key,
+      name: rule.name,
+    };
+
+    if (rule.templateKey !== undefined) {
+      base.templateKey = rule.templateKey;
+    }
+    if (rule.markdownDescription !== undefined) {
+      base.markdownDescription = rule.markdownDescription;
+    }
+    base.status = rule.status;
+    if (rule.parameters !== undefined) {
+      base.parameters = rule.parameters.map((p) => ({
+        key: p.key,
+        value: p.defaultValue ?? '',
+      }));
+    }
+
+    return base;
+  },
+
+  /**
+   * Build metadata for export
+   */
+  buildMetadata(rule: CreateCustomRuleV2Response): {
+    createdAt?: string;
+    updatedAt?: string;
+    language?: string;
+    tags?: string[];
+    impacts?: Array<{ softwareQuality: SoftwareQuality; severity: ImpactSeverity }>;
+  } {
+    const metadata: {
+      createdAt?: string;
+      updatedAt?: string;
+      language?: string;
+      tags?: string[];
+      impacts?: Array<{ softwareQuality: SoftwareQuality; severity: ImpactSeverity }>;
+    } = {};
+
+    if (rule.createdAt !== undefined) {
+      metadata.createdAt = rule.createdAt;
+    }
+    if (rule.updatedAt !== undefined) {
+      metadata.updatedAt = rule.updatedAt;
+    }
+    if (rule.language !== undefined) {
+      metadata.language = rule.language;
+    }
+    if (rule.tags !== undefined) {
+      metadata.tags = rule.tags;
+    }
+    metadata.impacts = rule.impacts;
+
+    return metadata;
+  },
+
+  /**
+   * Format rules as YAML
+   */
+  formatAsYaml(
+    exportData: Array<{
+      key: string;
+      templateKey?: string;
+      name: string;
+      markdownDescription?: string;
+      status?: RuleStatus;
+      parameters?: Array<{ key: string; value: string }>;
+    }>,
+  ): string {
+    return exportData
+      .map((rule) => {
+        const lines = [
+          `- key: ${rule.key}`,
+          `  templateKey: ${rule.templateKey ?? ''}`,
+          `  name: ${rule.name}`,
+          `  markdownDescription: |`,
+        ];
+        if (rule.markdownDescription && rule.markdownDescription !== '') {
+          lines.push(...rule.markdownDescription.split('\n').map((l) => `    ${l}`));
+        }
+        lines.push(`  status: ${rule.status ?? 'READY'}`);
+        if (rule.parameters && rule.parameters.length > 0) {
+          lines.push(`  parameters:`);
+          for (const p of rule.parameters) {
+            lines.push(`    - key: ${p.key}`, `      value: "${p.value}"`);
+          }
+        }
+        return lines.join('\n');
+      })
+      .join('\n\n');
   },
 };
 

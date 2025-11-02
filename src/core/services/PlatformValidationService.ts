@@ -252,40 +252,44 @@ export namespace PlatformValidationService {
   ): string | undefined {
     switch (platform) {
       case DevOpsPlatform.GITHUB:
-        return config['owner'] !== undefined &&
-          config['owner'] !== null &&
-          config['repository'] !== undefined &&
-          config['repository'] !== null
-          ? `${String(config['owner'] as string | number)}/${String(config['repository'] as string | number)}`
-          : undefined;
+        return buildTwoPartIdentifier(config, 'owner', 'repository');
 
       case DevOpsPlatform.GITLAB:
-        return config['namespace'] !== undefined &&
-          config['namespace'] !== null &&
-          config['project'] !== undefined &&
-          config['project'] !== null
-          ? `${String(config['namespace'] as string | number)}/${String(config['project'] as string | number)}`
-          : undefined;
+        return buildTwoPartIdentifier(config, 'namespace', 'project');
 
       case DevOpsPlatform.BITBUCKET:
-        return config['workspace'] !== undefined &&
-          config['workspace'] !== null &&
-          config['repository'] !== undefined &&
-          config['repository'] !== null
-          ? `${String(config['workspace'] as string | number)}/${String(config['repository'] as string | number)}`
-          : undefined;
+        return buildTwoPartIdentifier(config, 'workspace', 'repository');
 
       case DevOpsPlatform.AzureDevops:
-        return config['organization'] !== undefined &&
-          config['organization'] !== null &&
-          config['project'] !== undefined &&
-          config['project'] !== null
-          ? `${String(config['organization'] as string | number)}/${String(config['project'] as string | number)}`
-          : undefined;
+        return buildTwoPartIdentifier(config, 'organization', 'project');
 
       default:
         return undefined;
     }
+  }
+
+  /**
+   * Build a two-part identifier (e.g., "owner/repository")
+   * @private
+   */
+  function buildTwoPartIdentifier(
+    config: Record<string, unknown>,
+    firstKey: string,
+    secondKey: string,
+  ): string | undefined {
+    const firstPart = config[firstKey];
+    const secondPart = config[secondKey];
+
+    if (
+      firstPart === undefined ||
+      firstPart === null ||
+      secondPart === undefined ||
+      secondPart === null
+    ) {
+      return undefined;
+    }
+
+    return `${String(firstPart as string | number)}/${String(secondPart as string | number)}`;
   }
 
   /**
@@ -304,14 +308,25 @@ export namespace PlatformValidationService {
     }
 
     // Check required fields
+    validateRequiredFields(rule, platform, config, errors);
+
+    // Platform-specific validations
+    validatePlatformNamingRules(platform, config, warnings);
+  }
+
+  /**
+   * Validate required fields for a platform
+   * @private
+   */
+  function validateRequiredFields(
+    rule: PlatformValidationRule,
+    platform: DevOpsPlatform,
+    config: Record<string, unknown>,
+    errors: ValidationError[],
+  ): void {
     for (const field of rule.requiredFields) {
       const fieldValue = config[field];
-      if (
-        fieldValue === undefined ||
-        fieldValue === null ||
-        fieldValue === '' ||
-        (typeof fieldValue === 'string' && fieldValue.trim() === '')
-      ) {
+      if (isFieldValueInvalid(fieldValue)) {
         errors.push({
           field: `platformSpecific.${field}`,
           message: `${formatFieldName(field)} is required for ${platform}`,
@@ -320,8 +335,30 @@ export namespace PlatformValidationService {
         });
       }
     }
+  }
 
-    // Platform-specific validations
+  /**
+   * Check if a field value is invalid (undefined, null, empty, or whitespace)
+   * @private
+   */
+  function isFieldValueInvalid(fieldValue: unknown): boolean {
+    return (
+      fieldValue === undefined ||
+      fieldValue === null ||
+      fieldValue === '' ||
+      (typeof fieldValue === 'string' && fieldValue.trim() === '')
+    );
+  }
+
+  /**
+   * Validate platform-specific naming rules
+   * @private
+   */
+  function validatePlatformNamingRules(
+    platform: DevOpsPlatform,
+    config: Record<string, unknown>,
+    warnings: ValidationWarning[],
+  ): void {
     switch (platform) {
       case DevOpsPlatform.GITHUB:
         validateGitHubSpecific(config, warnings);

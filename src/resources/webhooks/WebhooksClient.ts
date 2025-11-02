@@ -12,6 +12,12 @@ import type {
   UpdateWebhookRequest,
 } from './types.js';
 
+// Error messages
+const ERROR_NAME_REQUIRED = 'name is required';
+const ERROR_ORGANIZATION_REQUIRED = 'organization is required';
+const ERROR_URL_REQUIRED = 'url is required';
+const ERROR_WEBHOOK_REQUIRED = 'webhook is required';
+
 /**
  * Client for interacting with the SonarQube Webhooks API.
  * Webhooks allow to notify external services when a project analysis is done.
@@ -40,13 +46,13 @@ export class WebhooksClient extends BaseClient {
    */
   async create(request: CreateWebhookRequest): Promise<CreateWebhookResponse> {
     if (request.name.trim().length === 0) {
-      throw new ValidationError('name is required');
+      throw new ValidationError(ERROR_NAME_REQUIRED);
     }
     if (request.organization.trim().length === 0) {
-      throw new ValidationError('organization is required');
+      throw new ValidationError(ERROR_ORGANIZATION_REQUIRED);
     }
     if (request.url.trim().length === 0) {
-      throw new ValidationError('url is required');
+      throw new ValidationError(ERROR_URL_REQUIRED);
     }
 
     const params = new URLSearchParams();
@@ -85,7 +91,7 @@ export class WebhooksClient extends BaseClient {
    */
   async delete(request: DeleteWebhookRequest): Promise<void> {
     if (request.webhook.trim().length === 0) {
-      throw new ValidationError('webhook is required');
+      throw new ValidationError(ERROR_WEBHOOK_REQUIRED);
     }
 
     const params = new URLSearchParams();
@@ -198,7 +204,7 @@ export class WebhooksClient extends BaseClient {
   list(): ListWebhooksBuilder {
     return new ListWebhooksBuilder(async (params) => {
       if (params.organization.trim().length === 0) {
-        throw new ValidationError('organization is required');
+        throw new ValidationError(ERROR_ORGANIZATION_REQUIRED);
       }
 
       const searchParams = new URLSearchParams();
@@ -234,13 +240,13 @@ export class WebhooksClient extends BaseClient {
    */
   async update(request: UpdateWebhookRequest): Promise<void> {
     if (request.webhook.trim().length === 0) {
-      throw new ValidationError('webhook is required');
+      throw new ValidationError(ERROR_WEBHOOK_REQUIRED);
     }
     if (request.name.trim().length === 0) {
-      throw new ValidationError('name is required');
+      throw new ValidationError(ERROR_NAME_REQUIRED);
     }
     if (request.url.trim().length === 0) {
-      throw new ValidationError('url is required');
+      throw new ValidationError(ERROR_URL_REQUIRED);
     }
 
     const params = new URLSearchParams();

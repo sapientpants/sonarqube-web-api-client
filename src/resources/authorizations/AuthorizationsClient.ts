@@ -10,6 +10,9 @@ import type {
   SearchGroupMembershipsV2Response,
 } from './types.js';
 
+const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
+const GROUP_MEMBERSHIPS_ENDPOINT = '/api/v2/authorizations/group-memberships';
+
 /**
  * Client for interacting with the SonarQube Authorizations API v2.
  * This API consolidates group management and permissions under a unified interface.
@@ -52,9 +55,7 @@ export class AuthorizationsClient extends BaseClient {
   searchGroupsV2(): SearchGroupsV2Builder {
     return new SearchGroupsV2Builder(async (params) => {
       const queryString = this.buildV2Query(params as Record<string, unknown>);
-      const url = queryString
-        ? `/api/v2/authorizations/groups?${queryString}`
-        : '/api/v2/authorizations/groups';
+      const url = queryString ? `${GROUPS_ENDPOINT}?${queryString}` : GROUPS_ENDPOINT;
       return this.request<SearchGroupsV2Response>(url);
     });
   }
@@ -78,7 +79,7 @@ export class AuthorizationsClient extends BaseClient {
    * ```
    */
   async createGroupV2(data: CreateGroupV2Request): Promise<GroupV2> {
-    return this.request<GroupV2>('/api/v2/authorizations/groups', {
+    return this.request<GroupV2>(GROUPS_ENDPOINT, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -97,7 +98,7 @@ export class AuthorizationsClient extends BaseClient {
    * ```
    */
   async getGroupV2(id: string): Promise<GroupV2> {
-    return this.request<GroupV2>(`/api/v2/authorizations/groups/${id}`);
+    return this.request<GroupV2>(`${GROUPS_ENDPOINT}/${id}`);
   }
 
   /**
@@ -123,7 +124,7 @@ export class AuthorizationsClient extends BaseClient {
    * ```
    */
   async updateGroupV2(id: string, data: UpdateGroupV2Request): Promise<GroupV2> {
-    return this.request<GroupV2>(`/api/v2/authorizations/groups/${id}`, {
+    return this.request<GroupV2>(`${GROUPS_ENDPOINT}/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -145,7 +146,7 @@ export class AuthorizationsClient extends BaseClient {
    * ```
    */
   async deleteGroupV2(id: string): Promise<void> {
-    await this.request(`/api/v2/authorizations/groups/${id}`, {
+    await this.request(`${GROUPS_ENDPOINT}/${id}`, {
       method: 'DELETE',
     });
   }
@@ -183,8 +184,8 @@ export class AuthorizationsClient extends BaseClient {
     return new SearchGroupMembershipsV2Builder(async (params) => {
       const queryString = this.buildV2Query(params as Record<string, unknown>);
       const url = queryString
-        ? `/api/v2/authorizations/group-memberships?${queryString}`
-        : '/api/v2/authorizations/group-memberships';
+        ? `${GROUP_MEMBERSHIPS_ENDPOINT}?${queryString}`
+        : GROUP_MEMBERSHIPS_ENDPOINT;
       return this.request<SearchGroupMembershipsV2Response>(url);
     });
   }
@@ -207,7 +208,7 @@ export class AuthorizationsClient extends BaseClient {
    * ```
    */
   async addGroupMembershipV2(data: AddGroupMembershipV2Request): Promise<GroupMembershipV2> {
-    return this.request<GroupMembershipV2>('/api/v2/authorizations/group-memberships', {
+    return this.request<GroupMembershipV2>(GROUP_MEMBERSHIPS_ENDPOINT, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -227,7 +228,7 @@ export class AuthorizationsClient extends BaseClient {
    * ```
    */
   async removeGroupMembershipV2(id: string): Promise<void> {
-    await this.request(`/api/v2/authorizations/group-memberships/${id}`, {
+    await this.request(`${GROUP_MEMBERSHIPS_ENDPOINT}/${id}`, {
       method: 'DELETE',
     });
   }

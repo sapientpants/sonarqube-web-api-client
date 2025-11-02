@@ -6,6 +6,8 @@ import type {
   QualityGateBadgeParams,
 } from './types.js';
 
+const SVG_MIME_TYPE = 'image/svg+xml';
+
 /**
  * Client for interacting with SonarQube project badges endpoints
  * Generate badges based on quality gates or measures
@@ -30,7 +32,7 @@ export class ProjectBadgesClient extends BaseClient {
     });
     return await this.request<string>(`/api/project_badges/ai_code_assurance?${query}`, {
       headers: {
-        ['Accept']: 'image/svg+xml',
+        ['Accept']: SVG_MIME_TYPE,
       },
       responseType: 'text',
     });
@@ -61,7 +63,7 @@ export class ProjectBadgesClient extends BaseClient {
       });
       return await this.request<string>(`/api/project_badges/measure?${query}`, {
         headers: {
-          ['Accept']: 'image/svg+xml',
+          ['Accept']: SVG_MIME_TYPE,
         },
         responseType: 'text',
       });
@@ -93,7 +95,7 @@ export class ProjectBadgesClient extends BaseClient {
     });
     return await this.request<string>(`/api/project_badges/measure?${query}`, {
       headers: {
-        ['Accept']: 'image/svg+xml',
+        ['Accept']: SVG_MIME_TYPE,
       },
       responseType: 'text',
     });
@@ -122,7 +124,7 @@ export class ProjectBadgesClient extends BaseClient {
       });
       return await this.request<string>(`/api/project_badges/quality_gate?${query}`, {
         headers: {
-          ['Accept']: 'image/svg+xml',
+          ['Accept']: SVG_MIME_TYPE,
         },
         responseType: 'text',
       });
@@ -143,7 +145,7 @@ export class ProjectBadgesClient extends BaseClient {
     });
     return await this.request<string>(`/api/project_badges/quality_gate?${query}`, {
       headers: {
-        ['Accept']: 'image/svg+xml',
+        ['Accept']: SVG_MIME_TYPE,
       },
       responseType: 'text',
     });

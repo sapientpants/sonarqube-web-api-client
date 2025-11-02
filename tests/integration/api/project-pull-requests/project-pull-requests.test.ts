@@ -20,6 +20,7 @@ const skipTests = !canRunIntegrationTests();
 const envConfig = skipTests ? null : getIntegrationTestConfig();
 const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConfig);
 
+/* eslint-disable max-lines-per-function */
 (skipTests ? describe.skip : describe)('Project Pull Requests API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;

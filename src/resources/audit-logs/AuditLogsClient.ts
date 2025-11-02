@@ -47,40 +47,37 @@ export class AuditLogsClient extends BaseClient {
    * ```
    */
   async search(request: SearchAuditLogsRequest = {}): Promise<SearchAuditLogsResponse> {
-    const params = new URLSearchParams();
-
-    if (request.category !== undefined) {
-      params.append('category', request.category);
-    }
-
-    if (request.action !== undefined) {
-      params.append('action', request.action);
-    }
-
-    if (request.userLogin !== undefined) {
-      params.append('userLogin', request.userLogin);
-    }
-
-    if (request.from !== undefined) {
-      params.append('from', request.from);
-    }
-
-    if (request.to !== undefined) {
-      params.append('to', request.to);
-    }
-
-    if (request.page !== undefined) {
-      params.append('page', String(request.page));
-    }
-
-    if (request.pageSize !== undefined) {
-      params.append('pageSize', String(request.pageSize));
-    }
-
+    const params = this.buildSearchParams(request);
     const queryString = params.toString();
     const url = queryString ? `/api/audit_logs/search?${queryString}` : '/api/audit_logs/search';
 
     return this.request<SearchAuditLogsResponse>(url);
+  }
+
+  private buildSearchParams(request: SearchAuditLogsRequest): URLSearchParams {
+    const params = new URLSearchParams();
+
+    this.appendStringParam(params, 'category', request.category);
+    this.appendStringParam(params, 'action', request.action);
+    this.appendStringParam(params, 'userLogin', request.userLogin);
+    this.appendStringParam(params, 'from', request.from);
+    this.appendStringParam(params, 'to', request.to);
+    this.appendNumberParam(params, 'page', request.page);
+    this.appendNumberParam(params, 'pageSize', request.pageSize);
+
+    return params;
+  }
+
+  private appendStringParam(params: URLSearchParams, key: string, value?: string): void {
+    if (value !== undefined) {
+      params.append(key, value);
+    }
+  }
+
+  private appendNumberParam(params: URLSearchParams, key: string, value?: number): void {
+    if (value !== undefined) {
+      params.append(key, String(value));
+    }
   }
 
   /**

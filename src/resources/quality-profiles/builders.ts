@@ -213,9 +213,7 @@ export class DeactivateRulesBuilder extends ActivateRulesBuilder {
   }
 
   override async execute(): Promise<DeactivateRulesResponse> {
-    const result = await super.execute();
-
-    return result;
+    return await super.execute();
   }
 }
 

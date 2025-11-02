@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Factory functions for creating consistent mock responses
  * These help maintain realistic API response structures across tests
@@ -299,7 +298,8 @@ export function createHotspot(overrides?: Partial<Hotspot>): Hotspot {
   };
 }
 
-export interface HotspotDetails extends Hotspot {
+export interface HotspotDetails {
+  key: string;
   component: {
     key: string;
     qualifier: string;
@@ -311,6 +311,21 @@ export interface HotspotDetails extends Hotspot {
     key: string;
     name: string;
     longName: string;
+  };
+  securityCategory: string;
+  vulnerabilityProbability: string;
+  status: string;
+  resolution?: string;
+  line?: number;
+  hash?: string;
+  message: string;
+  creationDate: string;
+  updateDate: string;
+  textRange?: {
+    startLine: number;
+    endLine: number;
+    startOffset: number;
+    endOffset: number;
   };
   rule: {
     key: string;
@@ -345,9 +360,8 @@ export interface HotspotDetails extends Hotspot {
 }
 
 export function createHotspotDetails(overrides?: Partial<HotspotDetails>): HotspotDetails {
-  const baseHotspot = createHotspot();
   return {
-    ...baseHotspot,
+    key: 'hotspot-1',
     component: {
       key: 'project:src/main/java/com/example/App.java',
       qualifier: 'FIL',
@@ -359,6 +373,20 @@ export function createHotspotDetails(overrides?: Partial<HotspotDetails>): Hotsp
       key: 'project',
       name: 'My Project',
       longName: 'My Project',
+    },
+    securityCategory: 'sql-injection',
+    vulnerabilityProbability: 'HIGH',
+    status: 'TO_REVIEW',
+    line: 42,
+    hash: 'abc123def456',
+    message: 'Make sure that this SQL query is not vulnerable to injection attacks.',
+    creationDate: '2024-01-01T00:00:00+0000',
+    updateDate: '2024-01-01T00:00:00+0000',
+    textRange: {
+      startLine: 42,
+      endLine: 42,
+      startOffset: 10,
+      endOffset: 50,
     },
     rule: {
       key: 'java:S2077',

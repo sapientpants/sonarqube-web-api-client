@@ -1,5 +1,4 @@
 // @ts-nocheck
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UsersClient } from '../../../../src/resources/users/UsersClient.js';
 import {
   SearchUsersBuilder,

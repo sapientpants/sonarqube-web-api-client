@@ -7,6 +7,9 @@ import type {
   UpdatePortfolioRequest,
 } from './types.js';
 
+// Constants
+const CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
 /**
  * Client for SonarQube Views API
  *
@@ -68,7 +71,7 @@ export class ViewsClient extends BaseClient {
     await this.request('/api/views/add_application', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE_FORM_URLENCODED,
       },
       body: formData.toString(),
       responseType: 'text',
@@ -106,7 +109,7 @@ export class ViewsClient extends BaseClient {
     await this.request('/api/views/add_application_branch', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE_FORM_URLENCODED,
       },
       body: formData.toString(),
       responseType: 'text',
@@ -179,7 +182,7 @@ export class ViewsClient extends BaseClient {
     await this.request('/api/views/update', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE_FORM_URLENCODED,
       },
       body: formData.toString(),
       responseType: 'text',

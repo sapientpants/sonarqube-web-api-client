@@ -71,6 +71,8 @@ export interface Component {
   tags?: string[];
   /** Visibility of the component */
   visibility?: 'public' | 'private';
+  /** Organization key (for SonarQube Cloud) */
+  organization?: string;
 }
 
 /**

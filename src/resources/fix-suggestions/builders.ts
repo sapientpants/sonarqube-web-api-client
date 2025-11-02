@@ -10,6 +10,10 @@ import type {
   RequestAiSuggestionsV2Builder,
 } from './types.js';
 
+// Error messages
+const ERROR_ISSUE_KEY_REQUIRED = 'Issue key is required';
+const ERROR_ISSUE_KEY_EMPTY = 'Issue key cannot be empty';
+
 /**
  * Builder for checking AI fix suggestion availability
  * @since 10.7
@@ -59,11 +63,11 @@ export class GetIssueAvailabilityV2BuilderImpl
    */
   protected validate(): void {
     if (!this.params.issueKey) {
-      throw new ValidationError('Issue key is required');
+      throw new ValidationError(ERROR_ISSUE_KEY_REQUIRED);
     }
 
     if (this.params.issueKey.trim().length === 0) {
-      throw new ValidationError('Issue key cannot be empty');
+      throw new ValidationError(ERROR_ISSUE_KEY_EMPTY);
     }
 
     // Validate branch and pull request are not both specified
@@ -168,11 +172,11 @@ export class RequestAiSuggestionsV2BuilderImpl
    */
   protected validate(): void {
     if (!this.params.issueKey) {
-      throw new ValidationError('Issue key is required');
+      throw new ValidationError(ERROR_ISSUE_KEY_REQUIRED);
     }
 
     if (this.params.issueKey.trim().length === 0) {
-      throw new ValidationError('Issue key cannot be empty');
+      throw new ValidationError(ERROR_ISSUE_KEY_EMPTY);
     }
 
     if (this.params.maxAlternatives && this.params.maxAlternatives > 10) {

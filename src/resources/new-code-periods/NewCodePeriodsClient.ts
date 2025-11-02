@@ -9,6 +9,9 @@ import type {
   UnsetNewCodePeriodRequest,
 } from './types.js';
 
+// Constants
+const CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
 /**
  * Client for managing SonarQube new code periods
  *
@@ -50,11 +53,9 @@ export class NewCodePeriodsClient extends BaseClient {
       params.append('branch', request.branch);
     }
 
-    const response = await this.request<ListNewCodePeriodsResponse>(
+    return await this.request<ListNewCodePeriodsResponse>(
       `/api/new_code_periods/list?${params.toString()}`,
     );
-
-    return response;
   }
 
   /**
@@ -94,11 +95,9 @@ export class NewCodePeriodsClient extends BaseClient {
       params.append('branch', request.branch);
     }
 
-    const response = await this.request<ShowNewCodePeriodResponse>(
+    return await this.request<ShowNewCodePeriodResponse>(
       `/api/new_code_periods/show?${params.toString()}`,
     );
-
-    return response;
   }
 
   /**
@@ -156,15 +155,13 @@ export class NewCodePeriodsClient extends BaseClient {
       formData.append('value', request.value);
     }
 
-    const response = await this.request<SetNewCodePeriodResponse>('/api/new_code_periods/set', {
+    return await this.request<SetNewCodePeriodResponse>('/api/new_code_periods/set', {
       method: 'POST',
       body: formData,
       headers: {
-        ['Content-Type']: 'application/x-www-form-urlencoded',
+        ['Content-Type']: CONTENT_TYPE_FORM_URLENCODED,
       },
     });
-
-    return response;
   }
 
   /**
@@ -204,7 +201,7 @@ export class NewCodePeriodsClient extends BaseClient {
       method: 'POST',
       body: formData,
       headers: {
-        ['Content-Type']: 'application/x-www-form-urlencoded',
+        ['Content-Type']: CONTENT_TYPE_FORM_URLENCODED,
       },
     });
   }

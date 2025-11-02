@@ -20,6 +20,14 @@ import {
 } from './types.js';
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+const MESSAGE_GITHUB_REPO_NAMING = 'GitHub repository name should follow naming conventions';
+const SUGGESTION_ALPHANUMERIC_DOTS_UNDERSCORES_HYPHENS =
+  'Use alphanumeric characters, dots, underscores, and hyphens only';
+
+// ============================================================================
 // Platform Detection Utility
 // ============================================================================
 
@@ -71,6 +79,19 @@ export class PlatformDetector {
     enterpriseCheck?: (hostname: string) => boolean;
   }> {
     return [
+      ...this.getGitHubPatterns(),
+      ...this.getGitLabPatterns(),
+      ...this.getBitbucketPatterns(),
+      ...this.getAzureDevOpsPatterns(),
+    ];
+  }
+
+  /**
+   * Get GitHub platform patterns
+   * @private
+   */
+  private static getGitHubPatterns() {
+    return [
       {
         platform: DevOpsPlatform.GITHUB,
         pattern: /(?:https?:\/\/)?(?:www\.)?github\.com\/([^/\s?#]{1,100})\/([^/\s?#]{1,100})/,
@@ -84,6 +105,15 @@ export class PlatformDetector {
         isEnterprise: true,
         enterpriseCheck: (hostname: string): boolean => this.isGitHubEnterprise(hostname),
       },
+    ];
+  }
+
+  /**
+   * Get GitLab platform patterns
+   * @private
+   */
+  private static getGitLabPatterns() {
+    return [
       {
         platform: DevOpsPlatform.GITLAB,
         pattern: /(?:https?:\/\/)?(?:www\.)?gitlab\.com\/([^/\s?#]{1,100})\/([^/\s?#]{1,100})/,
@@ -97,12 +127,30 @@ export class PlatformDetector {
         isEnterprise: true,
         enterpriseCheck: (hostname: string): boolean => hostname.includes('gitlab'),
       },
+    ];
+  }
+
+  /**
+   * Get Bitbucket platform patterns
+   * @private
+   */
+  private static getBitbucketPatterns() {
+    return [
       {
         platform: DevOpsPlatform.BITBUCKET,
         pattern: /(?:https?:\/\/)?(?:www\.)?bitbucket\.org\/([^/\s?#]{1,100})\/([^/\s?#]{1,100})/,
         confidence: 1,
         isEnterprise: false,
       },
+    ];
+  }
+
+  /**
+   * Get Azure DevOps platform patterns
+   * @private
+   */
+  private static getAzureDevOpsPatterns() {
+    return [
       {
         platform: DevOpsPlatform.AzureDevops,
         pattern: /(?:https?:\/\/)?dev\.azure\.com\/([^/\s]{1,100})\/([^/\s]{1,100})/,
@@ -175,13 +223,13 @@ export class PlatformDetector {
       return null;
     }
 
-    const extractedInfo = this.buildExtractedInfo(
+    const extractedInfo = this.buildExtractedInfo({
       url,
-      matchInfo.organization,
-      matchInfo.repository,
+      organization: matchInfo.organization,
+      repository: matchInfo.repository,
       isEnterprise,
-      matchInfo.apiUrl,
-    );
+      ...(matchInfo.apiUrl !== undefined && { apiUrl: matchInfo.apiUrl }),
+    });
 
     return {
       platform,
@@ -243,13 +291,14 @@ export class PlatformDetector {
     };
   }
 
-  private static buildExtractedInfo(
-    url: string,
-    organization: string,
-    repository: string,
-    isEnterprise: boolean,
-    apiUrl?: string,
-  ): ExtractedPlatformInfo {
+  private static buildExtractedInfo(params: {
+    url: string;
+    organization: string;
+    repository: string;
+    isEnterprise: boolean;
+    apiUrl?: string;
+  }): ExtractedPlatformInfo {
+    const { url, organization, repository, isEnterprise, apiUrl } = params;
     const extractedInfo: ExtractedPlatformInfo = {
       organization,
       repository,
@@ -343,8 +392,8 @@ export class ConfigurationValidator {
     if (config.repository && !/^[a-zA-Z0-9._-]+$/.test(config.repository)) {
       warnings.push({
         field: 'repository',
-        message: 'GitHub repository name should follow naming conventions',
-        suggestion: 'Use alphanumeric characters, dots, underscores, and hyphens only',
+        message: MESSAGE_GITHUB_REPO_NAMING,
+        suggestion: SUGGESTION_ALPHANUMERIC_DOTS_UNDERSCORES_HYPHENS,
         platform: DevOpsPlatform.GITHUB,
       });
     }
@@ -384,7 +433,7 @@ export class ConfigurationValidator {
       warnings.push({
         field: 'namespace',
         message: 'GitLab namespace should follow naming conventions',
-        suggestion: 'Use alphanumeric characters, dots, underscores, and hyphens only',
+        suggestion: SUGGESTION_ALPHANUMERIC_DOTS_UNDERSCORES_HYPHENS,
         platform: DevOpsPlatform.GITLAB,
       });
     }
@@ -393,7 +442,7 @@ export class ConfigurationValidator {
       warnings.push({
         field: 'project',
         message: 'GitLab project name should follow naming conventions',
-        suggestion: 'Use alphanumeric characters, dots, underscores, and hyphens only',
+        suggestion: SUGGESTION_ALPHANUMERIC_DOTS_UNDERSCORES_HYPHENS,
         platform: DevOpsPlatform.GITLAB,
       });
     }
@@ -442,7 +491,7 @@ export class ConfigurationValidator {
       warnings.push({
         field: 'repository',
         message: 'Bitbucket repository name should follow naming conventions',
-        suggestion: 'Use alphanumeric characters, dots, underscores, and hyphens only',
+        suggestion: SUGGESTION_ALPHANUMERIC_DOTS_UNDERSCORES_HYPHENS,
         platform: DevOpsPlatform.BITBUCKET,
       });
     }

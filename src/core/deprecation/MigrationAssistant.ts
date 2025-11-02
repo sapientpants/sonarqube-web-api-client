@@ -54,32 +54,8 @@ export class MigrationAssistant {
       // Count usage
       apiCounts[usage.api] = (apiCounts[usage.api] ?? 0) + 1;
 
-      // Generate suggestion
-      const suggestion: MigrationSuggestion = {
-        file: usage.file,
-        line: usage.line,
-        column: usage.column,
-        deprecatedApi: usage.api,
-        suggestion: this.generateSuggestion(metadata),
-      };
-
-      // Add example if available
-      if (metadata.examples && metadata.examples.length > 0) {
-        const firstExample = metadata.examples[0];
-        if (firstExample) {
-          suggestion.example = firstExample;
-        }
-      }
-
-      // Generate automatic fix if possible
-      if (metadata.automaticMigration === true && metadata.replacement) {
-        suggestion.automaticFix = this.generateAutomaticFix(
-          usage.code,
-          usage.api,
-          metadata.replacement,
-        );
-      }
-
+      // Generate and add suggestion
+      const suggestion = this.createMigrationSuggestion(usage, metadata);
       suggestions.push(suggestion);
     }
 
@@ -89,6 +65,65 @@ export class MigrationAssistant {
       suggestions,
       estimatedEffort: this.estimateEffort(suggestions.length),
     };
+  }
+
+  /**
+   * Create a migration suggestion for a specific usage
+   * @private
+   */
+  private static createMigrationSuggestion(
+    usage: UsageData,
+    metadata: DeprecationMetadata,
+  ): MigrationSuggestion {
+    const suggestion: MigrationSuggestion = {
+      file: usage.file,
+      line: usage.line,
+      column: usage.column,
+      deprecatedApi: usage.api,
+      suggestion: this.generateSuggestion(metadata),
+    };
+
+    // Add example if available
+    this.addExampleToSuggestion(suggestion, metadata);
+
+    // Generate automatic fix if possible
+    this.addAutomaticFixToSuggestion(suggestion, usage, metadata);
+
+    return suggestion;
+  }
+
+  /**
+   * Add example to suggestion if available
+   * @private
+   */
+  private static addExampleToSuggestion(
+    suggestion: MigrationSuggestion,
+    metadata: DeprecationMetadata,
+  ): void {
+    if (metadata.examples && metadata.examples.length > 0) {
+      const firstExample = metadata.examples[0];
+      if (firstExample) {
+        suggestion.example = firstExample;
+      }
+    }
+  }
+
+  /**
+   * Add automatic fix to suggestion if possible
+   * @private
+   */
+  private static addAutomaticFixToSuggestion(
+    suggestion: MigrationSuggestion,
+    usage: UsageData,
+    metadata: DeprecationMetadata,
+  ): void {
+    if (metadata.automaticMigration === true && metadata.replacement) {
+      suggestion.automaticFix = this.generateAutomaticFix(
+        usage.code,
+        usage.api,
+        metadata.replacement,
+      );
+    }
   }
 
   /**

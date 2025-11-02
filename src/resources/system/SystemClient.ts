@@ -3,6 +3,11 @@ import { Deprecated } from '../../core/deprecation/index.js';
 import type { HealthResponse, StatusResponse, InfoResponse } from './types.js';
 import type { SystemHealthV2 } from './types-v2.js';
 
+// Constants for repeated deprecation messages
+const V2_NOT_AVAILABLE_MESSAGE = 'v2 endpoint not yet available';
+const DEPRECATION_REASON_V2_NOT_IMPLEMENTED =
+  'v1 endpoint deprecated but v2 replacement not yet implemented in SonarQube';
+
 /**
  * Client for interacting with system endpoints
  * **Note**: Only available in SonarQube Server, not in SonarCloud
@@ -146,8 +151,8 @@ export class SystemClient extends BaseClient {
   @Deprecated({
     deprecatedSince: '10.6',
     removalDate: 'TBD',
-    replacement: 'continue using status() - v2 equivalent not yet available',
-    reason: 'v1 endpoint deprecated but v2 replacement not yet implemented in SonarQube',
+    replacement: `continue using status() - ${V2_NOT_AVAILABLE_MESSAGE}`,
+    reason: DEPRECATION_REASON_V2_NOT_IMPLEMENTED,
     migrationGuide:
       'Continue using status() for now. The v2 system status endpoint is not yet available in current SonarQube versions.',
   })
@@ -179,8 +184,8 @@ export class SystemClient extends BaseClient {
   @Deprecated({
     deprecatedSince: '10.6',
     removalDate: 'TBD',
-    replacement: 'continue using info() - v2 equivalent not yet available',
-    reason: 'v1 endpoint deprecated but v2 replacement not yet implemented in SonarQube',
+    replacement: `continue using info() - ${V2_NOT_AVAILABLE_MESSAGE}`,
+    reason: DEPRECATION_REASON_V2_NOT_IMPLEMENTED,
     migrationGuide:
       'Continue using info() for now. The v2 system info endpoint is not yet available in current SonarQube versions.',
   })

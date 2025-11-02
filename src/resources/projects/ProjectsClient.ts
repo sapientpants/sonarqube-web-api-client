@@ -14,6 +14,7 @@ import type {
   GetContainsAiCodeResponse,
   LicenseUsageResponse,
   ProjectSearchResult,
+  SearchProjectsRequest,
   SearchProjectsResponse,
   SetContainsAiCodeRequest,
   UpdateProjectKeyRequest,
@@ -278,35 +279,64 @@ export class ProjectsClient extends BaseClient {
    */
   search(): SearchProjectsBuilder {
     return new SearchProjectsBuilder(async (params) => {
-      const query = new URLSearchParams();
-      if (params.analyzedBefore !== undefined) {
-        query.append('analyzedBefore', params.analyzedBefore);
-      }
-      if (params.onProvisionedOnly !== undefined) {
-        query.append('onProvisionedOnly', String(params.onProvisionedOnly));
-      }
-      if (params.organization !== undefined) {
-        query.append('organization', params.organization);
-      }
-      if (params.p !== undefined) {
-        query.append('p', String(params.p));
-      }
-      if (params.projects !== undefined) {
-        query.append('projects', params.projects.join(','));
-      }
-      if (params.ps !== undefined) {
-        query.append('ps', String(params.ps));
-      }
-      if (params.q !== undefined) {
-        query.append('q', params.q);
-      }
-      if (params.qualifiers !== undefined) {
-        query.append('qualifiers', params.qualifiers.join(','));
-      }
+      const query = this.buildProjectSearchQuery(params);
       const queryString = query.toString();
       const url = queryString ? `/api/projects/search?${queryString}` : '/api/projects/search';
       return this.request<SearchProjectsResponse>(url);
     });
+  }
+
+  /**
+   * Build query parameters for project search
+   * @private
+   */
+  private buildProjectSearchQuery(params: SearchProjectsRequest): URLSearchParams {
+    const query = new URLSearchParams();
+
+    this.appendStringParam(query, 'analyzedBefore', params.analyzedBefore);
+    this.appendStringParam(query, 'organization', params.organization);
+    this.appendStringParam(query, 'q', params.q);
+    this.appendArrayParam(query, 'projects', params.projects);
+    this.appendArrayParam(query, 'qualifiers', params.qualifiers);
+    this.appendScalarParam(query, 'onProvisionedOnly', params.onProvisionedOnly);
+    this.appendScalarParam(query, 'p', params.p);
+    this.appendScalarParam(query, 'ps', params.ps);
+
+    return query;
+  }
+
+  /**
+   * Append string parameter if defined
+   * @private
+   */
+  private appendStringParam(query: URLSearchParams, key: string, value: string | undefined): void {
+    if (value !== undefined) {
+      query.append(key, value);
+    }
+  }
+
+  /**
+   * Append array parameter if defined
+   * @private
+   */
+  private appendArrayParam(query: URLSearchParams, key: string, value: string[] | undefined): void {
+    if (value !== undefined) {
+      query.append(key, value.join(','));
+    }
+  }
+
+  /**
+   * Append scalar parameter if defined
+   * @private
+   */
+  private appendScalarParam(
+    query: URLSearchParams,
+    key: string,
+    value: string | number | boolean | undefined,
+  ): void {
+    if (value !== undefined) {
+      query.append(key, String(value));
+    }
   }
 
   /**

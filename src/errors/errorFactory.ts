@@ -25,15 +25,9 @@ interface SonarQubeErrorResponse {
  */
 async function parseErrorResponse(response: Response): Promise<string> {
   try {
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json') === true) {
-      const text = await response.text();
-      if (text) {
-        const errorData = JSON.parse(text) as SonarQubeErrorResponse;
-        if (errorData.errors && errorData.errors.length > 0) {
-          return errorData.errors.map((e) => e.msg).join(', ');
-        }
-      }
+    const errorMessage = await tryParseJsonError(response);
+    if (errorMessage) {
+      return errorMessage;
     }
   } catch {
     // If parsing fails, fall back to status text
@@ -42,6 +36,29 @@ async function parseErrorResponse(response: Response): Promise<string> {
   return response.statusText && response.statusText !== ''
     ? response.statusText
     : `HTTP ${String(response.status)}`;
+}
+
+/**
+ * Try to parse JSON error response
+ * @private
+ */
+async function tryParseJsonError(response: Response): Promise<string | null> {
+  const contentType = response.headers.get('content-type');
+  if (contentType?.includes('application/json') !== true) {
+    return null;
+  }
+
+  const text = await response.text();
+  if (!text) {
+    return null;
+  }
+
+  const errorData = JSON.parse(text) as SonarQubeErrorResponse;
+  if (errorData.errors && errorData.errors.length > 0) {
+    return errorData.errors.map((e) => e.msg).join(', ');
+  }
+
+  return null;
 }
 
 /**
@@ -94,7 +111,25 @@ export async function createErrorFromResponse(response: Response): Promise<Sonar
   const errorMessage = await parseErrorResponse(response);
   const { status } = response;
 
-  // Handle specific status codes
+  // Handle specific status codes first
+  const specificError = createSpecificStatusError(status, errorMessage, response.headers);
+  if (specificError) {
+    return specificError;
+  }
+
+  // Handle status code ranges
+  return createRangeBasedError(status, errorMessage, response.headers);
+}
+
+/**
+ * Create error for specific status codes (401, 403, 404, 429, 503)
+ * @private
+ */
+function createSpecificStatusError(
+  status: number,
+  errorMessage: string,
+  headers: Headers,
+): SonarQubeError | null {
   switch (status) {
     case 401:
       return new AuthenticationError(errorMessage);
@@ -106,28 +141,40 @@ export async function createErrorFromResponse(response: Response): Promise<Sonar
       return new NotFoundError(errorMessage);
 
     case 429:
-      return new RateLimitError(errorMessage, parseRetryAfter(response.headers.get('Retry-After')));
+      return new RateLimitError(errorMessage, parseRetryAfter(headers.get('Retry-After')));
 
     case 503:
       if (isIndexingError(errorMessage)) {
         return new IndexingInProgressError(errorMessage);
       }
-      return createErrorWithHeaders(ServerError, errorMessage, status, response.headers);
+      return createErrorWithHeaders(ServerError, errorMessage, status, headers);
 
     default:
-      // Server errors (5xx)
-      if (status >= 500 && status < 600) {
-        return createErrorWithHeaders(ServerError, errorMessage, status, response.headers);
-      }
-
-      // Other client errors (4xx)
-      if (status >= 400 && status < 500) {
-        return createErrorWithHeaders(ApiError, errorMessage, status, response.headers);
-      }
-
-      // Unexpected status codes
-      return createErrorWithHeaders(SonarQubeError, errorMessage, status, response.headers);
+      return null;
   }
+}
+
+/**
+ * Create error based on status code range (4xx, 5xx, or other)
+ * @private
+ */
+function createRangeBasedError(
+  status: number,
+  errorMessage: string,
+  headers: Headers,
+): SonarQubeError {
+  // Server errors (5xx)
+  if (status >= 500 && status < 600) {
+    return createErrorWithHeaders(ServerError, errorMessage, status, headers);
+  }
+
+  // Other client errors (4xx)
+  if (status >= 400 && status < 500) {
+    return createErrorWithHeaders(ApiError, errorMessage, status, headers);
+  }
+
+  // Unexpected status codes
+  return createErrorWithHeaders(SonarQubeError, errorMessage, status, headers);
 }
 
 /**

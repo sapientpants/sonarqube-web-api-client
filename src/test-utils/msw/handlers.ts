@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { http, HttpResponse } from 'msw';
 import {
   SAMPLE_METRICS,

@@ -4,6 +4,7 @@ import { server } from '../../../../src/test-utils/msw/server.js';
 import { AlmSettingsClient } from '../../../../src/resources/alm-settings/AlmSettingsClient.js';
 import { ValidationError } from '../../../../src/errors/index.js';
 
+/* eslint-disable max-lines-per-function */
 describe('AlmSettings Builders', () => {
   let client: AlmSettingsClient;
   const baseUrl = 'https://sonarqube.example.com';

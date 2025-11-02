@@ -155,6 +155,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
   });
 
   describe('Quality Profile Details', () => {
+    // eslint-disable-next-line complexity
     test('should show quality profile details', async () => {
       // Get a profile first
       const searchBuilder = client.qualityProfiles.search();

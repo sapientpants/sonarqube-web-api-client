@@ -28,6 +28,13 @@ import type {
   UpdateTemplateResponse,
 } from './types.js';
 
+// Constants for repeated parameter names
+const PARAM_PROJECT_ID = 'projectId';
+
+// Constants for deprecation messages
+const DEPRECATION_REASON_ENDPOINT_REMOVED =
+  'This endpoint has been deprecated and will be removed.';
+
 /**
  * Client for interacting with the SonarQube Permissions API.
  * Manages permission templates, and the granting and revoking of permissions
@@ -73,7 +80,7 @@ export class PermissionsClient extends BaseClient {
     query.append('permission', params.permission);
     query.append('organization', params.organization);
 
-    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, PARAM_PROJECT_ID, params.projectId);
     addParamIfValid(query, 'projectKey', params.projectKey);
 
     await this.request(`/api/permissions/add_user?${query.toString()}`, {
@@ -116,7 +123,7 @@ export class PermissionsClient extends BaseClient {
     query.append('permission', params.permission);
     query.append('organization', params.organization);
 
-    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, PARAM_PROJECT_ID, params.projectId);
     addParamIfValid(query, 'projectKey', params.projectKey);
 
     await this.request(`/api/permissions/remove_user?${query.toString()}`, {
@@ -228,7 +235,7 @@ export class PermissionsClient extends BaseClient {
     addParamIfValid(query, 'groupName', params.groupName);
     addParamIfValid(query, 'groupId', params.groupId);
     addParamIfValid(query, 'organization', params.organization);
-    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, PARAM_PROJECT_ID, params.projectId);
     addParamIfValid(query, 'projectKey', params.projectKey);
 
     await this.request(`/api/permissions/add_group?${query.toString()}`, {
@@ -265,7 +272,7 @@ export class PermissionsClient extends BaseClient {
     addParamIfValid(query, 'groupName', params.groupName);
     addParamIfValid(query, 'groupId', params.groupId);
     addParamIfValid(query, 'organization', params.organization);
-    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, PARAM_PROJECT_ID, params.projectId);
     addParamIfValid(query, 'projectKey', params.projectKey);
 
     await this.request(`/api/permissions/remove_group?${query.toString()}`, {
@@ -536,7 +543,7 @@ export class PermissionsClient extends BaseClient {
   async applyTemplate(params: ApplyTemplateRequest): Promise<void> {
     const query = new URLSearchParams();
 
-    addParamIfValid(query, 'projectId', params.projectId);
+    addParamIfValid(query, PARAM_PROJECT_ID, params.projectId);
     addParamIfValid(query, 'projectKey', params.projectKey);
     addParamIfValid(query, 'templateId', params.templateId);
     addParamIfValid(query, 'templateName', params.templateName);
@@ -609,7 +616,7 @@ export class PermissionsClient extends BaseClient {
     DeprecationManager.warn({
       api: 'permissions.searchGlobalPermissions()',
       removeVersion: '6.5',
-      reason: 'This endpoint has been deprecated and will be removed.',
+      reason: DEPRECATION_REASON_ENDPOINT_REMOVED,
     });
 
     return new SearchGlobalPermissionsBuilder(async (params) => {
@@ -668,13 +675,13 @@ export class PermissionsClient extends BaseClient {
     DeprecationManager.warn({
       api: 'permissions.searchProjectPermissions()',
       removeVersion: '6.5',
-      reason: 'This endpoint has been deprecated and will be removed.',
+      reason: DEPRECATION_REASON_ENDPOINT_REMOVED,
     });
 
     return new SearchProjectPermissionsBuilder(async (params) => {
       const query = new URLSearchParams();
 
-      addParamIfValid(query, 'projectId', params.projectId);
+      addParamIfValid(query, PARAM_PROJECT_ID, params.projectId);
       addParamIfValid(query, 'projectKey', params.projectKey);
       if (params.p !== undefined) {
         query.append('p', params.p.toString());

@@ -21,6 +21,7 @@ import {
 // Mock BaseClient
 vi.mock('../../../core/BaseClient');
 
+/* eslint-disable max-lines-per-function */
 describe('DopTranslationClient', () => {
   let client: DopTranslationClient;
   const mockRequest = vi.fn();

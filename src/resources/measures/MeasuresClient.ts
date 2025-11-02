@@ -65,35 +65,31 @@ export class MeasuresClient extends BaseClient {
   searchHistory(component: string, metrics: string[]): MeasuresHistoryBuilder {
     return new MeasuresHistoryBuilder(
       async (params: MeasuresHistoryRequest) => {
-        const query = new URLSearchParams();
-
-        query.append('component', params.component);
-        query.append('metrics', params.metrics.join(','));
-
-        if (params.branch !== undefined) {
-          query.append('branch', params.branch);
-        }
-        if (params.pullRequest !== undefined) {
-          query.append('pullRequest', params.pullRequest);
-        }
-        if (params.from !== undefined) {
-          query.append('from', params.from);
-        }
-        if (params.to !== undefined) {
-          query.append('to', params.to);
-        }
-        if (params.p !== undefined) {
-          query.append('p', params.p.toString());
-        }
-        if (params.ps !== undefined) {
-          query.append('ps', params.ps.toString());
-        }
-
+        const query = this.buildHistoryQuery(params);
         return this.request(`/api/measures/search_history?${query.toString()}`);
       },
       component,
       metrics,
     );
+  }
+
+  /**
+   * Build query parameters for history request
+   * @private
+   */
+  private buildHistoryQuery(params: MeasuresHistoryRequest): URLSearchParams {
+    const query = new URLSearchParams();
+    query.append('component', params.component);
+    query.append('metrics', params.metrics.join(','));
+
+    this.appendOptionalStringParam(query, 'branch', params.branch);
+    this.appendOptionalStringParam(query, 'pullRequest', params.pullRequest);
+    this.appendOptionalStringParam(query, 'from', params.from);
+    this.appendOptionalStringParam(query, 'to', params.to);
+    this.appendOptionalParam(query, 'p', params.p);
+    this.appendOptionalParam(query, 'ps', params.ps);
+
+    return query;
   }
 
   /**
@@ -114,12 +110,29 @@ export class MeasuresClient extends BaseClient {
   private buildComponentTreeParams(params: ComponentTreeRequest): URLSearchParams {
     const query = new URLSearchParams();
 
-    // Required parameters
+    this.addRequiredParams(query, params);
+    this.addOptionalStringParams(query, params);
+    this.addOptionalArrayParams(query, params);
+    this.addOptionalScalarParams(query, params);
+
+    return query;
+  }
+
+  /**
+   * Add required parameters to query
+   * @private
+   */
+  private addRequiredParams(query: URLSearchParams, params: ComponentTreeRequest): void {
     this.appendOptionalStringParam(query, 'component', params.component);
     this.appendOptionalStringParam(query, 'baseComponentId', params.baseComponentId);
     query.append('metricKeys', params.metricKeys.join(','));
+  }
 
-    // Optional string parameters
+  /**
+   * Add optional string parameters to query
+   * @private
+   */
+  private addOptionalStringParams(query: URLSearchParams, params: ComponentTreeRequest): void {
     this.appendOptionalStringParam(query, 'strategy', params.strategy);
     this.appendOptionalStringParam(query, 'branch', params.branch);
     this.appendOptionalStringParam(query, 'pullRequest', params.pullRequest);
@@ -127,17 +140,25 @@ export class MeasuresClient extends BaseClient {
     this.appendOptionalStringParam(query, 'metricSort', params.metricSort);
     this.appendOptionalStringParam(query, 'metricSortFilter', params.metricSortFilter);
     this.appendOptionalStringParam(query, 's', params.s);
+  }
 
-    // Optional array parameters
+  /**
+   * Add optional array parameters to query
+   * @private
+   */
+  private addOptionalArrayParams(query: URLSearchParams, params: ComponentTreeRequest): void {
     this.appendOptionalArrayParam(query, 'additionalFields', params.additionalFields);
     this.appendOptionalArrayParam(query, 'qualifiers', params.qualifiers);
+  }
 
-    // Optional boolean and number parameters
+  /**
+   * Add optional scalar parameters to query
+   * @private
+   */
+  private addOptionalScalarParams(query: URLSearchParams, params: ComponentTreeRequest): void {
     this.appendOptionalParam(query, 'asc', params.asc);
     this.appendOptionalParam(query, 'p', params.p);
     this.appendOptionalParam(query, 'ps', params.ps);
-
-    return query;
   }
 
   /**

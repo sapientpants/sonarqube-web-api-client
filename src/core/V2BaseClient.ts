@@ -23,21 +23,8 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
    * @returns Downloaded content as Blob
    */
   async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-    let headers = new Headers();
-    headers.set('Accept', 'application/octet-stream');
-    headers = this.authProvider.applyAuth(headers);
-
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      headers,
-      ...(options?.signal ? { signal: options.signal } : {}),
-    });
-
-    if (!response.ok) {
-      throw await createErrorFromResponse(response);
-    }
-
-    const contentLength = response.headers.get('content-length');
-    const total = contentLength === null ? 0 : Number.parseInt(contentLength, 10);
+    const response = await this.fetchDownloadResponse(url, options?.signal);
+    const total = this.extractContentLength(response);
 
     if (!response.body) {
       throw new Error('Response body is null');
@@ -49,7 +36,49 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
     }
 
     // Stream the response with progress
-    const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
+    return this.streamResponseWithProgress(response.body, total, options.onProgress);
+  }
+
+  /**
+   * Fetch download response with auth headers
+   * @private
+   */
+  private async fetchDownloadResponse(url: string, signal?: AbortSignal): Promise<Response> {
+    let headers = new Headers();
+    headers.set('Accept', 'application/octet-stream');
+    headers = this.authProvider.applyAuth(headers);
+
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      headers,
+      ...(signal ? { signal } : {}),
+    });
+
+    if (!response.ok) {
+      throw await createErrorFromResponse(response);
+    }
+
+    return response;
+  }
+
+  /**
+   * Extract content length from response headers
+   * @private
+   */
+  private extractContentLength(response: Response): number {
+    const contentLength = response.headers.get('content-length');
+    return contentLength === null ? 0 : Number.parseInt(contentLength, 10);
+  }
+
+  /**
+   * Stream response body with progress tracking
+   * @private
+   */
+  private async streamResponseWithProgress(
+    body: ReadableStream<Uint8Array>,
+    total: number,
+    onProgress: (progress: DownloadProgress) => void,
+  ): Promise<Blob> {
+    const reader = body.getReader();
     const chunks: Uint8Array[] = [];
     let loaded = 0;
 
@@ -69,7 +98,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
             percentage: total > 0 ? Math.round((loaded / total) * 100) : 0,
           };
 
-          options.onProgress(progress);
+          onProgress(progress);
         }
       }
     } finally {
@@ -133,18 +162,7 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
    * @protected
    */
   protected async requestV2<T>(url: string, options?: RequestInit): Promise<T> {
-    let headers = new Headers();
-    headers.set('Content-Type', 'application/json');
-    headers.set('Accept', 'application/json');
-    headers = this.authProvider.applyAuth(headers);
-
-    // Merge with any headers from options
-    if (options?.headers) {
-      const optHeaders = new Headers(options.headers);
-      for (const [key, value] of optHeaders) {
-        headers.set(key, value);
-      }
-    }
+    const headers = this.buildV2RequestHeaders(options?.headers as HeadersInit | undefined);
 
     try {
       const response = await fetch(`${this.baseUrl}${url}`, {
@@ -156,18 +174,51 @@ export class V2BaseClient extends BaseClient implements DownloadCapable {
         await this.handleV2Error(response);
       }
 
-      // Handle empty responses (204 No Content)
-      if (response.status === 204) {
-        return {} as T;
-      }
-
-      return (await response.json()) as T;
+      return this.parseV2Response<T>(response);
     } catch (error) {
       if (error instanceof Response) {
         await this.handleV2Error(error);
       }
       throw error;
     }
+  }
+
+  /**
+   * Build headers for v2 API requests
+   * @private
+   */
+  private buildV2RequestHeaders(optionHeaders?: HeadersInit): Headers {
+    let headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    headers.set('Accept', 'application/json');
+    headers = this.authProvider.applyAuth(headers);
+
+    // Merge with any headers from options
+    if (optionHeaders !== undefined) {
+      // Convert to Headers to normalize all possible HeadersInit formats
+      // We need to cast to satisfy TypeScript's strict checking of the Headers constructor
+      // The Headers constructor accepts HeadersInit but TypeScript's strict mode has issues
+      // with the string[][] variant and tuple type checking
+      const optHeaders = new Headers(optionHeaders as Record<string, string>);
+      optHeaders.forEach((value, key) => {
+        headers.set(key, value);
+      });
+    }
+
+    return headers;
+  }
+
+  /**
+   * Parse v2 API response with empty response handling
+   * @private
+   */
+  private async parseV2Response<T>(response: Response): Promise<T> {
+    // Handle empty responses (204 No Content)
+    if (response.status === 204) {
+      return {} as T;
+    }
+
+    return (await response.json()) as T;
   }
 
   /**

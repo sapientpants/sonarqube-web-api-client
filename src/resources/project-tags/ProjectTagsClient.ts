@@ -2,6 +2,9 @@ import { BaseClient } from '../../core/BaseClient.js';
 import { ProjectTagsSearchBuilder } from './builders.js';
 import type { SearchTagsParams, SearchTagsResponse, SetProjectTagsParams } from './types.js';
 
+// Constants
+const API_PROJECT_TAGS_SEARCH = '/api/project_tags/search';
+
 /**
  * Client for interacting with the SonarQube Project Tags API.
  * Provides methods for managing project tags.
@@ -48,7 +51,7 @@ export class ProjectTagsClient extends BaseClient {
 
       const query = searchParams.toString();
       return this.request<SearchTagsResponse>(
-        query ? `/api/project_tags/search?${query}` : '/api/project_tags/search',
+        query ? `${API_PROJECT_TAGS_SEARCH}?${query}` : API_PROJECT_TAGS_SEARCH,
       );
     });
   }
@@ -75,7 +78,7 @@ export class ProjectTagsClient extends BaseClient {
 
     const query = searchParams.toString();
     return this.request<SearchTagsResponse>(
-      query ? `/api/project_tags/search?${query}` : '/api/project_tags/search',
+      query ? `${API_PROJECT_TAGS_SEARCH}?${query}` : API_PROJECT_TAGS_SEARCH,
     );
   }
 

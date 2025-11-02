@@ -116,97 +116,97 @@ export class SonarQubeClient {
 
   // Resource clients
   /** ALM Integrations API - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly almIntegrations: AlmIntegrationsClient;
+  public almIntegrations!: AlmIntegrationsClient;
   /** ALM Settings API - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly almSettings: AlmSettingsClient;
+  public almSettings!: AlmSettingsClient;
   /** Analysis Cache API - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly analysisCache: AnalysisCacheClient;
+  public analysisCache!: AnalysisCacheClient;
   /** Analysis API v2 - Scanner management and project analysis - **Note**: Only available in SonarQube 10.3+ */
-  public readonly analysis: AnalysisClient;
+  public analysis!: AnalysisClient;
   /** SCA API v2 - Software Composition Analysis and SBOM generation - **Note**: Only available in SonarQube 10.6+ */
-  public readonly sca: ScaClient;
+  public sca!: ScaClient;
   /** Fix Suggestions API v2 - AI-powered code fix suggestions - **Note**: Only available in SonarQube 10.7+ */
-  public readonly fixSuggestions: FixSuggestionsClient;
+  public fixSuggestions!: FixSuggestionsClient;
   /** Clean Code Policy API v2 - Create custom code quality rules - **Note**: Only available in SonarQube 10.6+ */
-  public readonly cleanCodePolicy: CleanCodePolicyClient;
+  public cleanCodePolicy!: CleanCodePolicyClient;
   /** DOP Translation API v2 - DevOps platform integration and project binding - **Note**: Only available in SonarQube 10.6+ */
-  public readonly dopTranslation: DopTranslationClient;
+  public dopTranslation!: DopTranslationClient;
   /** Applications API - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly applications: ApplicationsClient;
+  public applications!: ApplicationsClient;
   /** Authentication API */
-  public readonly authentication: AuthenticationClient;
+  public authentication!: AuthenticationClient;
   /** Authorizations API v2 - Groups and permissions management - **Note**: Only available in SonarQube 10.5+ */
-  public readonly authorizations: AuthorizationsClient;
+  public authorizations!: AuthorizationsClient;
   /** Compute Engine (CE) API */
-  public readonly ce: CEClient;
+  public ce!: CEClient;
   /** Components API */
-  public readonly components: ComponentsClient;
+  public components!: ComponentsClient;
   /** Duplications API */
-  public readonly duplications: DuplicationsClient;
+  public duplications!: DuplicationsClient;
   /** Favorites API */
-  public readonly favorites: FavoritesClient;
+  public favorites!: FavoritesClient;
   /** Issues API */
-  public readonly issues: IssuesClient;
+  public issues!: IssuesClient;
   /** Languages API */
-  public readonly languages: LanguagesClient;
+  public languages!: LanguagesClient;
   /** Security Hotspots API */
-  public readonly hotspots: HotspotsClient;
+  public hotspots!: HotspotsClient;
   /** Project Branches API - **Note**: Only available when the Branch plugin is installed */
-  public readonly projectBranches: ProjectBranchesClient;
+  public projectBranches!: ProjectBranchesClient;
   /** Notifications API */
-  public readonly notifications: NotificationsClient;
+  public notifications!: NotificationsClient;
   /** Projects API */
-  public readonly projects: ProjectsClient;
+  public projects!: ProjectsClient;
   /** Project Badges API */
-  public readonly projectBadges: ProjectBadgesClient;
+  public projectBadges!: ProjectBadgesClient;
   /** Project Analyses API */
-  public readonly projectAnalyses: ProjectAnalysesClient;
+  public projectAnalyses!: ProjectAnalysesClient;
   /** Project Links API */
-  public readonly projectLinks: ProjectLinksClient;
+  public projectLinks!: ProjectLinksClient;
   /** Project Pull Requests API - **Note**: Only available when the Branch plugin is installed */
-  public readonly projectPullRequests: ProjectPullRequestsClient;
+  public projectPullRequests!: ProjectPullRequestsClient;
   /** Permissions API */
-  public readonly permissions: PermissionsClient;
+  public permissions!: PermissionsClient;
   /** Metrics API */
-  public readonly metrics: MetricsClient;
+  public metrics!: MetricsClient;
   /** Measures API */
-  public readonly measures: MeasuresClient;
+  public measures!: MeasuresClient;
   /** New Code Periods API */
-  public readonly newCodePeriods: NewCodePeriodsClient;
+  public newCodePeriods!: NewCodePeriodsClient;
   /** Audit Logs API - **Note**: Only available in SonarQube Enterprise Edition */
-  public readonly auditLogs: AuditLogsClient;
+  public auditLogs!: AuditLogsClient;
   /** Plugins API - Plugin management functionality - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly plugins: PluginsClient;
+  public plugins!: PluginsClient;
   /** Server API - Basic server information - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly server: ServerClient;
+  public server!: ServerClient;
   /** Editions API - License management for commercial editions - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly editions: EditionsClient;
+  public editions!: EditionsClient;
   /** Project Dump API - Project backup and restore operations - **Note**: Only available in SonarQube Enterprise Edition */
-  public readonly projectDump: ProjectDumpClient;
+  public projectDump!: ProjectDumpClient;
   /** Quality Gates API */
-  public readonly qualityGates: QualityGatesClient;
+  public qualityGates!: QualityGatesClient;
   /** Quality Profiles API */
-  public readonly qualityProfiles: QualityProfilesClient;
+  public qualityProfiles!: QualityProfilesClient;
   /** Rules API */
-  public readonly rules: RulesClient;
+  public rules!: RulesClient;
   /** Sources API */
-  public readonly sources: SourcesClient;
+  public sources!: SourcesClient;
   /** System API - **Note**: Only available in SonarQube, not in SonarCloud */
-  public readonly system: SystemClient;
+  public system!: SystemClient;
   /** Project Tags API */
-  public readonly projectTags: ProjectTagsClient;
+  public projectTags!: ProjectTagsClient;
   /** Settings API */
-  public readonly settings: SettingsClient;
+  public settings!: SettingsClient;
   /** Users API */
-  public readonly users: UsersClient;
+  public users!: UsersClient;
   /** User Tokens API */
-  public readonly userTokens: UserTokensClient;
+  public userTokens!: UserTokensClient;
   /** Webhooks API */
-  public readonly webhooks: WebhooksClient;
+  public webhooks!: WebhooksClient;
   /** Webservices API - Get information on the web API supported on this instance */
-  public readonly webservices: WebservicesClient;
+  public webservices!: WebservicesClient;
   /** Views API - Manage portfolios and application views - **Note**: Only available in SonarQube Enterprise Edition and above */
-  public readonly views: ViewsClient;
+  public views!: ViewsClient;
 
   private readonly baseUrl: string;
   private readonly authProvider: AuthProvider;
@@ -218,74 +218,114 @@ export class SonarQubeClient {
     organizationOrOptions?: string | ClientOptions,
   ) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
-
-    // For backward compatibility, accept string token and convert to BearerTokenAuthProvider
-    if (typeof authProviderOrToken === 'string') {
-      this.authProvider = new BearerTokenAuthProvider(authProviderOrToken);
-    } else {
-      this.authProvider = authProviderOrToken;
-    }
-
-    // Handle backward compatibility
-    if (typeof organizationOrOptions === 'string') {
-      this.options = { organization: organizationOrOptions };
-    } else {
-      this.options = organizationOrOptions ?? {};
-    }
+    this.authProvider = this.initializeAuthProvider(authProviderOrToken);
+    this.options = this.initializeOptions(organizationOrOptions);
 
     // Configure global deprecation settings
     DeprecationManager.configure(this.options);
 
-    // Initialize resource clients
-    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.authProvider, this.options);
-    this.almSettings = new AlmSettingsClient(this.baseUrl, this.authProvider, this.options);
-    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.authProvider, this.options);
+    // Initialize all resource clients
+    this.initializeV2Clients();
+    this.initializeCoreClients();
+    this.initializeProjectClients();
+    this.initializeQualityClients();
+    this.initializeAdminClients();
+  }
+
+  private initializeAuthProvider(authProviderOrToken: AuthProvider | string): AuthProvider {
+    // For backward compatibility, accept string token and convert to BearerTokenAuthProvider
+    if (typeof authProviderOrToken === 'string') {
+      return new BearerTokenAuthProvider(authProviderOrToken);
+    }
+    return authProviderOrToken;
+  }
+
+  private initializeOptions(organizationOrOptions?: string | ClientOptions): ClientOptions {
+    // Handle backward compatibility
+    if (typeof organizationOrOptions === 'string') {
+      return { organization: organizationOrOptions };
+    }
+    return organizationOrOptions ?? {};
+  }
+
+  private initializeV2Clients(): void {
     this.analysis = new AnalysisClient(this.baseUrl, this.authProvider, this.options);
     this.sca = new ScaClient(this.baseUrl, this.authProvider, this.options);
     this.fixSuggestions = new FixSuggestionsClient(this.baseUrl, this.authProvider, this.options);
     this.cleanCodePolicy = new CleanCodePolicyClient(this.baseUrl, this.authProvider, this.options);
     this.dopTranslation = new DopTranslationClient(this.baseUrl, this.authProvider, this.options);
+    this.authorizations = new AuthorizationsClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeCoreClients(): void {
+    this.initializeAlmClients();
+    this.initializeAnalysisClients();
+    this.initializeComponentClients();
+    this.initializeIssueClients();
+  }
+
+  private initializeAlmClients(): void {
+    this.almIntegrations = new AlmIntegrationsClient(this.baseUrl, this.authProvider, this.options);
+    this.almSettings = new AlmSettingsClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeAnalysisClients(): void {
+    this.analysisCache = new AnalysisCacheClient(this.baseUrl, this.authProvider, this.options);
     this.applications = new ApplicationsClient(this.baseUrl, this.authProvider, this.options);
     this.authentication = new AuthenticationClient(this.baseUrl, this.authProvider, this.options);
-    this.authorizations = new AuthorizationsClient(this.baseUrl, this.authProvider, this.options);
     this.ce = new CEClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeComponentClients(): void {
     this.components = new ComponentsClient(this.baseUrl, this.authProvider, this.options);
     this.duplications = new DuplicationsClient(this.baseUrl, this.authProvider, this.options);
     this.favorites = new FavoritesClient(this.baseUrl, this.authProvider, this.options);
-    this.issues = new IssuesClient(this.baseUrl, this.authProvider, this.options);
     this.languages = new LanguagesClient(this.baseUrl, this.authProvider, this.options);
+    this.webservices = new WebservicesClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeIssueClients(): void {
+    this.issues = new IssuesClient(this.baseUrl, this.authProvider, this.options);
     this.hotspots = new HotspotsClient(this.baseUrl, this.authProvider, this.options);
-    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.authProvider, this.options);
     this.notifications = new NotificationsClient(this.baseUrl, this.authProvider, this.options);
+    this.permissions = new PermissionsClient(this.baseUrl, this.authProvider, this.options);
+    this.sources = new SourcesClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeProjectClients(): void {
     this.projects = new ProjectsClient(this.baseUrl, this.authProvider, this.options);
     this.projectBadges = new ProjectBadgesClient(this.baseUrl, this.authProvider, this.options);
     this.projectAnalyses = new ProjectAnalysesClient(this.baseUrl, this.authProvider, this.options);
     this.projectLinks = new ProjectLinksClient(this.baseUrl, this.authProvider, this.options);
+    this.projectBranches = new ProjectBranchesClient(this.baseUrl, this.authProvider, this.options);
     this.projectPullRequests = new ProjectPullRequestsClient(
       this.baseUrl,
       this.authProvider,
       this.options,
     );
-    this.permissions = new PermissionsClient(this.baseUrl, this.authProvider, this.options);
+    this.projectTags = new ProjectTagsClient(this.baseUrl, this.authProvider, this.options);
+    this.projectDump = new ProjectDumpClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeQualityClients(): void {
     this.metrics = new MetricsClient(this.baseUrl, this.authProvider, this.options);
     this.measures = new MeasuresClient(this.baseUrl, this.authProvider, this.options);
+    this.qualityGates = new QualityGatesClient(this.baseUrl, this.authProvider, this.options);
+    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.authProvider, this.options);
+    this.rules = new RulesClient(this.baseUrl, this.authProvider, this.options);
     this.newCodePeriods = new NewCodePeriodsClient(this.baseUrl, this.authProvider, this.options);
+  }
+
+  private initializeAdminClients(): void {
     this.auditLogs = new AuditLogsClient(this.baseUrl, this.authProvider, this.options);
     this.plugins = new PluginsClient(this.baseUrl, this.authProvider, this.options);
     this.server = new ServerClient(this.baseUrl, this.authProvider, this.options);
     this.editions = new EditionsClient(this.baseUrl, this.authProvider, this.options);
-    this.projectDump = new ProjectDumpClient(this.baseUrl, this.authProvider, this.options);
-    this.qualityGates = new QualityGatesClient(this.baseUrl, this.authProvider, this.options);
-    this.qualityProfiles = new QualityProfilesClient(this.baseUrl, this.authProvider, this.options);
-    this.rules = new RulesClient(this.baseUrl, this.authProvider, this.options);
-    this.sources = new SourcesClient(this.baseUrl, this.authProvider, this.options);
     this.system = new SystemClient(this.baseUrl, this.authProvider, this.options);
-    this.projectTags = new ProjectTagsClient(this.baseUrl, this.authProvider, this.options);
     this.settings = new SettingsClient(this.baseUrl, this.authProvider, this.options);
     this.users = new UsersClient(this.baseUrl, this.authProvider, this.options);
     this.userTokens = new UserTokensClient(this.baseUrl, this.authProvider, this.options);
     this.webhooks = new WebhooksClient(this.baseUrl, this.authProvider, this.options);
-    this.webservices = new WebservicesClient(this.baseUrl, this.authProvider, this.options);
     this.views = new ViewsClient(this.baseUrl, this.authProvider, this.options);
   }
 

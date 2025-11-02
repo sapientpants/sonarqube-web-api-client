@@ -27,9 +27,9 @@ export enum GlobalNotificationType {
  */
 export enum ProjectNotificationType {
   /** Background task failure on project */
-  CeReportTaskFailure = 'CeReportTaskFailure',
+  CeReportTaskFailure = GlobalNotificationType.CeReportTaskFailure,
   /** Changes on issues assigned to me in project */
-  ChangesOnMyIssue = 'ChangesOnMyIssue',
+  ChangesOnMyIssue = GlobalNotificationType.ChangesOnMyIssue,
   /** New quality gate status */
   NewAlerts = 'NewAlerts',
   /** Issues resolved as false positive or won't fix */
@@ -37,7 +37,7 @@ export enum ProjectNotificationType {
   /** New issues in project */
   NewIssues = 'NewIssues',
   /** My new issues in project */
-  SQMyNewIssues = 'SQ-MyNewIssues',
+  SQMyNewIssues = GlobalNotificationType.SQMyNewIssues,
 }
 
 /**

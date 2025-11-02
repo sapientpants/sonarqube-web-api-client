@@ -63,66 +63,110 @@ export class DopTranslationClient extends V2BaseClient {
   async createBoundProjectsBatch(request: BatchCreateRequest): Promise<BatchCreateResponse> {
     const results: BatchProjectResult[] = [];
     const startTime = Date.now();
-
-    // Process projects according to parallel limit
     const { projects, settings } = request;
     const parallelLimit = Math.min(settings.parallelLimit, projects.length);
 
     for (let i = 0; i < projects.length; i += parallelLimit) {
       const batch = projects.slice(i, i + parallelLimit);
-
-      const batchPromises = batch.map(async (projectRequest) => {
-        try {
-          const result = await this.createBoundProjectV2(projectRequest);
-          return {
-            request: projectRequest,
-            success: true,
-            result,
-          } as BatchProjectResult;
-        } catch (error) {
-          const result: BatchProjectResult = {
-            request: projectRequest,
-            success: false,
-            error: error as Error,
-          };
-
-          if (!settings.continueOnError) {
-            throw error;
-          }
-
-          return result;
-        }
-      });
-
-      try {
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-      } catch (error) {
-        if (!settings.continueOnError) {
-          // Add the error result and stop processing
-          const firstRequest = batch[0];
-          if (firstRequest) {
-            results.push({
-              request: firstRequest,
-              success: false,
-              error: error as Error,
-            });
-          }
-          throw error; // Re-throw the error when continueOnError is false
-        }
-      }
+      const batchResults = await this.processBatch(batch, settings);
+      results.push(...batchResults);
     }
 
-    const endTime = Date.now();
+    return this.buildBatchResponse(results, projects.length, startTime);
+  }
+
+  /**
+   * Process a batch of project creation requests
+   * @private
+   */
+  private async processBatch(
+    batch: CreateBoundProjectV2Request[],
+    settings: BatchCreateRequest['settings'],
+  ): Promise<BatchProjectResult[]> {
+    const batchPromises = batch.map(async (projectRequest) =>
+      this.processProjectRequest(projectRequest, settings),
+    );
+
+    try {
+      return await Promise.all(batchPromises);
+    } catch (error) {
+      return this.handleBatchError(error, batch, settings);
+    }
+  }
+
+  /**
+   * Process a single project request
+   * @private
+   */
+  private async processProjectRequest(
+    projectRequest: CreateBoundProjectV2Request,
+    settings: BatchCreateRequest['settings'],
+  ): Promise<BatchProjectResult> {
+    try {
+      const result = await this.createBoundProjectV2(projectRequest);
+      return {
+        request: projectRequest,
+        success: true,
+        result,
+      };
+    } catch (error) {
+      if (!settings.continueOnError) {
+        throw error;
+      }
+
+      return {
+        request: projectRequest,
+        success: false,
+        error: error as Error,
+      };
+    }
+  }
+
+  /**
+   * Handle batch processing error
+   * @private
+   */
+  private handleBatchError(
+    error: unknown,
+    batch: CreateBoundProjectV2Request[],
+    settings: BatchCreateRequest['settings'],
+  ): BatchProjectResult[] {
+    if (!settings.continueOnError) {
+      throw error;
+    }
+
+    const firstRequest = batch[0];
+    if (firstRequest) {
+      return [
+        {
+          request: firstRequest,
+          success: false,
+          error: error as Error,
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  /**
+   * Build batch response with summary
+   * @private
+   */
+  private buildBatchResponse(
+    results: BatchProjectResult[],
+    totalProjects: number,
+    startTime: number,
+  ): BatchCreateResponse {
     const successful = results.filter((r) => r.success).length;
 
     return {
       results,
       summary: {
-        total: projects.length,
+        total: totalProjects,
         successful,
         failed: results.length - successful,
-        duration: endTime - startTime,
+        duration: Date.now() - startTime,
       },
     };
   }
@@ -135,12 +179,10 @@ export class DopTranslationClient extends V2BaseClient {
   private validateProjectRequest(
     request: CreateBoundProjectV2Request,
   ): CreateBoundProjectV2Request {
-    // Basic validation
     if (!request.projectIdentifier) {
       throw new Error('Invalid request: Project identifier is required');
     }
 
-    // Use PlatformValidationService for platform-specific validation
     const validation = PlatformValidationService.validate(
       {
         platform: request.dopPlatform,
@@ -150,51 +192,64 @@ export class DopTranslationClient extends V2BaseClient {
     );
 
     if (!validation.valid) {
-      // Transform error messages to match expected format
-      const errorMessages = validation.errors.map((e) => {
-        // Map generic messages to platform-specific ones
-        if (
-          e.message.includes('Owner is required') &&
-          request.dopPlatform === DevOpsPlatform.GITHUB
-        ) {
-          return 'GitHub owner/organization is required';
-        }
-        if (
-          e.message.includes('Namespace is required') &&
-          request.dopPlatform === DevOpsPlatform.GITLAB
-        ) {
-          return 'GitLab namespace is required';
-        }
-        if (
-          e.message.includes('Workspace is required') &&
-          request.dopPlatform === DevOpsPlatform.BITBUCKET
-        ) {
-          return 'Bitbucket workspace is required';
-        }
-        if (
-          e.message.includes('Organization is required') &&
-          request.dopPlatform === DevOpsPlatform.AzureDevops
-        ) {
-          return 'Azure DevOps organization is required';
-        }
-        return e.message;
-      });
-
+      const errorMessages = this.transformValidationErrors(validation.errors, request.dopPlatform);
       throw new Error(`Invalid request: ${errorMessages.join(', ')}`);
     }
 
-    // Log warnings if any (in development only)
-    if (validation.warnings.length > 0 && process.env['NODE_ENV'] !== 'production') {
-      for (const warning of validation.warnings) {
-        // eslint-disable-next-line no-console
-        console.warn(`[DOP Translation] ${warning.field}: ${warning.message}`);
-        if (warning.suggestion !== undefined && warning.suggestion !== '') {
-          // eslint-disable-next-line no-console
-          console.warn(`  Suggestion: ${warning.suggestion}`);
-        }
-      }
-    }
+    this.logValidationWarnings(validation.warnings);
 
     return request;
+  }
+
+  /**
+   * Transform validation errors to platform-specific messages
+   * @private
+   */
+  private transformValidationErrors(
+    errors: Array<{ message: string }>,
+    platform: DevOpsPlatform,
+  ): string[] {
+    return errors.map((e) => this.mapErrorMessage(e.message, platform));
+  }
+
+  /**
+   * Map generic error message to platform-specific one
+   * @private
+   */
+  private mapErrorMessage(message: string, platform: DevOpsPlatform): string {
+    if (message.includes('Owner is required') && platform === DevOpsPlatform.GITHUB) {
+      return 'GitHub owner/organization is required';
+    }
+    if (message.includes('Namespace is required') && platform === DevOpsPlatform.GITLAB) {
+      return 'GitLab namespace is required';
+    }
+    if (message.includes('Workspace is required') && platform === DevOpsPlatform.BITBUCKET) {
+      return 'Bitbucket workspace is required';
+    }
+    if (message.includes('Organization is required') && platform === DevOpsPlatform.AzureDevops) {
+      return 'Azure DevOps organization is required';
+    }
+    return message;
+  }
+
+  /**
+   * Log validation warnings in development mode
+   * @private
+   */
+  private logValidationWarnings(
+    warnings: Array<{ field: string; message: string; suggestion?: string }>,
+  ): void {
+    if (warnings.length === 0 || process.env['NODE_ENV'] === 'production') {
+      return;
+    }
+
+    for (const warning of warnings) {
+      // eslint-disable-next-line no-console
+      console.warn(`[DOP Translation] ${warning.field}: ${warning.message}`);
+      if (warning.suggestion !== undefined && warning.suggestion !== '') {
+        // eslint-disable-next-line no-console
+        console.warn(`  Suggestion: ${warning.suggestion}`);
+      }
+    }
   }
 }

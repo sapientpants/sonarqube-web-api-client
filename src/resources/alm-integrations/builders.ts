@@ -15,6 +15,8 @@ import type {
   GitLabProject,
 } from './types.js';
 
+const ALM_SETTING_LABEL = 'ALM setting';
+
 /**
  * Builder for searching Azure repositories
  */
@@ -43,7 +45,7 @@ export class AzureReposSearchBuilder extends RepositorySearchBuilder<
    * Execute the search
    */
   override async execute(): Promise<SearchAzureReposResponse> {
-    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.almSetting, ALM_SETTING_LABEL);
     validateRequired(this.params.projectName, 'Azure project name');
     return this.executor(this.params as SearchAzureReposRequest);
   }
@@ -79,7 +81,7 @@ export class BitbucketServerReposSearchBuilder extends RepositorySearchBuilder<
    * Execute the search
    */
   async execute(): Promise<SearchBitbucketServerReposResponse> {
-    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.almSetting, ALM_SETTING_LABEL);
     validateRequired(this.params.projectKey, 'Bitbucket project key');
     return this.executor(this.params as SearchBitbucketServerReposRequest);
   }
@@ -128,7 +130,7 @@ export class BitbucketCloudReposSearchBuilder extends RepositorySearchBuilder<
    * Execute the search
    */
   async execute(): Promise<SearchBitbucketCloudReposResponse> {
-    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.almSetting, ALM_SETTING_LABEL);
     return this.executor(this.params as SearchBitbucketCloudReposRequest);
   }
 
@@ -163,7 +165,7 @@ export class GitLabReposSearchBuilder extends RepositorySearchBuilder<
    * Execute the search
    */
   async execute(): Promise<SearchGitLabReposResponse> {
-    validateRequired(this.params.almSetting, 'ALM setting');
+    validateRequired(this.params.almSetting, ALM_SETTING_LABEL);
     return this.executor(this.params as SearchGitLabReposRequest);
   }
 

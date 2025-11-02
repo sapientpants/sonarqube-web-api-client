@@ -8,6 +8,9 @@ import type {
   VersionV2Response,
 } from './types.js';
 
+const APPLICATION_JSON = 'application/json';
+const ENGINE_ENDPOINT = '/api/v2/analysis/engine';
+
 /**
  * Client for interacting with the SonarQube Analysis API v2.
  * This API provides scanner management and project analysis functionality.
@@ -56,8 +59,8 @@ export class AnalysisClient extends V2BaseClient {
    * ```
    */
   async getEngineMetadataV2(): Promise<EngineMetadataV2> {
-    return this.request<EngineMetadataV2>('/api/v2/analysis/engine', {
-      headers: { Accept: 'application/json' },
+    return this.request<EngineMetadataV2>(ENGINE_ENDPOINT, {
+      headers: { Accept: APPLICATION_JSON },
     });
   }
 
@@ -88,7 +91,7 @@ export class AnalysisClient extends V2BaseClient {
   async downloadEngineV2(
     options?: Parameters<V2BaseClient['downloadWithProgress']>[1],
   ): Promise<Blob> {
-    return this.downloadWithProgress('/api/v2/analysis/engine', options);
+    return this.downloadWithProgress(ENGINE_ENDPOINT, options);
   }
 
   /**
@@ -127,7 +130,7 @@ export class AnalysisClient extends V2BaseClient {
    */
   async getJreMetadataV2(id: string): Promise<JreMetadataV2> {
     return this.request<JreMetadataV2>(`/api/v2/analysis/jres/${id}`, {
-      headers: { Accept: 'application/json' },
+      headers: { Accept: APPLICATION_JSON },
     });
   }
 

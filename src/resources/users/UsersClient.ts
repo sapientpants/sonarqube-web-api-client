@@ -7,9 +7,16 @@ import type {
   SearchUsersResponse,
   GetUserGroupsResponse,
   UserGroup,
+  SearchUsersV2Request,
   SearchUsersV2Response,
   UserV2,
 } from './types.js';
+
+// Constants for deprecation warnings
+const DEPRECATION_VERSION = 'v1.0.0 (August 13th, 2025)';
+const DEPRECATION_REASON = 'SonarQube API v1 endpoint deprecated since 10.8';
+const MIGRATION_GUIDE_URL =
+  'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api';
 
 /**
  * Client for interacting with the SonarQube Users API.
@@ -49,10 +56,9 @@ export class UsersClient extends BaseClient {
     DeprecationManager.warn({
       api: 'users.search()',
       replacement: 'users.searchV2()',
-      removeVersion: 'v1.0.0 (August 13th, 2025)',
-      reason: 'SonarQube API v1 endpoint deprecated since 10.8',
-      migrationGuide:
-        'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api',
+      removeVersion: DEPRECATION_VERSION,
+      reason: DEPRECATION_REASON,
+      migrationGuide: MIGRATION_GUIDE_URL,
     });
 
     return new SearchUsersBuilder(async (params) => {
@@ -94,10 +100,9 @@ export class UsersClient extends BaseClient {
     DeprecationManager.warn({
       api: 'users.searchAll()',
       replacement: 'users.searchV2().all()',
-      removeVersion: 'v1.0.0 (August 13th, 2025)',
-      reason: 'SonarQube API v1 endpoint deprecated since 10.8',
-      migrationGuide:
-        'https://github.com/your-repo/sonarqube-web-api-client/blob/main/MIGRATION.md#users-api',
+      removeVersion: DEPRECATION_VERSION,
+      reason: DEPRECATION_REASON,
+      migrationGuide: MIGRATION_GUIDE_URL,
     });
 
     return this.search().all();
@@ -213,32 +218,62 @@ export class UsersClient extends BaseClient {
    */
   searchV2(): SearchUsersV2Builder {
     return new SearchUsersV2Builder(async (params) => {
-      const query = new URLSearchParams();
-
-      if (params.ids !== undefined && params.ids.length > 0) {
-        query.append('ids', params.ids.join(','));
-      }
-      if (params.page !== undefined) {
-        query.append('page', String(params.page));
-      }
-      if (params.pageSize !== undefined) {
-        query.append('pageSize', String(params.pageSize));
-      }
-      if (params.query !== undefined) {
-        query.append('query', params.query);
-      }
-      if (params.active !== undefined) {
-        query.append('active', String(params.active));
-      }
-      if (params.includeExternalProvider !== undefined) {
-        query.append('includeExternalProvider', String(params.includeExternalProvider));
-      }
-
+      const query = this.buildUserSearchV2Query(params);
       const queryString = query.toString();
       const url = queryString ? `/api/v2/users/search?${queryString}` : '/api/v2/users/search';
-
       return this.request<SearchUsersV2Response>(url);
     });
+  }
+
+  /**
+   * Build query parameters for user search v2
+   * @private
+   */
+  private buildUserSearchV2Query(params: SearchUsersV2Request): URLSearchParams {
+    const query = new URLSearchParams();
+
+    this.appendArrayParam(query, 'ids', params.ids);
+    this.appendStringParam(query, 'query', params.query);
+    this.appendScalarParam(query, 'page', params.page);
+    this.appendScalarParam(query, 'pageSize', params.pageSize);
+    this.appendScalarParam(query, 'active', params.active);
+    this.appendScalarParam(query, 'includeExternalProvider', params.includeExternalProvider);
+
+    return query;
+  }
+
+  /**
+   * Append array parameter if defined and non-empty
+   * @private
+   */
+  private appendArrayParam(query: URLSearchParams, key: string, value: string[] | undefined): void {
+    if (value !== undefined && value.length > 0) {
+      query.append(key, value.join(','));
+    }
+  }
+
+  /**
+   * Append string parameter if defined
+   * @private
+   */
+  private appendStringParam(query: URLSearchParams, key: string, value: string | undefined): void {
+    if (value !== undefined) {
+      query.append(key, value);
+    }
+  }
+
+  /**
+   * Append scalar parameter if defined
+   * @private
+   */
+  private appendScalarParam(
+    query: URLSearchParams,
+    key: string,
+    value: string | number | boolean | undefined,
+  ): void {
+    if (value !== undefined) {
+      query.append(key, String(value));
+    }
   }
 
   /**

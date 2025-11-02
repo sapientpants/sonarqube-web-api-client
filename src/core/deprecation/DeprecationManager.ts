@@ -70,6 +70,7 @@ export class DeprecationManager {
     }
 
     // Default behavior: console warning
+    // eslint-disable-next-line no-console
     console.warn(DeprecationManager.formatDeprecationMessage(context));
   }
 

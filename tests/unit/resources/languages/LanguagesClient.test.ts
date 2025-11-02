@@ -80,7 +80,7 @@ describe('LanguagesClient', () => {
       expect(capturedUrl).toBeDefined();
       expect(capturedUrl).not.toBeNull();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('ps')).toBe('25');
       expect(params.get('q')).toBe('java');
     });
@@ -219,7 +219,7 @@ describe('LanguagesClient', () => {
       expect(capturedUrl).toBeDefined();
       expect(capturedUrl).not.toBeNull();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('q')).toBe('j');
       expect(params.get('ps')).toBe('0');
       expect(languages).toHaveLength(2);

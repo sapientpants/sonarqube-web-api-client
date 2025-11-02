@@ -63,7 +63,7 @@ describe('ProjectTagsClient', () => {
       expect(capturedUrl).toBeDefined();
       expect(capturedUrl).not.toBeNull();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('ps')).toBe('20');
       expect(params.get('q')).toBe('off');
     });
@@ -151,7 +151,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedBody).toBeDefined();
       expect(capturedBody).not.toBeNull();
-      const parsedBody = JSON.parse(capturedBody as string) as { project: string; tags: string };
+      const parsedBody = JSON.parse(capturedBody) as { project: string; tags: string };
       expect(parsedBody.project).toBe('my_project');
       expect(parsedBody.tags).toBe('finance, offshore');
     });
@@ -172,7 +172,7 @@ describe('ProjectTagsClient', () => {
       });
 
       expect(capturedBody).toBeDefined();
-      const parsedBody = JSON.parse(capturedBody as string) as { project: string; tags: string };
+      const parsedBody = JSON.parse(capturedBody) as { project: string; tags: string };
       expect(parsedBody.tags).toBe('');
     });
 
@@ -317,7 +317,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params1 = capturedUrl!.searchParams;
+      const params1 = capturedUrl.searchParams;
       expect(params1.get('ps')).toBe('5');
       expect(params1.get('q')).toBeNull();
     });
@@ -336,7 +336,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params2 = capturedUrl!.searchParams;
+      const params2 = capturedUrl.searchParams;
       expect(params2.get('q')).toBe('finance');
       expect(params2.get('ps')).toBeNull();
     });
@@ -355,7 +355,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('project')).toBe('my-project');
     });
 
@@ -373,7 +373,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('project')).toBe('my-project');
       expect(params.get('q')).toBe('finance');
       expect(params.get('ps')).toBe('10');
@@ -393,7 +393,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params3 = capturedUrl!.searchParams;
+      const params3 = capturedUrl.searchParams;
       expect(params3.get('ps')).toBe('0');
     });
 
@@ -411,7 +411,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params4 = capturedUrl!.searchParams;
+      const params4 = capturedUrl.searchParams;
       expect(params4.get('q')).toBe('');
     });
 
@@ -429,9 +429,9 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      expect(capturedUrl!.pathname).toBe('/api/project_tags/search');
+      expect(capturedUrl.pathname).toBe('/api/project_tags/search');
 
-      expect(capturedUrl!.search).toBe('');
+      expect(capturedUrl.search).toBe('');
     });
 
     it('should handle network errors in search', async () => {
@@ -498,7 +498,7 @@ describe('ProjectTagsClient', () => {
       });
 
       expect(capturedBody).toBeDefined();
-      const parsedBody = JSON.parse(capturedBody as string) as { project: string; tags: string };
+      const parsedBody = JSON.parse(capturedBody) as { project: string; tags: string };
       expect(parsedBody.project).toBe('my-project:with-special-chars');
     });
 
@@ -518,7 +518,7 @@ describe('ProjectTagsClient', () => {
       });
 
       expect(capturedBody).toBeDefined();
-      const parsedBody = JSON.parse(capturedBody as string) as { project: string; tags: string };
+      const parsedBody = JSON.parse(capturedBody) as { project: string; tags: string };
       expect(parsedBody.tags).toBe('tag-with-hyphens, tag_with_underscores, tag.with.dots');
     });
 
@@ -539,7 +539,7 @@ describe('ProjectTagsClient', () => {
       });
 
       expect(capturedBody).toBeDefined();
-      const parsedBody = JSON.parse(capturedBody as string) as { project: string; tags: string };
+      const parsedBody = JSON.parse(capturedBody) as { project: string; tags: string };
       expect(parsedBody.tags).toBe(longTagList);
     });
   });
@@ -578,7 +578,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('project')).toBe('my-project');
       expect(params.get('ps')).toBe('10');
       expect(params.get('q')).toBe('finance');
@@ -602,7 +602,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      const params = capturedUrl!.searchParams;
+      const params = capturedUrl.searchParams;
       expect(params.get('project')).toBeNull();
       expect(params.get('ps')).toBeNull();
       expect(params.get('q')).toBeNull();
@@ -622,7 +622,7 @@ describe('ProjectTagsClient', () => {
 
       expect(capturedUrl).toBeDefined();
 
-      expect(capturedUrl!.search).toBe('');
+      expect(capturedUrl.search).toBe('');
     });
   });
 

@@ -50,6 +50,7 @@ export function buildV2Query(params: Record<string, unknown>): string {
       query.append(key, String(value));
     } else {
       // Skip other types that can't be properly stringified
+      // eslint-disable-next-line no-console
       console.warn(`Skipping parameter '${key}' with unsupported type: ${typeof value}`);
     }
   }

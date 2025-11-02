@@ -20,6 +20,99 @@ const skipTests = !canRunIntegrationTests();
 const envConfig = skipTests ? null : getIntegrationTestConfig();
 const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConfig);
 
+// Helper function to determine setting value type
+function getSettingValueType(setting: {
+  value?: string | number | boolean;
+  values?: Array<unknown>;
+  fieldValues?: Array<unknown>;
+}): string {
+  if (setting.value === undefined || setting.value === null || setting.value === '') {
+    return 'empty';
+  }
+  if (setting.values && Array.isArray(setting.values)) {
+    return 'array';
+  }
+  if (setting.fieldValues && Array.isArray(setting.fieldValues)) {
+    return 'object';
+  }
+  if (typeof setting.value === 'boolean') {
+    return 'boolean';
+  }
+  if (typeof setting.value === 'number') {
+    return 'number';
+  }
+  return 'string';
+}
+
+// Helper function to categorize setting by purpose
+function categorizeSettingByPurpose(settingKey: string): string | null {
+  const keyLower = settingKey.toLowerCase();
+
+  const securityKeywords = ['security', 'auth', 'ssl', 'password', 'token'];
+  if (securityKeywords.some((keyword) => keyLower.includes(keyword))) {
+    return 'security';
+  }
+
+  const performanceKeywords = ['timeout', 'cache', 'pool', 'batch', 'thread'];
+  if (performanceKeywords.some((keyword) => keyLower.includes(keyword))) {
+    return 'performance';
+  }
+
+  const integrationKeywords = ['webhook', 'notification', 'email', 'ldap', 'saml'];
+  if (integrationKeywords.some((keyword) => keyLower.includes(keyword))) {
+    return 'integration';
+  }
+
+  return null;
+}
+
+// Helper function to analyze security aspects of a setting
+function analyzeSettingSecurity(
+  setting: { key: string; value?: string | number | boolean },
+  analysis: {
+    potentiallyEncrypted: string[];
+    containsPasswords: string[];
+    containsTokens: string[];
+    containsUrls: string[];
+    containsSensitiveData: string[];
+  },
+): void {
+  const keyLower = setting.key.toLowerCase();
+  const valueStr = String(setting.value || '').toLowerCase();
+
+  // Identify potentially encrypted settings
+  const encryptedKeywords = ['password', 'secret', 'key'];
+  if (encryptedKeywords.some((keyword) => keyLower.includes(keyword))) {
+    analysis.potentiallyEncrypted.push(setting.key);
+  }
+
+  // Identify password fields
+  const passwordKeywords = ['password', 'passwd'];
+  if (passwordKeywords.some((keyword) => keyLower.includes(keyword))) {
+    analysis.containsPasswords.push(setting.key);
+  }
+
+  // Identify token fields
+  if (keyLower.includes('token') || (keyLower.includes('api') && keyLower.includes('key'))) {
+    analysis.containsTokens.push(setting.key);
+  }
+
+  // Identify URL fields
+  const urlIndicators = ['http', 'url', 'endpoint'];
+  if (
+    urlIndicators.some((indicator) => valueStr.includes(indicator) || keyLower.includes(indicator))
+  ) {
+    analysis.containsUrls.push(setting.key);
+  }
+
+  // General sensitive data indicators
+  const sensitiveKeywords = ['ldap', 'saml', 'oauth'];
+  if (sensitiveKeywords.some((keyword) => keyLower.includes(keyword))) {
+    analysis.containsSensitiveData.push(setting.key);
+  }
+}
+
+/* eslint-disable max-lines-per-function */
 (skipTests ? describe.skip : describe)('Settings API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
@@ -196,45 +289,16 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
           result.settings.forEach((setting) => {
             // Analyze value types
-            if (setting.value === undefined || setting.value === null || setting.value === '') {
-              valueTypes.empty++;
-            } else if (setting.values && Array.isArray(setting.values)) {
-              valueTypes.array++;
-            } else if (setting.fieldValues && Array.isArray(setting.fieldValues)) {
-              valueTypes.object++;
-            } else if (typeof setting.value === 'boolean') {
-              valueTypes.boolean++;
-            } else if (typeof setting.value === 'number') {
-              valueTypes.number++;
-            } else {
-              valueTypes.string++;
-            }
+            const valueType = getSettingValueType(setting);
+            valueTypes[valueType]++;
 
             // Categorize by purpose
-            const keyLower = setting.key.toLowerCase();
-            if (
-              keyLower.includes('security') ||
-              keyLower.includes('auth') ||
-              keyLower.includes('ssl') ||
-              keyLower.includes('password') ||
-              keyLower.includes('token')
-            ) {
+            const category = categorizeSettingByPurpose(setting.key);
+            if (category === 'security') {
               securityRelated.push(setting.key);
-            } else if (
-              keyLower.includes('timeout') ||
-              keyLower.includes('cache') ||
-              keyLower.includes('pool') ||
-              keyLower.includes('batch') ||
-              keyLower.includes('thread')
-            ) {
+            } else if (category === 'performance') {
               performanceRelated.push(setting.key);
-            } else if (
-              keyLower.includes('webhook') ||
-              keyLower.includes('notification') ||
-              keyLower.includes('email') ||
-              keyLower.includes('ldap') ||
-              keyLower.includes('saml')
-            ) {
+            } else if (category === 'integration') {
               integrationRelated.push(setting.key);
             }
           });
@@ -464,48 +528,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           };
 
           result.settings.forEach((setting) => {
-            const keyLower = setting.key.toLowerCase();
-            const valueStr = String(setting.value || '').toLowerCase();
-
-            // Identify potentially encrypted settings
-            if (
-              keyLower.includes('password') ||
-              keyLower.includes('secret') ||
-              keyLower.includes('key')
-            ) {
-              securityAnalysis.potentiallyEncrypted.push(setting.key);
-            }
-
-            // Identify password fields
-            if (keyLower.includes('password') || keyLower.includes('passwd')) {
-              securityAnalysis.containsPasswords.push(setting.key);
-            }
-
-            // Identify token fields
-            if (
-              keyLower.includes('token') ||
-              (keyLower.includes('api') && keyLower.includes('key'))
-            ) {
-              securityAnalysis.containsTokens.push(setting.key);
-            }
-
-            // Identify URL fields
-            if (
-              valueStr.includes('http') ||
-              keyLower.includes('url') ||
-              keyLower.includes('endpoint')
-            ) {
-              securityAnalysis.containsUrls.push(setting.key);
-            }
-
-            // General sensitive data indicators
-            if (
-              keyLower.includes('ldap') ||
-              keyLower.includes('saml') ||
-              keyLower.includes('oauth')
-            ) {
-              securityAnalysis.containsSensitiveData.push(setting.key);
-            }
+            analyzeSettingSecurity(setting, securityAnalysis);
           });
 
           console.log(`✓ Settings security analysis:`);

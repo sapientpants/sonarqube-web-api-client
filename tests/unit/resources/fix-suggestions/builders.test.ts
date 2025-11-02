@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+/* eslint-disable @typescript-eslint/unbound-method */
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 
 import { ValidationError } from '../../../../src/errors/index.js';
 import type { FixSuggestionsClient } from '../../../../src/resources/fix-suggestions/FixSuggestionsClient.js';
@@ -33,7 +34,8 @@ describe('FixSuggestions Builders', () => {
         .execute();
 
       expect(result).toEqual(mockResponse);
-      expect(mockClient.getIssueAvailabilityV2).toHaveBeenCalledWith({
+      const mockFn = mockClient.getIssueAvailabilityV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         projectKey: 'my-project',
         branch: 'main',
@@ -52,7 +54,8 @@ describe('FixSuggestions Builders', () => {
         .onPullRequest('123')
         .execute();
 
-      expect(mockClient.getIssueAvailabilityV2).toHaveBeenCalledWith({
+      const mockFn = mockClient.getIssueAvailabilityV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         projectKey: 'my-project',
         pullRequest: '123',
@@ -62,25 +65,39 @@ describe('FixSuggestions Builders', () => {
     it('should validate required issue key', async () => {
       const builder = new GetIssueAvailabilityV2BuilderImpl(mockClient);
 
-      await expect(builder.execute()).rejects.toThrow(ValidationError);
-      await expect(builder.execute()).rejects.toThrow('Issue key is required');
+      await expect(async () => await builder.execute()).rejects.toThrow(ValidationError);
+      await expect(async () => await builder.execute()).rejects.toThrow('Issue key is required');
     });
 
     it('should validate empty issue key', async () => {
       const builder = new GetIssueAvailabilityV2BuilderImpl(mockClient);
 
-      await expect(builder.withIssue('   ').execute()).rejects.toThrow(ValidationError);
-      await expect(builder.withIssue('   ').execute()).rejects.toThrow('Issue key cannot be empty');
+      await expect(async () => await builder.withIssue('   ').execute()).rejects.toThrow(
+        ValidationError,
+      );
+      await expect(async () => await builder.withIssue('   ').execute()).rejects.toThrow(
+        'Issue key cannot be empty',
+      );
     });
 
     it('should validate branch and pull request conflict', async () => {
       const builder = new GetIssueAvailabilityV2BuilderImpl(mockClient);
 
       await expect(
-        builder.withIssue('AY8qEqN7UVrTsQCOExjT').onBranch('main').onPullRequest('123').execute(),
+        async () =>
+          await builder
+            .withIssue('AY8qEqN7UVrTsQCOExjT')
+            .onBranch('main')
+            .onPullRequest('123')
+            .execute(),
       ).rejects.toThrow(ValidationError);
       await expect(
-        builder.withIssue('AY8qEqN7UVrTsQCOExjT').onBranch('main').onPullRequest('123').execute(),
+        async () =>
+          await builder
+            .withIssue('AY8qEqN7UVrTsQCOExjT')
+            .onBranch('main')
+            .onPullRequest('123')
+            .execute(),
       ).rejects.toThrow('Cannot specify both branch and pull request');
     });
 
@@ -111,7 +128,8 @@ describe('FixSuggestions Builders', () => {
         .execute();
 
       expect(result).toEqual(mockResponse);
-      expect(mockClient.requestAiSuggestionsV2).toHaveBeenCalledWith({
+      const mockFn = mockClient.requestAiSuggestionsV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         includeContext: true,
         maxAlternatives: 5,
@@ -130,7 +148,8 @@ describe('FixSuggestions Builders', () => {
 
       await builder.withIssue('AY8qEqN7UVrTsQCOExjT').execute();
 
-      expect(mockClient.requestAiSuggestionsV2).toHaveBeenCalledWith({
+      const mockFn = mockClient.requestAiSuggestionsV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith({
         issueKey: 'AY8qEqN7UVrTsQCOExjT',
         includeContext: true,
         maxAlternatives: 3,
@@ -173,18 +192,20 @@ describe('FixSuggestions Builders', () => {
       const longContext = 'a'.repeat(1001);
 
       await expect(
-        builder.withIssue('AY8qEqN7UVrTsQCOExjT').withCustomContext(longContext).execute(),
+        async () =>
+          await builder.withIssue('AY8qEqN7UVrTsQCOExjT').withCustomContext(longContext).execute(),
       ).rejects.toThrow(ValidationError);
       await expect(
-        builder.withIssue('AY8qEqN7UVrTsQCOExjT').withCustomContext(longContext).execute(),
+        async () =>
+          await builder.withIssue('AY8qEqN7UVrTsQCOExjT').withCustomContext(longContext).execute(),
       ).rejects.toThrow('Custom context cannot exceed 1000 characters');
     });
 
     it('should validate required issue key', async () => {
       const builder = new RequestAiSuggestionsV2BuilderImpl(mockClient);
 
-      await expect(builder.execute()).rejects.toThrow(ValidationError);
-      await expect(builder.execute()).rejects.toThrow('Issue key is required');
+      await expect(async () => await builder.execute()).rejects.toThrow(ValidationError);
+      await expect(async () => await builder.execute()).rejects.toThrow('Issue key is required');
     });
 
     it('should merge language preferences', async () => {
@@ -199,7 +220,8 @@ describe('FixSuggestions Builders', () => {
         .withLanguagePreferences({ kotlinVersion: '1.9' })
         .execute();
 
-      expect(mockClient.requestAiSuggestionsV2).toHaveBeenCalledWith(
+      const mockFn = mockClient.requestAiSuggestionsV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith(
         expect.objectContaining({
           languagePreferences: {
             javaVersion: '11',
@@ -229,7 +251,8 @@ describe('FixSuggestions Builders', () => {
 
       await builder.withIssue('AY8qEqN7UVrTsQCOExjT').withContext(false).execute();
 
-      expect(mockClient.requestAiSuggestionsV2).toHaveBeenCalledWith(
+      const mockFn = mockClient.requestAiSuggestionsV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith(
         expect.objectContaining({
           includeContext: false,
         }),
@@ -243,12 +266,12 @@ describe('FixSuggestions Builders', () => {
 
       (builder as any).params.maxAlternatives = 15;
 
-      await expect(builder.withIssue('AY8qEqN7UVrTsQCOExjT').execute()).rejects.toThrow(
-        ValidationError,
-      );
-      await expect(builder.withIssue('AY8qEqN7UVrTsQCOExjT').execute()).rejects.toThrow(
-        'Maximum 10 alternatives allowed',
-      );
+      await expect(
+        async () => await builder.withIssue('AY8qEqN7UVrTsQCOExjT').execute(),
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        async () => await builder.withIssue('AY8qEqN7UVrTsQCOExjT').execute(),
+      ).rejects.toThrow('Maximum 10 alternatives allowed');
     });
   });
 });

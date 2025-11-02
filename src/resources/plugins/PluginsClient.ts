@@ -11,6 +11,10 @@ import type {
   GetPluginUpdatesResponse,
 } from './types.js';
 
+// Constants
+const CONTENT_TYPE_HEADER = 'content-type';
+const CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
 /**
  * Client for managing SonarQube plugins
  *
@@ -101,7 +105,7 @@ export class PluginsClient extends BaseClient {
     formData.append('key', request.key);
 
     const headers = new Headers();
-    headers.set('content-type', 'application/x-www-form-urlencoded');
+    headers.set(CONTENT_TYPE_HEADER, CONTENT_TYPE_FORM_URLENCODED);
 
     await this.request('/api/plugins/install', {
       method: 'POST',
@@ -196,7 +200,7 @@ export class PluginsClient extends BaseClient {
     formData.append('key', request.key);
 
     const headers = new Headers();
-    headers.set('content-type', 'application/x-www-form-urlencoded');
+    headers.set(CONTENT_TYPE_HEADER, CONTENT_TYPE_FORM_URLENCODED);
 
     await this.request('/api/plugins/uninstall', {
       method: 'POST',
@@ -229,7 +233,7 @@ export class PluginsClient extends BaseClient {
     formData.append('key', request.key);
 
     const headers = new Headers();
-    headers.set('content-type', 'application/x-www-form-urlencoded');
+    headers.set(CONTENT_TYPE_HEADER, CONTENT_TYPE_FORM_URLENCODED);
 
     await this.request('/api/plugins/update', {
       method: 'POST',

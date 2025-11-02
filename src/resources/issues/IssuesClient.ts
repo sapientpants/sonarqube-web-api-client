@@ -32,6 +32,11 @@ import type {
   SearchTagsResponse,
 } from './types.js';
 
+// Constants for deprecation messages
+const DEPRECATION_REASON_SINCE_10_4 = 'Parameter deprecated since SonarQube 10.4';
+const DEPRECATION_REASON_CLEAN_CODE = 'Parameter deprecated in favor of Clean Code taxonomy';
+const DEPRECATION_REPLACEMENT_ISSUE_STATUSES = 'Use "issueStatuses" parameter instead';
+
 /**
  * Client for managing SonarQube issues
  */
@@ -143,34 +148,7 @@ export class IssuesClient extends BaseClient {
    */
   async bulkChange(params: BulkChangeRequest): Promise<BulkChangeResponse> {
     this.validateBulkChangeParameters(params);
-
-    const formData = new URLSearchParams();
-
-    formData.append('issues', params.issues.join(','));
-    if (params.add_tags) {
-      formData.append('add_tags', params.add_tags.join(','));
-    }
-    if (params.remove_tags) {
-      formData.append('remove_tags', params.remove_tags.join(','));
-    }
-    if (params.assign !== undefined && params.assign !== '') {
-      formData.append('assign', params.assign);
-    }
-    if (params.set_severity !== undefined) {
-      formData.append('set_severity', params.set_severity);
-    }
-    if (params.set_type !== undefined) {
-      formData.append('set_type', params.set_type);
-    }
-    if (params.do_transition !== undefined) {
-      formData.append('do_transition', params.do_transition);
-    }
-    if (params.comment !== undefined && params.comment !== '') {
-      formData.append('comment', params.comment);
-    }
-    if (params.sendNotifications !== undefined) {
-      formData.append('sendNotifications', params.sendNotifications.toString());
-    }
+    const formData = this.buildBulkChangeFormData(params);
 
     return this.request<BulkChangeResponse>('/api/issues/bulk_change', {
       method: 'POST',
@@ -179,6 +157,57 @@ export class IssuesClient extends BaseClient {
         'content-type': 'application/x-www-form-urlencoded',
       },
     });
+  }
+
+  /**
+   * Build form data for bulk change request
+   * @private
+   */
+  private buildBulkChangeFormData(params: BulkChangeRequest): URLSearchParams {
+    const formData = new URLSearchParams();
+    formData.append('issues', params.issues.join(','));
+
+    this.appendOptionalArrayParam(formData, 'add_tags', params.add_tags);
+    this.appendOptionalArrayParam(formData, 'remove_tags', params.remove_tags);
+    this.appendOptionalStringParam(formData, 'assign', params.assign);
+    this.appendOptionalStringParam(formData, 'set_severity', params.set_severity);
+    this.appendOptionalStringParam(formData, 'set_type', params.set_type);
+    this.appendOptionalStringParam(formData, 'do_transition', params.do_transition);
+    this.appendOptionalStringParam(formData, 'comment', params.comment);
+
+    if (params.sendNotifications !== undefined) {
+      formData.append('sendNotifications', params.sendNotifications.toString());
+    }
+
+    return formData;
+  }
+
+  /**
+   * Append optional array parameter to form data
+   * @private
+   */
+  private appendOptionalArrayParam(
+    formData: URLSearchParams,
+    key: string,
+    value: string[] | undefined,
+  ): void {
+    if (value && value.length > 0) {
+      formData.append(key, value.join(','));
+    }
+  }
+
+  /**
+   * Append optional string parameter to form data
+   * @private
+   */
+  private appendOptionalStringParam(
+    formData: URLSearchParams,
+    key: string,
+    value: string | undefined,
+  ): void {
+    if (value !== undefined && value !== '') {
+      formData.append(key, value);
+    }
   }
 
   /**
@@ -333,7 +362,7 @@ export class IssuesClient extends BaseClient {
       }
 
       const apiKey = parameterMapping[key] ?? key;
-      this.appendParameter(searchParams, key, value, apiKey, arrayParams, multipleCallParams);
+      this.appendParameter({ searchParams, key, value, apiKey, arrayParams, multipleCallParams });
     }
 
     return searchParams;
@@ -406,14 +435,16 @@ export class IssuesClient extends BaseClient {
   /**
    * Append a parameter to URLSearchParams based on its type and configuration
    */
-  private appendParameter(
-    searchParams: URLSearchParams,
-    key: string,
-    value: unknown,
-    apiKey: string,
-    arrayParams: Array<keyof SearchIssuesRequest>,
-    multipleCallParams: Array<keyof SearchIssuesRequest>,
-  ): void {
+  private appendParameter(params: {
+    searchParams: URLSearchParams;
+    key: string;
+    value: unknown;
+    apiKey: string;
+    arrayParams: Array<keyof SearchIssuesRequest>;
+    multipleCallParams: Array<keyof SearchIssuesRequest>;
+  }): void {
+    const { searchParams, key, value, apiKey, arrayParams, multipleCallParams } = params;
+
     // Handle parameters that need multiple calls (e.g., authors)
     if (this.shouldAppendAsMultipleCalls(key, value, multipleCallParams)) {
       this.appendMultipleValues(searchParams, apiKey, value as unknown[]);
@@ -698,20 +729,43 @@ export class IssuesClient extends BaseClient {
    * Validate that at least one action is specified
    */
   private validateBulkChangeActions(params: BulkChangeRequest): void {
-    const hasAction =
-      (params.add_tags !== undefined && params.add_tags.length > 0) ||
-      (params.remove_tags !== undefined && params.remove_tags.length > 0) ||
-      params.assign !== undefined ||
-      params.set_severity !== undefined ||
-      params.set_type !== undefined ||
-      params.do_transition !== undefined ||
-      (params.comment !== undefined && params.comment !== '');
-
-    if (!hasAction) {
+    if (!this.hasAnyAction(params)) {
       throw new Error(
         'At least one action must be specified: add_tags, remove_tags, assign, set_severity, set_type, do_transition, or comment.',
       );
     }
+  }
+
+  /**
+   * Check if any bulk change action is specified
+   * @private
+   */
+  private hasAnyAction(params: BulkChangeRequest): boolean {
+    return (
+      this.hasArrayAction(params.add_tags) ||
+      this.hasArrayAction(params.remove_tags) ||
+      params.assign !== undefined ||
+      params.set_severity !== undefined ||
+      params.set_type !== undefined ||
+      params.do_transition !== undefined ||
+      this.hasStringAction(params.comment)
+    );
+  }
+
+  /**
+   * Check if array action has values
+   * @private
+   */
+  private hasArrayAction(value: string[] | undefined): boolean {
+    return value !== undefined && value.length > 0;
+  }
+
+  /**
+   * Check if string action has value
+   * @private
+   */
+  private hasStringAction(value: string | undefined): boolean {
+    return value !== undefined && value !== '';
   }
 
   /**
@@ -839,7 +893,18 @@ export class IssuesClient extends BaseClient {
    * Check for deprecated parameters and issue warnings
    */
   private checkDeprecatedParameters(params: SearchIssuesRequest): void {
-    // componentKeys deprecated since 10.2, replaced by components
+    this.checkComponentKeysDeprecation(params);
+    this.checkStatusesDeprecation(params);
+    this.checkSeveritiesDeprecation(params);
+    this.checkTypesDeprecation(params);
+    this.checkResolutionsDeprecation(params);
+  }
+
+  /**
+   * Check componentKeys deprecation
+   * @private
+   */
+  private checkComponentKeysDeprecation(params: SearchIssuesRequest): void {
     if (params.componentKeys && params.componentKeys.length > 0) {
       DeprecationManager.warn({
         api: 'issues.search() parameter "componentKeys"',
@@ -848,43 +913,63 @@ export class IssuesClient extends BaseClient {
         removeVersion: 'TBD',
       });
     }
+  }
 
-    // statuses deprecated since 10.4, replaced by issueStatuses
+  /**
+   * Check statuses deprecation
+   * @private
+   */
+  private checkStatusesDeprecation(params: SearchIssuesRequest): void {
     if (params.statuses && params.statuses.length > 0) {
       DeprecationManager.warn({
         api: 'issues.search() parameter "statuses"',
-        reason: 'Parameter deprecated since SonarQube 10.4',
-        replacement: 'Use "issueStatuses" parameter instead',
+        reason: DEPRECATION_REASON_SINCE_10_4,
+        replacement: DEPRECATION_REPLACEMENT_ISSUE_STATUSES,
         removeVersion: 'TBD',
       });
     }
+  }
 
-    // severities deprecated in favor of impactSeverities
+  /**
+   * Check severities deprecation
+   * @private
+   */
+  private checkSeveritiesDeprecation(params: SearchIssuesRequest): void {
     if (params.severities && params.severities.length > 0) {
       DeprecationManager.warn({
         api: 'issues.search() parameter "severities"',
-        reason: 'Parameter deprecated in favor of Clean Code taxonomy',
+        reason: DEPRECATION_REASON_CLEAN_CODE,
         replacement: 'Use "impactSeverities" parameter instead',
         removeVersion: 'TBD',
       });
     }
+  }
 
-    // types deprecated in favor of Clean Code taxonomy
+  /**
+   * Check types deprecation
+   * @private
+   */
+  private checkTypesDeprecation(params: SearchIssuesRequest): void {
     if (params.types && params.types.length > 0) {
       DeprecationManager.warn({
         api: 'issues.search() parameter "types"',
-        reason: 'Parameter deprecated in favor of Clean Code taxonomy',
+        reason: DEPRECATION_REASON_CLEAN_CODE,
         replacement: 'Use Clean Code attribute categories and impact software qualities',
         removeVersion: 'TBD',
       });
     }
+  }
 
-    // resolutions deprecated in favor of issueStatuses
+  /**
+   * Check resolutions deprecation
+   * @private
+   */
+  private checkResolutionsDeprecation(params: SearchIssuesRequest): void {
     if (params.resolutions && params.resolutions.length > 0) {
       DeprecationManager.warn({
         api: 'issues.search() parameter "resolutions"',
-        reason: 'Parameter deprecated since SonarQube 10.4',
-        replacement: 'Use "issueStatuses" parameter instead',
+        reason: DEPRECATION_REASON_SINCE_10_4,
+        replacement: DEPRECATION_REPLACEMENT_ISSUE_STATUSES,
         removeVersion: 'TBD',
       });
     }

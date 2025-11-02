@@ -9,7 +9,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-console */
 
-import type { SonarQubeClient } from '../../index.js';
+import type { IssuesClient } from '../issues/IssuesClient.js';
+import type { FixSuggestionsClient } from './FixSuggestionsClient.js';
 import type {
   AiFixSuggestionV2,
   FixApplicationOptions,
@@ -21,6 +22,15 @@ import type {
   IssueIntegrationOptions,
   FixSuggestionAvailabilityV2Response,
 } from './types.js';
+
+/**
+ * Minimal interface for SonarQubeClient to avoid circular dependencies
+ * Only includes the properties needed by FixSuggestionUtils
+ */
+interface SonarQubeClientLike {
+  issues: IssuesClient;
+  fixSuggestions: FixSuggestionsClient;
+}
 
 /**
  * Utility class for processing and analyzing AI fix suggestions
@@ -631,13 +641,13 @@ export class FixSuggestionUtils {
     const successRates: number[] = [];
     const patternCounts = new Map<string, number>();
 
-    this.processSuggestions(
+    this.processSuggestions({
       suggestions,
       confidenceBuckets,
       complexityBuckets,
       successRates,
       patternCounts,
-    );
+    });
 
     const successRateStats = this.calculateSuccessRateStats(successRates);
     const commonPatterns = this.calculateCommonPatterns(suggestions, patternCounts);
@@ -651,13 +661,15 @@ export class FixSuggestionUtils {
     };
   }
 
-  private static processSuggestions(
-    suggestions: AiFixSuggestionV2[],
-    confidenceBuckets: { high: number; medium: number; low: number },
-    complexityBuckets: { low: number; medium: number; high: number },
-    successRates: number[],
-    patternCounts: Map<string, number>,
-  ): void {
+  private static processSuggestions(params: {
+    suggestions: AiFixSuggestionV2[];
+    confidenceBuckets: { high: number; medium: number; low: number };
+    complexityBuckets: { low: number; medium: number; high: number };
+    successRates: number[];
+    patternCounts: Map<string, number>;
+  }): void {
+    const { suggestions, confidenceBuckets, complexityBuckets, successRates, patternCounts } =
+      params;
     for (const suggestion of suggestions) {
       this.categorizeByConfidence(suggestion, confidenceBuckets);
       complexityBuckets[suggestion.complexity]++;
@@ -898,65 +910,111 @@ export class FixSuggestionIntegration {
    * ```
    */
   static async findEligibleIssues(
-    client: SonarQubeClient,
+    client: SonarQubeClientLike,
     projectKey: string,
     options: IssueIntegrationOptions = {},
   ): Promise<Array<{ issue: any; availability: FixSuggestionAvailabilityV2Response }>> {
     const { autoCheckAvailability = true, eligibilityCriteria = {} } = options;
 
-    // Get issues from the Issues API
-    const issuesResponse = await client.issues
+    const issuesResponse = await this.fetchIssues(client, projectKey, eligibilityCriteria);
+    const eligibleIssues = this.filterIssues(issuesResponse.issues, eligibilityCriteria);
+
+    if (!autoCheckAvailability) {
+      return this.createBasicResults(eligibleIssues);
+    }
+
+    return this.checkAvailabilityForIssues(client, projectKey, eligibleIssues);
+  }
+
+  /**
+   * Fetch issues from the Issues API
+   * @private
+   */
+  private static async fetchIssues(
+    client: SonarQubeClientLike,
+    projectKey: string,
+    criteria: IssueIntegrationOptions['eligibilityCriteria'],
+  ) {
+    return client.issues
       .search()
       .withProjects([projectKey])
-      .withSeverities((eligibilityCriteria.severity ?? ['MAJOR', 'CRITICAL', 'BLOCKER']) as any[])
-      .withTypes((eligibilityCriteria.types ?? ['BUG', 'CODE_SMELL']) as any[])
+      .withSeverities((criteria?.severity ?? ['MAJOR', 'CRITICAL', 'BLOCKER']) as any[])
+      .withTypes((criteria?.types ?? ['BUG', 'CODE_SMELL']) as any[])
       .execute();
+  }
 
-    let eligibleIssues = issuesResponse.issues;
+  /**
+   * Filter issues based on criteria
+   * @private
+   */
+  private static filterIssues(
+    issues: any[],
+    criteria: IssueIntegrationOptions['eligibilityCriteria'],
+  ): any[] {
+    let filtered = issues;
 
-    // Filter by age if specified
-    if (eligibilityCriteria.age) {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - eligibilityCriteria.age);
-
-      eligibleIssues = eligibleIssues.filter((issue: any) => {
-        const creationDate = new Date(issue.creationDate);
-        return creationDate >= cutoffDate;
-      });
+    if (criteria?.age) {
+      filtered = this.filterByAge(filtered, criteria.age);
     }
 
-    // Filter by location if specified
-    if (eligibilityCriteria.hasLocation) {
-      eligibleIssues = eligibleIssues.filter((issue: any) => issue.textRange || issue.line);
+    if (criteria?.hasLocation) {
+      filtered = filtered.filter((issue: any) => issue.textRange || issue.line);
     }
 
+    return filtered;
+  }
+
+  /**
+   * Filter issues by age
+   * @private
+   */
+  private static filterByAge(issues: any[], age: number): any[] {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - age);
+
+    return issues.filter((issue: any) => {
+      const creationDate = new Date(issue.creationDate);
+      return creationDate >= cutoffDate;
+    });
+  }
+
+  /**
+   * Create basic results without availability check
+   * @private
+   */
+  private static createBasicResults(
+    issues: any[],
+  ): Array<{ issue: any; availability: FixSuggestionAvailabilityV2Response }> {
+    return issues.map((issue: any) => ({
+      issue,
+      availability: { available: true } as FixSuggestionAvailabilityV2Response,
+    }));
+  }
+
+  /**
+   * Check availability for each issue
+   * @private
+   */
+  private static async checkAvailabilityForIssues(
+    client: SonarQubeClientLike,
+    projectKey: string,
+    issues: any[],
+  ): Promise<Array<{ issue: any; availability: FixSuggestionAvailabilityV2Response }>> {
     const results = [];
 
-    if (autoCheckAvailability) {
-      // Check each issue for AI suggestion availability
-      for (const issue of eligibleIssues) {
-        try {
-          const availability = await client.fixSuggestions.getIssueAvailabilityV2({
-            issueKey: issue.key,
-            projectKey,
-          });
+    for (const issue of issues) {
+      try {
+        const availability = await client.fixSuggestions.getIssueAvailabilityV2({
+          issueKey: issue.key,
+          projectKey,
+        });
 
-          if (availability.available) {
-            results.push({ issue, availability });
-          }
-        } catch (error) {
-          // Log but don't fail for individual issues
-          console.warn(`Failed to check availability for issue ${issue.key}:`, error);
+        if (availability.available) {
+          results.push({ issue, availability });
         }
+      } catch (error) {
+        console.warn(`Failed to check availability for issue ${issue.key}:`, error);
       }
-    } else {
-      // Return all eligible issues without checking availability
-      results.push(
-        ...eligibleIssues.map((issue: any) => ({
-          issue,
-          availability: { available: true } as FixSuggestionAvailabilityV2Response,
-        })),
-      );
     }
 
     return results;
@@ -988,69 +1046,126 @@ export class FixSuggestionIntegration {
    * ```
    */
   static async batchProcessIssues(
-    client: SonarQubeClient,
+    client: SonarQubeClientLike,
     issueKeys: string[],
     options: BatchProcessingOptions = {},
   ): Promise<BatchFixResult> {
     const { concurrency = 3, requestDelay = 100, continueOnError = true, onProgress } = options;
-
     const successful: BatchFixResult['successful'] = [];
     const failed: BatchFixResult['failed'] = [];
     const startTime = Date.now();
 
-    // Process issues in batches
+    const results = { successful, failed };
     for (let i = 0; i < issueKeys.length; i += concurrency) {
       const batch = issueKeys.slice(i, i + concurrency);
-
-      const batchPromises = batch.map(async (issueKey) => {
-        try {
-          const processingStart = Date.now();
-          const suggestions = await client.fixSuggestions.requestAiSuggestionsV2({
-            issueKey,
-            maxAlternatives: 3,
-          });
-
-          successful.push({
-            issueKey,
-            suggestions: suggestions.suggestions,
-            processingTime: Date.now() - processingStart,
-          });
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          failed.push({
-            issueKey,
-            error: errorMessage,
-            errorType: error instanceof Error ? error.constructor.name : 'UnknownError',
-            retryable: !errorMessage.includes('unsupported') && !errorMessage.includes('quota'),
-          });
-
-          if (!continueOnError) {
-            throw error;
-          }
-        }
-
-        // Delay between requests to avoid rate limiting
-        if (requestDelay > 0) {
-          await new Promise((resolve) => setTimeout(resolve, requestDelay));
-        }
-      });
-
-      await Promise.all(batchPromises);
-
-      // Report progress
-      if (onProgress && batch.length > 0) {
-        const currentIssue = batch[batch.length - 1];
-        onProgress({
-          completed: successful.length + failed.length,
-          total: issueKeys.length,
-          ...(currentIssue !== undefined && { current: currentIssue }),
-          errors: failed.length,
-        });
-      }
+      await this.processBatchIssues(client, batch, results, { continueOnError, requestDelay });
+      this.reportProgress(onProgress, batch, results, issueKeys.length);
     }
 
-    // Calculate summary statistics
-    const totalProcessingTime = Date.now() - startTime;
+    return this.buildBatchResult(successful, failed, issueKeys.length, startTime);
+  }
+
+  /**
+   * Process a batch of issues
+   * @private
+   */
+  private static async processBatchIssues(
+    client: SonarQubeClientLike,
+    batch: string[],
+    results: { successful: BatchFixResult['successful']; failed: BatchFixResult['failed'] },
+    options: { continueOnError: boolean; requestDelay: number },
+  ): Promise<void> {
+    const batchPromises = batch.map(async (issueKey) => {
+      await this.processIssue(client, issueKey, results, options.continueOnError);
+      if (options.requestDelay > 0) {
+        await new Promise((resolve) => setTimeout(resolve, options.requestDelay));
+      }
+    });
+
+    await Promise.all(batchPromises);
+  }
+
+  /**
+   * Process a single issue
+   * @private
+   */
+  private static async processIssue(
+    client: SonarQubeClientLike,
+    issueKey: string,
+    results: { successful: BatchFixResult['successful']; failed: BatchFixResult['failed'] },
+    continueOnError: boolean,
+  ): Promise<void> {
+    try {
+      const processingStart = Date.now();
+      const suggestions = await client.fixSuggestions.requestAiSuggestionsV2({
+        issueKey,
+        maxAlternatives: 3,
+      });
+
+      results.successful.push({
+        issueKey,
+        suggestions: suggestions.suggestions,
+        processingTime: Date.now() - processingStart,
+      });
+    } catch (error) {
+      this.handleIssueError(error, issueKey, results.failed, continueOnError);
+    }
+  }
+
+  /**
+   * Handle error during issue processing
+   * @private
+   */
+  private static handleIssueError(
+    error: unknown,
+    issueKey: string,
+    failed: BatchFixResult['failed'],
+    continueOnError: boolean,
+  ): void {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    failed.push({
+      issueKey,
+      error: errorMessage,
+      errorType: error instanceof Error ? error.constructor.name : 'UnknownError',
+      retryable: !errorMessage.includes('unsupported') && !errorMessage.includes('quota'),
+    });
+
+    if (!continueOnError) {
+      throw error;
+    }
+  }
+
+  /**
+   * Report progress if callback is provided
+   * @private
+   */
+  private static reportProgress(
+    onProgress: BatchProcessingOptions['onProgress'],
+    batch: string[],
+    results: { successful: BatchFixResult['successful']; failed: BatchFixResult['failed'] },
+    totalIssues: number,
+  ): void {
+    if (onProgress && batch.length > 0) {
+      const currentIssue = batch[batch.length - 1];
+      onProgress({
+        completed: results.successful.length + results.failed.length,
+        total: totalIssues,
+        ...(currentIssue !== undefined && { current: currentIssue }),
+        errors: results.failed.length,
+      });
+    }
+  }
+
+  /**
+   * Build final batch result with summary
+   * @private
+   */
+  private static buildBatchResult(
+    successful: BatchFixResult['successful'],
+    failed: BatchFixResult['failed'],
+    totalProcessed: number,
+    startTime: number,
+  ): BatchFixResult {
     const totalConfidence = successful.reduce((sum, result) => {
       const avgConfidence =
         result.suggestions.reduce((s, suggestion) => s + suggestion.confidence, 0) /
@@ -1063,10 +1178,10 @@ export class FixSuggestionIntegration {
       successful,
       failed,
       summary: {
-        totalProcessed: issueKeys.length,
+        totalProcessed,
         successCount: successful.length,
         failureCount: failed.length,
-        totalProcessingTime,
+        totalProcessingTime: Date.now() - startTime,
         averageConfidence: Math.round(averageConfidence * 100) / 100,
       },
     };

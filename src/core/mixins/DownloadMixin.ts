@@ -81,6 +81,99 @@ function initializeHeadersWithAuth(
 }
 
 /**
+ * Check if progress tracking is possible
+ */
+function canTrackProgress(
+  options: DownloadOptions | undefined,
+  contentLengthHeader: string | null,
+): boolean {
+  return (
+    options?.onProgress !== undefined && contentLengthHeader !== null && contentLengthHeader !== ''
+  );
+}
+
+/**
+ * Read stream with progress tracking
+ */
+async function readStreamWithProgress(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  contentLength: number,
+  options: DownloadOptions,
+): Promise<Blob> {
+  const chunks: Uint8Array[] = [];
+  let loaded = 0;
+
+  try {
+    while (true) {
+      const result = await reader.read();
+
+      if (result.done) {
+        break;
+      }
+
+      const chunk = result.value;
+      if (chunk) {
+        chunks.push(chunk);
+        loaded += chunk.length;
+      }
+
+      reportProgress(loaded, contentLength, options);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  // Uint8Array[] is compatible with the Blob constructor
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+  return new Blob(chunks as any);
+}
+
+/**
+ * Report download progress
+ */
+function reportProgress(loaded: number, contentLength: number, options: DownloadOptions): void {
+  const progress: DownloadProgress = {
+    loaded,
+    total: contentLength,
+    percentage: contentLength > 0 ? Math.round((loaded / contentLength) * 100) : 0,
+  };
+
+  options.onProgress!(progress);
+}
+
+/**
+ * Fetch with error handling
+ */
+async function fetchWithErrorHandling(
+  baseUrl: string,
+  url: string,
+  authProvider: AuthProvider,
+  options?: DownloadOptions,
+): Promise<Response> {
+  const headers = initializeHeadersWithAuth(authProvider, {
+    Accept: 'application/octet-stream',
+  });
+
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}${url}`, {
+      headers,
+      signal: options?.signal ?? null,
+    });
+  } catch (networkError: unknown) {
+    const { createNetworkError } = await import('../../errors/index.js');
+    throw createNetworkError(networkError);
+  }
+
+  if (!response.ok) {
+    const { createErrorFromResponse } = await import('../../errors/index.js');
+    throw await createErrorFromResponse(response);
+  }
+
+  return response;
+}
+
+/**
  * Mixin that adds download functionality to BaseClient
  * Provides methods for downloading binary content with progress tracking
  * and text content retrieval
@@ -102,71 +195,23 @@ export function DownloadMixin<TBase extends Constructor<BaseClient>>(
      * @returns Downloaded content as Blob
      */
     async downloadWithProgress(url: string, options?: DownloadOptions): Promise<Blob> {
-      const headers = initializeHeadersWithAuth(this.authProvider, {
-        Accept: 'application/octet-stream',
-      });
+      const response = await fetchWithErrorHandling(this.baseUrl, url, this.authProvider, options);
 
-      let response: Response;
-      try {
-        response = await fetch(`${this.baseUrl}${url}`, {
-          headers,
-          signal: options?.signal ?? null,
-        });
-      } catch (networkError: unknown) {
-        const { createNetworkError } = await import('../../errors/index.js');
-        throw createNetworkError(networkError);
-      }
-
-      if (!response.ok) {
-        const { createErrorFromResponse } = await import('../../errors/index.js');
-        throw await createErrorFromResponse(response);
-      }
-
-      // If no progress callback or no content length, just return blob
+      // Check if we can track progress
       const contentLengthHeader = response.headers.get('content-length');
-      if (!options?.onProgress || contentLengthHeader === null || contentLengthHeader === '') {
+      if (!canTrackProgress(options, contentLengthHeader)) {
         return response.blob();
       }
 
       // Stream the response for progress tracking
-      const contentLength = Number.parseInt(contentLengthHeader, 10);
+      const contentLength = Number.parseInt(contentLengthHeader!, 10);
       const reader = response.body?.getReader();
 
       if (!reader) {
         return response.blob();
       }
 
-      const chunks: Uint8Array[] = [];
-      let loaded = 0;
-
-      try {
-        while (true) {
-          const result = await reader.read();
-
-          if (result.done) {
-            break;
-          }
-
-          if (result.value) {
-            chunks.push(result.value);
-            loaded += result.value.length;
-          }
-
-          const progress: DownloadProgress = {
-            loaded,
-            total: contentLength,
-            percentage: contentLength > 0 ? Math.round((loaded / contentLength) * 100) : 0,
-          };
-
-          options.onProgress(progress);
-        }
-      } finally {
-        reader.releaseLock();
-      }
-
-      // Combine chunks into a single blob
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new Blob(chunks as any[]);
+      return readStreamWithProgress(reader, contentLength, options!);
     }
 
     /**

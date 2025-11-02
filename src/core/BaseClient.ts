@@ -56,7 +56,21 @@ export abstract class BaseClient {
     options?: RequestInit & { responseType?: ResponseType },
   ): Promise<T> {
     const responseType = options?.responseType ?? 'json';
+    const headers = this.buildRequestHeaders(
+      responseType,
+      options?.headers as HeadersInit | undefined,
+    );
+    const finalUrl = this.appendOrganizationToUrl(url);
 
+    const response = await this.performFetch(finalUrl, options, headers);
+    return this.processResponse<T>(response, responseType);
+  }
+
+  /**
+   * Build request headers with auth and content type
+   * @private
+   */
+  private buildRequestHeaders(responseType: ResponseType, optionHeaders?: HeadersInit): Headers {
     let headers = new Headers();
     if (responseType === 'json') {
       headers.set('Content-Type', 'application/json');
@@ -64,27 +78,49 @@ export abstract class BaseClient {
     headers = this.authProvider.applyAuth(headers);
 
     // Merge with any headers from options
-    if (options?.headers) {
-      const optHeaders = new Headers(options.headers);
-      for (const [key, value] of optHeaders) {
+    if (optionHeaders !== undefined) {
+      // Convert to Headers to normalize all possible HeadersInit formats
+      // We need to cast to satisfy TypeScript's strict checking of the Headers constructor
+      // The Headers constructor accepts HeadersInit but TypeScript's strict mode has issues
+      // with the string[][] variant and tuple type checking
+      const optHeaders = new Headers(optionHeaders as Record<string, string>);
+      optHeaders.forEach((value, key) => {
         headers.set(key, value);
-      }
+      });
     }
 
-    // Append organization parameter if provided and not already in URL
-    let finalUrl = url;
-    if (this.organization !== undefined && this.organization.length > 0) {
-      const urlObj = new URL(url, this.baseUrl);
-      // Only add organization if it's not already in the URL
-      if (!urlObj.searchParams.has('organization')) {
-        urlObj.searchParams.set('organization', this.organization);
-      }
-      finalUrl = urlObj.pathname + urlObj.search;
+    return headers;
+  }
+
+  /**
+   * Append organization parameter to URL if configured
+   * @private
+   */
+  private appendOrganizationToUrl(url: string): string {
+    if (this.organization === undefined || this.organization.length === 0) {
+      return url;
     }
 
+    const urlObj = new URL(url, this.baseUrl);
+    // Only add organization if it's not already in the URL
+    if (!urlObj.searchParams.has('organization')) {
+      urlObj.searchParams.set('organization', this.organization);
+    }
+    return urlObj.pathname + urlObj.search;
+  }
+
+  /**
+   * Perform fetch request with error handling
+   * @private
+   */
+  private async performFetch(
+    url: string,
+    options: RequestInit | undefined,
+    headers: Headers,
+  ): Promise<Response> {
     let response: Response;
     try {
-      response = await fetch(`${this.baseUrl}${finalUrl}`, {
+      response = await fetch(`${this.baseUrl}${url}`, {
         ...options,
         headers,
       });
@@ -96,7 +132,14 @@ export abstract class BaseClient {
       throw await createErrorFromResponse(response);
     }
 
-    // Handle different response types
+    return response;
+  }
+
+  /**
+   * Process response based on requested type
+   * @private
+   */
+  private async processResponse<T>(response: Response, responseType: ResponseType): Promise<T> {
     switch (responseType) {
       case 'arrayBuffer':
         return response.arrayBuffer() as Promise<T>;
@@ -105,15 +148,21 @@ export abstract class BaseClient {
       case 'text':
         return response.text() as Promise<T>;
       case 'json':
-      default: {
-        // Handle empty responses for JSON
-        const text = await response.text();
-        if (!text) {
-          return undefined as unknown as T;
-        }
-        return JSON.parse(text) as T;
-      }
+      default:
+        return this.processJsonResponse<T>(response);
     }
+  }
+
+  /**
+   * Process JSON response with empty response handling
+   * @private
+   */
+  private async processJsonResponse<T>(response: Response): Promise<T> {
+    const text = await response.text();
+    if (!text) {
+      return undefined as unknown as T;
+    }
+    return JSON.parse(text) as T;
   }
 
   /**

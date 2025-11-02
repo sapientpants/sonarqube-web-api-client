@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Favorites API Integration Tests
  *
@@ -12,6 +11,7 @@ import { INTEGRATION_ASSERTIONS } from '../../utils/assertions.js';
 import { measureTime, TEST_TIMING } from '../../utils/testHelpers.js';
 import { getIntegrationTestConfig, canRunIntegrationTests } from '../../config/environment.js';
 import { getTestConfiguration } from '../../config/testConfig.js';
+import { ComponentQualifier } from '../../../../src/resources/components/types.js';
 
 // Skip all tests if integration test environment is not configured
 const skipTests = !canRunIntegrationTests();
@@ -19,6 +19,60 @@ const skipTests = !canRunIntegrationTests();
 // Initialize test configuration at module load time for conditional describe blocks
 const envConfig = skipTests ? null : getIntegrationTestConfig();
 const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConfig);
+
+// Helper function to validate favorite structure
+function validateFavoriteStructure(favorite: {
+  key: string;
+  name: string;
+  qualifier: string;
+  description?: string;
+  organization?: string;
+}): void {
+  expect(favorite.key).toBeDefined();
+  expect(favorite.name).toBeDefined();
+  expect(favorite.qualifier).toBeDefined();
+  expect(typeof favorite.key).toBe('string');
+  expect(typeof favorite.name).toBe('string');
+  expect(typeof favorite.qualifier).toBe('string');
+  expect(favorite.key.length).toBeGreaterThan(0);
+  expect(favorite.name.length).toBeGreaterThan(0);
+  expect(['TRK', 'DIR', 'FIL', 'UTS'] as string[]).toContain(favorite.qualifier);
+}
+
+// Helper function to get qualifier type name
+function getQualifierTypeName(qualifier: string): string {
+  const typeNames: Record<string, string> = {
+    TRK: 'Projects',
+    DIR: 'Directories',
+    FIL: 'Files',
+    UTS: 'Unit Test Files',
+  };
+  return typeNames[qualifier] || qualifier;
+}
+
+// Helper function to analyze favorites by qualifier
+function analyzeFavoritesByQualifier(
+  favorites: Array<{ qualifier: string }>,
+): Record<string, number> {
+  return favorites.reduce<Record<string, number>>((acc, fav) => {
+    acc[fav.qualifier] = (acc[fav.qualifier] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+// Helper function to handle common authentication errors
+function handleAuthenticationError(error: unknown, context: string): void {
+  const errorObj = error as { status?: number };
+  if (errorObj.status === 401) {
+    console.log(`ℹ Authentication required ${context}`);
+  } else if (errorObj.status === 403) {
+    console.log(`ℹ Insufficient permissions ${context}`);
+  } else if (errorObj.status === 404) {
+    console.log(`ℹ Favorites API not available`);
+  } else {
+    throw error;
+  }
+}
 
 (skipTests ? describe.skip : describe)('Favorites API Integration Tests', () => {
   let client: IntegrationTestClient;
@@ -72,17 +126,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           if (result.favorites.length > 0) {
             // Validate favorite structure
             result.favorites.forEach((favorite) => {
-              expect(favorite.key).toBeDefined();
-              expect(favorite.name).toBeDefined();
-              expect(favorite.qualifier).toBeDefined();
-              expect(typeof favorite.key).toBe('string');
-              expect(typeof favorite.name).toBe('string');
-              expect(typeof favorite.qualifier).toBe('string');
-              expect(favorite.key.length).toBeGreaterThan(0);
-              expect(favorite.name.length).toBeGreaterThan(0);
-
-              // Most favorites should be projects (TRK qualifier)
-              expect(['TRK', 'DIR', 'FIL', 'UTS'] as string[]).toContain(favorite.qualifier);
+              validateFavoriteStructure(favorite);
 
               console.log(`  Favorite: ${favorite.name} (${favorite.key})`);
               console.log(`    Qualifier: ${favorite.qualifier}`);
@@ -97,24 +141,11 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
             });
 
             // Analyze favorite types
-            const favoritesByQualifier = result.favorites.reduce<Record<string, number>>(
-              (acc, fav) => {
-                acc[fav.qualifier] = (acc[fav.qualifier] || 0) + 1;
-                return acc;
-              },
-              {},
-            );
+            const favoritesByQualifier = analyzeFavoritesByQualifier(result.favorites);
 
             console.log(`  Favorites by type:`);
             Object.entries(favoritesByQualifier).forEach(([qualifier, count]) => {
-              const typeName =
-                {
-                  TRK: 'Projects',
-                  DIR: 'Directories',
-                  FIL: 'Files',
-                  UTS: 'Unit Test Files',
-                }[qualifier] || qualifier;
-              console.log(`    ${typeName}: ${count}`);
+              console.log(`    ${getQualifierTypeName(qualifier)}: ${count}`);
             });
 
             // Check for organization context
@@ -128,17 +159,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
             console.log('ℹ No user favorites found');
           }
         } catch (error: unknown) {
-          const errorObj = error as { status?: number };
-
-          if (errorObj.status === 401) {
-            console.log('ℹ Authentication required to view favorites');
-          } else if (errorObj.status === 403) {
-            console.log('ℹ Insufficient permissions to view favorites');
-          } else if (errorObj.status === 404) {
-            console.log('ℹ Favorites API not available');
-          } else {
-            throw error;
-          }
+          handleAuthenticationError(error, 'to view favorites');
         }
       },
       TEST_TIMING.normal,
@@ -202,11 +223,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
           if (favoritesCollected.length > 0) {
             // Validate structure of collected favorites
-            favoritesCollected.forEach((favorite) => {
-              expect(favorite.key).toBeDefined();
-              expect(favorite.name).toBeDefined();
-              expect(favorite.qualifier).toBeDefined();
-            });
+            favoritesCollected.forEach(validateFavoriteStructure);
 
             console.log(
               `  Sample favorites: ${favoritesCollected
@@ -355,7 +372,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           result.favorites.forEach((favorite) => {
             // Count projects
 
-            if (favorite.qualifier === 'TRK') {
+            if (favorite.qualifier === ComponentQualifier.Project) {
               organizationAnalysis.projectCount++;
             }
 
@@ -396,14 +413,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
 
           console.log(`  Component types:`);
           sortedQualifiers.forEach(([qualifier, count]) => {
-            const typeName =
-              {
-                TRK: 'Projects',
-                DIR: 'Directories',
-                FIL: 'Files',
-                UTS: 'Unit Test Files',
-              }[qualifier] || qualifier;
-            console.log(`    ${typeName}: ${count}`);
+            console.log(`    ${getQualifierTypeName(qualifier)}: ${count}`);
           });
         } catch (error: unknown) {
           const errorObj = error as { status?: number };
@@ -729,7 +739,7 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           };
 
           favorites.favorites.forEach((favorite) => {
-            if (favorite.qualifier === 'TRK') {
+            if (favorite.qualifier === ComponentQualifier.Project) {
               favoriteAnalysis.projectFavorites++;
             }
 

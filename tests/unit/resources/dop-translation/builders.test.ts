@@ -1,4 +1,5 @@
 // @ts-nocheck
+/* eslint-disable @typescript-eslint/unbound-method */
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 /**
  * Tests for DOP Translation builders
@@ -16,11 +17,7 @@ import {
 } from '../../../../src/resources/dop-translation/types.js';
 
 // Mock DopTranslationClient
-vi.mock('../../../../src/resources/dop-translation/DopTranslationClient', () => ({
-  DopTranslationClient: vi.fn().mockImplementation(() => ({
-    createBoundProjectV2: vi.fn(),
-  })),
-}));
+vi.mock('../../../../src/resources/dop-translation/DopTranslationClient');
 
 describe('CreateBoundProjectV2BuilderImpl', () => {
   let client: DopTranslationClient;
@@ -28,7 +25,9 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    client = new DopTranslationClient('https://sonarqube.example.com', 'test-token');
+    client = {
+      createBoundProjectV2: vi.fn(),
+    } as unknown as DopTranslationClient;
     builder = new CreateBoundProjectV2BuilderImpl(client);
   });
 
@@ -91,7 +90,8 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       // Assert
       expect(result).toEqual(expectedResponse);
 
-      expect(client.createBoundProjectV2).toHaveBeenCalledWith({
+      const mockFn = client.createBoundProjectV2 as Mock;
+      expect(mockFn).toHaveBeenCalledWith({
         dopPlatform: DevOpsPlatform.GITHUB,
         projectIdentifier: 'acme-corp/api-service',
         organizationName: 'acme-corp',
@@ -585,7 +585,7 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       // Missing required project identifier
 
       // Act & Assert
-      await expect(builder.execute()).rejects.toThrow(
+      await expect(async () => await builder.execute()).rejects.toThrow(
         'Builder validation failed: Project identifier is required',
       );
     });
@@ -640,7 +640,8 @@ describe('CreateBoundProjectV2BuilderImpl', () => {
       // Assert
       expect(result).toEqual(expectedResponse);
 
-      expect(client.createBoundProjectV2).toHaveBeenCalled();
+      const mockFn = client.createBoundProjectV2 as Mock;
+      expect(mockFn).toHaveBeenCalled();
     });
   });
 });

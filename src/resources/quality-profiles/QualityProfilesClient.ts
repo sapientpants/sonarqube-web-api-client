@@ -12,6 +12,7 @@ import type {
   ActivateRuleRequest,
   AddProjectRequest,
   BackupRequest,
+  ChangelogRequest,
   ChangeParentRequest,
   CompareRequest,
   CompareResponse,
@@ -31,8 +32,13 @@ import type {
   RenameRequest,
   RestoreRequest,
   RestoreResponse,
+  SearchRequest,
   SetDefaultRequest,
 } from './types.js';
+
+// Constants for deprecation messages
+const DEPRECATION_REASON_ENDPOINT_REMOVED = 'This endpoint will be removed.';
+const DEPRECATION_REMOVE_VERSION_MARCH_2025 = 'March 18, 2025';
 
 /**
  * Client for interacting with the SonarQube Quality Profiles API.
@@ -238,33 +244,71 @@ export class QualityProfilesClient extends BaseClient {
    */
   changelog(): ChangelogBuilder {
     return new ChangelogBuilder(async (params) => {
-      const query = new URLSearchParams();
-      if (params.key !== undefined && params.key !== '') {
-        query.append('key', params.key);
-      } else if (
-        params.qualityProfile !== undefined &&
-        params.qualityProfile !== '' &&
-        params.language !== undefined &&
-        params.language !== ''
-      ) {
-        query.append('qualityProfile', params.qualityProfile);
-        query.append('language', params.language);
-      }
-      if (params.p !== undefined) {
-        query.append('p', String(params.p));
-      }
-      if (params.ps !== undefined) {
-        query.append('ps', String(params.ps));
-      }
-      if (params.since !== undefined && params.since !== '') {
-        query.append('since', params.since);
-      }
-      if (params.to !== undefined && params.to !== '') {
-        query.append('to', params.to);
-      }
-
+      const query = this.buildChangelogQuery(params);
       return this.request(`/api/qualityprofiles/changelog?${query.toString()}`);
     });
+  }
+
+  /**
+   * Build query parameters for changelog request
+   * @private
+   */
+  private buildChangelogQuery(params: ChangelogRequest): URLSearchParams {
+    const query = new URLSearchParams();
+
+    this.addProfileIdentifier(query, params);
+    this.appendScalarParam(query, 'p', params.p);
+    this.appendScalarParam(query, 'ps', params.ps);
+    this.appendNonEmptyStringParam(query, 'since', params.since);
+    this.appendNonEmptyStringParam(query, 'to', params.to);
+
+    return query;
+  }
+
+  /**
+   * Add profile identifier to query
+   * @private
+   */
+  private addProfileIdentifier(query: URLSearchParams, params: ChangelogRequest): void {
+    if (params.key !== undefined && params.key !== '') {
+      query.append('key', params.key);
+    } else if (
+      params.qualityProfile !== undefined &&
+      params.qualityProfile !== '' &&
+      params.language !== undefined &&
+      params.language !== ''
+    ) {
+      query.append('qualityProfile', params.qualityProfile);
+      query.append('language', params.language);
+    }
+  }
+
+  /**
+   * Append non-empty string parameter
+   * @private
+   */
+  private appendNonEmptyStringParam(
+    query: URLSearchParams,
+    key: string,
+    value: string | undefined,
+  ): void {
+    if (value !== undefined && value !== '') {
+      query.append(key, value);
+    }
+  }
+
+  /**
+   * Append scalar parameter
+   * @private
+   */
+  private appendScalarParam(
+    query: URLSearchParams,
+    key: string,
+    value: string | number | boolean | undefined,
+  ): void {
+    if (value !== undefined) {
+      query.append(key, String(value));
+    }
   }
 
   /**
@@ -500,8 +544,8 @@ export class QualityProfilesClient extends BaseClient {
   async exporters(): Promise<ExportersResponse> {
     DeprecationManager.warn({
       api: 'qualityProfiles.exporters()',
-      removeVersion: 'March 18, 2025',
-      reason: 'This endpoint will be removed.',
+      removeVersion: DEPRECATION_REMOVE_VERSION_MARCH_2025,
+      reason: DEPRECATION_REASON_ENDPOINT_REMOVED,
     });
     return this.request('/api/qualityprofiles/exporters');
   }
@@ -524,8 +568,8 @@ export class QualityProfilesClient extends BaseClient {
   async importers(): Promise<ImportersResponse> {
     DeprecationManager.warn({
       api: 'qualityProfiles.importers()',
-      removeVersion: 'March 18, 2025',
-      reason: 'This endpoint will be removed.',
+      removeVersion: DEPRECATION_REMOVE_VERSION_MARCH_2025,
+      reason: DEPRECATION_REASON_ENDPOINT_REMOVED,
     });
     return this.request('/api/qualityprofiles/importers');
   }
@@ -736,29 +780,29 @@ export class QualityProfilesClient extends BaseClient {
    */
   search(): SearchBuilder {
     return new SearchBuilder(async (params) => {
-      const query = new URLSearchParams();
-      if (params.defaults !== undefined) {
-        query.append('defaults', String(params.defaults));
-      }
-      if (params.language !== undefined && params.language !== '') {
-        query.append('language', params.language);
-      }
-      if (params.project !== undefined && params.project !== '') {
-        query.append('project', params.project);
-      }
-      if (params.qualityProfile !== undefined && params.qualityProfile !== '') {
-        query.append('qualityProfile', params.qualityProfile);
-      }
-      if (params.organization !== undefined && params.organization !== '') {
-        query.append('organization', params.organization);
-      }
-
+      const query = this.buildProfileSearchQuery(params);
       const queryString = query.toString();
       const url = queryString
         ? `/api/qualityprofiles/search?${queryString}`
         : '/api/qualityprofiles/search';
       return this.request(url);
     });
+  }
+
+  /**
+   * Build query parameters for profile search
+   * @private
+   */
+  private buildProfileSearchQuery(params: SearchRequest): URLSearchParams {
+    const query = new URLSearchParams();
+
+    this.appendScalarParam(query, 'defaults', params.defaults);
+    this.appendNonEmptyStringParam(query, 'language', params.language);
+    this.appendNonEmptyStringParam(query, 'project', params.project);
+    this.appendNonEmptyStringParam(query, 'qualityProfile', params.qualityProfile);
+    this.appendNonEmptyStringParam(query, 'organization', params.organization);
+
+    return query;
   }
 
   /**

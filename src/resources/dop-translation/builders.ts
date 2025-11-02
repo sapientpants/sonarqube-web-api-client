@@ -33,6 +33,14 @@ interface BoundProjectCreator {
  * Provides a fluent API for configuring and creating bound projects
  */
 export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Builder {
+  private static readonly FIELD_PLATFORM_SPECIFIC_OWNER = 'platformSpecific.owner';
+  private static readonly FIELD_PLATFORM_SPECIFIC_REPOSITORY = 'platformSpecific.repository';
+  private static readonly FIELD_PLATFORM_SPECIFIC_PROJECT = 'platformSpecific.project';
+  private static readonly FIELD_PLATFORM_SPECIFIC_NAMESPACE = 'platformSpecific.namespace';
+  private static readonly FIELD_PLATFORM_SPECIFIC_WORKSPACE = 'platformSpecific.workspace';
+  private static readonly FIELD_PLATFORM_SPECIFIC_ORGANIZATION = 'platformSpecific.organization';
+  private static readonly FIELD_SONARQUBE_PROJECT_CONFIG_KEY = 'sonarQubeProjectConfig.key';
+
   private readonly request: Partial<CreateBoundProjectV2Request> = {};
 
   constructor(private readonly client: BoundProjectCreator) {}
@@ -174,24 +182,51 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
    * Configure Azure DevOps-specific settings
    */
   withAzureDevOpsConfig(config: Partial<AzureDevOpsConfig>): this {
-    const baseConfig = {
-      organization: config.organization ?? this.request.organizationName ?? '',
-      project: config.project ?? this.request.repositoryName ?? '',
-      repository: config.repository ?? this.request.repositoryName ?? '',
-      ...(config.branch !== undefined || this.request.mainBranchName !== undefined
-        ? { branch: config.branch ?? this.request.mainBranchName }
-        : {}),
-    };
+    const baseConfig = this.buildAzureDevOpsBaseConfig(config);
 
     this.request.platformSpecific = {
       ...baseConfig,
       ...config,
     };
 
-    // Update the platform if not set
     this.request.dopPlatform ??= DevOpsPlatform.AzureDevops;
 
     return this;
+  }
+
+  /**
+   * Build base configuration for Azure DevOps
+   * @private
+   */
+  private buildAzureDevOpsBaseConfig(config: Partial<AzureDevOpsConfig>): {
+    organization: string;
+    project: string;
+    repository: string;
+    branch?: string;
+  } {
+    const baseConfig = {
+      organization: config.organization ?? this.request.organizationName ?? '',
+      project: config.project ?? this.request.repositoryName ?? '',
+      repository: config.repository ?? this.request.repositoryName ?? '',
+    };
+
+    const branch = this.determineBranch(config.branch, this.request.mainBranchName);
+    if (branch !== undefined) {
+      return { ...baseConfig, branch };
+    }
+
+    return baseConfig;
+  }
+
+  /**
+   * Determine which branch to use
+   * @private
+   */
+  private determineBranch(configBranch?: string, mainBranch?: string): string | undefined {
+    if (configBranch !== undefined || mainBranch !== undefined) {
+      return configBranch ?? mainBranch;
+    }
+    return undefined;
   }
 
   /**
@@ -382,7 +417,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.owner) {
       errors.push({
-        field: 'platformSpecific.owner',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_OWNER,
         message: 'GitHub owner is required',
         code: 'MISSING_GITHUB_OWNER',
       });
@@ -390,7 +425,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.repository) {
       errors.push({
-        field: 'platformSpecific.repository',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_REPOSITORY,
         message: 'GitHub repository is required',
         code: 'MISSING_GITHUB_REPO',
       });
@@ -399,7 +434,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     // Check for valid GitHub naming conventions
     if (config.owner && !/^[a-zA-Z0-9]([a-zA-Z0-9-])*[a-zA-Z0-9]$/.test(config.owner)) {
       warnings.push({
-        field: 'platformSpecific.owner',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_OWNER,
         message: 'GitHub owner name may not follow naming conventions',
         suggestion: 'Use alphanumeric characters and hyphens only',
       });
@@ -407,7 +442,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (config.repository && !/^[a-zA-Z0-9._-]+$/.test(config.repository)) {
       warnings.push({
-        field: 'platformSpecific.repository',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_REPOSITORY,
         message: 'GitHub repository name may not follow naming conventions',
         suggestion: 'Use alphanumeric characters, dots, underscores, and hyphens only',
       });
@@ -429,7 +464,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.namespace) {
       errors.push({
-        field: 'platformSpecific.namespace',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_NAMESPACE,
         message: 'GitLab namespace is required',
         code: 'MISSING_GITLAB_NAMESPACE',
       });
@@ -437,7 +472,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.project) {
       errors.push({
-        field: 'platformSpecific.project',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_PROJECT,
         message: 'GitLab project is required',
         code: 'MISSING_GITLAB_PROJECT',
       });
@@ -459,7 +494,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.workspace) {
       errors.push({
-        field: 'platformSpecific.workspace',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_WORKSPACE,
         message: 'Bitbucket workspace is required',
         code: 'MISSING_BITBUCKET_WORKSPACE',
       });
@@ -467,7 +502,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.repository) {
       errors.push({
-        field: 'platformSpecific.repository',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_REPOSITORY,
         message: 'Bitbucket repository is required',
         code: 'MISSING_BITBUCKET_REPO',
       });
@@ -489,7 +524,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.organization) {
       errors.push({
-        field: 'platformSpecific.organization',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_ORGANIZATION,
         message: 'Azure DevOps organization is required',
         code: 'MISSING_AZURE_ORG',
       });
@@ -497,7 +532,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.project) {
       errors.push({
-        field: 'platformSpecific.project',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_PROJECT,
         message: 'Azure DevOps project is required',
         code: 'MISSING_AZURE_PROJECT',
       });
@@ -505,7 +540,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
     if (!config.repository) {
       errors.push({
-        field: 'platformSpecific.repository',
+        field: CreateBoundProjectV2BuilderImpl.FIELD_PLATFORM_SPECIFIC_REPOSITORY,
         message: 'Azure DevOps repository is required',
         code: 'MISSING_AZURE_REPO',
       });
@@ -529,7 +564,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
     if (config.key !== undefined && config.key !== '') {
       if (!/^[a-zA-Z0-9:_.-]+$/.test(config.key)) {
         errors.push({
-          field: 'sonarQubeProjectConfig.key',
+          field: CreateBoundProjectV2BuilderImpl.FIELD_SONARQUBE_PROJECT_CONFIG_KEY,
           message: 'Invalid SonarQube project key format',
           code: 'INVALID_PROJECT_KEY',
         });
@@ -537,7 +572,7 @@ export class CreateBoundProjectV2BuilderImpl implements CreateBoundProjectV2Buil
 
       if (config.key.length > 400) {
         errors.push({
-          field: 'sonarQubeProjectConfig.key',
+          field: CreateBoundProjectV2BuilderImpl.FIELD_SONARQUBE_PROJECT_CONFIG_KEY,
           message: 'SonarQube project key too long (max 400 characters)',
           code: 'PROJECT_KEY_TOO_LONG',
         });

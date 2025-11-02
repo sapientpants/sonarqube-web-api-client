@@ -20,6 +20,57 @@ const skipTests = !canRunIntegrationTests();
 const envConfig = skipTests ? null : getIntegrationTestConfig();
 const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConfig);
 
+// Helper function to detect service type from hostname
+function detectServiceType(hostname: string): string | null {
+  if (hostname === 'github.com' || hostname.endsWith('.github.com')) {
+    return 'GitHub';
+  }
+  if (hostname === 'gitlab.com' || hostname.endsWith('.gitlab.com')) {
+    return 'GitLab';
+  }
+  if (hostname === 'bitbucket.org' || hostname.endsWith('.bitbucket.org')) {
+    return 'Bitbucket';
+  }
+  if (
+    hostname.includes('jenkins') ||
+    hostname === 'travis-ci.org' ||
+    hostname === 'travis-ci.com' ||
+    hostname === 'circleci.com' ||
+    hostname.endsWith('.circleci.com')
+  ) {
+    return 'CI/CD';
+  }
+  return null;
+}
+
+// Helper function to analyze a link's URL and log service type
+function analyzeLinkUrl(link: { url: string; name?: string }): void {
+  try {
+    const url = new URL(link.url);
+    const hostname = url.hostname.toLowerCase();
+    const serviceType = detectServiceType(hostname);
+
+    if (serviceType) {
+      console.log(`  ${serviceType} link detected: ${link.name || 'unnamed'}`);
+    }
+  } catch {
+    console.log(`  ⚠ Could not analyze URL: ${link.url}`);
+  }
+}
+
+// Helper function to update link type analysis
+function updateLinkTypeAnalysis(link: { type?: string }, analysis: Record<string, number>): void {
+  if (link.type) {
+    if (link.type in analysis) {
+      analysis[link.type]++;
+    } else {
+      analysis.custom++;
+    }
+  } else {
+    analysis.unnamed++;
+  }
+}
+
 (skipTests ? describe.skip : describe)('Project Links API Integration Tests', () => {
   let client: IntegrationTestClient;
   let dataManager: TestDataManager;
@@ -356,40 +407,8 @@ const testConfig = skipTests || !envConfig ? null : getTestConfiguration(envConf
           };
 
           result.links.forEach((link) => {
-            if (link.type) {
-              if (link.type in linkTypeAnalysis) {
-                linkTypeAnalysis[link.type as keyof typeof linkTypeAnalysis]++;
-              } else {
-                linkTypeAnalysis.custom++;
-              }
-            } else {
-              linkTypeAnalysis.unnamed++;
-            }
-
-            // Analyze URL patterns for common services using proper hostname validation
-            try {
-              const url = new URL(link.url);
-              const hostname = url.hostname.toLowerCase();
-
-              if (hostname === 'github.com' || hostname.endsWith('.github.com')) {
-                console.log(`  GitHub link detected: ${link.name || 'unnamed'}`);
-              } else if (hostname === 'gitlab.com' || hostname.endsWith('.gitlab.com')) {
-                console.log(`  GitLab link detected: ${link.name || 'unnamed'}`);
-              } else if (hostname === 'bitbucket.org' || hostname.endsWith('.bitbucket.org')) {
-                console.log(`  Bitbucket link detected: ${link.name || 'unnamed'}`);
-              } else if (
-                hostname.includes('jenkins') ||
-                hostname === 'travis-ci.org' ||
-                hostname === 'travis-ci.com' ||
-                hostname === 'circleci.com' ||
-                hostname.endsWith('.circleci.com')
-              ) {
-                console.log(`  CI/CD link detected: ${link.name || 'unnamed'}`);
-              }
-            } catch {
-              // Invalid URL, skip analysis
-              console.log(`  ⚠ Could not analyze URL: ${link.url}`);
-            }
+            updateLinkTypeAnalysis(link, linkTypeAnalysis);
+            analyzeLinkUrl(link);
           });
 
           console.log(`✓ Link type analysis completed`);

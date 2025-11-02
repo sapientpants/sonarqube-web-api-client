@@ -97,11 +97,36 @@ export class RulesClient extends BaseClient {
    * @requires Administer Quality Profiles permission
    */
   async update(params: UpdateRuleRequest): Promise<UpdateRuleResponse> {
+    const body = this.buildUpdateRuleBody(params);
+
+    return this.request<UpdateRuleResponse>('/api/rules/update', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  /**
+   * Build request body for rule update
+   * @private
+   */
+  private buildUpdateRuleBody(params: UpdateRuleRequest): Record<string, string> {
     const body: Record<string, string> = {
       key: params.key,
       organization: params.organization,
     };
 
+    this.addOptionalUpdateFields(body, params);
+    this.addOptionalRemediationFields(body, params);
+    this.addOptionalMetadataFields(body, params);
+
+    return body;
+  }
+
+  /**
+   * Add optional update fields to body
+   * @private
+   */
+  private addOptionalUpdateFields(body: Record<string, string>, params: UpdateRuleRequest): void {
     if (params.markdown_description !== undefined) {
       body['markdown_description'] = params.markdown_description;
     }
@@ -114,6 +139,16 @@ export class RulesClient extends BaseClient {
     if (params.params !== undefined) {
       body['params'] = params.params;
     }
+  }
+
+  /**
+   * Add optional remediation fields to body
+   * @private
+   */
+  private addOptionalRemediationFields(
+    body: Record<string, string>,
+    params: UpdateRuleRequest,
+  ): void {
     if (params.remediation_fn_base_effort !== undefined) {
       body['remediation_fn_base_effort'] = params.remediation_fn_base_effort;
     }
@@ -123,6 +158,13 @@ export class RulesClient extends BaseClient {
     if (params.remediation_fy_gap_multiplier !== undefined) {
       body['remediation_fy_gap_multiplier'] = params.remediation_fy_gap_multiplier;
     }
+  }
+
+  /**
+   * Add optional metadata fields to body
+   * @private
+   */
+  private addOptionalMetadataFields(body: Record<string, string>, params: UpdateRuleRequest): void {
     if (params.severity !== undefined) {
       body['severity'] = params.severity;
     }
@@ -132,11 +174,6 @@ export class RulesClient extends BaseClient {
     if (params.tags !== undefined) {
       body['tags'] = params.tags;
     }
-
-    return this.request<UpdateRuleResponse>('/api/rules/update', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
   }
 
   /**
@@ -168,19 +205,34 @@ export class RulesClient extends BaseClient {
 
     // Add parameters to search params
     for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null) {
-        if (arrayParams.has(key as keyof SearchRulesRequest) && Array.isArray(value)) {
-          if (value.length > 0) {
-            searchParams.append(key, value.join(','));
-          }
-        } else if (typeof value === 'boolean') {
-          searchParams.append(key, value.toString());
-        } else if (typeof value === 'number' || typeof value === 'string') {
-          searchParams.append(key, value.toString());
-        }
+      if (value === undefined || value === null) {
+        continue;
       }
+
+      this.appendSearchParam(searchParams, key, value, arrayParams);
     }
 
     return this.request<SearchRulesResponse>(`/api/rules/search?${searchParams.toString()}`);
+  }
+
+  /**
+   * Append a search parameter based on its type
+   * @private
+   */
+  private appendSearchParam(
+    searchParams: URLSearchParams,
+    key: string,
+    value: unknown,
+    arrayParams: Set<keyof SearchRulesRequest>,
+  ): void {
+    if (arrayParams.has(key as keyof SearchRulesRequest) && Array.isArray(value)) {
+      if (value.length > 0) {
+        searchParams.append(key, value.join(','));
+      }
+    } else if (typeof value === 'boolean') {
+      searchParams.append(key, value.toString());
+    } else if (typeof value === 'number' || typeof value === 'string') {
+      searchParams.append(key, value.toString());
+    }
   }
 }

@@ -9,6 +9,7 @@ import type {
   DownloadProgress,
 } from '../../../../src/resources/sca/types.js';
 
+/* eslint-disable max-lines-per-function */
 describe('ScaClient', () => {
   const baseUrl = 'http://localhost:9000';
   const token = 'test-token';

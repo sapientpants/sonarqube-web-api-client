@@ -2,6 +2,9 @@ import { BaseClient } from '../../core/BaseClient.js';
 import type { DeleteBranchParams, RenameMainBranchParams } from './types.js';
 import { ProjectBranchesListBuilder } from './builders.js';
 
+// Constants
+const CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
 /**
  * Client for interacting with the SonarQube Project Branches API.
  */
@@ -66,7 +69,7 @@ export class ProjectBranchesClient extends BaseClient {
       method: 'POST',
       body: formData.toString(),
       headers: {
-        ['Content-Type']: 'application/x-www-form-urlencoded',
+        ['Content-Type']: CONTENT_TYPE_FORM_URLENCODED,
       },
     });
   }
@@ -96,7 +99,7 @@ export class ProjectBranchesClient extends BaseClient {
       method: 'POST',
       body: formData.toString(),
       headers: {
-        ['Content-Type']: 'application/x-www-form-urlencoded',
+        ['Content-Type']: CONTENT_TYPE_FORM_URLENCODED,
       },
     });
   }

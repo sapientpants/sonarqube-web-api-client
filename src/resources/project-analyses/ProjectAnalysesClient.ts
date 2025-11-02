@@ -14,6 +14,10 @@ import type {
   UpdateEventResponse,
 } from './types.js';
 
+// Constants
+const ERROR_VERSION_OTHER_ONLY = "Only events of category 'VERSION' and 'OTHER' can be created";
+const ERROR_NAME_MAX_LENGTH = 'Event name cannot exceed 400 characters';
+
 /**
  * Client for interacting with the SonarQube Project Analyses API.
  * Provides methods for managing project analyses and their events.
@@ -48,12 +52,12 @@ export class ProjectAnalysesClient extends BaseClient {
   async createEvent(params: CreateEventRequest): Promise<CreateEventResponse> {
     // Validate name length
     if (params.name.length > 400) {
-      throw new ValidationError('Event name cannot exceed 400 characters');
+      throw new ValidationError(ERROR_NAME_MAX_LENGTH);
     }
 
     // Validate category if provided
     if (params.category && !['VERSION', 'OTHER'].includes(params.category)) {
-      throw new ValidationError("Only events of category 'VERSION' and 'OTHER' can be created");
+      throw new ValidationError(ERROR_VERSION_OTHER_ONLY);
     }
 
     const body: Record<string, string> = {
@@ -286,7 +290,7 @@ export class ProjectAnalysesClient extends BaseClient {
   async updateEvent(params: UpdateEventRequest): Promise<UpdateEventResponse> {
     // Validate name length
     if (params.name.length > 400) {
-      throw new ValidationError('Event name cannot exceed 400 characters');
+      throw new ValidationError(ERROR_NAME_MAX_LENGTH);
     }
 
     return this.request<UpdateEventResponse>('/api/project_analyses/update_event', {

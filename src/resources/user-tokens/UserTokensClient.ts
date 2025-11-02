@@ -7,6 +7,9 @@ import type {
   SearchTokensResponse,
 } from './types.js';
 
+// Constants
+const CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
 /**
  * Client for managing user access tokens
  */
@@ -40,7 +43,7 @@ export class UserTokensClient extends BaseClient {
       method: 'POST',
       body: body.toString(),
       headers: {
-        ['Content-Type']: 'application/x-www-form-urlencoded',
+        ['Content-Type']: CONTENT_TYPE_FORM_URLENCODED,
       },
     });
   }
@@ -74,7 +77,7 @@ export class UserTokensClient extends BaseClient {
       method: 'POST',
       body: body.toString(),
       headers: {
-        ['Content-Type']: 'application/x-www-form-urlencoded',
+        ['Content-Type']: CONTENT_TYPE_FORM_URLENCODED,
       },
     });
   }

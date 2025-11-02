@@ -26,36 +26,88 @@ export class MetricsClient extends BaseClient {
    * ```
    */
   async search(params?: SearchMetricsParams): Promise<SearchMetricsResponse> {
-    // Validate pagination parameters
-    if (params?.ps !== undefined) {
-      if (params.ps < 1 || params.ps > 500) {
-        throw new Error('Page size must be between 1 and 500');
-      }
-    }
-
-    const searchParams = new URLSearchParams();
-
-    if (params?.f !== undefined) {
-      if (Array.isArray(params.f)) {
-        searchParams.append('f', params.f.join(','));
-      } else {
-        searchParams.append('f', params.f);
-      }
-    }
-    if (params?.isCustom !== undefined) {
-      searchParams.append('isCustom', String(params.isCustom));
-    }
-    if (params?.p !== undefined) {
-      searchParams.append('p', String(params.p));
-    }
-    if (params?.ps !== undefined) {
-      searchParams.append('ps', String(params.ps));
-    }
-
+    this.validatePageSize(params?.ps);
+    const searchParams = this.buildSearchParams(params);
     const query = searchParams.toString();
     return await this.request<SearchMetricsResponse>(
       query ? `/api/metrics/search?${query}` : '/api/metrics/search',
     );
+  }
+
+  /**
+   * Validate page size parameter
+   * @private
+   */
+  private validatePageSize(pageSize: number | undefined): void {
+    if (pageSize !== undefined && (pageSize < 1 || pageSize > 500)) {
+      throw new Error('Page size must be between 1 and 500');
+    }
+  }
+
+  /**
+   * Build search parameters
+   * @private
+   */
+  private buildSearchParams(params?: SearchMetricsParams): URLSearchParams {
+    const searchParams = new URLSearchParams();
+
+    this.appendFieldsParam(searchParams, params?.f);
+    this.appendBooleanParam(searchParams, 'isCustom', params?.isCustom);
+    this.appendNumberParam(searchParams, 'p', params?.p);
+    this.appendNumberParam(searchParams, 'ps', params?.ps);
+
+    return searchParams;
+  }
+
+  /**
+   * Append fields parameter
+   * @private
+   */
+  private appendFieldsParam(
+    searchParams: URLSearchParams,
+    fields: string | string[] | undefined,
+  ): void {
+    if (fields !== undefined) {
+      searchParams.append('f', Array.isArray(fields) ? fields.join(',') : fields);
+    }
+  }
+
+  /**
+   * Append boolean parameter
+   * @private
+   */
+  private appendBooleanParam(
+    searchParams: URLSearchParams,
+    key: string,
+    value: boolean | undefined,
+  ): void {
+    this.appendScalarParam(searchParams, key, value);
+  }
+
+  /**
+   * Append number parameter
+   * @private
+   */
+  private appendNumberParam(
+    searchParams: URLSearchParams,
+    key: string,
+    value: number | undefined,
+  ): void {
+    this.appendScalarParam(searchParams, key, value);
+  }
+
+  /**
+   * Append scalar parameter (number or boolean)
+   * @private
+   */
+  private appendScalarParam(
+    searchParams: URLSearchParams,
+    key: string,
+    value: number | boolean | undefined,
+  ): void {
+    if (value !== undefined) {
+      searchParams.append(key, String(value));
+    }
   }
 
   /**

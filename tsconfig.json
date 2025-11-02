@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "NodeNext",
     "lib": ["ES2022"],
-    "types": ["vitest/globals"],
+    "types": ["node"],
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",

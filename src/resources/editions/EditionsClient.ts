@@ -73,7 +73,9 @@ export class EditionsClient extends BaseClient {
    * await client.editions.activateGracePeriod();
    * ```
    */
-  async activateGracePeriod(_request: ActivateGracePeriodRequest = {}): Promise<undefined> {
+  async activateGracePeriod(request: ActivateGracePeriodRequest = {}): Promise<undefined> {
+    // Explicitly acknowledge unused parameter for future API expansion
+    void request;
     return this.request<undefined>('/api/editions/activate_grace_period', {
       method: 'POST',
     });

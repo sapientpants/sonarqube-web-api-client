@@ -8,6 +8,9 @@ import type {
   SearchProjectLinksResponse,
 } from './types.js';
 
+// Constants
+const ERROR_PROJECT_ID_OR_KEY_REQUIRED = 'Either projectId or projectKey must be provided';
+
 /**
  * Client for managing project links in SonarQube
  * @since 6.1
@@ -37,7 +40,7 @@ export class ProjectLinksClient extends BaseClient {
    */
   async create(request: CreateProjectLinkRequest): Promise<CreateProjectLinkResponse> {
     if (request.projectId === undefined && request.projectKey === undefined) {
-      throw new Error('Either projectId or projectKey must be provided');
+      throw new Error(ERROR_PROJECT_ID_OR_KEY_REQUIRED);
     }
 
     return this.request<CreateProjectLinkResponse>('/api/project_links/create', {
@@ -102,7 +105,7 @@ export class ProjectLinksClient extends BaseClient {
   search(): ProjectLinksSearchBuilder {
     return new ProjectLinksSearchBuilder(async (request: SearchProjectLinksRequest) => {
       if (request.projectId === undefined && request.projectKey === undefined) {
-        throw new Error('Either projectId or projectKey must be provided');
+        throw new Error(ERROR_PROJECT_ID_OR_KEY_REQUIRED);
       }
 
       const params = new URLSearchParams();
@@ -129,7 +132,7 @@ export class ProjectLinksClient extends BaseClient {
    */
   async searchDirect(request: SearchProjectLinksRequest): Promise<SearchProjectLinksResponse> {
     if (request.projectId === undefined && request.projectKey === undefined) {
-      throw new Error('Either projectId or projectKey must be provided');
+      throw new Error(ERROR_PROJECT_ID_OR_KEY_REQUIRED);
     }
 
     const params = new URLSearchParams();

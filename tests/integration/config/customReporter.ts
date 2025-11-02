@@ -158,95 +158,114 @@ export default class IntegrationTestReporter {
   private isExpected404Failure(test: TestCaseResult): boolean {
     const failureMessage = test.failureMessages?.join(' ') || '';
 
-    // Check for tests designed to handle invalid/non-existent resources gracefully
-    const isGracefulHandlingTest =
+    if (this.isGracefulHandlingTest(test)) {
+      return true;
+    }
+
+    if (!this.is404Error(failureMessage)) {
+      return false;
+    }
+
+    if (this.isV2ApiTest(test, failureMessage)) {
+      return this.isExpectedV2ApiFailure(test, failureMessage);
+    }
+
+    if (this.isEnterpriseApiTest(test, failureMessage)) {
+      return !this.instanceContext?.supportsEnterpriseFeatures;
+    }
+
+    if (this.isEditionsApiTest(test, failureMessage)) {
+      return true;
+    }
+
+    return this.isGenericApiAvailabilityTest(test, failureMessage);
+  }
+
+  private isGracefulHandlingTest(test: TestCaseResult): boolean {
+    return (
       test.title.includes('handle invalid') ||
       test.title.includes('gracefully') ||
       test.title.includes('permission errors') ||
       test.title.includes('permission restrictions') ||
-      test.title.includes('restricted');
+      test.title.includes('restricted')
+    );
+  }
 
-    // Check for 404 errors which are expected for missing API endpoints or invalid resources
-    const is404Error =
+  private is404Error(failureMessage: string): boolean {
+    return (
       failureMessage.includes('404') ||
       failureMessage.includes('Not Found') ||
       failureMessage.includes('NotFoundError') ||
       failureMessage.includes('does not exist') ||
       failureMessage.includes('not found') ||
-      failureMessage.includes('API not available');
+      failureMessage.includes('API not available')
+    );
+  }
 
-    // If it's a graceful handling test, it's expected regardless of the error type
-    if (isGracefulHandlingTest) {
-      return true;
-    }
+  private isV2ApiTest(test: TestCaseResult, failureMessage: string): boolean {
+    return test.title.includes('v2') || failureMessage.includes('/api/v2/');
+  }
 
-    if (!is404Error) {
+  private isExpectedV2ApiFailure(test: TestCaseResult, failureMessage: string): boolean {
+    if (this.isSystemV2Endpoint(test, failureMessage)) {
+      // These should work in SonarQube 10.3+ - if they fail, it's unexpected
       return false;
     }
 
-    // Context-aware classification based on instance characteristics
-    const context = this.instanceContext;
-
-    // V2 API failures - handle specific cases based on version requirements
-    if (test.title.includes('v2') || failureMessage.includes('/api/v2/')) {
-      const context = this.instanceContext;
-
-      // System v2 endpoints that should be available in recent versions
-      if (
-        failureMessage.includes('/api/v2/system/health') ||
-        failureMessage.includes('/api/v2/system/liveness') ||
-        failureMessage.includes('/api/v2/system/migrations-status') ||
-        test.title.includes('v2 system health') ||
-        test.title.includes('v2 system liveness') ||
-        test.title.includes('v2 system migrations')
-      ) {
-        // These should work in SonarQube 10.3+ - if they fail, it's unexpected
-        return false; // Treat as real failure for investigation
-      }
-
-      // Users Management v2 API - check if this is really implemented
-      if (
-        failureMessage.includes('/api/v2/users') ||
-        test.title.includes('search users with v2 API') ||
-        test.title.includes('use v2 async iterator') ||
-        test.title.includes('compare v1 and v2 API')
-      ) {
-        // This might not be implemented yet - treat as expected for now
-        return true;
-      }
-
-      // Other v2 endpoints - check version support
-      return !context?.supportsV2Api;
+    if (this.isUsersV2Endpoint(test, failureMessage)) {
+      // This might not be implemented yet - treat as expected for now
+      return true;
     }
 
-    // Enterprise API failures - expected if instance doesn't have enterprise features
-    if (
+    // Other v2 endpoints - check version support
+    return !this.instanceContext?.supportsV2Api;
+  }
+
+  private isSystemV2Endpoint(test: TestCaseResult, failureMessage: string): boolean {
+    return (
+      failureMessage.includes('/api/v2/system/health') ||
+      failureMessage.includes('/api/v2/system/liveness') ||
+      failureMessage.includes('/api/v2/system/migrations-status') ||
+      test.title.includes('v2 system health') ||
+      test.title.includes('v2 system liveness') ||
+      test.title.includes('v2 system migrations')
+    );
+  }
+
+  private isUsersV2Endpoint(test: TestCaseResult, failureMessage: string): boolean {
+    return (
+      failureMessage.includes('/api/v2/users') ||
+      test.title.includes('search users with v2 API') ||
+      test.title.includes('use v2 async iterator') ||
+      test.title.includes('compare v1 and v2 API')
+    );
+  }
+
+  private isEnterpriseApiTest(test: TestCaseResult, failureMessage: string): boolean {
+    return (
       test.title.includes('license usage') ||
       test.title.includes('AI code') ||
       failureMessage.includes('/api/projects/license_usage') ||
       failureMessage.includes('/api/projects/get_contains_ai_code')
-    ) {
-      return !context?.supportsEnterpriseFeatures;
-    }
+    );
+  }
 
-    // Editions API failures - expected in Community Edition
-    if (
+  private isEditionsApiTest(test: TestCaseResult, failureMessage: string): boolean {
+    return (
       failureMessage.includes('/api/editions/status') ||
       failureMessage.includes('Unknown url : /api/editions/status') ||
       test.title.includes('edition') ||
       test.title.includes('license')
-    ) {
-      return true;
-    }
+    );
+  }
 
-    // Generic API availability test - use fallback pattern matching
-    const isApiAvailabilityTest =
+  private isGenericApiAvailabilityTest(test: TestCaseResult, failureMessage: string): boolean {
+    return (
       test.title.includes('API') ||
       failureMessage.includes('Skipping') ||
       failureMessage.includes('not available') ||
-      failureMessage.includes('Unknown url');
-
-    return isApiAvailabilityTest;
+      failureMessage.includes('Unknown url')
+    );
   }
 
   private isExpectedEnterpriseFailure(test: TestCaseResult): boolean {

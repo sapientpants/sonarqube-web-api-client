@@ -61,18 +61,13 @@ export class CleanCodePolicyClient extends BaseClient {
     request: CreateCustomRuleV2Request,
   ): Promise<CreateCustomRuleV2Response> {
     try {
-      const response = await this.request<CreateCustomRuleV2Response>(
-        '/api/v2/clean-code-policy/rules',
-        {
-          method: 'POST',
-          headers: {
-            contentType: 'application/json',
-          },
-          body: JSON.stringify(request),
+      return await this.request<CreateCustomRuleV2Response>('/api/v2/clean-code-policy/rules', {
+        method: 'POST',
+        headers: {
+          contentType: 'application/json',
         },
-      );
-
-      return response;
+        body: JSON.stringify(request),
+      });
     } catch (error) {
       throw this.handleCleanCodePolicyError(error);
     }
@@ -408,20 +403,21 @@ export class CleanCodePolicyClient extends BaseClient {
         const result = await this.createCustomRuleV2(rule);
         imported.push(result);
       } catch (error) {
-        this.handleRuleImportError(error, rule, skipExisting, skipped, failed);
+        this.handleRuleImportError({ error, rule, skipExisting, skipped, failed });
       }
     }
 
     return { imported, skipped, failed };
   }
 
-  private handleRuleImportError(
-    error: unknown,
-    rule: CreateCustomRuleV2Request,
-    skipExisting: boolean | undefined,
-    skipped: string[],
-    failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>,
-  ): void {
+  private handleRuleImportError(params: {
+    error: unknown;
+    rule: CreateCustomRuleV2Request;
+    skipExisting: boolean | undefined;
+    skipped: string[];
+    failed: Array<{ rule: CreateCustomRuleV2Request; error: Error }>;
+  }): void {
+    const { error, rule, skipExisting, skipped, failed } = params;
     const err = error as Error & { code?: string };
     const shouldSkipExisting =
       skipExisting === true && err.code === (CleanCodePolicyErrorCode.RuleKeyExists as string);
@@ -480,8 +476,13 @@ export class CleanCodePolicyClient extends BaseClient {
     return error;
   }
 
+  private static readonly ALREADY_EXISTS_ERROR = 'already exists';
+
   private isRuleKeyExistsError(message: string, errorStr: string): boolean {
-    return message.includes('already exists') || errorStr.includes('already exists');
+    return (
+      message.includes(CleanCodePolicyClient.ALREADY_EXISTS_ERROR) ||
+      errorStr.includes(CleanCodePolicyClient.ALREADY_EXISTS_ERROR)
+    );
   }
 
   private isTemplateNotFoundError(message: string, errorStr: string): boolean {

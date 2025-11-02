@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  tar: '>=7.5.2'
+
 importers:
 
   .:
@@ -2959,8 +2962,8 @@ packages:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
 
-  node-abi@3.78.0:
-    resolution: {integrity: sha512-E2wEyrgX/CqvicaQYU3Ze1PFGjc4QYPGsjUrlYkqAE0WjHEZwgOsGMPMzkMse4LjJbDmaEuDX3CM036j5K2DSQ==}
+  node-abi@3.80.0:
+    resolution: {integrity: sha512-LyPuZJcI9HVwzXK1GPxWNzrr+vr8Hp/3UqlmWxxh8p54U1ZbclOqbSog9lWHaCX+dBaiGi6n/hIX+mKu74GmPA==}
     engines: {node: '>=10'}
 
   node-addon-api@8.5.0:
@@ -3854,8 +3857,8 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
-  tar@7.5.1:
-    resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
+  tar@7.5.2:
+    resolution: {integrity: sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==}
     engines: {node: '>=18'}
 
   term-size@2.2.1:
@@ -4728,7 +4731,7 @@ snapshots:
       semver: 7.7.3
       ssri: 12.0.0
       table: 6.9.0
-      tar: 7.5.1
+      tar: 7.5.2
       treeverse: 3.0.0
       uuid: 11.1.0
       walk-up-path: 4.0.0
@@ -5719,7 +5722,7 @@ snapshots:
       minipass-pipeline: 1.2.4
       p-map: 7.0.3
       ssri: 12.0.0
-      tar: 7.5.1
+      tar: 7.5.2
       unique-filename: 4.0.0
     optional: true
 
@@ -7593,7 +7596,7 @@ snapshots:
   negotiator@1.0.0:
     optional: true
 
-  node-abi@3.78.0:
+  node-abi@3.80.0:
     dependencies:
       semver: 7.7.3
     optional: true
@@ -7616,7 +7619,7 @@ snapshots:
       nopt: 8.1.0
       proc-log: 5.0.0
       semver: 7.7.3
-      tar: 7.5.1
+      tar: 7.5.2
       tinyglobby: 0.2.15
       which: 5.0.0
     transitivePeerDependencies:
@@ -7928,7 +7931,7 @@ snapshots:
       minimist: 1.2.8
       mkdirp-classic: 0.5.3
       napi-build-utils: 2.0.0
-      node-abi: 3.78.0
+      node-abi: 3.80.0
       pump: 3.0.3
       rc: 1.2.8
       simple-get: 4.0.1
@@ -8550,7 +8553,7 @@ snapshots:
       readable-stream: 3.6.2
     optional: true
 
-  tar@7.5.1:
+  tar@7.5.2:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
